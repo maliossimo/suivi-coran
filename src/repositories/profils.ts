@@ -47,3 +47,63 @@ export async function profilConnecte(): Promise<Profil | null> {
     actif: p.actif,
   };
 }
+
+const schemaEleve = z.array(
+  z.object({
+    id: z.string().uuid(),
+    prenom: z.string(),
+    nom: z.string(),
+    actif: z.boolean(),
+    etablissement_id: z.string().uuid().nullable(),
+  }),
+);
+
+export interface EleveListe {
+  id: string;
+  prenom: string;
+  nom: string;
+  actif: boolean;
+  etablissementId: string | null;
+}
+
+/** Élèves visibles par la personne connectée (RLS : ceux de son établissement, ou tous pour l'admin). */
+export async function listerEleves(): Promise<EleveListe[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("profils")
+    .select("id, prenom, nom, actif, etablissement_id")
+    .eq("role", "eleve")
+    .order("nom");
+  if (error) throw new Error(`Lecture des élèves impossible : ${error.message}`);
+  return schemaEleve.parse(data).map((e) => ({
+    id: e.id,
+    prenom: e.prenom,
+    nom: e.nom,
+    actif: e.actif,
+    etablissementId: e.etablissement_id,
+  }));
+}
+
+/** Un élève visible par la personne connectée, ou null. */
+export async function eleveParId(id: string): Promise<EleveListe | null> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("profils")
+    .select("id, prenom, nom, actif, etablissement_id")
+    .eq("role", "eleve")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`Lecture de l'élève impossible : ${error.message}`);
+  if (!data) return null;
+  const [e] = schemaEleve.parse([data]);
+  return e
+    ? { id: e.id, prenom: e.prenom, nom: e.nom, actif: e.actif, etablissementId: e.etablissement_id }
+    : null;
+}
+
+/** Archive ou réactive un élève (RLS + trigger : son maître ou l'admin). */
+export async function definirActif(id: string, actif: boolean): Promise<void> {
+  const supabase = await creerClientServeur();
+  const { error } = await supabase.from("profils").update({ actif }).eq("id", id);
+  if (error) throw new Error(`Mise à jour impossible : ${error.message}`);
+}

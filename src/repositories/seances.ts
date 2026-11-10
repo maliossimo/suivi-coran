@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import type { DateISO } from "@/domain/calendrier";
+import type { SeanceStat } from "@/domain/classe";
 import type { Seance, TypeSeance } from "@/domain/fiche";
 import type { Passage } from "@/domain/versets";
 import { creerClientServeur } from "@/lib/supabase/server";
@@ -113,4 +114,45 @@ export async function supprimerSeance(eleveId: string, type: TypeSeance, date: D
     .eq("type", type)
     .eq("date", date);
   if (error) throw new Error(`Suppression impossible : ${error.message}`);
+}
+
+const schemaStat = z.array(
+  z.object({
+    eleve_id: z.string().uuid(),
+    type: z.enum(["apprentissage", "revision"]),
+    date: z.string(),
+    duree_min: z.number().int(),
+  }),
+);
+
+/** Séances (sans détail) de tous les élèves visibles entre deux dates. */
+export async function statsSeancesEntre(debut: DateISO, fin: DateISO): Promise<SeanceStat[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("seances")
+    .select("eleve_id, type, date, duree_min")
+    .gte("date", debut)
+    .lte("date", fin)
+    .limit(10000);
+  if (error) throw new Error(`Lecture des statistiques impossible : ${error.message}`);
+  return schemaStat
+    .parse(data)
+    .map((s) => ({ eleveId: s.eleve_id, type: s.type, date: s.date, dureeMin: s.duree_min }));
+}
+
+/** Date de la dernière séance de chaque élève visible (depuis une date donnée). */
+export async function dernieresSaisies(depuis: DateISO): Promise<Map<string, DateISO>> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("seances")
+    .select("eleve_id, date")
+    .gte("date", depuis)
+    .order("date", { ascending: false })
+    .limit(10000);
+  if (error) throw new Error(`Lecture des dernières saisies impossible : ${error.message}`);
+  const resultat = new Map<string, DateISO>();
+  for (const s of z.array(z.object({ eleve_id: z.string(), date: z.string() })).parse(data)) {
+    if (!resultat.has(s.eleve_id)) resultat.set(s.eleve_id, s.date);
+  }
+  return resultat;
 }
