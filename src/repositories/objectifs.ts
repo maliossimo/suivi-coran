@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import type { NumeroSemaine } from "@/domain/calendrier";
+import type { ObjectifStat } from "@/domain/classe";
 import type { Objectif, StatutObjectif, TypeSeance } from "@/domain/fiche";
 import { creerClientServeur } from "@/lib/supabase/server";
 
@@ -52,4 +53,47 @@ export async function enregistrerObjectif(eleveId: string, saisie: SaisieObjecti
     { onConflict: "eleve_id,type,mois,semaine" },
   );
   if (error) throw new Error(`Enregistrement de l'objectif impossible : ${error.message}`);
+}
+
+/** Statuts des objectifs de tous les élèves visibles pour un mois (AAAA-MM-01). */
+export async function statutsObjectifsDuMois(mois: string): Promise<ObjectifStat[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.from("objectifs").select("eleve_id, statut").eq("mois", mois);
+  if (error) throw new Error(`Lecture des objectifs impossible : ${error.message}`);
+  return z
+    .array(z.object({ eleve_id: z.string().uuid(), statut: z.enum(["en_cours", "atteint", "non_atteint"]) }))
+    .parse(data)
+    .map((o) => ({ eleveId: o.eleve_id, statut: o.statut }));
+}
+
+/** Objectifs d'un élève (tous types) entre deux mois inclus (AAAA-MM-01). */
+export async function objectifsEntre(
+  eleveId: string,
+  debut: string,
+  fin: string,
+): Promise<(Objectif & { mois: string })[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("objectifs")
+    .select("mois, semaine, description, statut")
+    .eq("eleve_id", eleveId)
+    .gte("mois", debut)
+    .lte("mois", fin);
+  if (error) throw new Error(`Lecture des objectifs impossible : ${error.message}`);
+  return z
+    .array(
+      z.object({
+        mois: z.string(),
+        semaine: z.number().int().min(1).max(5).nullable(),
+        description: z.string(),
+        statut: z.enum(["en_cours", "atteint", "non_atteint"]),
+      }),
+    )
+    .parse(data)
+    .map((o) => ({
+      mois: o.mois,
+      semaine: o.semaine as NumeroSemaine | null,
+      description: o.description,
+      statut: o.statut,
+    }));
 }
