@@ -5,16 +5,26 @@ import {
   construireFiche,
   dernierJour,
   lireMois,
+  positionDuMois,
   premierJour,
+  type Bilan,
   type Mois,
+  type PositionMois,
   type Objectif,
   type Seance,
   type SemaineFiche,
   type StatutObjectif,
   type TypeSeance,
 } from "@/domain/fiche";
-import { creerReferentiel, versIntervalle, type Passage, type Sourate } from "@/domain/versets";
-import { commentairesDeSeance, type Commentaire } from "@/repositories/commentaires";
+import {
+  creerReferentiel,
+  nbVersetsDistincts,
+  versIntervalle,
+  type Passage,
+  type Sourate,
+} from "@/domain/versets";
+import { bilanDuMois, enregistrerBilan } from "@/repositories/bilans";
+import { commentairesDe, commentairesDeSeance, type Commentaire } from "@/repositories/commentaires";
 import { enregistrerObjectif, objectifsDuMois } from "@/repositories/objectifs";
 import { enregistrerSeance, seanceDuJour, seancesEntre, supprimerSeance } from "@/repositories/seances";
 import { listerSourates } from "@/repositories/sourates";
@@ -30,31 +40,50 @@ export function lireType(valeur: string | undefined): TypeSeance {
 
 export interface Fiche {
   mois: Mois;
+  /** Mois en cours (à Paris), pour la navigation rapide. */
+  moisCourant: Mois;
+  /** Passé, en cours ou à venir : un mois à venir sert à préparer ses objectifs. */
+  position: PositionMois;
   type: TypeSeance;
   semaines: SemaineFiche[];
   objectifMensuel: Objectif | null;
   totalMinutes: number;
   joursTravailles: number;
+  /** Versets distincts travaillés dans le mois (tous passages confondus). */
+  versetsTravailles: number;
+  bilan: Bilan | null;
+  commentairesBilan: Commentaire[];
   sourates: Sourate[];
 }
 
 export async function chargerFiche(eleveId: string, moisParam?: string, typeParam?: string): Promise<Fiche> {
   const aujourdhui = aujourdhuiParis();
   const mois = lireMois(moisParam, aujourdhui);
+  const position = positionDuMois(mois, aujourdhui);
   const type = lireType(typeParam);
-  const [seances, objectifs, sourates] = await Promise.all([
-    seancesEntre(eleveId, type, premierJour(mois), dernierJour(mois)),
+  const [seances, objectifs, sourates, bilan] = await Promise.all([
+    position === "futur" ? [] : seancesEntre(eleveId, type, premierJour(mois), dernierJour(mois)),
     objectifsDuMois(eleveId, type, premierJour(mois)),
     listerSourates(),
+    position === "futur" ? null : bilanDuMois(eleveId, type, premierJour(mois)),
   ]);
+  const commentairesBilan = bilan ? await commentairesDe({ bilanId: bilan.id }) : [];
   const semaines = construireFiche(mois, seances, objectifs, aujourdhui);
   return {
     mois,
+    moisCourant: lireMois(undefined, aujourdhui),
+    position,
     type,
     semaines,
     objectifMensuel: objectifs.find((o) => o.semaine === null) ?? null,
     totalMinutes: semaines.reduce((t, s) => t + s.totalMinutes, 0),
     joursTravailles: semaines.reduce((t, s) => t + s.joursTravailles, 0),
+    versetsTravailles: nbVersetsDistincts(
+      creerReferentiel(sourates),
+      seances.flatMap((s) => s.passages),
+    ),
+    bilan,
+    commentairesBilan,
     sourates,
   };
 }
@@ -165,5 +194,28 @@ export async function enregistrerObjectifEleve(eleveId: string, brut: unknown): 
     description,
     statut: statut as StatutObjectif,
   });
+  return { ok: true };
+}
+
+// ---------- Bilan du mois ------------------------------------------------
+
+const schemaBilan = z.object({
+  type: z.enum(["apprentissage", "revision"]),
+  mois: z.string().regex(/^\d{4}-\d{2}-01$/),
+  bienMemorise: z.string().trim().max(1000),
+  aRenforcer: z.string().trim().max(1000),
+});
+
+export async function enregistrerBilanEleve(eleveId: string, brut: unknown): Promise<ResultatSaisie> {
+  const saisie = schemaBilan.safeParse(brut);
+  if (!saisie.success) return { ok: false, erreur: "Bilan invalide (1000 caractères maximum par champ)." };
+  const { type, mois, bienMemorise, aRenforcer } = saisie.data;
+  if (mois > debutDuMois(aujourdhuiParis())) {
+    return { ok: false, erreur: "Le bilan s'écrit pendant ou après le mois, pas à l'avance." };
+  }
+  if (!bienMemorise && !aRenforcer) {
+    return { ok: false, erreur: "Écris au moins ce qui est bien mémorisé ou ce qui est à renforcer." };
+  }
+  await enregistrerBilan(eleveId, { type, mois: debutDuMois(mois), bienMemorise, aRenforcer });
   return { ok: true };
 }

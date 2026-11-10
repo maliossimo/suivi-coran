@@ -171,5 +171,40 @@ select pg_temp.attendu(
   not exists (select 1 from public.seances where date = '2026-11-03' and eleve_id = 'a0000000-0000-0000-0000-000000000001'),
   'enregistrer_seance : en cas d''erreur, la séance n''est pas créée (transaction)');
 
+-- ---------- Bilan du mois ---------------------------------------------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+insert into public.bilans_mensuels (id, eleve_id, type, mois, bien_memorise, a_renforcer) values
+  ('b1000000-0000-0000-0000-0000000000a1', 'a0000000-0000-0000-0000-000000000001', 'apprentissage',
+   '2026-11-01', 'Al-Mulk 1-15', 'Les madd');
+select pg_temp.attendu(
+  (select modifie_par is null from public.bilans_mensuels where id = 'b1000000-0000-0000-0000-0000000000a1'),
+  'bilan : l''élève écrit son propre bilan');
+select pg_temp.doit_echouer(
+  $q$insert into public.bilans_mensuels (eleve_id, type, mois, bien_memorise) values ('a0000000-0000-0000-0000-000000000001', 'apprentissage', '2026-11-01', 'doublon')$q$,
+  'bilan : un seul bilan par élève, par mois et par type');
+select pg_temp.doit_echouer(
+  $q$insert into public.bilans_mensuels (eleve_id, type, mois, bien_memorise) values ('b0000000-0000-0000-0000-000000000001', 'apprentissage', '2026-11-01', 'x')$q$,
+  'bilan : un élève ne peut pas écrire le bilan d''un autre');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+update public.bilans_mensuels set a_renforcer = 'Les madd et le idgham'
+  where id = 'b1000000-0000-0000-0000-0000000000a1';
+select pg_temp.attendu(
+  (select modifie_par = 'a0000000-0000-0000-0000-00000000000a' from public.bilans_mensuels
+   where id = 'b1000000-0000-0000-0000-0000000000a1'),
+  'bilan : le maître complète le bilan, la modification est tracée');
+insert into public.commentaires (eleve_id, auteur_id, bilan_id, texte) values
+  ('a0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-00000000000a',
+   'b1000000-0000-0000-0000-0000000000a1', 'Beau mois, continue !');
+select pg_temp.attendu(true, 'bilan : le maître commente le bilan');
+
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.attendu((select count(*) from public.bilans_mensuels) = 0, 'bilan : invisible pour le maître d''une autre école');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu(
+  (select count(*) from public.commentaires where bilan_id is not null) = 1,
+  'bilan : l''élève lit le mot de son maître');
+
 select pg_temp.console();
 rollback;

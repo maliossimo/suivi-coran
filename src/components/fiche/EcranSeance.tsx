@@ -63,7 +63,7 @@ export function EcranSeance({
       ) : null}
 
       {vueMaitre && donnees.seance ? (
-        <FormulaireCommentaire eleveId={eleveId} seanceId={donnees.seance.id} />
+        <FormulaireCommentaire eleveId={eleveId} cible="seance" cibleId={donnees.seance.id} />
       ) : null}
 
       <FormulaireSeance
