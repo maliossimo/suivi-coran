@@ -1,0 +1,39 @@
+# Configuration du Supabase LOCAL (npm run db:start). La production se règle
+# dans le tableau de bord Supabase : voir README, section « Mise en production ».
+project_id = "suivi-coran"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/confirm"]
+jwt_expiry = 3600
+# Inscription libre désactivée : accès sur invitation uniquement.
+enable_signup = false
+
+[auth.email]
+enable_signup = false
+double_confirm_changes = true
+enable_confirmations = false
+
+[auth.email.template.invite]
+subject = "Invitation — Suivi cours Coran"
+content_path = "./supabase/templates/invite.html"
+
+[auth.email.template.recovery]
+subject = "Mot de passe oublié — Suivi cours Coran"
+content_path = "./supabase/templates/recovery.html"
