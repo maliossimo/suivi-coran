@@ -7,7 +7,7 @@ export default async function Page() {
   return (
     <main className="espace">
       <EnteteEspace titre="Administration" nom={`${profil.prenom} ${profil.nom}`.trim()} />
-      <p>Le back-office (utilisateurs, usage, journal d'audit) arrive dans une prochaine PR.</p>
+      <p>Le back-office (utilisateurs, usage, journal d’audit) arrive dans une prochaine PR.</p>
     </main>
   );
 }
