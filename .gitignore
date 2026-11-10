@@ -1,0 +1,25 @@
+# Dépendances
+node_modules/
+
+# Next.js
+.next/
+out/
+*.tsbuildinfo
+
+# Environnement : ne JAMAIS committer de secrets
+.env
+.env.*
+!.env.example
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Tests / outils
+coverage/
+playwright-report/
+test-results/
+
+# Système
+.DS_Store
+*.log
