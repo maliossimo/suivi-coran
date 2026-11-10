@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { z } from "zod";
 import type { Role } from "@/domain/roles";
 import { creerClientServeur } from "@/lib/supabase/server";
@@ -21,8 +22,12 @@ export interface Profil {
   actif: boolean;
 }
 
-/** Profil de la personne connectée, ou null si personne n'est connecté. */
-export async function profilConnecte(): Promise<Profil | null> {
+/**
+ * Profil de la personne connectée, ou null si personne n'est connecté.
+ * Mémorisé le temps d'une requête : la garde d'accès, la page et les actions
+ * partagent la même lecture au lieu d'interroger la base plusieurs fois.
+ */
+export const profilConnecte = cache(async (): Promise<Profil | null> => {
   const supabase = await creerClientServeur();
   const {
     data: { user },
@@ -46,7 +51,7 @@ export async function profilConnecte(): Promise<Profil | null> {
     nom: p.nom,
     actif: p.actif,
   };
-}
+});
 
 const schemaEleve = z.array(
   z.object({
