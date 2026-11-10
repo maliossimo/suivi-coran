@@ -163,14 +163,6 @@ a:hover {
   margin: 0;
   color: var(--texte-doux);
 }
-.auth-note {
-  margin: 0;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: var(--vert-clair);
-  color: #24453a;
-  font-size: 14px;
-}
 
 /* Téléphone : bandeau décoratif en haut, formulaire qui le chevauche. */
 @media (max-width: 860px) {

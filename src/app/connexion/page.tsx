@@ -16,10 +16,6 @@ export default async function PageConnexion({
   return (
     <CadreAuth titre="Connexion" sousTitre="Retrouve ton suivi d'apprentissage et de révision.">
       <FormulaireConnexion erreurInitiale={erreur ? MESSAGES[erreur] : undefined} />
-      <p className="auth-note">
-        Accès sur invitation uniquement. Tu n&apos;as pas reçu d&apos;e-mail ? Demande à ton maître de
-        t&apos;inviter.
-      </p>
     </CadreAuth>
   );
 }
