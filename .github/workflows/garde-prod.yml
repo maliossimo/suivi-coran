@@ -1,0 +1,23 @@
+name: Garde-fou prod
+
+# Le dépôt est privé sur un compte gratuit : GitHub n'applique pas les règles de branche.
+# Ce contrôle échoue si une PR vers prod ne vient pas de main, pour que la mise en
+# production passe toujours par : fonctionnalité → main (testé) → prod.
+on:
+  pull_request:
+    branches: [prod]
+
+permissions:
+  contents: read
+
+jobs:
+  origine:
+    name: La PR vers prod vient de main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vérifier la branche source
+        run: |
+          if [ "${{ github.head_ref }}" != "main" ]; then
+            echo "::error::Une PR vers prod doit partir de main (reçu : ${{ github.head_ref }})."
+            exit 1
+          fi
