@@ -107,6 +107,30 @@ export function lireMois(valeur: string | undefined, aujourdhui: DateISO): Mois 
   return { annee, mois };
 }
 
+/** Situe un mois par rapport à aujourd'hui. */
+export type PositionMois = "passe" | "courant" | "futur";
+
+export function positionDuMois(m: Mois, aujourdhui: DateISO): PositionMois {
+  const courant = cleMois(lireMois(undefined, aujourdhui));
+  const cle = cleMois(m);
+  if (cle === courant) return "courant";
+  return cle < courant ? "passe" : "futur";
+}
+
+/** Mois consécutifs autour d'un mois : `avant` mois avant, `apres` mois après. */
+export function moisAutour(centre: Mois, avant: number, apres: number): Mois[] {
+  return Array.from({ length: avant + apres + 1 }, (_, i) => decalerMois(centre, i - avant));
+}
+
+/** Bilan de fin de mois (un par élève, par mois et par type). */
+export interface Bilan {
+  id: string;
+  bienMemorise: string;
+  aRenforcer: string;
+  /** Vrai si le maître (ou l'admin) a modifié le bilan. */
+  corrige: boolean;
+}
+
 export function decalerMois({ annee, mois }: Mois, delta: number): Mois {
   const index = annee * 12 + (mois - 1) + delta;
   return { annee: Math.floor(index / 12), mois: (index % 12) + 1 };
@@ -157,6 +181,12 @@ const MOIS_COURTS = [
 /** « novembre 2026 » */
 export function libelleMois({ annee, mois }: Mois): string {
   return `${NOMS_MOIS[mois - 1]} ${annee}`;
+}
+
+/** « déc. », avec l'année si elle diffère de `anneeReference` : « janv. 2027 ». */
+export function libelleMoisCourt({ annee, mois }: Mois, anneeReference: number): string {
+  const nom = MOIS_COURTS[mois - 1]!;
+  return annee === anneeReference ? nom : `${nom} ${annee}`;
 }
 
 /** « 10 nov. » */

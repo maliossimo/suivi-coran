@@ -471,6 +471,133 @@ a:hover {
   border-color: var(--vert);
   color: var(--vert);
 }
+/* Raccourcis vers les mois proches (défilent horizontalement sur téléphone). */
+.mois-raccourcis {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 6px;
+  margin: -4px 0 0;
+  scrollbar-width: none;
+}
+.mois-raccourcis::-webkit-scrollbar {
+  display: none;
+}
+.mois-puce {
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--ligne);
+  border-radius: 99px;
+  background: var(--carte);
+  color: #4a544f;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  text-transform: capitalize;
+}
+.mois-puce:hover {
+  border-color: var(--vert);
+  color: var(--vert);
+}
+.mois-puce-courant {
+  border-color: var(--or);
+}
+.mois-puce[aria-current="page"] {
+  background: var(--vert);
+  border-color: var(--vert);
+  color: #fff;
+}
+
+/* Mois à venir : on prépare les objectifs. */
+.bandeau-avenir {
+  background: var(--vert) var(--motif-clair);
+  color: #fff;
+  border-radius: 18px;
+  padding: 16px 18px;
+}
+.bandeau-avenir h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  color: #f0d796;
+}
+.bandeau-avenir p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Bilan du mois */
+.bilan {
+  border-color: #e8d6b0;
+  background: linear-gradient(180deg, var(--or-clair) 0, var(--carte) 120px);
+}
+.bilan-chiffres {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.bilan-chiffres li {
+  padding: 6px 12px;
+  border-radius: 99px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.bilan-chiffres strong {
+  color: var(--vert);
+}
+.bilan-aide {
+  margin: 0;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.bilan-formulaire {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 12px;
+}
+.bilan-formulaire .message-erreur,
+.bilan-actions {
+  grid-column: 1 / -1;
+}
+.bilan-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bilan-etiquette {
+  font-size: 13px;
+  font-weight: 700;
+}
+.bilan-etiquette-acquis {
+  color: var(--vert);
+}
+.bilan-etiquette-renfort {
+  color: #9a5a12;
+}
+.bilan-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.bilan-ok {
+  color: var(--vert);
+  font-weight: 600;
+  font-size: 14px;
+}
+.commentaire-maitre h4 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--or-texte);
+}
+
 .onglets {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -59,7 +59,7 @@ export default async function PageEleveMaitre({
             </form>
           </div>
         </div>
-        <FicheMois fiche={fiche} eleveId={eleve.id} base={base} />
+        <FicheMois fiche={fiche} eleveId={eleve.id} base={base} vueMaitre />
       </main>
     </>
   );

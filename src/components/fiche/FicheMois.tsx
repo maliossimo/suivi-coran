@@ -6,7 +6,9 @@ import {
   formaterDuree,
   libelleJourCourt,
   libelleMois,
+  libelleMoisCourt,
   LIBELLE_TYPE,
+  moisAutour,
   premierJour,
   TYPES_SEANCE,
   type JourFiche,
@@ -15,16 +17,42 @@ import {
 } from "@/domain/fiche";
 import { creerReferentiel, libellePassage, type Referentiel } from "@/domain/versets";
 import type { Fiche } from "@/services/fiche";
+import { FormulaireBilan } from "./FormulaireBilan";
+import { FormulaireCommentaire } from "./FormulaireCommentaire";
+
+function formaterDateHeure(iso: string): string {
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Paris",
+  }).format(new Date(iso));
+}
 
 /**
  * Fiche du mois d'un élève (semaines 1 à 5). Utilisée par l'élève (/eleve)
  * et par le maître (/maitre/eleves/[id]) : seul le chemin de base change.
+ * Un mois à venir sert à préparer les objectifs ; un mois en cours ou passé
+ * montre les séances et se termine par le bilan du mois.
  */
-export function FicheMois({ fiche, eleveId, base }: { fiche: Fiche; eleveId: string; base: string }) {
+export function FicheMois({
+  fiche,
+  eleveId,
+  base,
+  vueMaitre = false,
+}: {
+  fiche: Fiche;
+  eleveId: string;
+  base: string;
+  vueMaitre?: boolean;
+}) {
   const ref = creerReferentiel(fiche.sourates);
   const cle = cleMois(fiche.mois);
   const lien = (mois: string, type: TypeSeance) => `${base}?mois=${mois}&type=${type}`;
   const retour = lien(cle, fiche.type);
+  const aVenir = fiche.position === "futur";
+  const raccourcis = moisAutour(fiche.moisCourant, 2, 4);
 
   return (
     <>
@@ -46,6 +74,23 @@ export function FicheMois({ fiche, eleveId, base }: { fiche: Fiche; eleveId: str
         </Link>
       </nav>
 
+      <nav className="mois-raccourcis" aria-label="Aller à un mois">
+        {raccourcis.map((m) => {
+          const c = cleMois(m);
+          const courant = c === cleMois(fiche.moisCourant);
+          return (
+            <Link
+              key={c}
+              href={lien(c, fiche.type)}
+              className={courant ? "mois-puce mois-puce-courant" : "mois-puce"}
+              aria-current={c === cle ? "page" : undefined}
+            >
+              {courant ? "Ce mois" : libelleMoisCourt(m, fiche.moisCourant.annee)}
+            </Link>
+          );
+        })}
+      </nav>
+
       <nav className="onglets" aria-label="Type de séance">
         {TYPES_SEANCE.map((t) => (
           <Link
@@ -59,25 +104,35 @@ export function FicheMois({ fiche, eleveId, base }: { fiche: Fiche; eleveId: str
         ))}
       </nav>
 
-      <div className="tuiles">
-        <div className="tuile">
-          <strong>{formaterDuree(fiche.totalMinutes)}</strong>
-          <span>ce mois-ci</span>
+      {aVenir ? (
+        <section className="bandeau-avenir">
+          <h3>Mois à venir</h3>
+          <p>
+            Prépare {vueMaitre ? "les objectifs de l’élève" : "tes objectifs"} à l’avance : un par semaine et
+            un pour le mois. Les séances se saisissent le jour même.
+          </p>
+        </section>
+      ) : (
+        <div className="tuiles">
+          <div className="tuile">
+            <strong>{formaterDuree(fiche.totalMinutes)}</strong>
+            <span>ce mois-ci</span>
+          </div>
+          <div className="tuile">
+            <strong>{fiche.joursTravailles}</strong>
+            <span>
+              jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé{fiche.joursTravailles > 1 ? "s" : ""}
+            </span>
+          </div>
+          <div className="tuile">
+            <strong>
+              {fiche.semaines.filter((s) => s.objectif?.statut === "atteint").length} /{" "}
+              {fiche.semaines.filter((s) => s.objectif).length}
+            </strong>
+            <span>objectifs atteints</span>
+          </div>
         </div>
-        <div className="tuile">
-          <strong>{fiche.joursTravailles}</strong>
-          <span>
-            jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé{fiche.joursTravailles > 1 ? "s" : ""}
-          </span>
-        </div>
-        <div className="tuile">
-          <strong>
-            {fiche.semaines.filter((s) => s.objectif?.statut === "atteint").length} /{" "}
-            {fiche.semaines.filter((s) => s.objectif).length}
-          </strong>
-          <span>objectifs atteints</span>
-        </div>
-      </div>
+      )}
 
       <div className="semaines">
         {fiche.semaines.map((semaine) => (
@@ -86,20 +141,22 @@ export function FicheMois({ fiche, eleveId, base }: { fiche: Fiche; eleveId: str
               <h3 id={`s${semaine.numero}`}>Semaine {semaine.numero}</h3>
               <span>
                 {libelleJourCourt(semaine.jours[0]!.date)} → {libelleJourCourt(semaine.jours.at(-1)!.date)} ·{" "}
-                {formaterDuree(semaine.totalMinutes)}
+                {aVenir ? `${semaine.jours.length} jours` : formaterDuree(semaine.totalMinutes)}
               </span>
             </header>
-            <ul className="jours">
-              {semaine.jours.map((jour) => (
-                <li key={jour.date}>
-                  <LigneJour
-                    jour={jour}
-                    lien={`${base}/seance?date=${jour.date}&type=${fiche.type}`}
-                    refs={ref}
-                  />
-                </li>
-              ))}
-            </ul>
+            {aVenir ? null : (
+              <ul className="jours">
+                {semaine.jours.map((jour) => (
+                  <li key={jour.date}>
+                    <LigneJour
+                      jour={jour}
+                      lien={`${base}/seance?date=${jour.date}&type=${fiche.type}`}
+                      refs={ref}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
             <FormulaireObjectif
               titre="Objectif de la semaine"
               objectif={semaine.objectif}
@@ -127,6 +184,63 @@ export function FicheMois({ fiche, eleveId, base }: { fiche: Fiche; eleveId: str
           retour={retour}
         />
       </section>
+
+      {aVenir ? null : (
+        <section className="semaine bilan" aria-labelledby="bilan-titre">
+          <header className="semaine-entete">
+            <h3 id="bilan-titre">Bilan du mois · {LIBELLE_TYPE[fiche.type].toLowerCase()}</h3>
+            {fiche.bilan?.corrige ? <span className="pastille-or">Complété par le maître</span> : null}
+          </header>
+          <ul className="bilan-chiffres">
+            <li>
+              <strong>{formaterDuree(fiche.totalMinutes)}</strong> de travail
+            </li>
+            <li>
+              <strong>{fiche.joursTravailles}</strong> jour{fiche.joursTravailles > 1 ? "s" : ""}
+            </li>
+            <li>
+              <strong>{fiche.versetsTravailles}</strong> verset{fiche.versetsTravailles > 1 ? "s" : ""}{" "}
+              {fiche.type === "apprentissage" ? "appris" : "révisés"}
+            </li>
+            <li>
+              <strong>
+                {fiche.semaines.filter((s) => s.objectif?.statut === "atteint").length +
+                  (fiche.objectifMensuel?.statut === "atteint" ? 1 : 0)}
+              </strong>{" "}
+              objectif(s) atteint(s)
+            </li>
+          </ul>
+          {fiche.position === "courant" ? (
+            <p className="bilan-aide">
+              {vueMaitre
+                ? "Le bilan se remplit en fin de mois, avec l’élève."
+                : "Remplis ton bilan en fin de mois : ton maître le lira."}
+            </p>
+          ) : null}
+          <FormulaireBilan
+            key={`${cle}-${fiche.type}`}
+            eleveId={eleveId}
+            type={fiche.type}
+            mois={premierJour(fiche.mois)}
+            bilan={fiche.bilan}
+            vueMaitre={vueMaitre}
+          />
+          {fiche.commentairesBilan.length > 0 ? (
+            <div className="commentaire-maitre">
+              <h4>Mot du maître</h4>
+              {fiche.commentairesBilan.map((c) => (
+                <p key={c.creeLe}>
+                  {c.texte}
+                  <small> · {formaterDateHeure(c.creeLe)}</small>
+                </p>
+              ))}
+            </div>
+          ) : null}
+          {vueMaitre && fiche.bilan ? (
+            <FormulaireCommentaire eleveId={eleveId} cible="bilan" cibleId={fiche.bilan.id} />
+          ) : null}
+        </section>
+      )}
     </>
   );
 }
