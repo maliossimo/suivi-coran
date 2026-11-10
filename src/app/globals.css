@@ -118,37 +118,11 @@ a:hover {
   background: var(--vert);
   border: 0;
 }
-.auth-calligraphie {
-  margin: 48px 0 0;
-  font-size: clamp(64px, 9vw, 112px);
-  line-height: 1.1;
-  color: var(--or);
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
-}
 .auth-nom {
-  margin: 0;
-  font-size: 28px;
+  margin: 16px 0 0;
+  font-size: 34px;
   font-weight: 700;
   letter-spacing: -0.01em;
-}
-.auth-atouts {
-  margin: 8px 0 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  color: rgba(255, 255, 255, 0.85);
-}
-.auth-atouts li {
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
-}
-.auth-atouts li::before {
-  content: "◆";
-  color: var(--or);
-  font-size: 10px;
 }
 
 .auth-panneau {
@@ -211,13 +185,8 @@ a:hover {
   .auth-visuel-contenu {
     gap: 4px;
   }
-  .auth-visuel .auth-logo,
-  .auth-atouts {
+  .auth-visuel .auth-logo {
     display: none;
-  }
-  .auth-calligraphie {
-    margin: 0;
-    font-size: 64px;
   }
   .auth-nom {
     font-size: 22px;

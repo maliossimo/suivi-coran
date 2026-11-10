@@ -17,13 +17,7 @@ export function CadreAuth({
       <section className="auth-visuel" aria-hidden="true">
         <div className="auth-visuel-contenu">
           <div className="auth-logo">ق</div>
-          <p className="auth-calligraphie arabe">اقْرَأْ</p>
           <p className="auth-nom">Suivi cours Coran</p>
-          <ul className="auth-atouts">
-            <li>Apprentissage et révision au jour le jour</li>
-            <li>Objectifs de la semaine et du mois</li>
-            <li>Le suivi de ton maître, à portée de main</li>
-          </ul>
         </div>
       </section>
 
