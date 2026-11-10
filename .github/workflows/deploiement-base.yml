@@ -1,0 +1,40 @@
+name: Déploiement de la base
+
+# Applique les migrations Supabase quand elles arrivent sur main.
+# Le site lui-même est déployé par Vercel (prévisualisation par PR, production sur main).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploiement-base
+  cancel-in-progress: false
+
+jobs:
+  migrations:
+    name: Migrations → production
+    runs-on: ubuntu-latest
+    # L'environnement « production » peut exiger ton approbation manuelle (Settings → Environments).
+    environment: production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Vérifier la configuration
+        run: |
+          for v in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD SUPABASE_PROJECT_REF; do
+            if [ -z "${!v}" ]; then echo "::error::Secret $v manquant (voir README)"; exit 1; fi
+          done
+      - run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+      - run: supabase db push
