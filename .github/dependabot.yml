@@ -2,10 +2,16 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /
+    target-branch: main
     schedule:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    # Les versions majeures (TypeScript 7, ESLint 10, Next 16…) cassent souvent la CI :
+    # elles sont traitées à la main, une par une.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       dependances:
         patterns: ["*"]
@@ -13,5 +19,6 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
+    target-branch: main
     schedule:
       interval: monthly

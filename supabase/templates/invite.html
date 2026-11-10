@@ -1,8 +1,45 @@
-<h2>Bienvenue sur Suivi cours Coran</h2>
-<p>Tu as été invité(e) à rejoindre le suivi de ta classe.</p>
-<p>
-  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite&next=/definir-mot-de-passe"
-    >Choisir mon mot de passe</a
+<div
+  style="background: #f6f1e7; padding: 32px 16px; font-family: Arial, Helvetica, sans-serif; color: #1f2a24"
+>
+  <div
+    style="
+      max-width: 480px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #e6dcc6;
+    "
   >
-</p>
-<p>Si tu n'attendais pas cette invitation, ignore simplement cet e-mail.</p>
+    <div style="background: #1d5c47; padding: 28px 24px; text-align: center">
+      <div style="color: #d9b45a; font-size: 28px; line-height: 1">&#10022;</div>
+      <div style="color: #ffffff; font-size: 20px; font-weight: bold; margin-top: 8px">Suivi cours Coran</div>
+    </div>
+    <div style="padding: 28px 24px">
+      <h1 style="font-size: 20px; margin: 0 0 12px">Bienvenue !</h1>
+      <p style="font-size: 15px; line-height: 1.6; margin: 0 0 20px">
+        Tu as été invité(e) à rejoindre le suivi de ta classe. Choisis ton mot de passe pour activer ton
+        compte.
+      </p>
+      <p style="text-align: center; margin: 0 0 24px">
+        <a
+          href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite&next=/definir-mot-de-passe"
+          style="
+            display: inline-block;
+            background: #1d5c47;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 14px 28px;
+            border-radius: 999px;
+          "
+          >Choisir mon mot de passe</a
+        >
+      </p>
+      <p style="font-size: 13px; line-height: 1.5; color: #6b7a72; margin: 0">
+        Ce lien est personnel et ne sert qu'une fois. Si tu n'attendais pas cette invitation, ignore
+        simplement cet e-mail.
+      </p>
+    </div>
+  </div>
+</div>

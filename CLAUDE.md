@@ -34,7 +34,12 @@ ESLint bloque les imports qui violent ces frontières.
 
 ## Façon de travailler
 
-- Une branche et une PR par fonctionnalité. Pas de push direct sur `main`.
+- Branches : `main` = version de test (prévisualisation Vercel), `prod` = production (vrais élèves).
+- Une branche et une PR par fonctionnalité, vers `main`. Pas de push direct sur `main` ni sur `prod`.
+- Mise en production : une PR `main` → `prod` (le workflow « Garde-fou prod » refuse toute autre source).
+  La fusion déploie le site (Vercel) et applique les migrations à la base de production.
+- Le dépôt est privé sur un compte GitHub gratuit : les règles de branche ne sont pas appliquées
+  par GitHub, ces conventions sont donc à respecter scrupuleusement.
 - Avant de proposer une PR : `npm run check` (format, lint, types, tests) et, si la base change, `npm run db:test`.
 - Messages de commit en français, à l'impératif : « Ajoute la saisie des séances ».
 - Code et noms en français pour le métier (`seance`, `passage`, `eleve`), anglais toléré pour la technique.
