@@ -1,4 +1,7 @@
-/* Palette et composants de base — reprend les maquettes validées. */
+/* =====================================================================
+   Suivi cours Coran — styles globaux
+   Palette : vert profond (identité), crème (fond), or (accents, messages du maître).
+   ===================================================================== */
 :root {
   --fond: #f6f4ee;
   --carte: #ffffff;
@@ -8,11 +11,17 @@
   --champ: #d6d1c4;
   --vert: #1d5c47;
   --vert-fonce: #123c2e;
+  --vert-nuit: #0b2a20;
   --vert-clair: #e2eee8;
+  --or: #c9a24a;
   --or-clair: #f5ebd8;
   --or-texte: #7a4f0e;
   --rouge: #9b2c1f;
-  --rayon: 14px;
+  --ombre: 0 1px 2px rgba(23, 35, 30, 0.06), 0 8px 24px rgba(23, 35, 30, 0.08);
+
+  /* Motif géométrique (étoile à 8 branches) dessiné en SVG, répété en tuiles. */
+  --motif-clair: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.14' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
+  --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%231d5c47' stroke-opacity='0.06' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 *,
@@ -29,6 +38,7 @@ body {
   font-family: var(--font-texte), system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -37,66 +47,210 @@ a {
 a:hover {
   color: var(--vert-fonce);
 }
+:focus-visible {
+  outline: 3px solid var(--or);
+  outline-offset: 2px;
+}
 
 .arabe {
   font-family: var(--font-arabe), serif;
 }
 
-.page-centree {
+/* ---------- Écrans d'authentification -------------------------------- */
+.auth {
   min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+}
+
+.auth-visuel {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background:
+    var(--motif-clair),
+    radial-gradient(120% 90% at 20% 10%, #2a7a5e 0%, var(--vert) 45%, var(--vert-nuit) 100%);
+  background-size:
+    96px 96px,
+    cover;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 32px;
-  padding: 48px 24px;
+  padding: 48px;
 }
-
-.entete-app {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  text-align: center;
+.auth-visuel::after {
+  /* Halo doré discret */
+  content: "";
+  position: absolute;
+  inset: auto -20% -35% auto;
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 162, 74, 0.28), transparent 65%);
+  pointer-events: none;
 }
-.entete-app h1 {
-  margin: 0;
-  font-size: 26px;
-}
-.entete-app p {
-  margin: 0;
-  color: var(--texte-doux);
-}
-
-.logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: var(--vert);
-  color: #fff;
-  display: grid;
-  place-items: center;
-  font-family: var(--font-arabe), serif;
-  font-size: 36px;
-  line-height: 1;
-}
-
-.carte {
-  width: 100%;
+.auth-visuel-contenu {
+  position: relative;
+  z-index: 1;
   max-width: 420px;
-  background: var(--carte);
-  border: 1px solid var(--ligne);
-  border-radius: 18px;
-  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
+.auth-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-family: var(--font-arabe), serif;
+  font-size: 36px;
+  line-height: 1;
+}
+.auth-logo-petit {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 24px;
+  background: var(--vert);
+  border: 0;
+}
+.auth-calligraphie {
+  margin: 48px 0 0;
+  font-size: clamp(64px, 9vw, 112px);
+  line-height: 1.1;
+  color: var(--or);
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+}
+.auth-nom {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.auth-atouts {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.auth-atouts li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.auth-atouts li::before {
+  content: "◆";
+  color: var(--or);
+  font-size: 10px;
+}
 
+.auth-panneau {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: var(--fond) var(--motif-doux);
+  background-size: 96px 96px;
+}
+.auth-boite {
+  width: 100%;
+  max-width: 420px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  border-radius: 20px;
+  box-shadow: var(--ombre);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.auth-entete {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.auth-entete .auth-logo-petit {
+  display: none;
+  margin-bottom: 8px;
+}
+.auth-entete h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+}
+.auth-entete p {
+  margin: 0;
+  color: var(--texte-doux);
+}
+.auth-note {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--vert-clair);
+  color: #24453a;
+  font-size: 14px;
+}
+
+/* Téléphone : bandeau décoratif en haut, formulaire qui le chevauche. */
+@media (max-width: 860px) {
+  .auth {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .auth-visuel {
+    padding: 40px 24px 88px;
+    justify-content: flex-start;
+  }
+  .auth-visuel-contenu {
+    gap: 4px;
+  }
+  .auth-visuel .auth-logo,
+  .auth-atouts {
+    display: none;
+  }
+  .auth-calligraphie {
+    margin: 0;
+    font-size: 64px;
+  }
+  .auth-nom {
+    font-size: 22px;
+  }
+  .auth-panneau {
+    align-items: flex-start;
+    padding: 0 16px 32px;
+    margin-top: -64px;
+    background: none;
+    position: relative;
+    z-index: 2;
+  }
+  .auth-boite {
+    padding: 24px 20px;
+  }
+}
+
+/* ---------- Formulaires ---------------------------------------------- */
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 .champ {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+.champ-ligne {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
 }
 .champ label {
   font-size: 14px;
@@ -109,11 +263,27 @@ a:hover {
   padding: 0 14px;
   font: inherit;
   background: #fcfbf8;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 .champ input:focus {
-  outline: 2px solid var(--vert-clair);
+  outline: none;
   border-color: var(--vert);
   background: #fff;
+  box-shadow: 0 0 0 4px var(--vert-clair);
+}
+.lien-discret {
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.lien-discret:hover {
+  text-decoration: underline;
+}
+.lien-centre {
+  align-self: center;
+  padding: 8px;
 }
 
 .bouton {
@@ -125,6 +295,15 @@ a:hover {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+  transition:
+    background 0.15s,
+    transform 0.05s;
+}
+.bouton:hover {
+  background: var(--vert-fonce);
+}
+.bouton:active {
+  transform: translateY(1px);
 }
 .bouton:disabled {
   opacity: 0.6;
@@ -140,6 +319,10 @@ a:hover {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+.bouton-secondaire:hover {
+  border-color: var(--vert);
+  color: var(--vert);
 }
 
 .message-erreur {
@@ -159,15 +342,90 @@ a:hover {
   font-size: 14px;
 }
 
-.encart {
-  max-width: 420px;
+/* ---------- Espaces élève / maître / admin --------------------------- */
+.barre {
+  background: var(--motif-clair), linear-gradient(120deg, var(--vert) 0%, var(--vert-nuit) 100%);
+  background-size:
+    96px 96px,
+    cover;
+  color: #fff;
+}
+.barre-contenu {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 20px;
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  padding: 16px;
-  border-radius: 14px;
-  background: var(--vert-clair);
-  color: #24453a;
+}
+.barre-marque {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.barre .auth-logo-petit {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.barre-titres {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.barre-app {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+}
+.barre-titre {
+  font-size: 18px;
+  font-weight: 700;
+}
+.barre-utilisateur {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.barre-identite {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.barre-nom {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  font-weight: 600;
   font-size: 14px;
+}
+.barre-nom small {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.75);
+}
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--or);
+  color: var(--vert-nuit);
+  font-weight: 700;
+  font-size: 14px;
+}
+.barre .bouton-secondaire {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+.barre .bouton-secondaire:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+@media (max-width: 520px) {
+  .barre-nom {
+    display: none;
+  }
 }
 
 .espace {
@@ -178,14 +436,25 @@ a:hover {
   flex-direction: column;
   gap: 16px;
 }
-.espace-entete {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.carte-accueil {
+  background: var(--carte) var(--motif-doux);
+  background-size: 96px 96px;
+  border: 1px solid var(--ligne);
+  border-radius: 18px;
+  box-shadow: var(--ombre);
+  padding: 24px;
 }
-.espace-entete h1 {
-  margin: 0;
+.carte-accueil h2 {
+  margin: 0 0 6px;
   font-size: 22px;
+}
+.carte-accueil p {
+  margin: 0;
+  color: var(--texte-doux);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }

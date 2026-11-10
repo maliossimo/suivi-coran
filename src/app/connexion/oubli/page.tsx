@@ -3,15 +3,17 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { actionMotDePasseOublie, type EtatFormulaire } from "@/app/actions/auth";
-import { EnteteApp } from "@/components/EnteteApp";
+import { CadreAuth } from "@/components/CadreAuth";
 
 export default function PageMotDePasseOublie() {
   const [etat, action, enCours] = useActionState<EtatFormulaire, FormData>(actionMotDePasseOublie, {});
 
   return (
-    <main className="page-centree">
-      <EnteteApp sousTitre="Mot de passe oublié" />
-      <form action={action} className="carte" noValidate>
+    <CadreAuth
+      titre="Mot de passe oublié"
+      sousTitre="Saisis ton adresse : tu recevras un lien pour en choisir un nouveau."
+    >
+      <form action={action} className="formulaire" noValidate>
         {etat.erreur ? (
           <p className="message-erreur" role="alert">
             {etat.erreur}
@@ -29,10 +31,10 @@ export default function PageMotDePasseOublie() {
         <button className="bouton" type="submit" disabled={enCours}>
           Recevoir un lien
         </button>
-        <Link href="/connexion" style={{ alignSelf: "center", fontSize: 14, padding: 8 }}>
-          Retour à la connexion
+        <Link href="/connexion" className="lien-discret lien-centre">
+          ← Retour à la connexion
         </Link>
       </form>
-    </main>
+    </CadreAuth>
   );
 }

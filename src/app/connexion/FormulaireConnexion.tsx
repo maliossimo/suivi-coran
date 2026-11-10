@@ -10,7 +10,7 @@ export function FormulaireConnexion({ erreurInitiale }: { erreurInitiale?: strin
   });
 
   return (
-    <form action={action} className="carte" noValidate>
+    <form action={action} className="formulaire" noValidate>
       {etat.erreur ? (
         <p className="message-erreur" role="alert">
           {etat.erreur}
@@ -18,18 +18,27 @@ export function FormulaireConnexion({ erreurInitiale }: { erreurInitiale?: strin
       ) : null}
       <div className="champ">
         <label htmlFor="email">Adresse e-mail</label>
-        <input id="email" name="email" type="email" autoComplete="email" required />
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="prenom@exemple.fr"
+          required
+        />
       </div>
       <div className="champ">
-        <label htmlFor="motDePasse">Mot de passe</label>
+        <div className="champ-ligne">
+          <label htmlFor="motDePasse">Mot de passe</label>
+          <Link href="/connexion/oubli" className="lien-discret">
+            Mot de passe oublié ?
+          </Link>
+        </div>
         <input id="motDePasse" name="motDePasse" type="password" autoComplete="current-password" required />
       </div>
       <button className="bouton" type="submit" disabled={enCours}>
         {enCours ? "Connexion…" : "Se connecter"}
       </button>
-      <Link href="/connexion/oubli" style={{ alignSelf: "center", fontSize: 14, padding: 8 }}>
-        Mot de passe oublié ?
-      </Link>
     </form>
   );
 }

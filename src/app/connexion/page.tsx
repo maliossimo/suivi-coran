@@ -1,4 +1,4 @@
-import { EnteteApp } from "@/components/EnteteApp";
+import { CadreAuth } from "@/components/CadreAuth";
 import { FormulaireConnexion } from "./FormulaireConnexion";
 
 const MESSAGES: Record<string, string> = {
@@ -14,13 +14,12 @@ export default async function PageConnexion({
   const { erreur } = await searchParams;
 
   return (
-    <main className="page-centree">
-      <EnteteApp sousTitre="Apprentissage · Révision" />
+    <CadreAuth titre="Connexion" sousTitre="Retrouve ton suivi d'apprentissage et de révision.">
       <FormulaireConnexion erreurInitiale={erreur ? MESSAGES[erreur] : undefined} />
-      <p className="encart">
+      <p className="auth-note">
         Accès sur invitation uniquement. Tu n&apos;as pas reçu d&apos;e-mail ? Demande à ton maître de
         t&apos;inviter.
       </p>
-    </main>
+    </CadreAuth>
   );
 }
