@@ -3,8 +3,17 @@
 import { useActionState, useEffect, useRef } from "react";
 import { actionCommenter, type EtatSaisie } from "@/app/actions/fiche";
 
-/** Commentaire du maître sur une séance (visible par l'élève). */
-export function FormulaireCommentaire({ eleveId, seanceId }: { eleveId: string; seanceId: string }) {
+/** Commentaire du maître sur une séance ou un bilan (visible par l'élève). */
+export function FormulaireCommentaire({
+  eleveId,
+  cible,
+  cibleId,
+}: {
+  eleveId: string;
+  cible: "seance" | "bilan";
+  cibleId: string;
+}) {
+  const id = `texte-${cible}`;
   const [etat, action, enCours] = useActionState<EtatSaisie, FormData>(actionCommenter, {});
   const formulaire = useRef<HTMLFormElement>(null);
 
@@ -15,8 +24,9 @@ export function FormulaireCommentaire({ eleveId, seanceId }: { eleveId: string; 
   return (
     <form ref={formulaire} action={action} className="bloc bloc-commentaire">
       <input type="hidden" name="eleveId" value={eleveId} />
-      <input type="hidden" name="seanceId" value={seanceId} />
-      <label htmlFor="texte" className="bloc-titre">
+      <input type="hidden" name="cible" value={cible} />
+      <input type="hidden" name="cibleId" value={cibleId} />
+      <label htmlFor={id} className="bloc-titre">
         Commenter pour l’élève
       </label>
       {etat.erreur ? (
@@ -25,7 +35,7 @@ export function FormulaireCommentaire({ eleveId, seanceId }: { eleveId: string; 
         </p>
       ) : null}
       <textarea
-        id="texte"
+        id={id}
         name="texte"
         className="champ-texte"
         rows={2}

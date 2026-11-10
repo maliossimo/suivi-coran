@@ -4,8 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { profilConnecte } from "@/repositories/profils";
-import { commenterSeance } from "@/services/classe";
+import { commenter } from "@/services/classe";
 import {
+  enregistrerBilanEleve,
   enregistrerObjectifEleve,
   enregistrerSeanceEleve,
   supprimerSeanceEleve,
@@ -19,7 +20,7 @@ import {
  * que la personne est connectée et active, et que le chemin de retour est interne.
  */
 
-export type EtatSaisie = { erreur?: string };
+export type EtatSaisie = { erreur?: string; enregistre?: boolean };
 
 const uuid = z.string().uuid();
 
@@ -86,8 +87,30 @@ export async function actionEnregistrerObjectif(form: FormData): Promise<void> {
 
 export async function actionCommenter(_: EtatSaisie, form: FormData): Promise<EtatSaisie> {
   const { acteur, eleveId } = await acteurEtEleve(form);
-  const resultat = await commenterSeance(acteur, eleveId, form.get("seanceId"), form.get("texte"));
+  const resultat = await commenter(acteur, eleveId, {
+    cible: form.get("cible"),
+    cibleId: form.get("cibleId"),
+    texte: form.get("texte"),
+  });
   if (!resultat.ok) return { erreur: resultat.erreur };
   revalidatePath("/", "layout");
   return {};
+}
+
+export async function actionEnregistrerBilan(_: EtatSaisie, form: FormData): Promise<EtatSaisie> {
+  const { eleveId } = await acteurEtEleve(form);
+  let resultat: ResultatSaisie;
+  try {
+    resultat = await enregistrerBilanEleve(eleveId, {
+      type: form.get("type"),
+      mois: form.get("mois"),
+      bienMemorise: form.get("bienMemorise") ?? "",
+      aRenforcer: form.get("aRenforcer") ?? "",
+    });
+  } catch {
+    resultat = { ok: false, erreur: "L'enregistrement a échoué. Réessaie dans un instant." };
+  }
+  if (!resultat.ok) return { erreur: resultat.erreur };
+  revalidatePath("/", "layout");
+  return { enregistre: true };
 }

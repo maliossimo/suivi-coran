@@ -7,7 +7,10 @@ import {
   formaterDuree,
   libelleJourCourt,
   libelleMois,
+  libelleMoisCourt,
   lireMois,
+  moisAutour,
+  positionDuMois,
   type Seance,
 } from "./fiche";
 
@@ -87,5 +90,34 @@ describe("formaterDuree", () => {
     expect(formaterDuree(60)).toBe("1 h");
     expect(formaterDuree(75)).toBe("1 h 15");
     expect(formaterDuree(125)).toBe("2 h 05");
+  });
+});
+
+describe("positionDuMois", () => {
+  it("situe un mois par rapport à aujourd'hui", () => {
+    expect(positionDuMois({ annee: 2026, mois: 11 }, "2026-11-10")).toBe("courant");
+    expect(positionDuMois({ annee: 2026, mois: 10 }, "2026-11-10")).toBe("passe");
+    expect(positionDuMois({ annee: 2026, mois: 12 }, "2026-11-10")).toBe("futur");
+    expect(positionDuMois({ annee: 2027, mois: 1 }, "2026-11-10")).toBe("futur");
+    expect(positionDuMois({ annee: 2025, mois: 12 }, "2026-11-10")).toBe("passe");
+  });
+});
+
+describe("moisAutour", () => {
+  it("liste les mois autour du mois courant, en passant l'année", () => {
+    expect(moisAutour({ annee: 2026, mois: 11 }, 1, 3).map(cleMois)).toEqual([
+      "2026-10",
+      "2026-11",
+      "2026-12",
+      "2027-01",
+      "2027-02",
+    ]);
+  });
+});
+
+describe("libelleMoisCourt", () => {
+  it("n'affiche l'année que si elle change", () => {
+    expect(libelleMoisCourt({ annee: 2026, mois: 12 }, 2026)).toBe("déc.");
+    expect(libelleMoisCourt({ annee: 2027, mois: 1 }, 2026)).toBe("janv. 2027");
   });
 });

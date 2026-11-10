@@ -41,22 +41,29 @@ function estEncadrant(acteur: Profil): boolean {
 }
 
 const schemaCommentaire = z.object({
-  seanceId: z.string().uuid(),
+  cible: z.enum(["seance", "bilan"]),
+  cibleId: z.string().uuid(),
   texte: z.string().trim().min(1, "Le commentaire est vide.").max(1000, "1000 caractères maximum."),
 });
 
-export async function commenterSeance(
+/** Commentaire du maître (ou de l'admin) sur une séance ou sur un bilan mensuel. */
+export async function commenter(
   acteur: Profil,
   eleveId: string,
-  seanceIdBrut: unknown,
-  texteBrut: unknown,
+  brut: { cible: unknown; cibleId: unknown; texte: unknown },
 ): Promise<ResultatSaisie> {
   if (!estEncadrant(acteur)) return { ok: false, erreur: "Seul le maître peut commenter." };
-  const saisie = schemaCommentaire.safeParse({ seanceId: seanceIdBrut, texte: texteBrut });
+  const saisie = schemaCommentaire.safeParse(brut);
   if (!saisie.success)
     return { ok: false, erreur: saisie.error.issues[0]?.message ?? "Commentaire invalide." };
+  const { cible, cibleId, texte } = saisie.data;
   try {
-    await ajouterCommentaire(eleveId, acteur.id, saisie.data.seanceId, saisie.data.texte);
+    await ajouterCommentaire(
+      eleveId,
+      acteur.id,
+      cible === "seance" ? { seanceId: cibleId } : { bilanId: cibleId },
+      texte,
+    );
   } catch {
     return { ok: false, erreur: "Le commentaire n'a pas pu être publié." };
   }
