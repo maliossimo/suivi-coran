@@ -1403,3 +1403,42 @@ input.champ-texte {
 .commentaire-maitre small {
   color: var(--or-texte);
 }
+
+/* ---------- Chargement (squelettes) ----------------------------------- */
+.squelette {
+  border-radius: 14px;
+  background: linear-gradient(90deg, #ece8de 0%, #f5f2ea 50%, #ece8de 100%);
+  background-size: 200% 100%;
+  animation: squelette 1.2s ease-in-out infinite;
+}
+.squelette-ligne {
+  height: 44px;
+  max-width: 320px;
+  width: 100%;
+  margin: 0 auto;
+}
+.squelette-onglets {
+  height: 50px;
+}
+.squelette-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr));
+  gap: 16px;
+}
+.squelette-carte {
+  height: 320px;
+  border-radius: 18px;
+}
+@keyframes squelette {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .squelette {
+    animation: none;
+  }
+}
