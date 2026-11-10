@@ -1,10 +1,10 @@
 name: Déploiement de la base
 
-# Applique les migrations Supabase quand elles arrivent sur main.
-# Le site lui-même est déployé par Vercel (prévisualisation par PR, production sur main).
+# Applique les migrations Supabase quand elles arrivent sur prod (mise en production).
+# Le site lui-même est déployé par Vercel : prod → production, main et PR → prévisualisation.
 on:
   push:
-    branches: [main]
+    branches: [prod]
     paths:
       - "supabase/migrations/**"
   workflow_dispatch:

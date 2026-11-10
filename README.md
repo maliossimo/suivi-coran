@@ -46,9 +46,12 @@ L'inscription libre est désactivée. Pour tester, dans Supabase Studio (http://
 ## CI/CD
 
 - **Chaque PR** (GitHub Actions) : format, lint, types, tests unitaires, migrations + tests des règles d'accès sur un vrai PostgreSQL Supabase, build de production. La PR ne se fusionne que si tout est vert.
-- **Prévisualisation** : Vercel déploie chaque PR sur une URL de test.
-- **Fusion sur `main`** : Vercel met le site en production ; le workflow `Déploiement de la base` applique les nouvelles migrations à Supabase.
-- **Dependabot** propose chaque semaine les mises à jour de dépendances.
+- **Branches** : `main` = version de test, `prod` = production (vrais élèves).
+- **Prévisualisation** : Vercel déploie chaque PR et la branche `main` sur une URL de test.
+- **Mise en production** : PR `main` → `prod` (le workflow `Garde-fou prod` refuse toute autre source). À la fusion, Vercel met le site en production et le workflow `Déploiement de la base` applique les nouvelles migrations à Supabase.
+- **Dependabot** propose chaque semaine les mises à jour mineures (vers `main`) ; les versions majeures se font à la main.
+
+> Le dépôt est privé sur un compte GitHub gratuit : les règles de protection de branche ne sont pas appliquées par GitHub. Les conventions de `CLAUDE.md` (PR obligatoires, CI verte) sont donc à respecter.
 
 ## Mise en production (une seule fois)
 
@@ -61,7 +64,7 @@ L'inscription libre est désactivée. Pour tester, dans Supabase Studio (http://
    - `SUPABASE_SERVICE_ROLE_KEY` (serveur uniquement).
 3. **GitHub** — _Settings → Secrets and variables → Actions_, environnement `production` :
    `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF`.
-4. **GitHub** — _Settings → Branches_ : protège `main` (PR obligatoire, contrôles CI requis).
+4. **Vercel** — _Settings → Git_ : Production Branch = `prod`.
 5. Après le premier déploiement, désigne ton compte admin avec la requête SQL ci-dessus, dans le projet prod.
 
 Ne partage jamais ces clés dans un chat, un ticket ou un commit.
