@@ -2,23 +2,25 @@
 
 import { useActionState } from "react";
 import { actionDefinirMotDePasse, type EtatFormulaire } from "@/app/actions/auth";
-import { EnteteApp } from "@/components/EnteteApp";
+import { CadreAuth } from "@/components/CadreAuth";
 
 /** Atteinte après le lien d'invitation ou de réinitialisation (session déjà ouverte). */
 export default function PageDefinirMotDePasse() {
   const [etat, action, enCours] = useActionState<EtatFormulaire, FormData>(actionDefinirMotDePasse, {});
 
   return (
-    <main className="page-centree">
-      <EnteteApp sousTitre="Choisis ton mot de passe" />
-      <form action={action} className="carte" noValidate>
+    <CadreAuth
+      titre="Choisis ton mot de passe"
+      sousTitre="10 caractères minimum. Tu t'en serviras à chaque connexion."
+    >
+      <form action={action} className="formulaire" noValidate>
         {etat.erreur ? (
           <p className="message-erreur" role="alert">
             {etat.erreur}
           </p>
         ) : null}
         <div className="champ">
-          <label htmlFor="motDePasse">Nouveau mot de passe (10 caractères minimum)</label>
+          <label htmlFor="motDePasse">Nouveau mot de passe</label>
           <input
             id="motDePasse"
             name="motDePasse"
@@ -36,6 +38,6 @@ export default function PageDefinirMotDePasse() {
           Enregistrer
         </button>
       </form>
-    </main>
+    </CadreAuth>
   );
 }

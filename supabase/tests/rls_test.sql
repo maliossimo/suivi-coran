@@ -143,5 +143,33 @@ select pg_temp.attendu(
   'journal : la correction du maître est enregistrée');
 select pg_temp.doit_echouer($q$delete from public.journal_audit$q$, 'journal : personne ne peut l''effacer, même l''admin');
 
+-- ---------- enregistrer_seance (séance + passages, atomique) ----------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select public.enregistrer_seance('2026-11-02', 'apprentissage', 20::smallint, 'Noun sakin', 'Difficile',
+  '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10},
+    {"sourateDebut":78,"versetDebut":1,"sourateFin":78,"versetFin":5}]'::jsonb);
+select pg_temp.attendu(
+  (select count(*) from public.passages p join public.seances s on s.id = p.seance_id
+   where s.date = '2026-11-02' and s.type = 'apprentissage') = 2,
+  'enregistrer_seance : crée la séance et ses 2 passages');
+
+select public.enregistrer_seance('2026-11-02', 'apprentissage', 35::smallint, '', null,
+  '[{"sourateDebut":67,"versetDebut":11,"sourateFin":67,"versetFin":20}]'::jsonb);
+select pg_temp.attendu(
+  (select duree_min = 35 and tajwid is null from public.seances where date = '2026-11-02' and type = 'apprentissage')
+  and (select count(*) from public.passages p join public.seances s on s.id = p.seance_id
+       where s.date = '2026-11-02' and s.type = 'apprentissage') = 1,
+  'enregistrer_seance : met à jour et remplace les passages');
+
+select pg_temp.doit_echouer(
+  $q$select public.enregistrer_seance('2026-11-02', 'revision', 10::smallint, null, null, '[]'::jsonb, 'a0000000-0000-0000-0000-000000000002')$q$,
+  'enregistrer_seance : un élève ne peut pas enregistrer pour un autre');
+select pg_temp.doit_echouer(
+  $q$select public.enregistrer_seance('2026-11-03', 'revision', 10::smallint, null, null, '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":99}]'::jsonb)$q$,
+  'enregistrer_seance : verset hors sourate refusé, rien n''est enregistré');
+select pg_temp.attendu(
+  not exists (select 1 from public.seances where date = '2026-11-03' and eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'enregistrer_seance : en cas d''erreur, la séance n''est pas créée (transaction)');
+
 select pg_temp.console();
 rollback;
