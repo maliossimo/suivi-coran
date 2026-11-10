@@ -524,7 +524,8 @@ a:hover {
   align-items: baseline;
   gap: 4px 12px;
 }
-.semaine-entete h2 {
+.semaine-entete h2,
+.semaine-entete h3 {
   margin: 0;
   font-size: 17px;
 }
@@ -821,4 +822,457 @@ input.champ-texte {
 }
 .bouton-danger:hover {
   text-decoration: underline;
+}
+
+/* ---------- Éléments communs des espaces ----------------------------- */
+.sous-menu {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--ligne);
+}
+.sous-menu a {
+  padding: 10px 14px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  color: var(--texte-doux);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+.sous-menu a[aria-current="page"] {
+  color: var(--vert);
+  border-bottom-color: var(--vert);
+}
+.titre-page {
+  margin: 0;
+  font-size: 22px;
+}
+.entete-page {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.entete-page h1 {
+  margin: 0;
+  font-size: 22px;
+}
+.mois-compact {
+  gap: 8px;
+}
+.bouton-lien {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  text-decoration: none;
+  color: #fff;
+}
+.bouton-lien:hover {
+  color: #fff;
+}
+.bouton-secondaire.bouton-lien {
+  color: var(--texte);
+}
+.actions-entete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.entete-eleve {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.entete-eleve h1 {
+  margin: 0;
+}
+.pastille-note {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: #eef1f8;
+  color: #34446b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tuiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.tuile {
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tuile strong {
+  font-size: 24px;
+  color: var(--vert);
+  line-height: 1.2;
+}
+.tuile span {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.tuile-forte {
+  background: var(--vert) var(--motif-clair);
+  background-size: 96px 96px;
+  border-color: var(--vert);
+}
+.tuile-forte strong,
+.tuile-forte span {
+  color: #fff;
+}
+.tuile-alerte {
+  background: #fbe7d7;
+  border-color: #f0cbae;
+}
+.tuile-alerte strong,
+.tuile-alerte span {
+  color: #7a3608;
+}
+
+/* ---------- Classe (maître) ------------------------------------------ */
+.liste-eleves {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.carte-eleve {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "avatar nom chevron"
+    "avatar stats chevron";
+  gap: 4px 14px;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  border-radius: 16px;
+  color: var(--texte);
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.carte-eleve:hover {
+  border-color: var(--vert);
+  box-shadow: var(--ombre);
+  color: var(--texte);
+}
+.carte-eleve .avatar {
+  grid-area: avatar;
+}
+.carte-eleve-nom {
+  grid-area: nom;
+  font-weight: 700;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  align-items: baseline;
+}
+.carte-eleve-nom small {
+  font-weight: 400;
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.texte-alerte {
+  color: #9a4a0c !important;
+  font-weight: 600 !important;
+}
+.carte-eleve-stats {
+  grid-area: stats;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.carte-eleve-stats b {
+  color: var(--texte);
+}
+.chevron {
+  grid-area: chevron;
+  font-size: 22px;
+  color: var(--texte-doux);
+}
+.avatar-clair {
+  background: var(--vert-clair);
+  color: var(--vert);
+}
+.avatar-grand {
+  width: 52px;
+  height: 52px;
+  font-size: 18px;
+}
+.archives {
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+.archives summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 32px;
+}
+.archives ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.archives li {
+  padding: 4px 0;
+}
+
+/* ---------- Progression ---------------------------------------------- */
+.grille-graphiques {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 16px;
+}
+.carte-graphique {
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  border-radius: 18px;
+  box-shadow: var(--ombre);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.carte-graphique h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.carte-graphique-sous {
+  margin: 0;
+  font-size: 13px;
+  color: var(--texte-doux);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.graphique {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.graphique-grille {
+  max-width: 360px;
+}
+.legende {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.legende-case {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.puce {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.puce-vert {
+  background: #1d5c47;
+}
+.puce-or {
+  background: #c9a24a;
+}
+.jauge {
+  display: block;
+  height: 8px;
+  border-radius: 99px;
+  background: #ece8de;
+  overflow: hidden;
+}
+.jauge > span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--vert);
+}
+.barres-objectifs {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.barres-objectifs li {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.barres-objectifs .jauge > span {
+  background: var(--or);
+}
+.liste-sourates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 14px 24px;
+}
+.liste-sourates li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.liste-sourates-ligne {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+}
+.liste-sourates-ligne .arabe {
+  color: var(--vert);
+  font-size: 17px;
+}
+.liste-sourates-info {
+  font-size: 12px;
+  color: var(--texte-doux);
+  white-space: nowrap;
+}
+.liste-sourates-revision {
+  color: var(--texte-doux);
+  font-size: 12px;
+}
+
+/* ---------- Formulaires et tableaux d'administration ------------------ */
+.champs-duo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.champ-select,
+.formulaire-ligne input {
+  height: 48px;
+  border: 1px solid var(--champ);
+  border-radius: 12px;
+  padding: 0 12px;
+  font: inherit;
+  background: #fcfbf8;
+}
+.formulaire-ligne {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-top: 8px;
+}
+.formulaire-ligne .message-erreur {
+  grid-column: 1 / -1;
+}
+.formulaire-ligne .bouton-secondaire {
+  height: 48px;
+}
+.liste-simple {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.liste-simple li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #efebe2;
+  font-size: 14px;
+}
+.liste-simple li:first-child {
+  border-top: 0;
+}
+.liste-simple span {
+  color: var(--texte-doux);
+}
+.tableau-defilant {
+  overflow-x: auto;
+}
+.tableau {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.tableau th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--texte-doux);
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--ligne);
+}
+.tableau td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #efebe2;
+}
+.pastille-role {
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.pastille-eleve {
+  background: var(--vert-clair);
+  color: var(--vert);
+}
+.pastille-maitre {
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.pastille-admin {
+  background: #e7e3f6;
+  color: #3c3489;
+}
+.lien-action {
+  border: 0;
+  background: none;
+  padding: 6px 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--vert);
+  cursor: pointer;
+}
+.lien-action:hover {
+  text-decoration: underline;
+}
+.lien-action-off {
+  color: #9a4a0c;
+}
+.bloc-commentaire {
+  border-color: #e8d6b0;
+}
+.commentaire-maitre p + p {
+  margin-top: 6px;
+}
+.commentaire-maitre small {
+  color: var(--or-texte);
 }

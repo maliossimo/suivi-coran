@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import type { Seance, TypeSeance } from "@/domain/fiche";
 import type { Passage } from "@/domain/versets";
-import { actionEnregistrerSeance, type EtatSaisie } from "../actions";
+import { actionEnregistrerSeance, type EtatSaisie } from "@/app/actions/fiche";
 
 export interface SourateOption {
   numero: number;
@@ -15,15 +15,21 @@ export interface SourateOption {
 const PAS = 5;
 
 export function FormulaireSeance({
+  eleveId,
+  retour,
   date,
   type,
   initiale,
   sourates,
+  libelleBouton = "Enregistrer la séance",
 }: {
+  eleveId: string;
+  retour: string;
   date: string;
   type: TypeSeance;
   initiale: Seance | null;
   sourates: SourateOption[];
+  libelleBouton?: string;
 }) {
   const [etat, action, enCours] = useActionState<EtatSaisie, FormData>(actionEnregistrerSeance, {});
   const [duree, setDuree] = useState<number>(initiale?.dureeMin ?? 0);
@@ -64,6 +70,8 @@ export function FormulaireSeance({
 
   return (
     <form action={action} className="formulaire seance-formulaire" noValidate>
+      <input type="hidden" name="eleveId" value={eleveId} />
+      <input type="hidden" name="retour" value={retour} />
       <input type="hidden" name="date" value={date} />
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="passages" value={JSON.stringify(passages)} />
@@ -208,7 +216,7 @@ export function FormulaireSeance({
       </section>
 
       <button className="bouton" type="submit" disabled={enCours}>
-        {enCours ? "Enregistrement…" : "Enregistrer la séance"}
+        {enCours ? "Enregistrement…" : libelleBouton}
       </button>
     </form>
   );

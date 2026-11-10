@@ -20,3 +20,16 @@ export async function commentairesDeSeance(seanceId: string): Promise<Commentair
   if (error) throw new Error(`Lecture des commentaires impossible : ${error.message}`);
   return schema.parse(data).map((c) => ({ texte: c.texte, creeLe: c.cree_le }));
 }
+
+export async function ajouterCommentaire(
+  eleveId: string,
+  auteurId: string,
+  seanceId: string,
+  texte: string,
+): Promise<void> {
+  const supabase = await creerClientServeur();
+  const { error } = await supabase
+    .from("commentaires")
+    .insert({ eleve_id: eleveId, auteur_id: auteurId, seance_id: seanceId, texte });
+  if (error) throw new Error(`Commentaire impossible : ${error.message}`);
+}
