@@ -1,0 +1,175 @@
+/**
+ * Construction de la fiche du mois (semaines 1 à 5, « Jour 1 » à « Jour 7 »)
+ * à partir des séances d'un élève. Code pur : aucune dépendance au framework.
+ */
+import {
+  formaterDate,
+  jourDansSemaine,
+  lireDate,
+  semainesDuMois,
+  type DateISO,
+  type NumeroSemaine,
+} from "./calendrier";
+import type { Passage } from "./versets";
+
+export type TypeSeance = "apprentissage" | "revision";
+export const TYPES_SEANCE: readonly TypeSeance[] = ["apprentissage", "revision"];
+export const LIBELLE_TYPE: Record<TypeSeance, string> = {
+  apprentissage: "Apprentissage",
+  revision: "Révision",
+};
+
+export type StatutObjectif = "en_cours" | "atteint" | "non_atteint";
+
+export interface Seance {
+  id: string;
+  date: DateISO;
+  type: TypeSeance;
+  dureeMin: number;
+  tajwid: string | null;
+  noteLibre: string | null;
+  /** Vrai si le maître (ou l'admin) a corrigé la séance. */
+  corrigee: boolean;
+  passages: Passage[];
+}
+
+export interface Objectif {
+  semaine: NumeroSemaine | null; // null = objectif du mois
+  description: string;
+  statut: StatutObjectif;
+}
+
+export interface JourFiche {
+  /** « Jour N » dans la semaine (1 à 7). */
+  numero: number;
+  jourDuMois: number;
+  date: DateISO;
+  seance: Seance | null;
+  aujourdhui: boolean;
+  futur: boolean;
+}
+
+export interface SemaineFiche {
+  numero: NumeroSemaine;
+  jours: JourFiche[];
+  totalMinutes: number;
+  joursTravailles: number;
+  objectif: Objectif | null;
+}
+
+export interface Mois {
+  annee: number;
+  mois: number; // 1..12
+}
+
+/** Construit les semaines de la fiche pour un mois et un type de séance. */
+export function construireFiche(
+  { annee, mois }: Mois,
+  seances: readonly Seance[],
+  objectifs: readonly Objectif[],
+  aujourdhui: DateISO,
+): SemaineFiche[] {
+  const parDate = new Map(seances.map((s) => [s.date, s]));
+  const objectifParSemaine = new Map(objectifs.filter((o) => o.semaine !== null).map((o) => [o.semaine, o]));
+
+  return semainesDuMois(annee, mois).map((semaine) => {
+    const jours = semaine.jours.map((jourDuMois): JourFiche => {
+      const date = formaterDate(annee, mois, jourDuMois);
+      return {
+        numero: jourDansSemaine(jourDuMois),
+        jourDuMois,
+        date,
+        seance: parDate.get(date) ?? null,
+        aujourdhui: date === aujourdhui,
+        futur: date > aujourdhui,
+      };
+    });
+    const avecSeance = jours.filter((j) => j.seance);
+    return {
+      numero: semaine.numero,
+      jours,
+      totalMinutes: avecSeance.reduce((t, j) => t + (j.seance?.dureeMin ?? 0), 0),
+      joursTravailles: avecSeance.length,
+      objectif: objectifParSemaine.get(semaine.numero) ?? null,
+    };
+  });
+}
+
+/** Lit « AAAA-MM » ; renvoie le mois de `aujourdhui` si la valeur est absente ou invalide. */
+export function lireMois(valeur: string | undefined, aujourdhui: DateISO): Mois {
+  const m = /^(\d{4})-(\d{2})$/.exec(valeur ?? "");
+  if (m) {
+    const annee = Number(m[1]);
+    const mois = Number(m[2]);
+    if (annee >= 2000 && annee <= 2100 && mois >= 1 && mois <= 12) return { annee, mois };
+  }
+  const { annee, mois } = lireDate(aujourdhui);
+  return { annee, mois };
+}
+
+export function decalerMois({ annee, mois }: Mois, delta: number): Mois {
+  const index = annee * 12 + (mois - 1) + delta;
+  return { annee: Math.floor(index / 12), mois: (index % 12) + 1 };
+}
+
+export function cleMois({ annee, mois }: Mois): string {
+  return `${annee}-${String(mois).padStart(2, "0")}`;
+}
+
+export function premierJour(m: Mois): DateISO {
+  return formaterDate(m.annee, m.mois, 1);
+}
+
+export function dernierJour(m: Mois): DateISO {
+  const fin = new Date(Date.UTC(m.annee, m.mois, 0)).getUTCDate();
+  return formaterDate(m.annee, m.mois, fin);
+}
+
+const NOMS_MOIS = [
+  "janvier",
+  "février",
+  "mars",
+  "avril",
+  "mai",
+  "juin",
+  "juillet",
+  "août",
+  "septembre",
+  "octobre",
+  "novembre",
+  "décembre",
+];
+const MOIS_COURTS = [
+  "janv.",
+  "févr.",
+  "mars",
+  "avr.",
+  "mai",
+  "juin",
+  "juil.",
+  "août",
+  "sept.",
+  "oct.",
+  "nov.",
+  "déc.",
+];
+
+/** « novembre 2026 » */
+export function libelleMois({ annee, mois }: Mois): string {
+  return `${NOMS_MOIS[mois - 1]} ${annee}`;
+}
+
+/** « 10 nov. » */
+export function libelleJourCourt(date: DateISO): string {
+  const { mois, jour } = lireDate(date);
+  return `${jour} ${MOIS_COURTS[mois - 1]}`;
+}
+
+/** « 1 h 15 », « 25 min », « — » */
+export function formaterDuree(minutes: number): string {
+  if (!minutes) return "—";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (!h) return `${m} min`;
+  return m ? `${h} h ${String(m).padStart(2, "0")}` : `${h} h`;
+}
