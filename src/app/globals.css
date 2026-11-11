@@ -1524,13 +1524,13 @@ input.champ-texte {
   opacity: 1;
   background: rgba(255, 255, 255, 0.15);
 }
+/* Glissement seulement, sans fondu : si l'animation est suspendue (onglet en
+   arrière-plan, économie d'énergie), le bandeau reste pleinement visible. */
 @keyframes notification-entree {
   from {
-    opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(24px);
   }
   to {
-    opacity: 1;
     transform: none;
   }
 }
@@ -2266,5 +2266,125 @@ input.champ-texte {
 }
 .menu-plus-item small {
   font-weight: 400;
+  color: var(--texte-doux);
+}
+
+/* ---------- Carte du Coran -------------------------------------------- */
+.carte-coran {
+  --c-maitrisee: #1d5c47;
+  --c-a-reviser: #c9922e;
+  --c-en-cours: #b9d6c8;
+  --c-vide: #ece8de;
+}
+.carte-legende {
+  list-style: none;
+  margin: 2px 0 6px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.carte-legende li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.carte-legende b {
+  color: var(--texte);
+}
+.carte-pastille {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+.carte-grille {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+  gap: 4px;
+}
+.carte-case {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.carte-case > span[aria-hidden="true"]:first-child {
+  position: relative;
+  z-index: 1;
+}
+.carte-jauge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #7fb39b;
+}
+.carte-maitrisee {
+  background: var(--c-maitrisee);
+  color: #fff;
+}
+.carte-a_reviser {
+  background: var(--c-a-reviser);
+  color: #fff;
+}
+.carte-en_cours {
+  background: var(--c-en-cours);
+  color: var(--vert-nuit, #123d30);
+}
+.carte-vide {
+  background: var(--c-vide);
+  color: #9a9488;
+}
+.carte-pastille.carte-maitrisee {
+  background: var(--c-maitrisee);
+}
+.carte-pastille.carte-a_reviser {
+  background: var(--c-a-reviser);
+}
+.carte-pastille.carte-en_cours {
+  background: #7fb39b;
+}
+.carte-pastille.carte-vide {
+  background: #d6d1c4;
+}
+.carte-a-reviser {
+  margin-top: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--or-clair);
+  border: 1px solid #e8d6b0;
+}
+.carte-a-reviser h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--or-texte, #8a5a12);
+}
+.carte-a-reviser ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.carte-a-reviser li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0 8px;
+}
+.carte-a-reviser small {
+  grid-column: 2;
   color: var(--texte-doux);
 }

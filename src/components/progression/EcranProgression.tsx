@@ -1,9 +1,11 @@
 import { libelleJourCourt } from "@/domain/fiche";
+import type { CarteDuCoran } from "@/domain/carte";
 import { aRenforcer, type Progression } from "@/domain/progression";
+import { CarteCoran } from "./CarteCoran";
 import { GraphiqueCumul, GraphiqueSemaines, GrilleRegularite, LegendeTeintes } from "./Graphiques";
 
 /** Écran « Progression », commun à l'élève et au maître. */
-export function EcranProgression({ p }: { p: Progression & { aujourdhui: string } }) {
+export function EcranProgression({ p }: { p: Progression & { aujourdhui: string; carte: CarteDuCoran } }) {
   const minutes12 = p.minutesParSemaine.reduce((t, b) => t + b.apprentissage + b.revision, 0);
   const objectifs = p.objectifsParMois.reduce(
     (acc, m) => ({ atteints: acc.atteints + m.atteints, total: acc.total + m.total }),
@@ -32,6 +34,8 @@ export function EcranProgression({ p }: { p: Progression & { aujourdhui: string 
           <span>jour{p.joursConsecutifs > 1 ? "s" : ""} d’affilée</span>
         </div>
       </div>
+
+      <CarteCoran carte={p.carte} aujourdhui={p.aujourdhui} />
 
       <div className="grille-graphiques">
         <section className="carte-graphique">
