@@ -149,7 +149,8 @@ export function GraphiqueSemaines({ barres }: { barres: BarreSemaine[] }) {
 }
 
 const JOURS = ["L", "M", "M", "J", "V", "S", "D"];
-const TEINTES = ["#ece8de", "#cfe3da", "#5e9a82", "#1d5c47"];
+// Teintes définies en CSS (--teinte-0 à 3) : contrastées en mode clair comme en mode sombre.
+const TEINTES = [0, 1, 2, 3].map((n) => `var(--teinte-${n})`);
 
 /** Grille de régularité : une colonne par semaine, une case par jour. */
 export function GrilleRegularite({ colonnes }: { colonnes: CaseRegularite[][] }) {
@@ -180,6 +181,7 @@ export function GrilleRegularite({ colonnes }: { colonnes: CaseRegularite[][] })
             width={C}
             height={C}
             rx="4"
+            className={jour.futur ? "case-future" : `teinte-${jour.niveau}`}
             fill={jour.futur ? "transparent" : TEINTES[jour.niveau]}
             stroke={jour.futur ? GRILLE : "none"}
             strokeDasharray={jour.futur ? "3 3" : undefined}
