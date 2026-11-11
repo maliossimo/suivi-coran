@@ -1,8 +1,10 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { cleMois, decalerMois, formaterDuree, libelleMois, lireMois } from "@/domain/fiche";
 import { Squelettes } from "@/components/Chargement";
 import { EnteteEspace } from "@/components/EnteteEspace";
+import { EtatVide } from "@/components/EtatVide";
 import { ListeEleves } from "@/components/ListeEleves";
 import { exigerEspace } from "@/services/acces";
 import { chargerClasse } from "@/services/classe";
@@ -41,10 +43,12 @@ async function ContenuClasse({ moisParam }: { moisParam?: string }) {
       </div>
 
       {classe.actifs.length === 0 ? (
-        <section className="carte-accueil">
-          <h2>Aucun élève pour l’instant</h2>
+        <EtatVide titre="Aucun élève pour l’instant">
           <p>Invite tes élèves : ils recevront un e-mail pour choisir leur mot de passe.</p>
-        </section>
+          <Link href="/maitre/inviter" className="bouton bouton-auto">
+            Inviter un élève
+          </Link>
+        </EtatVide>
       ) : null}
       <ListeEleves actifs={classe.actifs} archives={classe.archives} cleMois={cle} />
     </>
@@ -63,18 +67,20 @@ export default async function PageClasse({ searchParams }: { searchParams: Promi
           <nav className="mois mois-compact" aria-label="Changer de mois">
             <Link
               className="mois-fleche"
+              prefetch
               href={`/maitre?mois=${cleMois(decalerMois(mois, -1))}`}
               aria-label="Mois précédent"
             >
-              ‹
+              <ChevronLeft size={22} aria-hidden="true" />
             </Link>
             <h1 className="mois-titre">{libelleMois(mois)}</h1>
             <Link
               className="mois-fleche"
+              prefetch
               href={`/maitre?mois=${cleMois(decalerMois(mois, 1))}`}
               aria-label="Mois suivant"
             >
-              ›
+              <ChevronRight size={22} aria-hidden="true" />
             </Link>
           </nav>
           {profil.role === "maitre" ? (

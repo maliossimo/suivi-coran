@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, RotateCcw } from "lucide-react";
 import { useActionState } from "react";
 import { actionEnregistrerBilan, type EtatSaisie } from "@/app/actions/fiche";
 import type { Bilan, TypeSeance } from "@/domain/fiche";
@@ -33,7 +34,9 @@ export function FormulaireBilan({
       ) : null}
 
       <label className="bilan-champ">
-        <span className="bilan-etiquette bilan-etiquette-acquis">✓ Bien mémorisé</span>
+        <span className="bilan-etiquette bilan-etiquette-acquis">
+          <Check size={15} strokeWidth={2.6} aria-hidden="true" /> Bien mémorisé
+        </span>
         <textarea
           name="bienMemorise"
           className="champ-texte"
@@ -47,7 +50,9 @@ export function FormulaireBilan({
       </label>
 
       <label className="bilan-champ">
-        <span className="bilan-etiquette bilan-etiquette-renfort">↻ À renforcer</span>
+        <span className="bilan-etiquette bilan-etiquette-renfort">
+          <RotateCcw size={15} strokeWidth={2.4} aria-hidden="true" /> À renforcer
+        </span>
         <textarea
           name="aRenforcer"
           className="champ-texte"

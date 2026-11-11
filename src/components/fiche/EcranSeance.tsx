@@ -1,3 +1,4 @@
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { actionSupprimerSeance } from "@/app/actions/fiche";
 import { positionSurFiche, type DateISO } from "@/domain/calendrier";
@@ -38,7 +39,8 @@ export function EcranSeance({
   return (
     <>
       <Link href={retour} className="lien-retour">
-        ‹ Retour à la fiche
+        <ChevronLeft size={18} aria-hidden="true" />
+        Retour à la fiche
       </Link>
       <header className="seance-entete">
         <h1>

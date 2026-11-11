@@ -1,3 +1,4 @@
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireInvitation } from "@/components/FormulaireInvitation";
@@ -11,7 +12,8 @@ export default async function PageInviter() {
       <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace espace-etroit">
         <Link href="/maitre" className="lien-retour">
-          ‹ Toute la classe
+          <ChevronLeft size={18} aria-hidden="true" />
+          Toute la classe
         </Link>
         <header className="seance-entete">
           <h1>Inviter un élève</h1>

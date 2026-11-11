@@ -1,3 +1,4 @@
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EnteteEspace } from "@/components/EnteteEspace";
@@ -18,7 +19,8 @@ export default async function PageProgressionMaitre({ params }: { params: Promis
       <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
         <Link href={`/maitre/eleves/${eleve.id}`} className="lien-retour">
-          ‹ Fiche de {eleve.prenom}
+          <ChevronLeft size={18} aria-hidden="true" />
+          Fiche de {eleve.prenom}
         </Link>
         <h1 className="titre-page">
           Progression de {eleve.prenom} {eleve.nom}

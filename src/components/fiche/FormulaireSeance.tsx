@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import { useActionState, useState } from "react";
 import type { Seance, TypeSeance } from "@/domain/fiche";
 import type { Passage } from "@/domain/versets";
@@ -160,7 +161,9 @@ export function FormulaireSeance({
                 {nomSourate(suggestion.sourateDebut)?.nomAr}
               </span>
             </span>
-            <span className="suggestion-action">Ajouter ›</span>
+            <span className="suggestion-action">
+              Ajouter <ChevronRight size={16} aria-hidden="true" />
+            </span>
           </button>
         ) : null}
         {passages.length === 0 && !suggestion ? (

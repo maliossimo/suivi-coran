@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { profilConnecte } from "@/repositories/profils";
 import { notifier } from "./notification";
+
 import { commenter } from "@/services/classe";
 import {
   enregistrerBilanEleve,
@@ -13,6 +14,16 @@ import {
   supprimerSeanceEleve,
   type ResultatSaisie,
 } from "@/services/fiche";
+
+/**
+ * Ne rafraîchit que les pages qui montrent cet élève (sa fiche, sa progression,
+ * la classe du maître), au lieu de tout le site.
+ */
+function revaliderEleve(eleveId: string) {
+  revalidatePath("/eleve", "layout");
+  revalidatePath(`/maitre/eleves/${eleveId}`, "layout");
+  revalidatePath("/maitre");
+}
 
 /**
  * Actions de la fiche, communes à l'élève et au maître.
@@ -64,7 +75,7 @@ export async function actionEnregistrerSeance(_: EtatSaisie, form: FormData): Pr
   if (!resultat.ok) return { erreur: resultat.erreur };
 
   await notifier("Séance enregistrée");
-  revalidatePath("/", "layout");
+  revaliderEleve(eleveId);
   redirect(retourSur(form.get("retour")));
 }
 
@@ -76,7 +87,7 @@ export async function actionSupprimerSeance(form: FormData): Promise<void> {
   } catch {
     await notifier("La séance n'a pas pu être supprimée.", "erreur");
   }
-  revalidatePath("/", "layout");
+  revaliderEleve(eleveId);
   redirect(retourSur(form.get("retour")));
 }
 
@@ -94,7 +105,7 @@ export async function actionEnregistrerObjectif(form: FormData): Promise<void> {
   } catch {
     await notifier("L'objectif n'a pas pu être enregistré.", "erreur");
   }
-  revalidatePath("/", "layout");
+  revaliderEleve(eleveId);
 }
 
 export async function actionCommenter(_: EtatSaisie, form: FormData): Promise<EtatSaisie> {
@@ -106,7 +117,7 @@ export async function actionCommenter(_: EtatSaisie, form: FormData): Promise<Et
   });
   if (!resultat.ok) return { erreur: resultat.erreur };
   await notifier("Commentaire publié");
-  revalidatePath("/", "layout");
+  revaliderEleve(eleveId);
   return {};
 }
 
@@ -125,6 +136,6 @@ export async function actionEnregistrerBilan(_: EtatSaisie, form: FormData): Pro
   }
   if (!resultat.ok) return { erreur: resultat.erreur };
   await notifier("Bilan enregistré");
-  revalidatePath("/", "layout");
+  revaliderEleve(eleveId);
   return { enregistre: true };
 }
