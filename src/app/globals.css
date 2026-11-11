@@ -222,6 +222,8 @@ a:hover {
   font-weight: 600;
 }
 .champ input {
+  width: 100%;
+  min-width: 0;
   height: 48px;
   border: 1px solid var(--champ);
   border-radius: 12px;
@@ -2721,8 +2723,13 @@ button:active:not(:disabled),
 }
 .formulaire-deux {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0, …) : les colonnes peuvent rétrécir sous la largeur naturelle d'un champ. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+.formulaire-deux .champ,
+.champs-duo .champ {
+  min-width: 0;
 }
 .auth-bas {
   margin: 16px 0 0;
