@@ -1,3 +1,4 @@
+import { ChevronLeft, Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { actionArchiverEleve } from "@/app/actions/classe";
@@ -29,7 +30,8 @@ export default async function PageEleveMaitre({
       <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
         <Link href="/maitre" className="lien-retour">
-          ‹ Toute la classe
+          <ChevronLeft size={18} aria-hidden="true" />
+          Toute la classe
         </Link>
         <div className="entete-page">
           <div className="entete-eleve">
@@ -49,7 +51,9 @@ export default async function PageEleveMaitre({
             </Link>
             {eleve.actif ? (
               <details className="menu-plus">
-                <summary aria-label="Plus d’actions">⋯</summary>
+                <summary aria-label="Plus d’actions">
+                  <Ellipsis size={20} aria-hidden="true" />
+                </summary>
                 <div className="menu-plus-liste">
                   <form action={actionArchiverEleve}>
                     <input type="hidden" name="eleveId" value={eleve.id} />

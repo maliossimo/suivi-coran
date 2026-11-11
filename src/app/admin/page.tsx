@@ -1,4 +1,5 @@
 import { actionBasculerUtilisateur } from "@/app/actions/admin";
+import { AnneauProgression } from "@/components/AnneauProgression";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireEtablissement } from "@/components/FormulaireEtablissement";
 import { FormulaireInvitation } from "@/components/FormulaireInvitation";
@@ -43,12 +44,17 @@ export default async function PageAdmin() {
               {t.etablissements.length > 1 ? "s" : ""}
             </span>
           </div>
-          <div className="tuile tuile-or">
-            <strong>
-              {st.elevesActifs7j}
-              <small> ({st.tauxActivite7j} %)</small>
-            </strong>
-            <span>élèves actifs sur 7 jours</span>
+          <div className="tuile tuile-or tuile-anneau">
+            <AnneauProgression
+              pourcentage={st.tauxActivite7j}
+              taille={64}
+              epaisseur={7}
+              libelle={`${st.tauxActivite7j} % des élèves actifs sur 7 jours`}
+            />
+            <span>
+              {st.elevesActifs7j} élève{st.elevesActifs7j > 1 ? "s" : ""} actif
+              {st.elevesActifs7j > 1 ? "s" : ""} sur 7 jours
+            </span>
           </div>
           <div className="tuile">
             <strong>{st.seances7j}</strong>

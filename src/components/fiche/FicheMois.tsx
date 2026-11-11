@@ -1,6 +1,6 @@
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { actionEnregistrerObjectif } from "@/app/actions/fiche";
 import {
   cleMois,
   decalerMois,
@@ -13,11 +13,11 @@ import {
   premierJour,
   TYPES_SEANCE,
   type JourFiche,
-  type Objectif,
   type TypeSeance,
 } from "@/domain/fiche";
 import { creerReferentiel, libellePassage, type Referentiel } from "@/domain/versets";
 import type { Fiche } from "@/services/fiche";
+import { FormulaireObjectif } from "./FormulaireObjectif";
 import { SectionBilan } from "./SectionBilan";
 
 /**
@@ -53,18 +53,20 @@ export function FicheMois({
       <nav className="mois" aria-label="Changer de mois">
         <Link
           className="mois-fleche"
+          prefetch
           href={lien(cleMois(decalerMois(fiche.mois, -1)), fiche.type)}
           aria-label="Mois précédent"
         >
-          ‹
+          <ChevronLeft size={22} aria-hidden="true" />
         </Link>
         <h2 className="mois-titre">{libelleMois(fiche.mois)}</h2>
         <Link
           className="mois-fleche"
+          prefetch
           href={lien(cleMois(decalerMois(fiche.mois, 1)), fiche.type)}
           aria-label="Mois suivant"
         >
-          ›
+          <ChevronRight size={22} aria-hidden="true" />
         </Link>
       </nav>
 
@@ -129,16 +131,7 @@ export function FicheMois({
 
       <div className="fiche-actions">
         <Link href={`${base}/fiche-pdf?mois=${cle}`} className="lien-pdf" prefetch={false}>
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path
-              d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Download size={18} aria-hidden="true" />
           Fiche du mois en PDF
         </Link>
       </div>
@@ -170,6 +163,7 @@ export function FicheMois({
                 </ul>
               )}
               <FormulaireObjectif
+                key={`${fiche.type}-${semaine.numero}-${semaine.objectif?.statut ?? ""}`}
                 titre="Objectif de la semaine"
                 objectif={semaine.objectif}
                 eleveId={eleveId}
@@ -203,6 +197,7 @@ export function FicheMois({
           <h3>Objectif du mois</h3>
         </header>
         <FormulaireObjectif
+          key={`${fiche.type}-mois-${fiche.objectifMensuel?.statut ?? ""}`}
           titre="Objectif du mois"
           objectif={fiche.objectifMensuel}
           eleveId={eleveId}
@@ -286,68 +281,5 @@ function LigneJour({ jour, lien, refs }: { jour: JourFiche; lien: string; refs: 
     <Link className={classes} href={lien}>
       {corps}
     </Link>
-  );
-}
-
-const STATUTS = [
-  { valeur: "en_cours", libelle: "En cours" },
-  { valeur: "atteint", libelle: "✓ Atteint" },
-  { valeur: "non_atteint", libelle: "✗ Non atteint" },
-] as const;
-
-function FormulaireObjectif({
-  titre,
-  objectif,
-  eleveId,
-  type,
-  mois,
-  semaine,
-  retour,
-}: {
-  titre: string;
-  objectif: Objectif | null;
-  eleveId: string;
-  type: TypeSeance;
-  mois: string;
-  semaine: string;
-  retour: string;
-}) {
-  const id = `objectif-${semaine || "mois"}`;
-  return (
-    <form action={actionEnregistrerObjectif} className="objectif">
-      <input type="hidden" name="eleveId" value={eleveId} />
-      <input type="hidden" name="retour" value={retour} />
-      <input type="hidden" name="type" value={type} />
-      <input type="hidden" name="mois" value={mois} />
-      <input type="hidden" name="semaine" value={semaine} />
-      <label htmlFor={id} className="objectif-titre">
-        {titre}
-      </label>
-      <input
-        id={id}
-        name="description"
-        defaultValue={objectif?.description ?? ""}
-        placeholder="ex. Apprendre Al-Mulk, versets 1 à 15"
-        maxLength={300}
-        required
-      />
-      <fieldset className="objectif-statut">
-        <legend className="visuellement-cache">Statut</legend>
-        {STATUTS.map((s) => (
-          <label key={s.valeur} className={`statut statut-${s.valeur}`}>
-            <input
-              type="radio"
-              name="statut"
-              value={s.valeur}
-              defaultChecked={(objectif?.statut ?? "en_cours") === s.valeur}
-            />
-            {s.libelle}
-          </label>
-        ))}
-      </fieldset>
-      <button type="submit" className="bouton-secondaire">
-        Enregistrer
-      </button>
-    </form>
   );
 }

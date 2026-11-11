@@ -1,6 +1,8 @@
 "use client";
 
+import { ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
+import { EtatVide } from "./EtatVide";
 import { useState } from "react";
 import { actionArchiverEleve } from "@/app/actions/classe";
 import { correspondARecherche, libelleDerniereSaisie, type ResumeEleve } from "@/domain/classe";
@@ -32,7 +34,7 @@ export function ListeEleves({
       {actifs.length + archives.length > 1 ? (
         <div className="recherche">
           <span className="recherche-icone" aria-hidden="true">
-            ⌕
+            <Search size={18} />
           </span>
           <input
             type="search"
@@ -47,7 +49,9 @@ export function ListeEleves({
       ) : null}
 
       {actifs.length > 0 && visibles.length === 0 ? (
-        <p className="recherche-vide">Aucun élève ne correspond à « {recherche.trim()} ».</p>
+        <EtatVide titre="Aucun élève trouvé">
+          <p>Personne ne correspond à « {recherche.trim()} ». Vérifie l’orthographe ou cherche par le nom.</p>
+        </EtatVide>
       ) : null}
 
       <ul className="liste-eleves">
@@ -81,7 +85,7 @@ export function ListeEleves({
                 </span>
               </span>
               <span className="chevron" aria-hidden="true">
-                ›
+                <ChevronRight size={20} />
               </span>
             </Link>
           </li>

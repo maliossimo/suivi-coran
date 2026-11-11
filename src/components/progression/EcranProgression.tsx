@@ -1,6 +1,8 @@
 import { libelleJourCourt } from "@/domain/fiche";
 import type { CarteDuCoran } from "@/domain/carte";
 import { aRenforcer, type Progression } from "@/domain/progression";
+import { AnneauProgression } from "@/components/AnneauProgression";
+import { EtatVide } from "@/components/EtatVide";
 import { CarteCoran } from "./CarteCoran";
 import { GraphiqueCumul, GraphiqueSemaines, GrilleRegularite, LegendeTeintes } from "./Graphiques";
 
@@ -12,15 +14,29 @@ export function EcranProgression({ p }: { p: Progression & { aujourdhui: string;
     { atteints: 0, total: 0 },
   );
 
+  const rien = p.versetsAppris === 0 && minutes12 === 0 && p.carte.compte.vide === p.carte.cases.length;
+
   return (
     <>
+      {rien ? (
+        <EtatVide titre="La progression apparaîtra ici">
+          Dès les premières séances saisies, les versets appris, la carte du Coran et la régularité
+          s’afficheront ici.
+        </EtatVide>
+      ) : null}
       <div className="tuiles">
         <div className="tuile tuile-forte">
           <strong>{p.versetsAppris}</strong>
           <span>versets appris</span>
         </div>
-        <div className="tuile">
-          <strong>{p.pourcentageCoran.toLocaleString("fr-FR")} %</strong>
+        <div className="tuile tuile-anneau">
+          <AnneauProgression
+            pourcentage={p.pourcentageCoran}
+            taille={64}
+            epaisseur={7}
+            libelle={`${p.pourcentageCoran.toLocaleString("fr-FR")} % du Coran`}
+            texte={`${p.pourcentageCoran.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %`}
+          />
           <span>du Coran</span>
         </div>
         <div className="tuile">
