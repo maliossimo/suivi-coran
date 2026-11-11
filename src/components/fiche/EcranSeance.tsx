@@ -75,6 +75,7 @@ export function EcranSeance({
         type={type}
         initiale={donnees.seance}
         suggestion={donnees.suggestion}
+        propose={donnees.propose}
         vueMaitre={vueMaitre}
         libelleBouton={vueMaitre ? "Enregistrer la correction" : "Enregistrer la séance"}
         sourates={donnees.sourates.map((s) => ({
