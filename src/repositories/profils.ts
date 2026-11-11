@@ -112,3 +112,13 @@ export async function definirActif(id: string, actif: boolean): Promise<void> {
   const { error } = await supabase.from("profils").update({ actif }).eq("id", id);
   if (error) throw new Error(`Mise à jour impossible : ${error.message}`);
 }
+
+/**
+ * Suppression définitive d'un élève archivé, avec toutes ses données.
+ * Les règles (son maître ou l'admin, élève archivé) sont vérifiées par la base.
+ */
+export async function supprimerEleveDefinitivement(id: string): Promise<void> {
+  const supabase = await creerClientServeur();
+  const { error } = await supabase.rpc("supprimer_eleve", { p_eleve: id });
+  if (error) throw new Error(error.message);
+}

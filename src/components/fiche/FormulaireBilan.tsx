@@ -62,11 +62,6 @@ export function FormulaireBilan({
         <button type="submit" className="bouton-secondaire" disabled={enCours}>
           {enCours ? "Enregistrement…" : bilan ? "Mettre à jour le bilan" : "Enregistrer le bilan"}
         </button>
-        {etat.enregistre && !enCours ? (
-          <span className="bilan-ok" role="status">
-            Bilan enregistré
-          </span>
-        ) : null}
       </div>
     </form>
   );

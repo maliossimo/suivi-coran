@@ -206,5 +206,49 @@ select pg_temp.attendu(
   (select count(*) from public.commentaires where bilan_id is not null) = 1,
   'bilan : l''élève lit le mot de son maître');
 
+-- ---------- Suppression définitive d'un élève -------------------------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.doit_echouer(
+  $q$select public.supprimer_eleve('a0000000-0000-0000-0000-000000000001')$q$,
+  'suppression : refusée tant que l''élève n''est pas archivé');
+update public.profils set actif = false where id = 'a0000000-0000-0000-0000-000000000001';
+
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.doit_echouer(
+  $q$select public.supprimer_eleve('a0000000-0000-0000-0000-000000000001')$q$,
+  'suppression : refusée au maître d''une autre école');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
+select pg_temp.doit_echouer(
+  $q$select public.supprimer_eleve('a0000000-0000-0000-0000-000000000001')$q$,
+  'suppression : refusée à un élève');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.doit_echouer(
+  $q$select public.supprimer_eleve('a0000000-0000-0000-0000-00000000000a')$q$,
+  'suppression : un maître ne peut pas être supprimé par cette voie');
+select public.supprimer_eleve('a0000000-0000-0000-0000-000000000001');
+
+select pg_temp.console();
+select pg_temp.attendu(
+  not exists (select 1 from auth.users where id = 'a0000000-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.seances where eleve_id = 'a0000000-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.bilans_mensuels where eleve_id = 'a0000000-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.commentaires where eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'suppression : le compte et toutes les données de l''élève sont effacés');
+select pg_temp.attendu(
+  not exists (select 1 from public.journal_audit
+              where eleve_id = 'a0000000-0000-0000-0000-000000000001' and (avant is not null or apres is not null)),
+  'suppression : le journal ne garde plus de données personnelles de l''élève');
+select pg_temp.attendu(
+  exists (select 1 from public.journal_audit
+          where action = 'SUPPRESSION_ELEVE' and eleve_id = 'a0000000-0000-0000-0000-000000000001'
+            and acteur_id = 'a0000000-0000-0000-0000-00000000000a'),
+  'suppression : le journal garde qui a supprimé et quand');
+select pg_temp.attendu(
+  exists (select 1 from public.seances where eleve_id = 'a0000000-0000-0000-0000-000000000002'),
+  'suppression : les autres élèves ne sont pas touchés');
+
 select pg_temp.console();
 rollback;

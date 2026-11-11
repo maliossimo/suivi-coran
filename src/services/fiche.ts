@@ -51,8 +51,6 @@ export interface Fiche {
   joursTravailles: number;
   /** Versets distincts travaillés dans le mois (tous passages confondus). */
   versetsTravailles: number;
-  bilan: Bilan | null;
-  commentairesBilan: Commentaire[];
   sourates: Sourate[];
 }
 
@@ -61,13 +59,11 @@ export async function chargerFiche(eleveId: string, moisParam?: string, typePara
   const mois = lireMois(moisParam, aujourdhui);
   const position = positionDuMois(mois, aujourdhui);
   const type = lireType(typeParam);
-  const [seances, objectifs, sourates, bilan] = await Promise.all([
+  const [seances, objectifs, sourates] = await Promise.all([
     position === "futur" ? [] : seancesEntre(eleveId, type, premierJour(mois), dernierJour(mois)),
     objectifsDuMois(eleveId, type, premierJour(mois)),
     listerSourates(),
-    position === "futur" ? null : bilanDuMois(eleveId, type, premierJour(mois)),
   ]);
-  const commentairesBilan = bilan ? await commentairesDe({ bilanId: bilan.id }) : [];
   const semaines = construireFiche(mois, seances, objectifs, aujourdhui);
   return {
     mois,
@@ -82,8 +78,6 @@ export async function chargerFiche(eleveId: string, moisParam?: string, typePara
       creerReferentiel(sourates),
       seances.flatMap((s) => s.passages),
     ),
-    bilan,
-    commentairesBilan,
     sourates,
   };
 }
@@ -198,6 +192,17 @@ export async function enregistrerObjectifEleve(eleveId: string, brut: unknown): 
 }
 
 // ---------- Bilan du mois ------------------------------------------------
+
+/** Bilan du mois et mots du maître (chargés à part, après la fiche). */
+export async function chargerBilan(
+  eleveId: string,
+  type: TypeSeance,
+  mois: Mois,
+): Promise<{ bilan: Bilan | null; commentaires: Commentaire[] }> {
+  const bilan = await bilanDuMois(eleveId, type, premierJour(mois));
+  const commentaires = bilan ? await commentairesDe({ bilanId: bilan.id }) : [];
+  return { bilan, commentaires };
+}
 
 const schemaBilan = z.object({
   type: z.enum(["apprentissage", "revision"]),

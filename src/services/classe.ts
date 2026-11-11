@@ -1,11 +1,17 @@
 import "server-only";
 import { z } from "zod";
-import { resumerClasse, type ResumeEleve } from "@/domain/classe";
+import { confirmationValide, resumerClasse, type ResumeEleve } from "@/domain/classe";
 import { decalerMois, dernierJour, lireMois, premierJour, type Mois } from "@/domain/fiche";
 import { ajouterCommentaire } from "@/repositories/commentaires";
 import { inviter } from "@/repositories/invitations";
 import { statutsObjectifsDuMois } from "@/repositories/objectifs";
-import { definirActif, eleveParId, listerEleves, type Profil } from "@/repositories/profils";
+import {
+  definirActif,
+  eleveParId,
+  listerEleves,
+  supprimerEleveDefinitivement,
+  type Profil,
+} from "@/repositories/profils";
 import { dernieresSaisies, statsSeancesEntre } from "@/repositories/seances";
 import { aujourdhuiParis, type ResultatSaisie } from "./fiche";
 
@@ -125,9 +131,43 @@ export async function inviterMaitre(
   return resultat.ok ? { ok: true } : { ok: false, erreur: MESSAGES_INVITATION[resultat.raison] };
 }
 
-export async function archiverEleve(acteur: Profil, eleveId: unknown, actif: boolean): Promise<void> {
-  if (!estEncadrant(acteur)) return;
+export async function archiverEleve(
+  acteur: Profil,
+  eleveId: unknown,
+  actif: boolean,
+): Promise<ResultatSaisie> {
+  if (!estEncadrant(acteur)) return { ok: false, erreur: "Action réservée au maître." };
   const id = z.string().uuid().safeParse(eleveId);
-  if (!id.success) return;
-  await definirActif(id.data, actif);
+  if (!id.success) return { ok: false, erreur: "Élève introuvable." };
+  try {
+    await definirActif(id.data, actif);
+  } catch {
+    return { ok: false, erreur: "La modification n'a pas pu être enregistrée." };
+  }
+  return { ok: true };
+}
+
+/**
+ * Suppression définitive : l'élève doit être archivé et la personne doit
+ * retaper son prénom. La base revérifie les droits dans supprimer_eleve().
+ */
+export async function supprimerEleve(
+  acteur: Profil,
+  eleveIdBrut: unknown,
+  confirmation: unknown,
+): Promise<ResultatSaisie> {
+  if (!estEncadrant(acteur)) return { ok: false, erreur: "Action réservée au maître." };
+  const id = z.string().uuid().safeParse(eleveIdBrut);
+  const eleve = id.success ? await eleveParId(id.data) : null;
+  if (!eleve) return { ok: false, erreur: "Élève introuvable." };
+  if (eleve.actif) return { ok: false, erreur: "Archive l'élève avant de le supprimer." };
+  if (!confirmationValide(eleve.prenom, typeof confirmation === "string" ? confirmation : "")) {
+    return { ok: false, erreur: `Tape « ${eleve.prenom} » pour confirmer.` };
+  }
+  try {
+    await supprimerEleveDefinitivement(eleve.id);
+  } catch {
+    return { ok: false, erreur: "La suppression a échoué. Réessaie dans un instant." };
+  }
+  return { ok: true };
 }
