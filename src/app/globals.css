@@ -516,7 +516,6 @@ a:hover {
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  text-transform: capitalize;
 }
 .mois-puce:hover {
   border-color: var(--vert);
@@ -2114,4 +2113,158 @@ input.champ-texte {
   .pdf-bilan > div {
     min-height: 48px;
   }
+}
+
+/* ---------- Ergonomie : fiche compacte -------------------------------- */
+.resume-mois {
+  margin: -2px 0 0;
+}
+.fiche-actions {
+  margin: -8px 0 -6px;
+}
+.semaine-pliable > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.semaine-pliable > summary::-webkit-details-marker {
+  display: none;
+}
+.semaine-pliable > summary::after {
+  content: "›";
+  margin-left: 8px;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--texte-doux);
+  transition: transform 0.15s;
+}
+.semaine-pliable[open] > summary::after {
+  transform: rotate(90deg);
+}
+.semaine-pliable:not([open]) {
+  background: #faf8f3;
+  box-shadow: none;
+}
+
+/* ---------- Saisie d'une séance --------------------------------------- */
+.durees-rapides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.duree-rapide {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 99px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texte);
+  cursor: pointer;
+}
+.duree-rapide[aria-pressed="true"] {
+  background: var(--vert);
+  border-color: var(--vert);
+  color: #fff;
+}
+.suggestion {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2px 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--vert);
+  border-radius: 14px;
+  background: var(--vert-clair);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.suggestion-titre {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.suggestion-passage {
+  grid-column: 1;
+  font-weight: 700;
+  color: var(--vert);
+}
+.suggestion-action {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-weight: 700;
+  color: var(--vert);
+}
+/* Bouton « Enregistrer » toujours visible en bas de l'écran. */
+.barre-enregistrer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin: 0 -4px;
+  padding: 12px 4px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(246, 243, 236, 0) 0, var(--fond, #f6f3ec) 30%);
+}
+@media (max-width: 760px) {
+  .barre-enregistrer {
+    bottom: calc(68px + env(safe-area-inset-bottom));
+    padding-bottom: 12px;
+  }
+}
+
+/* ---------- Menu « ⋯ » ------------------------------------------------- */
+.menu-plus {
+  position: relative;
+}
+.menu-plus > summary {
+  list-style: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--champ);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.menu-plus > summary::-webkit-details-marker {
+  display: none;
+}
+.menu-plus-liste {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  min-width: 260px;
+  padding: 6px;
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(20, 40, 32, 0.18);
+}
+.menu-plus-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--rouge);
+  cursor: pointer;
+}
+.menu-plus-item:hover {
+  background: #fbefec;
+}
+.menu-plus-item small {
+  font-weight: 400;
+  color: var(--texte-doux);
 }

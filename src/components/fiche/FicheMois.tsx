@@ -43,6 +43,10 @@ export function FicheMois({
   const retour = lien(cle, fiche.type);
   const aVenir = fiche.position === "futur";
   const raccourcis = moisAutour(fiche.moisCourant, 2, 4);
+  const semaineCourante =
+    fiche.position === "courant"
+      ? (fiche.semaines.find((sem) => sem.jours.some((j) => j.aujourdhui))?.numero ?? null)
+      : null;
 
   return (
     <>
@@ -75,27 +79,11 @@ export function FicheMois({
               className={courant ? "mois-puce mois-puce-courant" : "mois-puce"}
               aria-current={c === cle ? "page" : undefined}
             >
-              {courant ? "Ce mois" : libelleMoisCourt(m, fiche.moisCourant.annee)}
+              {courant ? "Ce mois" : majuscule(libelleMoisCourt(m, fiche.moisCourant.annee))}
             </Link>
           );
         })}
       </nav>
-
-      <div className="fiche-actions">
-        <Link href={`${base}/fiche-pdf?mois=${cle}`} className="lien-pdf" prefetch={false}>
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path
-              d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Fiche du mois en PDF
-        </Link>
-      </div>
 
       <nav className="onglets" aria-label="Type de séance">
         {TYPES_SEANCE.map((t) => (
@@ -119,61 +107,95 @@ export function FicheMois({
           </p>
         </section>
       ) : (
-        <div className="tuiles">
-          <div className="tuile">
-            <strong>{formaterDuree(fiche.totalMinutes)}</strong>
-            <span>ce mois-ci</span>
-          </div>
-          <div className="tuile">
-            <strong>{fiche.joursTravailles}</strong>
-            <span>
-              jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé{fiche.joursTravailles > 1 ? "s" : ""}
-            </span>
-          </div>
-          <div className="tuile">
+        <ul className="bilan-chiffres resume-mois" aria-label="Résumé du mois">
+          <li>
+            <strong>{formaterDuree(fiche.totalMinutes)}</strong> de travail
+          </li>
+          <li>
+            <strong>{fiche.joursTravailles}</strong> jour{fiche.joursTravailles > 1 ? "s" : ""}
+          </li>
+          <li>
+            <strong>{fiche.versetsTravailles}</strong> verset{fiche.versetsTravailles > 1 ? "s" : ""}
+          </li>
+          <li>
             <strong>
-              {fiche.semaines.filter((s) => s.objectif?.statut === "atteint").length} /{" "}
+              {fiche.semaines.filter((s) => s.objectif?.statut === "atteint").length}/
               {fiche.semaines.filter((s) => s.objectif).length}
-            </strong>
-            <span>objectifs atteints</span>
-          </div>
-        </div>
+            </strong>{" "}
+            objectifs
+          </li>
+        </ul>
       )}
 
+      <div className="fiche-actions">
+        <Link href={`${base}/fiche-pdf?mois=${cle}`} className="lien-pdf" prefetch={false}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Fiche du mois en PDF
+        </Link>
+      </div>
+
       <div className="semaines">
-        {fiche.semaines.map((semaine) => (
-          <section key={semaine.numero} className="semaine" aria-labelledby={`s${semaine.numero}`}>
-            <header className="semaine-entete">
+        {fiche.semaines.map((semaine) => {
+          const entete = (
+            <>
               <h3 id={`s${semaine.numero}`}>Semaine {semaine.numero}</h3>
               <span>
                 {libelleJourCourt(semaine.jours[0]!.date)} → {libelleJourCourt(semaine.jours.at(-1)!.date)} ·{" "}
                 {aVenir ? `${semaine.jours.length} jours` : formaterDuree(semaine.totalMinutes)}
               </span>
-            </header>
-            {aVenir ? null : (
-              <ul className="jours">
-                {semaine.jours.map((jour) => (
-                  <li key={jour.date}>
-                    <LigneJour
-                      jour={jour}
-                      lien={`${base}/seance?date=${jour.date}&type=${fiche.type}`}
-                      refs={ref}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-            <FormulaireObjectif
-              titre="Objectif de la semaine"
-              objectif={semaine.objectif}
-              eleveId={eleveId}
-              type={fiche.type}
-              mois={premierJour(fiche.mois)}
-              semaine={String(semaine.numero)}
-              retour={retour}
-            />
-          </section>
-        ))}
+            </>
+          );
+          const contenu = (
+            <>
+              {aVenir ? null : (
+                <ul className="jours">
+                  {semaine.jours.map((jour) => (
+                    <li key={jour.date}>
+                      <LigneJour
+                        jour={jour}
+                        lien={`${base}/seance?date=${jour.date}&type=${fiche.type}`}
+                        refs={ref}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <FormulaireObjectif
+                titre="Objectif de la semaine"
+                objectif={semaine.objectif}
+                eleveId={eleveId}
+                type={fiche.type}
+                mois={premierJour(fiche.mois)}
+                semaine={String(semaine.numero)}
+                retour={retour}
+              />
+            </>
+          );
+          // Mois en cours : les semaines déjà passées sont repliées, la fiche s'ouvre sur la semaine actuelle.
+          if (semaineCourante !== null && semaine.numero < semaineCourante) {
+            return (
+              <details key={semaine.numero} className="semaine semaine-pliable">
+                <summary className="semaine-entete">{entete}</summary>
+                {contenu}
+              </details>
+            );
+          }
+          return (
+            <section key={semaine.numero} className="semaine" aria-labelledby={`s${semaine.numero}`}>
+              <header className="semaine-entete">{entete}</header>
+              {contenu}
+            </section>
+          );
+        })}
       </div>
 
       <section className="semaine">
@@ -229,6 +251,10 @@ export function FicheMois({
       )}
     </>
   );
+}
+
+function majuscule(texte: string): string {
+  return texte.charAt(0).toUpperCase() + texte.slice(1);
 }
 
 function LigneJour({ jour, lien, refs }: { jour: JourFiche; lien: string; refs: Referentiel }) {
