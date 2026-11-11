@@ -1,17 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EnteteEspace } from "@/components/EnteteEspace";
-import { EcranProgression } from "@/components/progression/EcranProgression";
+import { Suspense } from "react";
+import { Squelettes } from "@/components/Chargement";
+import { ProgressionDifferee } from "@/components/progression/ProgressionDifferee";
 import { exigerEspace } from "@/services/acces";
 import { chargerEleve } from "@/services/classe";
-import { chargerProgression } from "@/services/progression";
 
 export default async function PageProgressionMaitre({ params }: { params: Promise<{ id: string }> }) {
   const profil = await exigerEspace("maitre");
   const { id } = await params;
   const eleve = /^[0-9a-f-]{36}$/i.test(id) ? await chargerEleve(id) : null;
   if (!eleve) notFound();
-  const progression = await chargerProgression(eleve.id);
 
   return (
     <>
@@ -27,7 +27,9 @@ export default async function PageProgressionMaitre({ params }: { params: Promis
         <h1 className="titre-page">
           Progression de {eleve.prenom} {eleve.nom}
         </h1>
-        <EcranProgression p={progression} />
+        <Suspense fallback={<Squelettes cartes={4} />}>
+          <ProgressionDifferee eleveId={eleve.id} />
+        </Suspense>
       </main>
     </>
   );

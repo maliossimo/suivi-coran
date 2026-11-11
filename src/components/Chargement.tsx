@@ -31,3 +31,18 @@ export function Chargement({ titre }: { titre: string }) {
     </>
   );
 }
+
+/** Silhouettes de contenu, à placer dans un <Suspense> pendant qu'une partie de la page charge. */
+export function Squelettes({ cartes = 2, tuiles = true }: { cartes?: number; tuiles?: boolean }) {
+  return (
+    <div className="squelettes" aria-busy="true">
+      <span className="visuellement-cache">Chargement…</span>
+      {tuiles ? <div className="squelette squelette-tuiles" /> : null}
+      <div className="squelette-grille">
+        {Array.from({ length: cartes }, (_, i) => (
+          <div key={i} className="squelette squelette-carte" />
+        ))}
+      </div>
+    </div>
+  );
+}

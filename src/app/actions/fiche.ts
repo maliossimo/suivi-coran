@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { profilConnecte } from "@/repositories/profils";
+import { notifier } from "./notification";
 import { commenter } from "@/services/classe";
 import {
   enregistrerBilanEleve,
@@ -62,26 +63,37 @@ export async function actionEnregistrerSeance(_: EtatSaisie, form: FormData): Pr
   }
   if (!resultat.ok) return { erreur: resultat.erreur };
 
+  await notifier("Séance enregistrée");
   revalidatePath("/", "layout");
   redirect(retourSur(form.get("retour")));
 }
 
 export async function actionSupprimerSeance(form: FormData): Promise<void> {
   const { eleveId } = await acteurEtEleve(form);
-  await supprimerSeanceEleve(eleveId, form.get("type"), form.get("date"));
+  try {
+    await supprimerSeanceEleve(eleveId, form.get("type"), form.get("date"));
+    await notifier("Séance supprimée");
+  } catch {
+    await notifier("La séance n'a pas pu être supprimée.", "erreur");
+  }
   revalidatePath("/", "layout");
   redirect(retourSur(form.get("retour")));
 }
 
 export async function actionEnregistrerObjectif(form: FormData): Promise<void> {
   const { eleveId } = await acteurEtEleve(form);
-  await enregistrerObjectifEleve(eleveId, {
-    type: form.get("type"),
-    mois: form.get("mois"),
-    semaine: form.get("semaine") ?? "",
-    description: form.get("description"),
-    statut: form.get("statut") ?? "en_cours",
-  });
+  try {
+    const resultat = await enregistrerObjectifEleve(eleveId, {
+      type: form.get("type"),
+      mois: form.get("mois"),
+      semaine: form.get("semaine") ?? "",
+      description: form.get("description"),
+      statut: form.get("statut") ?? "en_cours",
+    });
+    await notifier(resultat.ok ? "Objectif enregistré" : resultat.erreur, resultat.ok ? "succes" : "erreur");
+  } catch {
+    await notifier("L'objectif n'a pas pu être enregistré.", "erreur");
+  }
   revalidatePath("/", "layout");
 }
 
@@ -93,6 +105,7 @@ export async function actionCommenter(_: EtatSaisie, form: FormData): Promise<Et
     texte: form.get("texte"),
   });
   if (!resultat.ok) return { erreur: resultat.erreur };
+  await notifier("Commentaire publié");
   revalidatePath("/", "layout");
   return {};
 }
@@ -111,6 +124,7 @@ export async function actionEnregistrerBilan(_: EtatSaisie, form: FormData): Pro
     resultat = { ok: false, erreur: "L'enregistrement a échoué. Réessaie dans un instant." };
   }
   if (!resultat.ok) return { erreur: resultat.erreur };
+  await notifier("Bilan enregistré");
   revalidatePath("/", "layout");
   return { enregistre: true };
 }

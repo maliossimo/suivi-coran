@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { actionEnregistrerObjectif } from "@/app/actions/fiche";
 import {
   cleMois,
@@ -17,18 +18,7 @@ import {
 } from "@/domain/fiche";
 import { creerReferentiel, libellePassage, type Referentiel } from "@/domain/versets";
 import type { Fiche } from "@/services/fiche";
-import { FormulaireBilan } from "./FormulaireBilan";
-import { FormulaireCommentaire } from "./FormulaireCommentaire";
-
-function formaterDateHeure(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Paris",
-  }).format(new Date(iso));
-}
+import { SectionBilan } from "./SectionBilan";
 
 /**
  * Fiche du mois d'un élève (semaines 1 à 5). Utilisée par l'élève (/eleve)
@@ -189,7 +179,6 @@ export function FicheMois({
         <section className="semaine bilan" aria-labelledby="bilan-titre">
           <header className="semaine-entete">
             <h3 id="bilan-titre">Bilan du mois · {LIBELLE_TYPE[fiche.type].toLowerCase()}</h3>
-            {fiche.bilan?.corrige ? <span className="pastille-or">Complété par le maître</span> : null}
           </header>
           <ul className="bilan-chiffres">
             <li>
@@ -217,28 +206,9 @@ export function FicheMois({
                 : "Remplis ton bilan en fin de mois : ton maître le lira."}
             </p>
           ) : null}
-          <FormulaireBilan
-            key={`${cle}-${fiche.type}`}
-            eleveId={eleveId}
-            type={fiche.type}
-            mois={premierJour(fiche.mois)}
-            bilan={fiche.bilan}
-            vueMaitre={vueMaitre}
-          />
-          {fiche.commentairesBilan.length > 0 ? (
-            <div className="commentaire-maitre">
-              <h4>Mot du maître</h4>
-              {fiche.commentairesBilan.map((c) => (
-                <p key={c.creeLe}>
-                  {c.texte}
-                  <small> · {formaterDateHeure(c.creeLe)}</small>
-                </p>
-              ))}
-            </div>
-          ) : null}
-          {vueMaitre && fiche.bilan ? (
-            <FormulaireCommentaire eleveId={eleveId} cible="bilan" cibleId={fiche.bilan.id} />
-          ) : null}
+          <Suspense key={`${cle}-${fiche.type}`} fallback={<div className="squelette squelette-bilan" />}>
+            <SectionBilan eleveId={eleveId} type={fiche.type} mois={fiche.mois} vueMaitre={vueMaitre} />
+          </Suspense>
         </section>
       )}
     </>

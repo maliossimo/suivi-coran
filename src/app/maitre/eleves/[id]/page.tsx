@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { actionArchiverEleve } from "@/app/actions/classe";
+import { ConfirmationSuppression } from "@/components/ConfirmationSuppression";
 import { EnteteEspace } from "@/components/EnteteEspace";
-import { FicheMois } from "@/components/fiche/FicheMois";
+import { Suspense } from "react";
+import { Squelettes } from "@/components/Chargement";
+import { FicheDifferee } from "@/components/fiche/FicheDifferee";
 import { exigerEspace } from "@/services/acces";
 import { chargerEleve } from "@/services/classe";
-import { chargerFiche } from "@/services/fiche";
 
 export default async function PageEleveMaitre({
   params,
@@ -20,7 +22,6 @@ export default async function PageEleveMaitre({
   const eleve = /^[0-9a-f-]{36}$/i.test(id) ? await chargerEleve(id) : null;
   if (!eleve) notFound();
 
-  const fiche = await chargerFiche(eleve.id, mois, type);
   const base = `/maitre/eleves/${eleve.id}`;
 
   return (
@@ -59,7 +60,18 @@ export default async function PageEleveMaitre({
             </form>
           </div>
         </div>
-        <FicheMois fiche={fiche} eleveId={eleve.id} base={base} vueMaitre />
+        {!eleve.actif ? (
+          <section className="bandeau-archive">
+            <p>
+              <strong>Élève archivé.</strong> Il ne peut plus se connecter ; son historique reste consultable.
+              Réactive-le s’il revient, ou supprime-le définitivement.
+            </p>
+            <ConfirmationSuppression eleveId={eleve.id} prenom={eleve.prenom} nom={eleve.nom} />
+          </section>
+        ) : null}
+        <Suspense key={`${mois}-${type}`} fallback={<Squelettes />}>
+          <FicheDifferee eleveId={eleve.id} base={base} mois={mois} type={type} vueMaitre />
+        </Suspense>
       </main>
     </>
   );

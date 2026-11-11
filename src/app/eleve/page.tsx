@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
-import { FicheMois } from "@/components/fiche/FicheMois";
+import { Suspense } from "react";
+import { Squelettes } from "@/components/Chargement";
+import { FicheDifferee } from "@/components/fiche/FicheDifferee";
 import { exigerEspace } from "@/services/acces";
-import { chargerFiche } from "@/services/fiche";
 
 export default async function PageFiche({
   searchParams,
@@ -11,7 +12,6 @@ export default async function PageFiche({
 }) {
   const profil = await exigerEspace("eleve");
   const params = await searchParams;
-  const fiche = await chargerFiche(profil.id, params.mois, params.type);
 
   return (
     <>
@@ -23,7 +23,9 @@ export default async function PageFiche({
           </Link>
           <Link href="/eleve/progression">Ma progression</Link>
         </nav>
-        <FicheMois fiche={fiche} eleveId={profil.id} base="/eleve" />
+        <Suspense key={`${params.mois}-${params.type}`} fallback={<Squelettes />}>
+          <FicheDifferee eleveId={profil.id} base="/eleve" mois={params.mois} type={params.type} />
+        </Suspense>
       </main>
     </>
   );
