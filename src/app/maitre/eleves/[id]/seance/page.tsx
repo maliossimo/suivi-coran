@@ -10,7 +10,7 @@ export default async function PageSeanceMaitre({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ date?: string; type?: string }>;
+  searchParams: Promise<{ date?: string; type?: string; passage?: string }>;
 }) {
   const profil = await exigerEspace("maitre");
   const { id } = await params;
@@ -23,7 +23,7 @@ export default async function PageSeanceMaitre({
   const type = lireType(query.type);
   if (!date) redirect(base);
 
-  const donnees = await chargerSeance(eleve.id, date, type);
+  const donnees = await chargerSeance(eleve.id, date, type, query.passage);
 
   return (
     <>

@@ -20,6 +20,7 @@ import {
 import {
   creerReferentiel,
   nbVersetsDistincts,
+  lirePassageTexte,
   passageSuivant,
   versIntervalle,
   type Passage,
@@ -109,12 +110,16 @@ export interface DonneesSeance {
   sourates: Sourate[];
   /** Suite logique du dernier passage travaillé (proposée en un toucher). */
   suggestion: Passage | null;
+  /** Passage à préremplir (déjà ajouté au formulaire). */
+  propose: Passage | null;
 }
 
 export async function chargerSeance(
   eleveId: string,
   date: DateISO,
   type: TypeSeance,
+  /** Passage proposé par l'adresse (bouton « Réviser » de la progression), ex. « 2:142-202 ». */
+  passagePropose?: string,
 ): Promise<DonneesSeance> {
   const [seance, sourates, precedente] = await Promise.all([
     seanceDuJour(eleveId, type, date),
@@ -122,9 +127,11 @@ export async function chargerSeance(
     derniereSeanceAvecPassagesAvant(eleveId, type, date),
   ]);
   const commentaires = seance ? await commentairesDeSeance(seance.id) : [];
+  const ref = creerReferentiel(sourates);
   const dernier = precedente?.passages.at(-1);
-  const suggestion = dernier ? passageSuivant(creerReferentiel(sourates), dernier) : null;
-  return { date, type, seance, commentaires, sourates, suggestion };
+  const suggestion = dernier ? passageSuivant(ref, dernier) : null;
+  const propose = lirePassageTexte(ref, passagePropose);
+  return { date, type, seance, commentaires, sourates, suggestion, propose };
 }
 
 // ---------- Saisie d'une séance ----------------------------------------

@@ -7,7 +7,14 @@ import { CarteCoran } from "./CarteCoran";
 import { GraphiqueCumul, GraphiqueSemaines, GrilleRegularite, LegendeTeintes } from "./Graphiques";
 
 /** Écran « Progression », commun à l'élève et au maître. */
-export function EcranProgression({ p }: { p: Progression & { aujourdhui: string; carte: CarteDuCoran } }) {
+export function EcranProgression({
+  p,
+  base,
+}: {
+  p: Progression & { aujourdhui: string; carte: CarteDuCoran };
+  /** Racine des pages de l'élève : « /eleve » ou « /maitre/eleves/{id} ». */
+  base: string;
+}) {
   const minutes12 = p.minutesParSemaine.reduce((t, b) => t + b.apprentissage + b.revision, 0);
   const objectifs = p.objectifsParMois.reduce(
     (acc, m) => ({ atteints: acc.atteints + m.atteints, total: acc.total + m.total }),
@@ -51,7 +58,7 @@ export function EcranProgression({ p }: { p: Progression & { aujourdhui: string;
         </div>
       </div>
 
-      <CarteCoran carte={p.carte} aujourdhui={p.aujourdhui} />
+      <CarteCoran carte={p.carte} aujourdhui={p.aujourdhui} base={base} />
 
       <div className="grille-graphiques">
         <section className="carte-graphique">

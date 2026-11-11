@@ -7,7 +7,7 @@ import { chargerSeance, lireDateSaisissable, lireType } from "@/services/fiche";
 export default async function PageSeance({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string; type?: string }>;
+  searchParams: Promise<{ date?: string; type?: string; passage?: string }>;
 }) {
   const profil = await exigerEspace("eleve");
   const params = await searchParams;
@@ -15,7 +15,7 @@ export default async function PageSeance({
   const type = lireType(params.type);
   if (!date) redirect(`/eleve?type=${type}`);
 
-  const donnees = await chargerSeance(profil.id, date, type);
+  const donnees = await chargerSeance(profil.id, date, type, params.passage);
 
   return (
     <>

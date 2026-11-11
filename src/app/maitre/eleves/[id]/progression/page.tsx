@@ -26,7 +26,7 @@ export default async function PageProgressionMaitre({ params }: { params: Promis
           Progression de {eleve.prenom} {eleve.nom}
         </h1>
         <Suspense fallback={<Squelettes cartes={4} />}>
-          <ProgressionDifferee eleveId={eleve.id} />
+          <ProgressionDifferee eleveId={eleve.id} base={`/maitre/eleves/${eleve.id}`} />
         </Suspense>
       </main>
     </>

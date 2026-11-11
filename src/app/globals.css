@@ -2380,35 +2380,156 @@ input.champ-texte {
 .carte-pastille.carte-vide {
   background: var(--champ);
 }
-.carte-a-reviser {
+/* ---------- À réviser en priorité : une ligne par hizb ---------------- */
+.hizb-a-revoir {
   margin-top: 6px;
-  padding: 12px 14px;
+  padding: 12px 14px 4px;
   border-radius: 14px;
   background: var(--or-clair);
   border: 1px solid var(--bord-or);
 }
-.carte-a-reviser h3 {
-  margin: 0 0 6px;
-  font-size: 15px;
-  color: var(--or-texte, #8a5a12);
-}
-.carte-a-reviser ul {
-  list-style: none;
+.hizb-a-revoir h3 {
   margin: 0;
+  font-size: 16px;
+  color: var(--or-texte);
+}
+.hizb-resume {
+  margin: 2px 0 6px;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.hizb-resume b {
+  color: var(--texte);
+}
+.hizb-ligne + .hizb-ligne {
+  border-top: 1px solid var(--bord-or);
+}
+.hizb-ligne summary {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto 18px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  list-style: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.hizb-ligne summary::-webkit-details-marker {
+  display: none;
+}
+.hizb-numero {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--carte);
+  border: 1px solid var(--bord-or);
+  display: grid;
+  place-content: center;
+  text-align: center;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.hizb-numero small {
+  display: block;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+  margin-bottom: 2px;
+}
+.hizb-plage {
+  font-size: 13px;
+  color: var(--texte-doux);
+  line-height: 1.35;
+}
+.hizb-pastille {
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.hizb-pastille.hizb-jamais_revisee {
+  background: #f1dcae;
+  color: #6b4508;
+}
+.hizb-pastille.hizb-a_revoir {
+  background: #f6d9d3;
+  color: #8a2a1c;
+}
+.hizb-pastille.hizb-en_cours {
+  background: var(--vert-clair);
+  color: var(--vert);
+}
+.hizb-chevron {
+  color: var(--texte-doux);
+  transition: transform 0.2s ease;
+}
+.hizb-ligne[open] .hizb-chevron {
+  transform: rotate(180deg);
+}
+.hizb-ligne ul {
+  list-style: none;
+  margin: 0 0 10px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
-.carte-a-reviser li {
+.hizb-portion {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0 8px;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--carte);
+  border-left: 4px solid var(--or);
 }
-.carte-a-reviser small {
-  grid-column: 2;
+.hizb-portion.hizb-a_revoir {
+  border-left-color: var(--rouge);
+}
+.hizb-portion.hizb-en_cours {
+  border-left-color: var(--vert);
+}
+.hizb-portion-texte {
+  min-width: 0;
+  font-size: 14px;
+}
+.hizb-portion-texte .arabe {
+  font-size: 16px;
+}
+.hizb-versets {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.hizb-portion-texte small {
+  display: block;
   color: var(--texte-doux);
+  font-size: 12.5px;
+}
+.bouton-petit {
+  height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+@media (prefers-color-scheme: dark) {
+  .hizb-pastille.hizb-jamais_revisee {
+    background: #4a3a14;
+    color: #f0cf85;
+  }
+  .hizb-pastille.hizb-a_revoir {
+    background: #4a231d;
+    color: #f2a58e;
+  }
 }
 
 /* ---------- Admin : statistiques et suppression ----------------------- */

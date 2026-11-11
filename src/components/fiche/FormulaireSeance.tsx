@@ -29,6 +29,7 @@ export function FormulaireSeance({
   type,
   initiale,
   suggestion = null,
+  propose = null,
   vueMaitre = false,
   sourates,
   libelleBouton = "Enregistrer la séance",
@@ -39,13 +40,27 @@ export function FormulaireSeance({
   type: TypeSeance;
   initiale: Seance | null;
   suggestion?: Passage | null;
+  /** Passage proposé (bouton « Réviser ») : ajouté d'office s'il n'est pas déjà saisi. */
+  propose?: Passage | null;
   vueMaitre?: boolean;
   sourates: SourateOption[];
   libelleBouton?: string;
 }) {
   const [etat, action, enCours] = useActionState<EtatSaisie, FormData>(actionEnregistrerSeance, {});
   const [duree, setDuree] = useState<number>(initiale?.dureeMin ?? 0);
-  const [passages, setPassages] = useState<Passage[]>(initiale?.passages ?? []);
+  const [passages, setPassages] = useState<Passage[]>(() => {
+    const existants = initiale?.passages ?? [];
+    const dejaLa =
+      propose &&
+      existants.some(
+        (p) =>
+          p.sourateDebut === propose.sourateDebut &&
+          p.versetDebut === propose.versetDebut &&
+          p.sourateFin === propose.sourateFin &&
+          p.versetFin === propose.versetFin,
+      );
+    return propose && !dejaLa ? [...existants, propose] : existants;
+  });
   const [erreurLocale, setErreurLocale] = useState<string | null>(null);
 
   const nbVersets = (numero: number) => sourates.find((s) => s.numero === numero)?.nbVersets ?? 1;

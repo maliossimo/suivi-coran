@@ -126,3 +126,28 @@ export function passageSuivant(ref: Referentiel, dernier: Passage): Passage | nu
     versetFin: suivante.nbVersets,
   };
 }
+
+/** Écrit un passage pour une adresse : « 2:142-202 » ou « 2:142-3:10 ». */
+export function passageEnTexte(p: Passage): string {
+  return p.sourateDebut === p.sourateFin
+    ? `${p.sourateDebut}:${p.versetDebut}-${p.versetFin}`
+    : `${p.sourateDebut}:${p.versetDebut}-${p.sourateFin}:${p.versetFin}`;
+}
+
+/** Relit un passage écrit par `passageEnTexte` ; null s'il est mal formé ou hors du Coran. */
+export function lirePassageTexte(ref: Referentiel, texte: string | undefined | null): Passage | null {
+  const m = /^(\d{1,3}):(\d{1,3})-(?:(\d{1,3}):)?(\d{1,3})$/.exec(texte ?? "");
+  if (!m) return null;
+  const passage: Passage = {
+    sourateDebut: Number(m[1]),
+    versetDebut: Number(m[2]),
+    sourateFin: Number(m[3] ?? m[1]),
+    versetFin: Number(m[4]),
+  };
+  try {
+    versIntervalle(ref, passage);
+    return passage;
+  } catch {
+    return null;
+  }
+}
