@@ -19,7 +19,7 @@ export default async function PageSeance({
 
   return (
     <>
-      <EnteteEspace titre="Ma fiche" nom={`${profil.prenom} ${profil.nom}`.trim()} role="Élève" />
+      <EnteteEspace titre="Ma fiche" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace espace-etroit">
         <EcranSeance
           donnees={donnees}

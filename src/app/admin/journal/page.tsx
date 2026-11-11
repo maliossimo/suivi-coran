@@ -1,5 +1,4 @@
 import { EnteteEspace } from "@/components/EnteteEspace";
-import { MenuAdmin } from "@/components/MenuAdmin";
 import { exigerEspace } from "@/services/acces";
 import { chargerJournal } from "@/services/admin";
 
@@ -30,13 +29,8 @@ export default async function PageJournal() {
 
   return (
     <>
-      <EnteteEspace
-        titre="Administration"
-        nom={`${profil.prenom} ${profil.nom}`.trim()}
-        role="Administrateur"
-      />
+      <EnteteEspace titre="Administration" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
-        <MenuAdmin actif="journal" />
         <section className="carte-graphique">
           <h2>Journal d’audit</h2>
           <p className="carte-graphique-sous">

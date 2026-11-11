@@ -8,7 +8,7 @@ export default async function PageInviter() {
 
   return (
     <>
-      <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role="Maître" />
+      <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace espace-etroit">
         <Link href="/maitre" className="lien-retour">
           ‹ Toute la classe
