@@ -2826,3 +2826,16 @@ button:active:not(:disabled),
     color: #f3b98f;
   }
 }
+
+/* Menu ⋯ : ancré au début de la rangée de boutons, pour rester dans l'écran. */
+.actions-entete {
+  position: relative;
+}
+.actions-entete .menu-plus {
+  position: static;
+}
+.actions-entete .menu-plus-liste {
+  left: 0;
+  width: min(300px, calc(100vw - 32px));
+  min-width: 0;
+}
