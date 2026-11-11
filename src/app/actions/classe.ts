@@ -3,7 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { profilConnecte } from "@/repositories/profils";
-import { archiverEleve, inviterEleve, inviterMaitre, supprimerEleve } from "@/services/classe";
+import {
+  archiverEleve,
+  desactiverQrClasse,
+  genererQrClasse,
+  inviterEleve,
+  inviterMaitre,
+  supprimerEleve,
+} from "@/services/classe";
 import type { EtatSaisie } from "./fiche";
 import { notifier } from "./notification";
 
@@ -60,4 +67,18 @@ export async function actionSupprimerEleve(_: EtatSaisie, form: FormData): Promi
   await notifier("Élève supprimé définitivement");
   revalidatePath("/maitre");
   redirect("/maitre");
+}
+
+export async function actionGenererQr(): Promise<void> {
+  const profil = await acteur();
+  const resultat = await genererQrClasse(profil);
+  await notifier(resultat.ok ? "QR code prêt" : resultat.erreur, resultat.ok ? "succes" : "erreur");
+  revalidatePath("/maitre/inviter");
+}
+
+export async function actionDesactiverQr(): Promise<void> {
+  const profil = await acteur();
+  const resultat = await desactiverQrClasse(profil);
+  await notifier(resultat.ok ? "QR code désactivé" : resultat.erreur, resultat.ok ? "succes" : "erreur");
+  revalidatePath("/maitre/inviter");
 }

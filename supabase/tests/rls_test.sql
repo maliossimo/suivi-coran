@@ -171,6 +171,39 @@ select pg_temp.attendu(
   not exists (select 1 from public.seances where date = '2026-11-03' and eleve_id = 'a0000000-0000-0000-0000-000000000001'),
   'enregistrer_seance : en cas d''erreur, la séance n''est pas créée (transaction)');
 
+-- ---------- Invitations par QR code -----------------------------------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+insert into public.invitations_classe (id, etablissement_id, cree_par, code, expire_le) values
+  ('1c000000-0000-0000-0000-0000000000a1', 'aaaaaaaa-0000-0000-0000-000000000000',
+   'a0000000-0000-0000-0000-00000000000a', 'code-de-test-ecole-a-0001', now() + interval '7 days');
+select pg_temp.attendu((select count(*) from public.invitations_classe) = 1,
+  'QR : le maître crée et voit le code de sa classe');
+select pg_temp.doit_echouer(
+  $q$insert into public.invitations_classe (etablissement_id, cree_par, code, expire_le) values ('bbbbbbbb-0000-0000-0000-000000000000', 'a0000000-0000-0000-0000-00000000000a', 'code-de-test-ecole-b-0001', now() + interval '7 days')$q$,
+  'QR : un maître ne crée pas de code pour une autre école');
+update public.invitations_classe set actif = false where id = '1c000000-0000-0000-0000-0000000000a1';
+select pg_temp.attendu(
+  (select not actif from public.invitations_classe where id = '1c000000-0000-0000-0000-0000000000a1'),
+  'QR : le maître désactive son code');
+
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.attendu((select count(*) from public.invitations_classe) = 0,
+  'QR : invisible pour le maître d''une autre école');
+update public.invitations_classe set actif = true where id = '1c000000-0000-0000-0000-0000000000a1';
+select pg_temp.console();
+select pg_temp.attendu(
+  (select not actif from public.invitations_classe where id = '1c000000-0000-0000-0000-0000000000a1'),
+  'QR : un autre maître ne peut pas réactiver le code');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu((select count(*) from public.invitations_classe) = 0,
+  'QR : un élève ne voit pas les codes');
+select pg_temp.doit_echouer(
+  $q$insert into public.invitations_classe (etablissement_id, cree_par, code, expire_le) values ('aaaaaaaa-0000-0000-0000-000000000000', 'a0000000-0000-0000-0000-000000000001', 'code-de-test-eleve-00001', now() + interval '7 days')$q$,
+  'QR : un élève ne crée pas de code');
+
+select pg_temp.console();
+
 -- ---------- Bilan du mois ---------------------------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 insert into public.bilans_mensuels (id, eleve_id, type, mois, bien_memorise, a_renforcer) values
