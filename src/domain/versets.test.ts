@@ -4,6 +4,8 @@ import {
   fusionner,
   indexGlobal,
   libellePassage,
+  lirePassageTexte,
+  passageEnTexte,
   passageSuivant,
   nbVersetsDistincts,
   pourcentageDuCoran,
@@ -132,5 +134,25 @@ describe("passageSuivant", () => {
     expect(
       passageSuivant(ref, { sourateDebut: 114, versetDebut: 1, sourateFin: 114, versetFin: 6 }),
     ).toBeNull();
+  });
+});
+
+describe("passage dans une adresse", () => {
+  it("écrit puis relit un passage", () => {
+    const p = { sourateDebut: 67, versetDebut: 5, sourateFin: 67, versetFin: 30 };
+    expect(passageEnTexte(p)).toBe("67:5-30");
+    expect(lirePassageTexte(ref, "67:5-30")).toEqual(p);
+    const q = { sourateDebut: 67, versetDebut: 20, sourateFin: 68, versetFin: 3 };
+    expect(passageEnTexte(q)).toBe("67:20-68:3");
+    expect(lirePassageTexte(ref, "67:20-68:3")).toEqual(q);
+  });
+
+  it("refuse un passage mal formé ou hors du Coran", () => {
+    expect(lirePassageTexte(ref, undefined)).toBeNull();
+    expect(lirePassageTexte(ref, "abc")).toBeNull();
+    expect(lirePassageTexte(ref, "67:40-41")).toBeNull();
+    expect(lirePassageTexte(ref, "67:10-5")).toBeNull();
+    expect(lirePassageTexte(ref, "2:1-286")).toBeNull(); // sourate absente du référentiel
+    expect(lirePassageTexte(ref, "67:1-30;drop")).toBeNull();
   });
 });

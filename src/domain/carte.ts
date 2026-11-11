@@ -1,15 +1,18 @@
 /**
  * Carte du Coran : l'état de chacune des 114 sourates pour un élève,
- * et les sourates à réviser en priorité. Code pur, testé.
+ * et les hizb à réviser en priorité. Code pur, testé.
  */
 import type { DateISO } from "./calendrier";
 import { joursEntre } from "./classe";
 import type { Seance } from "./fiche";
+import { hizbARevoir, SEUIL_REVISION_JOURS, type HizbARevoir } from "./hizb";
 import { fusionner, versIntervalle, type Intervalle, type Referentiel, type Sourate } from "./versets";
 
+export { SEUIL_REVISION_JOURS };
+
 /**
- * - `maitrisee` : sourate connue en entier et travaillée récemment ;
- * - `a_reviser` : connue en entier mais pas travaillée depuis longtemps ;
+ * - `maitrisee` : sourate connue en entier et entièrement révisée récemment ;
+ * - `a_reviser` : connue en entier, mais une partie jamais révisée ou pas depuis longtemps ;
  * - `en_cours`  : une partie seulement est connue ;
  * - `vide`      : pas encore commencée.
  */
@@ -34,12 +37,9 @@ export interface CaseCarte {
 export interface CarteDuCoran {
   cases: CaseCarte[];
   compte: Record<EtatSourate, number>;
-  /** Les sourates connues travaillées il y a le plus longtemps (3 au plus). */
-  aReviserAujourdhui: CaseCarte[];
+  /** Hizb à réviser en priorité, du plus urgent au moins urgent (tous). */
+  hizb: HizbARevoir[];
 }
-
-/** Au-delà de ce nombre de jours sans travail, une sourate connue est « à réviser ». */
-export const SEUIL_REVISION_JOURS = 30;
 
 function couverture(intervalles: readonly Intervalle[], debut: number, fin: number): number {
   const coupes = intervalles
@@ -59,6 +59,7 @@ export function carteDuCoran(
     .filter((s) => s.date <= aujourdhui)
     .map((s) => ({
       date: s.date,
+      revision: s.type === "revision",
       intervalles: s.passages.flatMap((p) => {
         try {
           return [versIntervalle(ref, p)];
@@ -85,8 +86,11 @@ export function carteDuCoran(
 
       let etat: EtatSourate = "vide";
       if (connus >= sourate.nbVersets) {
-        const recente = derniereActivite !== null && joursEntre(derniereActivite, aujourdhui) <= seuilJours;
-        etat = recente ? "maitrisee" : "a_reviser";
+        // Maîtrisée si toute la sourate a été révisée dans les `seuilJours` derniers jours.
+        const recentes = travaux
+          .filter((t) => t.revision && joursEntre(t.date, aujourdhui) <= seuilJours)
+          .flatMap((t) => t.intervalles);
+        etat = couverture(recentes, debut, fin) >= sourate.nbVersets ? "maitrisee" : "a_reviser";
       } else if (connus > 0) {
         etat = "en_cours";
       }
@@ -96,10 +100,5 @@ export function carteDuCoran(
   const compte: Record<EtatSourate, number> = { maitrisee: 0, a_reviser: 0, en_cours: 0, vide: 0 };
   for (const c of cases) compte[c.etat] += 1;
 
-  const aReviserAujourdhui = cases
-    .filter((c) => c.etat === "a_reviser" || c.etat === "maitrisee")
-    .sort((a, b) => (a.derniereActivite ?? "").localeCompare(b.derniereActivite ?? ""))
-    .slice(0, 3);
-
-  return { cases, compte, aReviserAujourdhui };
+  return { cases, compte, hizb: hizbARevoir(ref, seances, aujourdhui, seuilJours) };
 }
