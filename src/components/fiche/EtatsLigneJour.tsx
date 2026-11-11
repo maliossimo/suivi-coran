@@ -1,13 +1,18 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { actionValiderSeance } from "@/app/actions/fiche";
-import { useEnAttente } from "./enregistrementsEnAttente";
+import { lancerEnvoi, useEnAttente } from "./enregistrementsEnAttente";
 
 /** « Enregistrement… » puis rien (ou « Non enregistrée ») sur la ligne du jour. */
 export function EtatEnregistrement({ cle }: { cle: string }) {
   const e = useEnAttente(cle);
+  // La fiche est affichée : l'enregistrement peut partir.
+  useEffect(() => {
+    const t = window.setTimeout(() => lancerEnvoi(cle), 0);
+    return () => window.clearTimeout(t);
+  }, [cle]);
   if (!e) return null;
   return e.etat === "envoi" ? (
     <span className="pastille-envoi">Enregistrement…</span>
