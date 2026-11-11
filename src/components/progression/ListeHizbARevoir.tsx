@@ -22,7 +22,7 @@ function detailPortion(p: PortionARevoir, aujourdhui: string): string {
     return `en cours d’apprentissage · ${p.connus} verset${p.connus > 1 ? "s" : ""} appris`;
   if (p.etat === "jamais_revisee") {
     return p.jamaisRevises === p.connus
-      ? "apprise, jamais révisée"
+      ? "jamais révisée"
       : `${p.jamaisRevises} verset${p.jamaisRevises > 1 ? "s" : ""} jamais révisé${p.jamaisRevises > 1 ? "s" : ""}`;
   }
   return `révisée ${ilYa(p.plusAncienneRevision!, aujourdhui)}`;
