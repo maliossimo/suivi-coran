@@ -157,7 +157,7 @@ export async function enregistrerSeanceEleve(eleveId: string, brut: unknown): Pr
   if (saisie.data.dureeMin === 0 && saisie.data.passages.length === 0 && !saisie.data.tajwid) {
     return {
       ok: false,
-      erreur: "Indique au moins une durée, un passage ou ce que tu as travaillé en tajwid.",
+      erreur: "Indique au moins une durée ou un passage.",
     };
   }
 
