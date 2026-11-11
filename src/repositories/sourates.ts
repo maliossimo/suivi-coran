@@ -14,19 +14,26 @@ const schema = z.array(
   }),
 );
 
-/** Les 114 sourates (lues une seule fois par requête). */
+// Le référentiel ne change jamais : une fois lu, il reste en mémoire du serveur
+// (plus de requête à la base pour chaque page).
+let enMemoire: Sourate[] | null = null;
+
+/** Les 114 sourates. */
 export const listerSourates = cache(async (): Promise<Sourate[]> => {
+  if (enMemoire) return enMemoire;
   const supabase = await creerClientServeur();
   const { data, error } = await supabase
     .from("sourates")
     .select("numero, nom_ar, nom_latin, nb_versets, premier_verset_global")
     .order("numero");
   if (error) throw new Error(`Lecture des sourates impossible : ${error.message}`);
-  return schema.parse(data).map((s) => ({
+  const sourates = schema.parse(data).map((s) => ({
     numero: s.numero,
     nomAr: s.nom_ar,
     nomLatin: s.nom_latin,
     nbVersets: s.nb_versets,
     premierVersetGlobal: s.premier_verset_global,
   }));
+  if (sourates.length === 114) enMemoire = sourates;
+  return sourates;
 });
