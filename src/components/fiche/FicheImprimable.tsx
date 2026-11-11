@@ -146,10 +146,6 @@ export function FicheImprimable({
                   <p>{bilan?.aRenforcer ?? ""}</p>
                 </div>
               </div>
-              <div className="pdf-signature">
-                <span>Signature du maître</span>
-                <span>Signature des parents</span>
-              </div>
             </div>
           </section>
         );
