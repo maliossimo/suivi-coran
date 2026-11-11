@@ -25,6 +25,18 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
           </div>
         </Link>
         <div className="barre-utilisateur">
+          <Link href="/" className="bouton-accueil" aria-label="Accueil">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path
+                d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="bouton-accueil-texte">Accueil</span>
+          </Link>
           <div className="barre-identite">
             <span className="avatar" aria-hidden="true">
               {initiales(nom)}

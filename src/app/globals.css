@@ -1669,3 +1669,34 @@ input.champ-texte {
 .bilan-pastille {
   align-self: flex-start;
 }
+
+/* Bouton « Accueil » de la barre du haut */
+.bouton-accueil {
+  height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.bouton-accueil:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.bouton-accueil:focus-visible {
+  outline: 2px solid #f0d796;
+  outline-offset: 2px;
+}
+@media (max-width: 520px) {
+  .bouton-accueil {
+    padding: 0;
+  }
+  .bouton-accueil-texte {
+    display: none;
+  }
+}
