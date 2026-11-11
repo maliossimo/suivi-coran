@@ -2,7 +2,7 @@
 
 import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { Seance, TypeSeance } from "@/domain/fiche";
 import { premierChevauchement, type Passage } from "@/domain/versets";
 import { actionEnregistrerSeanceFond } from "@/app/actions/fiche";
@@ -56,6 +56,10 @@ export function FormulaireSeance({
     return e?.etat === "erreur" ? e : undefined;
   });
   const [envoiEnCours, setEnvoiEnCours] = useState(false);
+  // Tant que la page n'est pas prête (téléphone lent), le bouton reste inactif :
+  // sinon le navigateur enverrait le formulaire « à l'ancienne » et rien ne serait enregistré.
+  const [pret, setPret] = useState(false);
+  useEffect(() => setPret(true), []);
   const [duree, setDuree] = useState<number>(reprise?.saisie.dureeMin ?? initiale?.dureeMin ?? 0);
   const [passages, setPassages] = useState<Passage[]>(() => {
     if (reprise) return reprise.saisie.passages;
@@ -340,7 +344,7 @@ export function FormulaireSeance({
       </section>
 
       <div className="barre-enregistrer">
-        <button className="bouton" type="submit" disabled={envoiEnCours}>
+        <button className="bouton" type="submit" disabled={!pret || envoiEnCours}>
           {envoiEnCours ? "Enregistrement…" : libelleBouton}
         </button>
       </div>
