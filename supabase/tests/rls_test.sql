@@ -171,6 +171,84 @@ select pg_temp.attendu(
   not exists (select 1 from public.seances where date = '2026-11-03' and eleve_id = 'a0000000-0000-0000-0000-000000000001'),
   'enregistrer_seance : en cas d''erreur, la séance n''est pas créée (transaction)');
 
+-- ---------- Correction par passage ------------------------------------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select public.enregistrer_seance('2026-11-04', 'apprentissage', 15::smallint, null, null,
+  '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10}]'::jsonb);
+select pg_temp.attendu(
+  (select corrige_par is null from public.passages p join public.seances s on s.id = p.seance_id
+    where s.date = '2026-11-04' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'correction : un passage saisi par l''élève n''est pas encore vu');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select public.enregistrer_seance('2026-11-04', 'apprentissage', 15::smallint, null, null,
+  '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10}]'::jsonb,
+  'a0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu(
+  (select corrige_par = 'a0000000-0000-0000-0000-00000000000a'
+     from public.passages p join public.seances s on s.id = p.seance_id
+    where s.date = '2026-11-04' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'correction : le Cheikh qui enregistre marque le passage comme vu');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select public.enregistrer_seance('2026-11-04', 'apprentissage', 20::smallint, null, null,
+  '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10},
+    {"sourateDebut":67,"versetDebut":11,"sourateFin":67,"versetFin":15}]'::jsonb);
+select pg_temp.attendu(
+  (select count(*) filter (where corrige_par is not null) = 1 and count(*) = 2
+     from public.passages p join public.seances s on s.id = p.seance_id
+    where s.date = '2026-11-04' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'correction : un passage ajouté après coup n''est pas vu, l''ancien garde sa marque');
+
+update public.passages set corrige_par = 'a0000000-0000-0000-0000-000000000001', corrige_le = now()
+ where seance_id = (select id from public.seances where date = '2026-11-04'
+                      and eleve_id = 'a0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu(
+  (select count(*) filter (where corrige_par is not null) = 1
+     and bool_and(corrige_par is distinct from 'a0000000-0000-0000-0000-000000000001')
+     from public.passages p join public.seances s on s.id = p.seance_id
+    where s.date = '2026-11-04' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'correction : l''élève ne peut pas se marquer lui-même comme corrigé');
+
+select public.enregistrer_seance('2026-11-04', 'apprentissage', 20::smallint, null, null,
+  '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":12},
+    {"sourateDebut":67,"versetDebut":13,"sourateFin":67,"versetFin":15}]'::jsonb);
+select pg_temp.attendu(
+  (select count(*) filter (where corrige_par is not null) = 0
+     from public.passages p join public.seances s on s.id = p.seance_id
+    where s.date = '2026-11-04' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'correction : un passage modifié par l''élève n''est plus marqué vu');
+
+select pg_temp.doit_echouer(
+  $q$select public.enregistrer_seance('2026-11-05', 'apprentissage', 10::smallint, null, null,
+    '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10},
+      {"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10}]'::jsonb)$q$,
+  'doublon : le même passage deux fois dans une séance est refusé');
+select pg_temp.doit_echouer(
+  $q$select public.enregistrer_seance('2026-11-05', 'apprentissage', 10::smallint, null, null,
+    '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10},
+      {"sourateDebut":67,"versetDebut":8,"sourateFin":68,"versetFin":2}]'::jsonb)$q$,
+  'doublon : deux passages qui se chevauchent sont refusés');
+select public.enregistrer_seance('2026-11-05', 'apprentissage', 10::smallint, null, null,
+  '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10},
+    {"sourateDebut":67,"versetDebut":11,"sourateFin":67,"versetFin":20}]'::jsonb);
+select pg_temp.attendu(
+  (select count(*) = 2 from public.passages p join public.seances s on s.id = p.seance_id
+    where s.date = '2026-11-05' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'doublon : deux passages qui se suivent sont acceptés');
+
+-- Le Cheikh revoit la séance du 4 : tous ses passages sont marqués.
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select public.enregistrer_seance('2026-11-04', 'apprentissage', 20::smallint, null, null,
+  '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":12},
+    {"sourateDebut":67,"versetDebut":13,"sourateFin":67,"versetFin":15}]'::jsonb,
+  'a0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu(
+  (select count(*) filter (where corrige_par is not null) = 2
+     from public.passages p join public.seances s on s.id = p.seance_id
+    where s.date = '2026-11-04' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'correction : le Cheikh qui réenregistre sans rien changer marque tous les passages');
+
 -- ---------- Invitations par QR code -----------------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 insert into public.invitations_classe (id, etablissement_id, cree_par, code, expire_le) values
@@ -315,6 +393,12 @@ select pg_temp.attendu(
 select pg_temp.attendu(
   (select modifiee_par is null and duree_min = 25 from public.seances where id = '5e000000-0000-0000-0000-0000000000a2'),
   'suppression admin : les séances de ses élèves restent, sa correction devient anonyme');
+select pg_temp.attendu(
+  not exists (select 1 from public.passages where corrige_par = 'a0000000-0000-0000-0000-00000000000a'),
+  'suppression admin : ses marques de correction sur les passages deviennent anonymes');
+select pg_temp.attendu(
+  not exists (select 1 from public.seances where modifiee_par = 'ad000000-0000-0000-0000-0000000000ad'),
+  'suppression admin : la suppression n''est pas comptée comme une correction de l''admin');
 select pg_temp.attendu(
   not exists (select 1 from public.commentaires where auteur_id = 'a0000000-0000-0000-0000-00000000000a'),
   'suppression admin : les commentaires du maître sont supprimés');

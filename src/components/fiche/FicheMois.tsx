@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight, Download, MessageCircle } from "lucide-react
 import Link from "next/link";
 import { Suspense } from "react";
 import {
+  etatCorrection,
   cleMois,
   decalerMois,
   formaterDuree,
@@ -236,7 +237,7 @@ export function FicheMois({
             <p className="bilan-aide">
               {vueMaitre
                 ? "Le bilan se remplit en fin de mois, avec l’élève."
-                : "Remplis ton bilan en fin de mois : ton maître le lira."}
+                : "Remplis ton bilan en fin de mois : ton Cheikh le lira."}
             </p>
           ) : null}
           <Suspense key={`${cle}-${fiche.type}`} fallback={<div className="squelette squelette-bilan" />}>
@@ -267,12 +268,15 @@ function LigneJour({ jour, lien, refs }: { jour: JourFiche; lien: string; refs: 
       <span className="jour-duree">{s ? formaterDuree(s.dureeMin) : "—"}</span>
       <span className={s ? "jour-contenu" : "jour-contenu jour-vide"}>
         {contenu ?? (jour.futur ? "" : "+ Ajouter")}
-        {s?.corrigee ? <span className="pastille-or">Corrigée</span> : null}
+        {s && etatCorrection(s) === "complete" ? <span className="pastille-or">Corrigée</span> : null}
+        {s && etatCorrection(s) === "partielle" ? (
+          <span className="pastille-or pastille-partielle">Corrigée en partie</span>
+        ) : null}
         {s?.noteLibre ? <span className="pastille-note">Note</span> : null}
         {s?.nbCommentaires ? (
           <span className="pastille-commentaire">
             <MessageCircle size={12} strokeWidth={2.6} aria-hidden="true" />
-            Maître
+            Cheikh
           </span>
         ) : null}
       </span>

@@ -7,7 +7,7 @@ import type { Passage } from "@/domain/versets";
 import { creerClientServeur } from "@/lib/supabase/server";
 
 const COLONNES =
-  "id, date, type, duree_min, tajwid, note_libre, modifiee_par, passages(ordre, sourate_debut, verset_debut, sourate_fin, verset_fin), commentaires(count)";
+  "id, date, type, duree_min, tajwid, note_libre, modifiee_par, passages(ordre, sourate_debut, verset_debut, sourate_fin, verset_fin, corrige_par), commentaires(count)";
 
 const schemaLigne = z.object({
   id: z.string().uuid(),
@@ -25,6 +25,7 @@ const schemaLigne = z.object({
       verset_debut: z.number().int(),
       sourate_fin: z.number().int(),
       verset_fin: z.number().int(),
+      corrige_par: z.string().uuid().nullable(),
     }),
   ),
 });
@@ -37,7 +38,7 @@ function versSeance(ligne: z.infer<typeof schemaLigne>): Seance {
     dureeMin: ligne.duree_min,
     tajwid: ligne.tajwid,
     noteLibre: ligne.note_libre,
-    corrigee: ligne.modifiee_par !== null,
+    corrigee: ligne.modifiee_par !== null || ligne.passages.some((p) => p.corrige_par !== null),
     nbCommentaires: ligne.commentaires?.[0]?.count ?? 0,
     passages: [...ligne.passages]
       .sort((a, b) => a.ordre - b.ordre)
@@ -46,6 +47,7 @@ function versSeance(ligne: z.infer<typeof schemaLigne>): Seance {
         versetDebut: p.verset_debut,
         sourateFin: p.sourate_fin,
         versetFin: p.verset_fin,
+        corrige: p.corrige_par !== null,
       })),
   };
 }

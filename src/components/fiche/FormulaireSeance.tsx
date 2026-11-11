@@ -3,7 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import { startTransition, useActionState, useState, type FormEvent } from "react";
 import type { Seance, TypeSeance } from "@/domain/fiche";
-import type { Passage } from "@/domain/versets";
+import { premierChevauchement, type Passage } from "@/domain/versets";
 import { actionEnregistrerSeance, type EtatSaisie } from "@/app/actions/fiche";
 
 export interface SourateOption {
@@ -69,11 +69,12 @@ export function FormulaireSeance({
     ? `${nomSourate(suggestion.sourateDebut)?.nomLatin ?? ""} · ${suggestion.versetDebut} → ${suggestion.versetFin}`
     : "";
 
-  function modifier(index: number, champ: keyof Passage, valeur: number) {
+  function modifier(index: number, champ: Exclude<keyof Passage, "corrige">, valeur: number) {
     setPassages((liste) =>
       liste.map((p, i) => {
         if (i !== index) return p;
-        const suivant = { ...p, [champ]: valeur };
+        // Un passage modifié n'est plus « vu par le Cheikh ».
+        const suivant: Passage = { ...p, [champ]: valeur, corrige: false };
         // Quand on change la sourate de début, la fin suit (cas le plus courant).
         if (champ === "sourateDebut" && p.sourateFin === p.sourateDebut) {
           suivant.sourateFin = valeur;
@@ -105,6 +106,10 @@ export function FormulaireSeance({
         return `${n} : la sourate ${nomSourate(p.sourateFin)?.nomLatin ?? ""} n’a que ${nbVersets(p.sourateFin)} versets.`;
       if (p.sourateFin < p.sourateDebut || (p.sourateFin === p.sourateDebut && p.versetFin < p.versetDebut))
         return `${n} : la fin est avant le début (verset ${p.versetFin} avant le verset ${p.versetDebut}).`;
+    }
+    const doublon = premierChevauchement(passages);
+    if (doublon) {
+      return `Les passages ${doublon[0] + 1} et ${doublon[1] + 1} se répètent ou se chevauchent : garde-en un seul.`;
     }
     return null;
   }
@@ -227,6 +232,13 @@ export function FormulaireSeance({
         {passages.map((p, i) => (
           <fieldset key={i} className="passage">
             <legend className="visuellement-cache">Passage {i + 1}</legend>
+            {initiale?.corrigee ? (
+              p.corrige ? (
+                <p className="passage-vu">✓ Vu par le Cheikh</p>
+              ) : (
+                <p className="passage-vu passage-pas-vu">Pas encore vu par le Cheikh</p>
+              )
+            ) : null}
             <div className="passage-ligne">
               <label className="champ passage-sourate">
                 <span>Sourate</span>

@@ -26,8 +26,8 @@ export default async function PageRejoindre({ params }: { params: Promise<{ code
         titre="QR code plus valable"
         sousTitre={
           invitation.etat === "inconnue"
-            ? "Ce lien n’existe pas. Vérifie que tu as bien scanné le code de ton maître."
-            : "Ce code a expiré ou a été désactivé. Demande à ton maître d’en afficher un nouveau."
+            ? "Ce lien n’existe pas. Vérifie que tu as bien scanné le code de ton Cheikh."
+            : "Ce code a expiré ou a été désactivé. Demande à ton Cheikh d’en afficher un nouveau."
         }
       >
         <Link href="/connexion" className="lien-retour">

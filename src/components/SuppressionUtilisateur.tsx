@@ -52,7 +52,7 @@ export function SuppressionUtilisateur({
             </p>
           ) : (
             <p>
-              Le compte du maître sera effacé, ainsi que <strong>ses commentaires</strong>. Ses élèves restent
+              Le compte du Cheikh sera effacé, ainsi que <strong>ses commentaires</strong>. Ses élèves restent
               inscrits dans l’établissement avec tout leur suivi.{" "}
               <strong>Il n’y a pas de retour possible.</strong>
             </p>
