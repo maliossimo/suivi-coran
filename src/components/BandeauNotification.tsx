@@ -28,7 +28,10 @@ function lireEtEffacer(): Notification | null {
   if (!brut) return null;
   document.cookie = `${NOM_COOKIE_NOTIFICATION}=; path=/; max-age=0`;
   try {
-    const valeur = JSON.parse(decodeURIComponent(brut)) as Partial<Notification>;
+    // Décode jusqu'à retrouver le JSON (la valeur peut être encodée une ou deux fois).
+    let texte = brut;
+    for (let i = 0; i < 3 && !texte.startsWith("{"); i++) texte = decodeURIComponent(texte);
+    const valeur = JSON.parse(texte) as Partial<Notification>;
     if (typeof valeur.message !== "string") return null;
     return {
       message: valeur.message.slice(0, 160),
