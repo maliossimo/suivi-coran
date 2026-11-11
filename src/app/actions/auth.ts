@@ -5,10 +5,12 @@ import { z } from "zod";
 import { envPublic } from "@/lib/env";
 import { changerMotDePasse, connecter, deconnecter, envoyerLienReinitialisation } from "@/repositories/auth";
 import { destinationApresConnexion } from "@/services/acces";
+import { notifier } from "./notification";
 
 export interface EtatFormulaire {
   erreur?: string;
   info?: string;
+  ok?: boolean;
 }
 
 const schemaConnexion = z.object({
@@ -66,4 +68,19 @@ export async function actionDefinirMotDePasse(_: EtatFormulaire, form: FormData)
   if (!res.ok) return { erreur: "Impossible d'enregistrer ce mot de passe. Réessaie." };
 
   redirect(await destinationApresConnexion());
+}
+
+/** Changement de mot de passe depuis « Mon compte » (session ouverte). */
+export async function actionChangerMotDePasse(_: EtatFormulaire, form: FormData): Promise<EtatFormulaire> {
+  const saisie = schemaMotDePasse.safeParse({
+    motDePasse: form.get("motDePasse"),
+    confirmation: form.get("confirmation"),
+  });
+  if (!saisie.success) return { erreur: saisie.error.issues[0]?.message ?? "Mot de passe invalide." };
+
+  const res = await changerMotDePasse(saisie.data.motDePasse);
+  if (!res.ok) return { erreur: "Impossible d'enregistrer ce mot de passe. Réessaie." };
+
+  await notifier("Mot de passe modifié");
+  return { ok: true };
 }

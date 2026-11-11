@@ -15,11 +15,7 @@ export default async function PageProgressionMaitre({ params }: { params: Promis
 
   return (
     <>
-      <EnteteEspace
-        titre="Ma classe"
-        nom={`${profil.prenom} ${profil.nom}`.trim()}
-        role={profil.role === "admin" ? "Administrateur" : "Maître"}
-      />
+      <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
         <Link href={`/maitre/eleves/${eleve.id}`} className="lien-retour">
           ‹ Fiche de {eleve.prenom}
