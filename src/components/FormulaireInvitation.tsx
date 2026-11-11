@@ -49,7 +49,7 @@ export function FormulaireInvitation({
       </div>
       <div className="champ">
         <label htmlFor="email">
-          Adresse e-mail {cible === "eleve" ? "de l’élève (ou d’un parent)" : "du maître"}
+          Adresse e-mail {cible === "eleve" ? "de l’élève (ou d’un parent)" : "du Cheikh"}
         </label>
         <input id="email" name="email" type="email" autoComplete="off" required />
       </div>

@@ -9,7 +9,7 @@ import { formaterDuree } from "@/domain/fiche";
 import { exigerEspace } from "@/services/acces";
 import { chargerTableauAdmin } from "@/services/admin";
 
-const ROLES = { eleve: "Élève", maitre: "Maître", admin: "Admin" } as const;
+const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
 
 function dateCourte(iso: string): string {
   return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" }).format(
@@ -40,7 +40,7 @@ export default async function PageAdmin() {
           <div className="tuile">
             <strong>{st.maitres.actifs}</strong>
             <span>
-              maître{st.maitres.actifs > 1 ? "s" : ""} · {t.etablissements.length} établissement
+              Cheikh{st.maitres.actifs > 1 ? "s" : ""} · {t.etablissements.length} établissement
               {t.etablissements.length > 1 ? "s" : ""}
             </span>
           </div>
@@ -82,7 +82,7 @@ export default async function PageAdmin() {
                   <thead>
                     <tr>
                       <th>Établissement</th>
-                      <th>Maîtres</th>
+                      <th>Cheikhs</th>
                       <th>Élèves</th>
                       <th>Actifs 7 j</th>
                       <th>Séances 30 j</th>
@@ -110,7 +110,7 @@ export default async function PageAdmin() {
             <h2>Établissements</h2>
             {t.etablissements.length === 0 ? (
               <p className="carte-graphique-sous">
-                Crée le premier établissement pour pouvoir inviter un maître.
+                Crée le premier établissement pour pouvoir inviter un Cheikh.
               </p>
             ) : (
               <ul className="liste-simple">
@@ -118,7 +118,7 @@ export default async function PageAdmin() {
                   <li key={e.id}>
                     <b>{e.nom}</b>
                     <span>
-                      {e.maitres} maître{e.maitres > 1 ? "s" : ""} · {e.eleves} élève{e.eleves > 1 ? "s" : ""}
+                      {e.maitres} Cheikh{e.maitres > 1 ? "s" : ""} · {e.eleves} élève{e.eleves > 1 ? "s" : ""}
                     </span>
                   </li>
                 ))}
@@ -128,7 +128,7 @@ export default async function PageAdmin() {
           </section>
 
           <section className="carte-graphique">
-            <h2>Inviter un maître</h2>
+            <h2>Inviter un Cheikh</h2>
             <p className="carte-graphique-sous">Il pourra ensuite inviter ses élèves.</p>
             <FormulaireInvitation cible="maitre" etablissements={t.etablissements} />
           </section>

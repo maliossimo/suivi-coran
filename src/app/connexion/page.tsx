@@ -2,7 +2,7 @@ import { CadreAuth } from "@/components/CadreAuth";
 import { FormulaireConnexion } from "./FormulaireConnexion";
 
 const MESSAGES: Record<string, string> = {
-  inactif: "Ce compte est désactivé. Contacte ton maître.",
+  inactif: "Ce compte est désactivé. Contacte ton Cheikh.",
   lien: "Ce lien n'est plus valide. Demande une nouvelle invitation ou un nouveau lien.",
 };
 

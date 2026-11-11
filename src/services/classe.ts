@@ -65,7 +65,7 @@ export async function commenter(
   eleveId: string,
   brut: { cible: unknown; cibleId: unknown; texte: unknown },
 ): Promise<ResultatSaisie> {
-  if (!estEncadrant(acteur)) return { ok: false, erreur: "Seul le maître peut commenter." };
+  if (!estEncadrant(acteur)) return { ok: false, erreur: "Seul le Cheikh peut commenter." };
   const saisie = schemaCommentaire.safeParse(brut);
   if (!saisie.success)
     return { ok: false, erreur: saisie.error.issues[0]?.message ?? "Commentaire invalide." };
@@ -111,7 +111,7 @@ export async function inviterEleve(
       erreur:
         acteur.role === "admin"
           ? "Choisis d'abord une classe."
-          : "Seul un maître rattaché à un établissement peut inviter un élève.",
+          : "Seul un Cheikh rattaché à un établissement peut inviter un élève.",
     };
   }
   const saisie = schemaInvitation.safeParse(brut);
@@ -151,7 +151,7 @@ export async function archiverEleve(
   eleveId: unknown,
   actif: boolean,
 ): Promise<ResultatSaisie> {
-  if (!estEncadrant(acteur)) return { ok: false, erreur: "Action réservée au maître." };
+  if (!estEncadrant(acteur)) return { ok: false, erreur: "Action réservée au Cheikh." };
   const id = z.string().uuid().safeParse(eleveId);
   if (!id.success) return { ok: false, erreur: "Élève introuvable." };
   try {
@@ -171,7 +171,7 @@ export async function supprimerEleve(
   eleveIdBrut: unknown,
   confirmation: unknown,
 ): Promise<ResultatSaisie> {
-  if (!estEncadrant(acteur)) return { ok: false, erreur: "Action réservée au maître." };
+  if (!estEncadrant(acteur)) return { ok: false, erreur: "Action réservée au Cheikh." };
   const id = z.string().uuid().safeParse(eleveIdBrut);
   const eleve = id.success ? await eleveParId(id.data) : null;
   if (!eleve) return { ok: false, erreur: "Élève introuvable." };
@@ -223,7 +223,7 @@ export async function genererQrClasse(acteur: Profil, etablissementBrut?: unknow
       erreur:
         acteur.role === "admin"
           ? "Choisis d'abord une classe."
-          : "Seul un maître rattaché à une classe peut créer un QR code.",
+          : "Seul un Cheikh rattaché à une classe peut créer un QR code.",
     };
   }
   try {
@@ -245,7 +245,7 @@ export async function desactiverQrClasse(
   etablissementBrut?: unknown,
 ): Promise<ResultatSaisie> {
   const etablissementId = classeCible(acteur, etablissementBrut);
-  if (!etablissementId) return { ok: false, erreur: "Action réservée au maître de la classe ou à l'admin." };
+  if (!etablissementId) return { ok: false, erreur: "Action réservée au Cheikh de la classe ou à l'admin." };
   try {
     await desactiverInvitations(etablissementId);
   } catch {

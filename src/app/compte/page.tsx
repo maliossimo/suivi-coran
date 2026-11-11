@@ -3,7 +3,7 @@ import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireMotDePasse } from "@/components/FormulaireMotDePasse";
 import { chargerCompte } from "@/services/acces";
 
-const LIBELLE_ROLE = { eleve: "Élève", maitre: "Maître", admin: "Administrateur" } as const;
+const LIBELLE_ROLE = { eleve: "Élève", maitre: "Cheikh", admin: "Administrateur" } as const;
 
 export default async function PageCompte() {
   const { profil, email } = await chargerCompte();

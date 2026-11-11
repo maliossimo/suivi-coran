@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Role } from "@/domain/roles";
 import { NavigationEspace } from "./NavigationEspace";
 
-const LIBELLE_ROLE: Record<Role, string> = { eleve: "Élève", maitre: "Maître", admin: "Administrateur" };
+const LIBELLE_ROLE: Record<Role, string> = { eleve: "Élève", maitre: "Cheikh", admin: "Administrateur" };
 
 function initiales(nom: string): string {
   const lettres = nom

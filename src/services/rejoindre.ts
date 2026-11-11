@@ -40,7 +40,7 @@ export async function rejoindreClasse(code: string, brut: Record<string, unknown
   if (!invitation || etatInvitation(invitation, new Date()) !== "valide") {
     return {
       ok: false,
-      erreur: "Ce QR code n'est plus valable. Demande à ton maître d'en afficher un nouveau.",
+      erreur: "Ce QR code n'est plus valable. Demande à ton Cheikh d'en afficher un nouveau.",
     };
   }
 

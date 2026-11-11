@@ -5,6 +5,7 @@ import {
   indexGlobal,
   libellePassage,
   lirePassageTexte,
+  premierChevauchement,
   passageEnTexte,
   passageSuivant,
   nbVersetsDistincts,
@@ -154,5 +155,29 @@ describe("passage dans une adresse", () => {
     expect(lirePassageTexte(ref, "67:10-5")).toBeNull();
     expect(lirePassageTexte(ref, "2:1-286")).toBeNull(); // sourate absente du référentiel
     expect(lirePassageTexte(ref, "67:1-30;drop")).toBeNull();
+  });
+});
+
+describe("premierChevauchement", () => {
+  const p = (sd: number, vd: number, sf: number, vf: number) => ({
+    sourateDebut: sd,
+    versetDebut: vd,
+    sourateFin: sf,
+    versetFin: vf,
+  });
+
+  it("accepte des passages distincts, même qui se suivent", () => {
+    expect(premierChevauchement([])).toBeNull();
+    expect(premierChevauchement([p(67, 1, 67, 10), p(67, 11, 67, 20), p(68, 1, 68, 5)])).toBeNull();
+  });
+
+  it("repère un passage répété", () => {
+    expect(premierChevauchement([p(14, 1, 14, 52), p(15, 1, 15, 90), p(14, 1, 14, 52)])).toEqual([0, 2]);
+  });
+
+  it("repère un chevauchement, y compris à cheval sur deux sourates", () => {
+    expect(premierChevauchement([p(67, 1, 67, 10), p(67, 10, 67, 12)])).toEqual([0, 1]);
+    expect(premierChevauchement([p(67, 20, 68, 5), p(68, 3, 68, 9)])).toEqual([0, 1]);
+    expect(premierChevauchement([p(68, 3, 68, 9), p(67, 20, 68, 5)])).toEqual([0, 1]);
   });
 });
