@@ -37,7 +37,8 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
           </span>
           <span className="barre-nom">
             {nom || "Mon compte"}
-            <small>{LIBELLE_ROLE[role]}</small>
+            {/* Le maître sait qu'il est maître : on n'affiche son rôle que pour l'élève et l'admin. */}
+            {role === "maitre" ? null : <small>{LIBELLE_ROLE[role]}</small>}
           </span>
         </Link>
       </div>
