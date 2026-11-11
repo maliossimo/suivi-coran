@@ -2734,3 +2734,30 @@ button:active:not(:disabled),
   color: var(--vert);
   font-weight: 600;
 }
+
+/* Admin : choix de la classe sur la page Inviter */
+.choix-classe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--or-clair);
+  border: 1px solid var(--bord-or);
+}
+.choix-classe label {
+  width: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texte-doux);
+}
+.choix-classe select {
+  flex: 1 1 200px;
+}
+.qr-classe {
+  font-family: var(--font-texte), system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}

@@ -83,11 +83,9 @@ export default async function PageClasse({ searchParams }: { searchParams: Promi
               <ChevronRight size={22} aria-hidden="true" />
             </Link>
           </nav>
-          {profil.role === "maitre" ? (
-            <Link href="/maitre/inviter" className="bouton bouton-lien">
-              + Inviter un élève
-            </Link>
-          ) : null}
+          <Link href="/maitre/inviter" className="bouton bouton-lien">
+            + Inviter des élèves
+          </Link>
         </div>
 
         <Suspense key={cleMois(mois)} fallback={<Squelettes cartes={1} />}>
