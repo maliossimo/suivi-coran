@@ -89,15 +89,8 @@ export function NavigationEspace({ role }: { role: Role }) {
       {ONGLETS[role].map((o) => {
         const actif = o.actif(chemin);
         const IconeOnglet = ICONES[o.icone];
-        // Onglets préchargés en entier : la page s'ouvre sans attente.
         return (
-          <Link
-            key={o.href}
-            href={o.href}
-            className="nav-onglet"
-            aria-current={actif ? "page" : undefined}
-            prefetch
-          >
+          <Link key={o.href} href={o.href} className="nav-onglet" aria-current={actif ? "page" : undefined}>
             <IconeOnglet size={22} strokeWidth={1.9} aria-hidden="true" />
             <span>{o.libelle}</span>
           </Link>

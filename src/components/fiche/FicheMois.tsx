@@ -20,8 +20,6 @@ import { creerReferentiel, libellePassage, type Referentiel } from "@/domain/ver
 import type { Fiche } from "@/services/fiche";
 import { FormulaireObjectif } from "./FormulaireObjectif";
 import { SectionBilan } from "./SectionBilan";
-import { cleSeance } from "./cleSeance";
-import { BoutonValider, EtatEnregistrement } from "./EtatsLigneJour";
 
 /**
  * Fiche du mois d'un élève (semaines 1 à 5). Utilisée par l'élève (/eleve)
@@ -154,23 +152,15 @@ export function FicheMois({
             <>
               {aVenir ? null : (
                 <ul className="jours">
-                  {semaine.jours.map((jour) => {
-                    const aValider =
-                      vueMaitre && jour.seance && !jour.futur && etatCorrection(jour.seance) !== "complete";
-                    return (
-                      <li key={jour.date} className={aValider ? "jour-avec-action" : undefined}>
-                        <LigneJour
-                          jour={jour}
-                          lien={`${base}/seance?date=${jour.date}&type=${fiche.type}`}
-                          refs={ref}
-                          cle={cleSeance(eleveId, jour.date, fiche.type)}
-                        />
-                        {aValider && jour.seance ? (
-                          <BoutonValider seanceId={jour.seance.id} eleveId={eleveId} />
-                        ) : null}
-                      </li>
-                    );
-                  })}
+                  {semaine.jours.map((jour) => (
+                    <li key={jour.date}>
+                      <LigneJour
+                        jour={jour}
+                        lien={`${base}/seance?date=${jour.date}&type=${fiche.type}`}
+                        refs={ref}
+                      />
+                    </li>
+                  ))}
                 </ul>
               )}
               <FormulaireObjectif
@@ -263,17 +253,7 @@ function majuscule(texte: string): string {
   return texte.charAt(0).toUpperCase() + texte.slice(1);
 }
 
-function LigneJour({
-  jour,
-  lien,
-  refs,
-  cle,
-}: {
-  jour: JourFiche;
-  lien: string;
-  refs: Referentiel;
-  cle: string;
-}) {
+function LigneJour({ jour, lien, refs }: { jour: JourFiche; lien: string; refs: Referentiel }) {
   const s = jour.seance;
   const contenu = s
     ? s.passages.map((p) => libellePassage(refs, p)).join(" · ") || "Séance sans passage"
@@ -288,7 +268,6 @@ function LigneJour({
       <span className="jour-duree">{s ? formaterDuree(s.dureeMin) : "—"}</span>
       <span className={s ? "jour-contenu" : "jour-contenu jour-vide"}>
         {contenu ?? (jour.futur ? "" : "+ Ajouter")}
-        <EtatEnregistrement cle={cle} />
         {s && etatCorrection(s) === "complete" ? <span className="pastille-or">Corrigée</span> : null}
         {s && etatCorrection(s) === "partielle" ? (
           <span className="pastille-or pastille-partielle">Corrigée en partie</span>
@@ -309,8 +288,7 @@ function LigneJour({
   );
   if (jour.futur) return <div className={classes}>{corps}</div>;
   return (
-    // Aujourd'hui : séance préchargée en entier, elle s'ouvre sans attente.
-    <Link className={classes} href={lien} prefetch={jour.aujourdhui ? true : null}>
+    <Link className={classes} href={lien}>
       {corps}
     </Link>
   );

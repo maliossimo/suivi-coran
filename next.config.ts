@@ -12,11 +12,6 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
-  experimental: {
-    // Une page déjà vue (ex. la fiche) se rouvre instantanément pendant 30 s ;
-    // tout enregistrement la rafraîchit (revalidation), elle n'est jamais périmée.
-    staleTimes: { dynamic: 30 },
-  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
