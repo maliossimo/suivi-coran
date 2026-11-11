@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { actionDeconnexion } from "@/app/actions/auth";
+import type { Role } from "@/domain/roles";
+import { NavigationEspace } from "./NavigationEspace";
+
+const LIBELLE_ROLE: Record<Role, string> = { eleve: "Élève", maitre: "Maître", admin: "Administrateur" };
 
 function initiales(nom: string): string {
   const lettres = nom
@@ -10,48 +13,33 @@ function initiales(nom: string): string {
   return lettres.slice(0, 2) || "?";
 }
 
-/** Barre du haut des espaces élève, maître et admin. */
-export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string; role: string }) {
+/**
+ * Barre du haut des espaces élève, maître et admin : logo (retour à l'accueil),
+ * navigation principale et accès au compte.
+ */
+export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string; role: Role }) {
   return (
     <header className="barre">
       <div className="barre-contenu">
-        <Link href="/" className="barre-marque" aria-label="Retour à l’accueil">
+        <Link href="/" className="barre-marque" aria-label="Accueil — Suivi cours Coran">
           <div className="auth-logo auth-logo-petit" aria-hidden="true">
             ق
           </div>
-          <div className="barre-titres">
+          <div className="barre-titres" aria-hidden="true">
             <span className="barre-app">Suivi cours Coran</span>
             <span className="barre-titre">{titre}</span>
           </div>
         </Link>
-        <div className="barre-utilisateur">
-          <Link href="/" className="bouton-accueil" aria-label="Accueil">
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-              <path
-                d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span className="bouton-accueil-texte">Accueil</span>
-          </Link>
-          <div className="barre-identite">
-            <span className="avatar" aria-hidden="true">
-              {initiales(nom)}
-            </span>
-            <span className="barre-nom">
-              {nom || "Mon compte"}
-              <small>{role}</small>
-            </span>
-          </div>
-          <form action={actionDeconnexion}>
-            <button className="bouton-secondaire" type="submit">
-              Se déconnecter
-            </button>
-          </form>
-        </div>
+        <NavigationEspace role={role} />
+        <Link href="/compte" className="barre-identite" aria-label="Mon compte">
+          <span className="avatar" aria-hidden="true">
+            {initiales(nom)}
+          </span>
+          <span className="barre-nom">
+            {nom || "Mon compte"}
+            <small>{LIBELLE_ROLE[role]}</small>
+          </span>
+        </Link>
       </div>
     </header>
   );

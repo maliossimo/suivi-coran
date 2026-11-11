@@ -34,3 +34,12 @@ export async function envoyerLienReinitialisation(email: string, redirection: st
   // Réponse identique que l'adresse existe ou non : on ne révèle pas qui est inscrit.
   await supabase.auth.resetPasswordForEmail(email, { redirectTo: redirection });
 }
+
+/** Adresse e-mail de la personne connectée (affichée dans « Mon compte »). */
+export async function emailConnecte(): Promise<string | null> {
+  const supabase = await creerClientServeur();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user?.email ?? null;
+}

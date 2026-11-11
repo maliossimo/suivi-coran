@@ -2,7 +2,6 @@ import { actionBasculerUtilisateur } from "@/app/actions/admin";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireEtablissement } from "@/components/FormulaireEtablissement";
 import { FormulaireInvitation } from "@/components/FormulaireInvitation";
-import { MenuAdmin } from "@/components/MenuAdmin";
 import { exigerEspace } from "@/services/acces";
 import { chargerTableauAdmin } from "@/services/admin";
 
@@ -22,14 +21,8 @@ export default async function PageAdmin() {
 
   return (
     <>
-      <EnteteEspace
-        titre="Administration"
-        nom={`${profil.prenom} ${profil.nom}`.trim()}
-        role="Administrateur"
-      />
+      <EnteteEspace titre="Administration" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
-        <MenuAdmin actif="tableau" />
-
         <div className="tuiles">
           <div className="tuile">
             <strong>{t.etablissements.length}</strong>

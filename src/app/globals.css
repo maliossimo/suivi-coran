@@ -362,6 +362,16 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 10px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 99px;
+  padding: 3px 12px 3px 3px;
+}
+.barre-identite:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.barre-identite:focus-visible {
+  outline: 2px solid #f0d796;
 }
 .barre-nom {
   display: flex;
@@ -1670,33 +1680,136 @@ input.champ-texte {
   align-self: flex-start;
 }
 
-/* Bouton « Accueil » de la barre du haut */
-.bouton-accueil {
-  height: 44px;
-  min-width: 44px;
-  padding: 0 14px;
+/* ---------- Navigation principale ---------------------------------------
+   Ordinateur : menu horizontal au centre de la barre du haut.
+   Téléphone (≤ 760 px) : barre d'onglets fixée en bas de l'écran. */
+.nav-espace {
+  display: flex;
+  gap: 4px;
+}
+.nav-onglet {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  height: 42px;
+  padding: 0 14px;
   border-radius: 10px;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.82);
   font-weight: 600;
+  font-size: 15px;
   text-decoration: none;
+  white-space: nowrap;
 }
-.bouton-accueil:hover {
-  background: rgba(255, 255, 255, 0.12);
+.nav-onglet:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
-.bouton-accueil:focus-visible {
+.nav-onglet[aria-current="page"] {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  box-shadow: inset 0 -3px 0 var(--or);
+}
+.nav-onglet:focus-visible {
   outline: 2px solid #f0d796;
-  outline-offset: 2px;
 }
-@media (max-width: 520px) {
-  .bouton-accueil {
-    padding: 0;
+
+@media (max-width: 760px) {
+  .nav-espace {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    gap: 0;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--ligne);
+    box-shadow: 0 -6px 20px rgba(23, 35, 30, 0.06);
   }
-  .bouton-accueil-texte {
+  .nav-onglet {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    height: 56px;
+    padding: 0 4px;
+    font-size: 12px;
+    color: var(--texte-doux);
+  }
+  .nav-onglet:hover {
+    background: transparent;
+    color: var(--vert);
+  }
+  .nav-onglet[aria-current="page"] {
+    background: transparent;
+    box-shadow: none;
+    color: var(--vert);
+  }
+  .nav-onglet[aria-current="page"] svg {
+    background: var(--vert-clair);
+    border-radius: 99px;
+    padding: 2px 14px;
+    box-sizing: content-box;
+  }
+  /* Place pour la barre du bas. */
+  .espace {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  .zone-notification {
+    bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  .barre-nom {
     display: none;
   }
+}
+
+/* ---------- Mon compte -------------------------------------------------- */
+.espace-etroit {
+  max-width: 560px;
+}
+.carte-compte {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--carte) var(--motif-doux);
+  background-size: 96px 96px;
+  border: 1px solid var(--ligne);
+  box-shadow: var(--ombre);
+}
+.carte-compte h1 {
+  margin: 0;
+  font-size: 22px;
+}
+.carte-compte p {
+  margin: 2px 0 0;
+  color: var(--texte-doux);
+}
+.carte-compte-email {
+  word-break: break-all;
+}
+.carte-compte-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  box-shadow: var(--ombre);
+}
+.carte-compte-section h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.carte-compte-aide {
+  margin: -6px 0 0;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.bouton-deconnexion {
+  width: 100%;
+  color: var(--rouge);
 }

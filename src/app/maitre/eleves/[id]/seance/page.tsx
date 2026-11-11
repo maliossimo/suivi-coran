@@ -30,7 +30,7 @@ export default async function PageSeanceMaitre({
       <EnteteEspace
         titre={`${eleve.prenom} ${eleve.nom}`}
         nom={`${profil.prenom} ${profil.nom}`.trim()}
-        role={profil.role === "admin" ? "Administrateur" : "Maître"}
+        role={profil.role}
       />
       <main className="espace espace-etroit">
         <EcranSeance donnees={donnees} eleveId={eleve.id} base={base} date={date} type={type} vueMaitre />

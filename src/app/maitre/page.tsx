@@ -57,11 +57,7 @@ export default async function PageClasse({ searchParams }: { searchParams: Promi
   const mois = lireMois(moisParam, aujourdhuiParis());
   return (
     <>
-      <EnteteEspace
-        titre="Ma classe"
-        nom={`${profil.prenom} ${profil.nom}`.trim()}
-        role={profil.role === "admin" ? "Administrateur" : "Maître"}
-      />
+      <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
         <div className="entete-page">
           <nav className="mois mois-compact" aria-label="Changer de mois">
