@@ -250,5 +250,50 @@ select pg_temp.attendu(
   exists (select 1 from public.seances where eleve_id = 'a0000000-0000-0000-0000-000000000002'),
   'suppression : les autres élèves ne sont pas touchés');
 
+-- ---------- Suppression d'un utilisateur par l'admin ------------------
+-- Le maître A corrige et commente une séance de l'élève 2.
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+update public.seances set duree_min = 25 where id = '5e000000-0000-0000-0000-0000000000a2';
+insert into public.commentaires (eleve_id, auteur_id, seance_id, texte) values
+  ('a0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-00000000000a',
+   '5e000000-0000-0000-0000-0000000000a2', 'Bien, continue');
+select pg_temp.doit_echouer(
+  $q$select public.supprimer_utilisateur('a0000000-0000-0000-0000-000000000002')$q$,
+  'suppression admin : refusée à un maître');
+
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.doit_echouer(
+  $q$select public.supprimer_utilisateur('ad000000-0000-0000-0000-0000000000ad')$q$,
+  'suppression admin : on ne peut pas se supprimer soi-même');
+select public.supprimer_utilisateur('a0000000-0000-0000-0000-00000000000a');
+select public.supprimer_utilisateur('b0000000-0000-0000-0000-000000000001'); -- élève actif, sans archivage
+
+select pg_temp.console();
+select pg_temp.attendu(
+  not exists (select 1 from auth.users where id = 'a0000000-0000-0000-0000-00000000000a')
+  and not exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-00000000000a'),
+  'suppression admin : le compte du maître est supprimé');
+select pg_temp.attendu(
+  (select modifiee_par is null and duree_min = 25 from public.seances where id = '5e000000-0000-0000-0000-0000000000a2'),
+  'suppression admin : les séances de ses élèves restent, sa correction devient anonyme');
+select pg_temp.attendu(
+  not exists (select 1 from public.commentaires where auteur_id = 'a0000000-0000-0000-0000-00000000000a'),
+  'suppression admin : les commentaires du maître sont supprimés');
+select pg_temp.attendu(
+  exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000002'),
+  'suppression admin : ses élèves restent inscrits');
+select pg_temp.attendu(
+  not exists (select 1 from public.profils where id = 'b0000000-0000-0000-0000-000000000001')
+  and not exists (select 1 from public.seances where eleve_id = 'b0000000-0000-0000-0000-000000000001'),
+  'suppression admin : un élève est supprimé avec ses données, même sans archivage');
+select pg_temp.attendu(
+  not exists (select 1 from public.journal_audit
+              where eleve_id in ('a0000000-0000-0000-0000-00000000000a', 'b0000000-0000-0000-0000-000000000001')
+                and (avant is not null or apres is not null)),
+  'suppression admin : le journal ne garde plus leurs données personnelles');
+select pg_temp.attendu(
+  (select count(*) from public.journal_audit where action = 'SUPPRESSION_UTILISATEUR') = 2,
+  'suppression admin : le journal garde la trace des deux suppressions');
+
 select pg_temp.console();
 rollback;

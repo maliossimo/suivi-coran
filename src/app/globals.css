@@ -2374,3 +2374,17 @@ input.champ-texte {
   grid-column: 2;
   color: var(--texte-doux);
 }
+
+/* ---------- Admin : statistiques et suppression ----------------------- */
+.tuile strong small {
+  font-size: 0.55em;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+.tuile-or {
+  background: var(--or-clair);
+  border-color: #e8d6b0;
+}
+.lien-action-danger {
+  color: var(--rouge);
+}
