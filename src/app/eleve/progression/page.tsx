@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
-import { EcranProgression } from "@/components/progression/EcranProgression";
+import { Suspense } from "react";
+import { Squelettes } from "@/components/Chargement";
+import { ProgressionDifferee } from "@/components/progression/ProgressionDifferee";
 import { exigerEspace } from "@/services/acces";
-import { chargerProgression } from "@/services/progression";
 
 export default async function PageProgressionEleve() {
   const profil = await exigerEspace("eleve");
-  const progression = await chargerProgression(profil.id);
 
   return (
     <>
@@ -18,7 +18,9 @@ export default async function PageProgressionEleve() {
             Ma progression
           </Link>
         </nav>
-        <EcranProgression p={progression} />
+        <Suspense fallback={<Squelettes cartes={4} />}>
+          <ProgressionDifferee eleveId={profil.id} />
+        </Suspense>
       </main>
     </>
   );
