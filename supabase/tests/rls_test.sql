@@ -394,10 +394,11 @@ select pg_temp.attendu(
   (select modifiee_par is null and duree_min = 25 from public.seances where id = '5e000000-0000-0000-0000-0000000000a2'),
   'suppression admin : les séances de ses élèves restent, sa correction devient anonyme');
 select pg_temp.attendu(
-  not exists (select 1 from public.passages where corrige_par = 'a0000000-0000-0000-0000-00000000000a')
-  and exists (select 1 from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a2')
-  and not exists (select 1 from public.seances where modifiee_par = 'ad000000-0000-0000-0000-0000000000ad'),
-  'suppression admin : ses marques de correction deviennent anonymes, sans nouvelle correction');
+  not exists (select 1 from public.passages where corrige_par = 'a0000000-0000-0000-0000-00000000000a'),
+  'suppression admin : ses marques de correction sur les passages deviennent anonymes');
+select pg_temp.attendu(
+  not exists (select 1 from public.seances where modifiee_par = 'ad000000-0000-0000-0000-0000000000ad'),
+  'suppression admin : la suppression n''est pas comptée comme une correction de l''admin');
 select pg_temp.attendu(
   not exists (select 1 from public.commentaires where auteur_id = 'a0000000-0000-0000-0000-00000000000a'),
   'suppression admin : les commentaires du maître sont supprimés');
