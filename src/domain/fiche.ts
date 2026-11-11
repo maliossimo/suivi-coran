@@ -30,6 +30,8 @@ export interface Seance {
   noteLibre: string | null;
   /** Vrai si le maître (ou l'admin) a corrigé la séance. */
   corrigee: boolean;
+  /** Nombre de commentaires du maître sur la séance. */
+  nbCommentaires?: number;
   passages: Passage[];
 }
 
