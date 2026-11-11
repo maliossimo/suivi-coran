@@ -237,7 +237,7 @@ select pg_temp.attendu(
     where s.date = '2026-11-05' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
   'doublon : deux passages qui se suivent sont acceptés');
 
--- Le Cheikh revoit la séance du 4 : ses passages restent marqués jusqu'à sa suppression (voir plus bas).
+-- Le Cheikh revoit la séance du 4 : tous ses passages sont marqués.
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 select public.enregistrer_seance('2026-11-04', 'apprentissage', 20::smallint, null, null,
   '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":12},
@@ -395,8 +395,8 @@ select pg_temp.attendu(
   'suppression admin : les séances de ses élèves restent, sa correction devient anonyme');
 select pg_temp.attendu(
   not exists (select 1 from public.passages where corrige_par = 'a0000000-0000-0000-0000-00000000000a')
-  and (select modifiee_par is null from public.seances
-        where date = '2026-11-04' and eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  and exists (select 1 from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a2')
+  and not exists (select 1 from public.seances where modifiee_par = 'ad000000-0000-0000-0000-0000000000ad'),
   'suppression admin : ses marques de correction deviennent anonymes, sans nouvelle correction');
 select pg_temp.attendu(
   not exists (select 1 from public.commentaires where auteur_id = 'a0000000-0000-0000-0000-00000000000a'),
