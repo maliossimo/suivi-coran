@@ -101,3 +101,9 @@ export async function chargerJournal(
   const noms = new Map(utilisateurs.map((u) => [u.id, `${u.prenom} ${u.nom}`.trim() || "Sans nom"]));
   return { evenements, noms };
 }
+
+/** Établissements, pour que l'admin choisisse une classe (invitation, QR code). */
+export async function listerClasses(acteur: Profil): Promise<Etablissement[]> {
+  exigerAdmin(acteur);
+  return listerEtablissements();
+}

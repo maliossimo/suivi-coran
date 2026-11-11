@@ -7,9 +7,12 @@ import { actionInviterEleve, actionInviterMaitre, type EtatInvitation } from "@/
 export function FormulaireInvitation({
   cible,
   etablissements = [],
+  etablissementId,
 }: {
   cible: "eleve" | "maitre";
   etablissements?: { id: string; nom: string }[];
+  /** Admin qui invite un élève : la classe choisie en haut de la page. */
+  etablissementId?: string;
 }) {
   const [etat, action, enCours] = useActionState<EtatInvitation, FormData>(
     cible === "eleve" ? actionInviterEleve : actionInviterMaitre,
@@ -23,6 +26,7 @@ export function FormulaireInvitation({
 
   return (
     <form ref={formulaire} action={action} className="bloc formulaire" noValidate>
+      {etablissementId ? <input type="hidden" name="etablissementId" value={etablissementId} /> : null}
       {etat.erreur ? (
         <p className="message-erreur" role="alert">
           {etat.erreur}

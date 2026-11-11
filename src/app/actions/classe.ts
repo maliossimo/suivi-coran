@@ -25,7 +25,12 @@ async function acteur() {
 export async function actionInviterEleve(_: EtatInvitation, form: FormData): Promise<EtatInvitation> {
   const profil = await acteur();
   const email = String(form.get("email") ?? "");
-  const resultat = await inviterEleve(profil, { prenom: form.get("prenom"), nom: form.get("nom"), email });
+  const resultat = await inviterEleve(profil, {
+    prenom: form.get("prenom"),
+    nom: form.get("nom"),
+    email,
+    etablissementId: form.get("etablissementId"),
+  });
   if (!resultat.ok) return { erreur: resultat.erreur };
   await notifier("Invitation envoyée");
   revalidatePath("/maitre");
@@ -69,16 +74,16 @@ export async function actionSupprimerEleve(_: EtatSaisie, form: FormData): Promi
   redirect("/maitre");
 }
 
-export async function actionGenererQr(): Promise<void> {
+export async function actionGenererQr(form: FormData): Promise<void> {
   const profil = await acteur();
-  const resultat = await genererQrClasse(profil);
+  const resultat = await genererQrClasse(profil, form.get("etablissementId"));
   await notifier(resultat.ok ? "QR code prêt" : resultat.erreur, resultat.ok ? "succes" : "erreur");
   revalidatePath("/maitre/inviter");
 }
 
-export async function actionDesactiverQr(): Promise<void> {
+export async function actionDesactiverQr(form: FormData): Promise<void> {
   const profil = await acteur();
-  const resultat = await desactiverQrClasse(profil);
+  const resultat = await desactiverQrClasse(profil, form.get("etablissementId"));
   await notifier(resultat.ok ? "QR code désactivé" : resultat.erreur, resultat.ok ? "succes" : "erreur");
   revalidatePath("/maitre/inviter");
 }

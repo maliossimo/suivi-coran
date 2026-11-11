@@ -195,6 +195,12 @@ select pg_temp.attendu(
   (select not actif from public.invitations_classe where id = '1c000000-0000-0000-0000-0000000000a1'),
   'QR : un autre maître ne peut pas réactiver le code');
 
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+insert into public.invitations_classe (etablissement_id, cree_par, code, expire_le) values
+  ('bbbbbbbb-0000-0000-0000-000000000000', 'ad000000-0000-0000-0000-0000000000ad', 'code-admin-ecole-b-00001', now() + interval '7 days');
+select pg_temp.attendu((select count(*) from public.invitations_classe) = 2,
+  'QR : l''admin crée un code pour n''importe quelle école et voit tous les codes');
+
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 select pg_temp.attendu((select count(*) from public.invitations_classe) = 0,
   'QR : un élève ne voit pas les codes');

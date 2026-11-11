@@ -101,10 +101,18 @@ const MESSAGES_INVITATION = {
 /** Un maître invite un élève dans SON établissement. */
 export async function inviterEleve(
   acteur: Profil,
-  brut: { prenom: unknown; nom: unknown; email: unknown },
+  brut: { prenom: unknown; nom: unknown; email: unknown; etablissementId?: unknown },
 ): Promise<ResultatSaisie> {
-  if (acteur.role !== "maitre" || !acteur.actif || !acteur.etablissementId) {
-    return { ok: false, erreur: "Seul un maître rattaché à un établissement peut inviter un élève." };
+  // Le maître invite dans sa classe ; l'admin dans la classe qu'il a choisie.
+  const etablissementId = classeCible(acteur, brut.etablissementId);
+  if (!etablissementId) {
+    return {
+      ok: false,
+      erreur:
+        acteur.role === "admin"
+          ? "Choisis d'abord une classe."
+          : "Seul un maître rattaché à un établissement peut inviter un élève.",
+    };
   }
   const saisie = schemaInvitation.safeParse(brut);
   if (!saisie.success) return { ok: false, erreur: saisie.error.issues[0]?.message ?? "Saisie invalide." };
@@ -113,7 +121,7 @@ export async function inviterEleve(
     prenom: saisie.data.prenom,
     nom: saisie.data.nom,
     role: "eleve",
-    etablissementId: acteur.etablissementId,
+    etablissementId,
   });
   return resultat.ok ? { ok: true } : { ok: false, erreur: MESSAGES_INVITATION[resultat.raison] };
 }
@@ -181,22 +189,47 @@ export async function supprimerEleve(
 
 // ---------- Invitation par QR code ----------------------------------------
 
-/** Code QR actif de la classe du maître, ou null. */
-export async function chargerQrClasse(acteur: Profil): Promise<InvitationClasse | null> {
-  if (acteur.role !== "maitre" || !acteur.etablissementId) return null;
-  const invitation = await invitationActive(acteur.etablissementId);
+/**
+ * Classe visée : celle du maître, ou celle choisie par l'admin.
+ * Null si l'acteur n'a pas le droit ou si le choix est invalide.
+ */
+function classeCible(acteur: Profil, etablissementBrut?: unknown): string | null {
+  if (!acteur.actif) return null;
+  if (acteur.role === "maitre") return acteur.etablissementId;
+  if (acteur.role === "admin") {
+    const id = z.string().uuid().safeParse(etablissementBrut);
+    return id.success ? id.data : null;
+  }
+  return null;
+}
+
+/** Code QR actif de la classe (celle du maître, ou celle choisie par l'admin), ou null. */
+export async function chargerQrClasse(
+  acteur: Profil,
+  etablissementBrut?: unknown,
+): Promise<InvitationClasse | null> {
+  const etablissementId = classeCible(acteur, etablissementBrut);
+  if (!etablissementId) return null;
+  const invitation = await invitationActive(etablissementId);
   return invitation && etatInvitation(invitation, new Date()) === "valide" ? invitation : null;
 }
 
 /** Crée un nouveau QR code (l'ancien est désactivé). */
-export async function genererQrClasse(acteur: Profil): Promise<ResultatSaisie> {
-  if (acteur.role !== "maitre" || !acteur.actif || !acteur.etablissementId) {
-    return { ok: false, erreur: "Seul un maître rattaché à une classe peut créer un QR code." };
+export async function genererQrClasse(acteur: Profil, etablissementBrut?: unknown): Promise<ResultatSaisie> {
+  const etablissementId = classeCible(acteur, etablissementBrut);
+  if (!etablissementId) {
+    return {
+      ok: false,
+      erreur:
+        acteur.role === "admin"
+          ? "Choisis d'abord une classe."
+          : "Seul un maître rattaché à une classe peut créer un QR code.",
+    };
   }
   try {
-    await desactiverInvitations(acteur.etablissementId);
+    await desactiverInvitations(etablissementId);
     await creerInvitation({
-      etablissementId: acteur.etablissementId,
+      etablissementId,
       creePar: acteur.id,
       code: randomBytes(18).toString("base64url"),
       expireLe: expirationDepuis(new Date()),
@@ -207,11 +240,14 @@ export async function genererQrClasse(acteur: Profil): Promise<ResultatSaisie> {
   return { ok: true };
 }
 
-export async function desactiverQrClasse(acteur: Profil): Promise<ResultatSaisie> {
-  if (acteur.role !== "maitre" || !acteur.etablissementId)
-    return { ok: false, erreur: "Action réservée au maître." };
+export async function desactiverQrClasse(
+  acteur: Profil,
+  etablissementBrut?: unknown,
+): Promise<ResultatSaisie> {
+  const etablissementId = classeCible(acteur, etablissementBrut);
+  if (!etablissementId) return { ok: false, erreur: "Action réservée au maître de la classe ou à l'admin." };
   try {
-    await desactiverInvitations(acteur.etablissementId);
+    await desactiverInvitations(etablissementId);
   } catch {
     return { ok: false, erreur: "Le QR code n'a pas pu être désactivé." };
   }
