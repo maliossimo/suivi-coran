@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState, type FormEvent } from "react";
 import type { Seance, TypeSeance } from "@/domain/fiche";
 import type { Passage } from "@/domain/versets";
 import { actionEnregistrerSeance, type EtatSaisie } from "@/app/actions/fiche";
@@ -14,6 +14,12 @@ export interface SourateOption {
 }
 
 const PAS = 5;
+
+/** Garde uniquement les chiffres : « 069 » devient 69, un champ vidé vaut 0 (affiché vide). */
+function lireNombre(texte: string): number {
+  const chiffres = texte.replace(/\D/g, "").slice(0, 4);
+  return chiffres ? Number(chiffres) : 0;
+}
 const DUREES_RAPIDES = [10, 15, 20, 30, 45, 60];
 
 export function FormulaireSeance({
@@ -40,6 +46,7 @@ export function FormulaireSeance({
   const [etat, action, enCours] = useActionState<EtatSaisie, FormData>(actionEnregistrerSeance, {});
   const [duree, setDuree] = useState<number>(initiale?.dureeMin ?? 0);
   const [passages, setPassages] = useState<Passage[]>(initiale?.passages ?? []);
+  const [erreurLocale, setErreurLocale] = useState<string | null>(null);
 
   const nbVersets = (numero: number) => sourates.find((s) => s.numero === numero)?.nbVersets ?? 1;
   const nomSourate = (numero: number) => sourates.find((s) => s.numero === numero);
@@ -72,6 +79,38 @@ export function FormulaireSeance({
     ]);
   }
 
+  /** Vérifie les passages avant l'envoi : rien n'est perdu, l'élève corrige sur place. */
+  function verifier(): string | null {
+    for (const [i, p] of passages.entries()) {
+      const n = `Passage ${i + 1}`;
+      if (!p.versetDebut || !p.versetFin) return `${n} : indique le verset de début et de fin.`;
+      if (p.versetDebut > nbVersets(p.sourateDebut))
+        return `${n} : la sourate ${nomSourate(p.sourateDebut)?.nomLatin ?? ""} n’a que ${nbVersets(p.sourateDebut)} versets.`;
+      if (p.versetFin > nbVersets(p.sourateFin))
+        return `${n} : la sourate ${nomSourate(p.sourateFin)?.nomLatin ?? ""} n’a que ${nbVersets(p.sourateFin)} versets.`;
+      if (p.sourateFin < p.sourateDebut || (p.sourateFin === p.sourateDebut && p.versetFin < p.versetDebut))
+        return `${n} : la fin est avant le début (verset ${p.versetFin} avant le verset ${p.versetDebut}).`;
+    }
+    return null;
+  }
+
+  // Envoi manuel : on évite la remise à zéro automatique du formulaire par React,
+  // qui ramenait les listes de sourates sur Al-Fatiha et effaçait la note en cas d'erreur.
+  function envoyer(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const probleme = verifier();
+    setErreurLocale(probleme);
+    if (probleme) {
+      const formulaire = e.currentTarget;
+      requestAnimationFrame(() =>
+        formulaire.querySelector(".message-erreur")?.scrollIntoView({ block: "center", behavior: "smooth" }),
+      );
+      return;
+    }
+    const donnees = new FormData(e.currentTarget);
+    startTransition(() => action(donnees));
+  }
+
   const optionsSourates = sourates.map((s) => (
     <option key={s.numero} value={s.numero}>
       {s.numero}. {s.nomLatin} — {s.nomAr}
@@ -79,16 +118,16 @@ export function FormulaireSeance({
   ));
 
   return (
-    <form action={action} className="formulaire seance-formulaire" noValidate>
+    <form onSubmit={envoyer} className="formulaire seance-formulaire" noValidate>
       <input type="hidden" name="eleveId" value={eleveId} />
       <input type="hidden" name="retour" value={retour} />
       <input type="hidden" name="date" value={date} />
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="passages" value={JSON.stringify(passages)} />
 
-      {etat.erreur ? (
+      {erreurLocale || etat.erreur ? (
         <p className="message-erreur" role="alert">
-          {etat.erreur}
+          {erreurLocale ?? etat.erreur}
         </p>
       ) : null}
 
@@ -109,12 +148,13 @@ export function FormulaireSeance({
             <input
               id="dureeMin"
               name="dureeMin"
-              type="number"
+              type="text"
               inputMode="numeric"
-              min={0}
-              max={600}
-              value={duree}
-              onChange={(e) => setDuree(Math.max(0, Math.min(600, Number(e.target.value) || 0)))}
+              pattern="[0-9]*"
+              autoComplete="off"
+              value={duree ? String(duree) : ""}
+              placeholder="0"
+              onChange={(e) => setDuree(Math.min(600, lireNombre(e.target.value)))}
             />
             <span>min</span>
           </div>
@@ -195,23 +235,23 @@ export function FormulaireSeance({
               <label className="champ">
                 <span>Du verset</span>
                 <input
-                  type="number"
+                  type="text"
                   inputMode="numeric"
-                  min={1}
-                  max={nbVersets(p.sourateDebut)}
-                  value={p.versetDebut}
-                  onChange={(e) => modifier(i, "versetDebut", Number(e.target.value))}
+                  pattern="[0-9]*"
+                  autoComplete="off"
+                  value={p.versetDebut ? String(p.versetDebut) : ""}
+                  onChange={(e) => modifier(i, "versetDebut", lireNombre(e.target.value))}
                 />
               </label>
               <label className="champ">
                 <span>Au verset</span>
                 <input
-                  type="number"
+                  type="text"
                   inputMode="numeric"
-                  min={1}
-                  max={nbVersets(p.sourateFin)}
-                  value={p.versetFin}
-                  onChange={(e) => modifier(i, "versetFin", Number(e.target.value))}
+                  pattern="[0-9]*"
+                  autoComplete="off"
+                  value={p.versetFin ? String(p.versetFin) : ""}
+                  onChange={(e) => modifier(i, "versetFin", lireNombre(e.target.value))}
                 />
               </label>
             </div>
