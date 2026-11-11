@@ -9,7 +9,8 @@ import { NOM_COOKIE_NOTIFICATION, type Notification } from "@/components/notific
  */
 export async function notifier(message: string, genre: Notification["genre"] = "succes"): Promise<void> {
   const valeur: Notification = { message, genre, id: Date.now() };
-  (await cookies()).set(NOM_COOKIE_NOTIFICATION, encodeURIComponent(JSON.stringify(valeur)), {
+  // Next.js encode déjà la valeur du cookie : on passe le JSON tel quel.
+  (await cookies()).set(NOM_COOKIE_NOTIFICATION, JSON.stringify(valeur), {
     path: "/",
     maxAge: 30,
     sameSite: "lax",
