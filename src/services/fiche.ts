@@ -3,6 +3,7 @@ import { z } from "zod";
 import { debutDuMois, lireDate, type DateISO, type NumeroSemaine } from "@/domain/calendrier";
 import {
   construireFiche,
+  TYPES_SEANCE,
   dernierJour,
   lireMois,
   positionDuMois,
@@ -19,6 +20,7 @@ import {
 import {
   creerReferentiel,
   nbVersetsDistincts,
+  passageSuivant,
   versIntervalle,
   type Passage,
   type Sourate,
@@ -26,7 +28,13 @@ import {
 import { bilanDuMois, enregistrerBilan } from "@/repositories/bilans";
 import { commentairesDe, commentairesDeSeance, type Commentaire } from "@/repositories/commentaires";
 import { enregistrerObjectif, objectifsDuMois } from "@/repositories/objectifs";
-import { enregistrerSeance, seanceDuJour, seancesEntre, supprimerSeance } from "@/repositories/seances";
+import {
+  derniereSeanceAvecPassagesAvant,
+  enregistrerSeance,
+  seanceDuJour,
+  seancesEntre,
+  supprimerSeance,
+} from "@/repositories/seances";
 import { listerSourates } from "@/repositories/sourates";
 
 /** Date du jour à Paris (les élèves et la base raisonnent en heure de Paris). */
@@ -99,6 +107,8 @@ export interface DonneesSeance {
   seance: Seance | null;
   commentaires: Commentaire[];
   sourates: Sourate[];
+  /** Suite logique du dernier passage travaillé (proposée en un toucher). */
+  suggestion: Passage | null;
 }
 
 export async function chargerSeance(
@@ -106,9 +116,15 @@ export async function chargerSeance(
   date: DateISO,
   type: TypeSeance,
 ): Promise<DonneesSeance> {
-  const [seance, sourates] = await Promise.all([seanceDuJour(eleveId, type, date), listerSourates()]);
+  const [seance, sourates, precedente] = await Promise.all([
+    seanceDuJour(eleveId, type, date),
+    listerSourates(),
+    derniereSeanceAvecPassagesAvant(eleveId, type, date),
+  ]);
   const commentaires = seance ? await commentairesDeSeance(seance.id) : [];
-  return { date, type, seance, commentaires, sourates };
+  const dernier = precedente?.passages.at(-1);
+  const suggestion = dernier ? passageSuivant(creerReferentiel(sourates), dernier) : null;
+  return { date, type, seance, commentaires, sourates, suggestion };
 }
 
 // ---------- Saisie d'une séance ----------------------------------------
@@ -223,4 +239,24 @@ export async function enregistrerBilanEleve(eleveId: string, brut: unknown): Pro
   }
   await enregistrerBilan(eleveId, { type, mois: debutDuMois(mois), bienMemorise, aRenforcer });
   return { ok: true };
+}
+
+// ---------- Fiche imprimable (PDF) ----------------------------------------
+
+export interface FicheImprimable {
+  mois: Mois;
+  parties: { fiche: Fiche; bilan: Bilan | null }[];
+}
+
+/** Les deux fiches du mois (apprentissage puis révision) avec leur bilan, pour l'impression. */
+export async function chargerFicheImprimable(eleveId: string, moisParam?: string): Promise<FicheImprimable> {
+  const parties = await Promise.all(
+    TYPES_SEANCE.map(async (type) => {
+      const fiche = await chargerFiche(eleveId, moisParam, type);
+      const { bilan } =
+        fiche.position === "futur" ? { bilan: null } : await chargerBilan(eleveId, type, fiche.mois);
+      return { fiche, bilan };
+    }),
+  );
+  return { mois: parties[0]!.fiche.mois, parties };
 }

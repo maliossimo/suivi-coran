@@ -516,7 +516,6 @@ a:hover {
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  text-transform: capitalize;
 }
 .mois-puce:hover {
   border-color: var(--vert);
@@ -1812,4 +1811,460 @@ input.champ-texte {
 .bouton-deconnexion {
   width: 100%;
   color: var(--rouge);
+}
+
+/* ---------- Fiche PDF ----------------------------------------------------- */
+.fiche-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: -6px 0 -4px;
+}
+.lien-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 4px;
+  color: var(--vert);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+.lien-pdf:hover {
+  text-decoration: underline;
+}
+
+.pdf {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.pdf-outils {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pdf-outils-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.pdf-outils-action .bouton {
+  width: auto;
+  padding: 0 20px;
+}
+.pdf-outils-action p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--texte-doux);
+  text-align: right;
+}
+.pdf-page {
+  background: #fff;
+  border: 1px solid var(--ligne);
+  border-radius: 12px;
+  box-shadow: var(--ombre);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 11.5px;
+  color: #1c2420;
+}
+.pdf-entete {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--vert);
+}
+.pdf-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--vert);
+  color: #f0d796;
+  font-family: var(--font-arabe), serif;
+  font-size: 22px;
+}
+.pdf-entete-titres {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.pdf-entete-titres span,
+.pdf-entete-eleve span {
+  font-size: 10px;
+  color: var(--texte-doux);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pdf-entete-titres h1 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--vert);
+}
+.pdf-entete-eleve {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.pdf-entete-eleve strong {
+  font-size: 15px;
+}
+.pdf-resume {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  color: var(--texte-doux);
+}
+.pdf-resume strong {
+  color: var(--vert);
+}
+.pdf-semaine {
+  break-inside: avoid;
+}
+.pdf-semaine-titre {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--vert-clair);
+  border-radius: 6px 6px 0 0;
+  color: var(--vert);
+}
+.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.pdf-table th,
+.pdf-table td {
+  border: 1px solid #d9d4c7;
+  padding: 3px 6px;
+  text-align: left;
+  vertical-align: top;
+  word-wrap: break-word;
+}
+.pdf-table th {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--texte-doux);
+  background: #faf8f3;
+}
+.pdf-table td small {
+  display: block;
+  font-size: 9.5px;
+  color: var(--texte-doux);
+}
+.pdf-col-jour {
+  width: 13%;
+}
+.pdf-col-duree {
+  width: 9%;
+}
+.pdf-col-tajwid {
+  width: 18%;
+}
+.pdf-col-note {
+  width: 20%;
+}
+.pdf-ligne-vide td {
+  height: 26px;
+}
+.pdf-objectif {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid #d9d4c7;
+  border-top: 0;
+  border-radius: 0 0 6px 6px;
+  min-height: 24px;
+}
+.pdf-bas .pdf-objectif {
+  border-top: 1px solid #d9d4c7;
+  border-radius: 6px;
+}
+.pdf-objectif-titre {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pdf-objectif-texte {
+  flex: 1;
+}
+.pdf-statut {
+  white-space: nowrap;
+  font-weight: 600;
+}
+.pdf-statut-atteint {
+  color: var(--vert);
+}
+.pdf-statut-non_atteint {
+  color: var(--rouge);
+}
+.pdf-bas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  break-inside: avoid;
+}
+.pdf-bilan {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.pdf-bilan > div {
+  border: 1px solid #d9d4c7;
+  border-radius: 6px;
+  padding: 6px 8px;
+  min-height: 64px;
+}
+.pdf-bilan-titre {
+  font-weight: 700;
+  color: var(--vert);
+}
+.pdf-bilan p {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+.pdf-signature {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.pdf-signature span {
+  border-bottom: 1px dashed #b9b2a3;
+  padding-bottom: 26px;
+  font-size: 10px;
+  color: var(--texte-doux);
+}
+
+@media screen and (max-width: 640px) {
+  .pdf-page {
+    overflow-x: auto;
+    padding: 16px;
+  }
+  .pdf-table {
+    min-width: 560px;
+  }
+  .pdf-outils-action {
+    align-items: stretch;
+  }
+  .pdf-outils-action p {
+    text-align: left;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 10mm;
+}
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pdf-outils,
+  .zone-notification,
+  .nav-espace {
+    display: none !important;
+  }
+  .pdf {
+    max-width: none;
+    padding: 0;
+    gap: 0;
+  }
+  .pdf-page {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    break-after: page;
+    font-size: 10px;
+  }
+  .pdf-page:last-child {
+    break-after: auto;
+  }
+  .pdf-ligne-vide td {
+    height: 16px;
+  }
+  .pdf-table th,
+  .pdf-table td {
+    padding: 2px 5px;
+  }
+  .pdf-semaine-titre,
+  .pdf-objectif {
+    padding: 2px 6px;
+    min-height: 0;
+  }
+  .pdf-bilan > div {
+    min-height: 48px;
+  }
+}
+
+/* ---------- Ergonomie : fiche compacte -------------------------------- */
+.resume-mois {
+  margin: -2px 0 0;
+}
+.fiche-actions {
+  margin: -8px 0 -6px;
+}
+.semaine-pliable > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.semaine-pliable > summary::-webkit-details-marker {
+  display: none;
+}
+.semaine-pliable > summary::after {
+  content: "›";
+  margin-left: 8px;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--texte-doux);
+  transition: transform 0.15s;
+}
+.semaine-pliable[open] > summary::after {
+  transform: rotate(90deg);
+}
+.semaine-pliable:not([open]) {
+  background: #faf8f3;
+  box-shadow: none;
+}
+
+/* ---------- Saisie d'une séance --------------------------------------- */
+.durees-rapides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.duree-rapide {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 99px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texte);
+  cursor: pointer;
+}
+.duree-rapide[aria-pressed="true"] {
+  background: var(--vert);
+  border-color: var(--vert);
+  color: #fff;
+}
+.suggestion {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2px 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--vert);
+  border-radius: 14px;
+  background: var(--vert-clair);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.suggestion-titre {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.suggestion-passage {
+  grid-column: 1;
+  font-weight: 700;
+  color: var(--vert);
+}
+.suggestion-action {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-weight: 700;
+  color: var(--vert);
+}
+/* Bouton « Enregistrer » toujours visible en bas de l'écran. */
+.barre-enregistrer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin: 0 -4px;
+  padding: 12px 4px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(246, 243, 236, 0) 0, var(--fond, #f6f3ec) 30%);
+}
+@media (max-width: 760px) {
+  .barre-enregistrer {
+    bottom: calc(68px + env(safe-area-inset-bottom));
+    padding-bottom: 12px;
+  }
+}
+
+/* ---------- Menu « ⋯ » ------------------------------------------------- */
+.menu-plus {
+  position: relative;
+}
+.menu-plus > summary {
+  list-style: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--champ);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.menu-plus > summary::-webkit-details-marker {
+  display: none;
+}
+.menu-plus-liste {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  min-width: 260px;
+  padding: 6px;
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(20, 40, 32, 0.18);
+}
+.menu-plus-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--rouge);
+  cursor: pointer;
+}
+.menu-plus-item:hover {
+  background: #fbefec;
+}
+.menu-plus-item small {
+  font-weight: 400;
+  color: var(--texte-doux);
 }

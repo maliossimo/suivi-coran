@@ -85,11 +85,44 @@ export function pourcentageDuCoran(nbVersets: number): number {
 }
 
 /** Libellé lisible d'un passage, ex. « Al-Mulk الملك 1 → 15 ». */
+/**
+ * Isole un nom arabe (caractères Unicode FSI … PDI) : sans cela, l'algorithme
+ * bidirectionnel colle les numéros de versets voisins au texte arabe et les
+ * affiche dans le désordre (« Al-Fatiha → 1 الفاتحة 7 »).
+ */
+export function isolerArabe(texte: string): string {
+  return `\u2068${texte}\u2069`;
+}
+
 export function libellePassage(ref: Referentiel, p: Passage): string {
   const d = sourateOuErreur(ref, p.sourateDebut);
   if (p.sourateDebut === p.sourateFin) {
-    return `${d.nomLatin} ${d.nomAr} ${p.versetDebut} → ${p.versetFin}`;
+    return `${d.nomLatin} ${isolerArabe(d.nomAr)} · ${p.versetDebut} → ${p.versetFin}`;
   }
   const f = sourateOuErreur(ref, p.sourateFin);
-  return `${d.nomLatin} ${d.nomAr} ${p.versetDebut} → ${f.nomLatin} ${f.nomAr} ${p.versetFin}`;
+  return `${d.nomLatin} ${isolerArabe(d.nomAr)} ${p.versetDebut} → ${f.nomLatin} ${isolerArabe(f.nomAr)} ${p.versetFin}`;
+}
+
+/**
+ * Passage qui suit le dernier passage travaillé : la suite de la même sourate,
+ * ou la sourate suivante si elle est terminée. Null après la dernière sourate.
+ */
+export function passageSuivant(ref: Referentiel, dernier: Passage): Passage | null {
+  const fin = sourateOuErreur(ref, dernier.sourateFin);
+  if (dernier.versetFin < fin.nbVersets) {
+    return {
+      sourateDebut: fin.numero,
+      versetDebut: dernier.versetFin + 1,
+      sourateFin: fin.numero,
+      versetFin: fin.nbVersets,
+    };
+  }
+  if (fin.numero >= 114) return null;
+  const suivante = sourateOuErreur(ref, fin.numero + 1);
+  return {
+    sourateDebut: suivante.numero,
+    versetDebut: 1,
+    sourateFin: suivante.numero,
+    versetFin: suivante.nbVersets,
+  };
 }

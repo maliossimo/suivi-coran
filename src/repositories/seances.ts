@@ -156,3 +156,23 @@ export async function dernieresSaisies(depuis: DateISO): Promise<Map<string, Dat
   }
   return resultat;
 }
+
+/** Dernière séance avec passages avant une date (pour proposer la suite). */
+export async function derniereSeanceAvecPassagesAvant(
+  eleveId: string,
+  type: TypeSeance,
+  date: DateISO,
+): Promise<Seance | null> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("seances")
+    .select(COLONNES)
+    .eq("eleve_id", eleveId)
+    .eq("type", type)
+    .lt("date", date)
+    .order("date", { ascending: false })
+    .limit(10);
+  if (error) throw new Error(`Lecture des séances impossible : ${error.message}`);
+  const seances = z.array(schemaLigne).parse(data).map(versSeance);
+  return seances.find((s) => s.passages.length > 0) ?? null;
+}
