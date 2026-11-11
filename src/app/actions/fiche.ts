@@ -12,7 +12,6 @@ import {
   enregistrerObjectifEleve,
   enregistrerSeanceEleve,
   supprimerSeanceEleve,
-  validerSeanceEleve,
   type ResultatSaisie,
 } from "@/services/fiche";
 
@@ -51,18 +50,15 @@ async function acteurEtEleve(form: FormData) {
   return { acteur, eleveId: eleveId.data };
 }
 
-/**
- * Enregistrement « en arrière-plan » : le formulaire a déjà ramené l'élève sur sa fiche ;
- * on renvoie seulement le résultat (pas de redirection) et on rafraîchit ses pages.
- */
-export async function actionEnregistrerSeanceFond(form: FormData): Promise<ResultatSaisie> {
+export async function actionEnregistrerSeance(_: EtatSaisie, form: FormData): Promise<EtatSaisie> {
   const { eleveId } = await acteurEtEleve(form);
   let passages: unknown = [];
   try {
     passages = JSON.parse(String(form.get("passages") ?? "[]"));
   } catch {
-    return { ok: false, erreur: "La liste des passages est invalide." };
+    return { erreur: "La liste des passages est invalide." };
   }
+
   let resultat: ResultatSaisie;
   try {
     resultat = await enregistrerSeanceEleve(eleveId, {
@@ -76,20 +72,11 @@ export async function actionEnregistrerSeanceFond(form: FormData): Promise<Resul
   } catch {
     resultat = { ok: false, erreur: "L'enregistrement a échoué. Réessaie dans un instant." };
   }
-  if (resultat.ok) {
-    await notifier("Séance enregistrée");
-    revaliderEleve(eleveId);
-  }
-  return resultat;
-}
+  if (!resultat.ok) return { erreur: resultat.erreur };
 
-/** Le Cheikh valide une séance en un geste depuis la fiche de l'élève. */
-export async function actionValiderSeance(form: FormData): Promise<ResultatSaisie> {
-  const { acteur, eleveId } = await acteurEtEleve(form);
-  const resultat = await validerSeanceEleve(acteur, form.get("seanceId"));
-  await notifier(resultat.ok ? "Séance validée" : resultat.erreur, resultat.ok ? "succes" : "erreur");
-  if (resultat.ok) revaliderEleve(eleveId);
-  return resultat;
+  await notifier("Séance enregistrée");
+  revaliderEleve(eleveId);
+  redirect(retourSur(form.get("retour")));
 }
 
 export async function actionSupprimerSeance(form: FormData): Promise<void> {
