@@ -1,13 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Amiri, Fraunces, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import { BandeauNotification } from "@/components/BandeauNotification";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-texte" });
-const amiri = Amiri({ subsets: ["arabic"], weight: "700", variable: "--font-arabe" });
+// Polices intégrées au site (paquets Fontsource) : le build ne dépend plus de Google Fonts.
+const inter = localFont({
+  src: "../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
+  weight: "100 900",
+  variable: "--font-texte",
+  display: "swap",
+});
+const amiri = localFont({
+  src: "../../node_modules/@fontsource/amiri/files/amiri-arabic-700-normal.woff2",
+  weight: "700",
+  variable: "--font-arabe",
+  display: "swap",
+});
 // Titres : une serif élégante qui s'accorde à la calligraphie arabe (Amiri).
-const fraunces = Fraunces({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-titre" });
+const fraunces = localFont({
+  src: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2",
+  weight: "100 900",
+  variable: "--font-titre",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Suivi cours Coran",

@@ -840,7 +840,7 @@ a.jour:hover {
 }
 .commentaire-maitre p {
   margin: 0;
-  color: #3d2a08;
+  color: var(--texte);
 }
 .bloc {
   background: var(--carte);
@@ -1061,6 +1061,20 @@ input.champ-texte {
   color: #34446b;
   font-size: 12px;
   font-weight: 600;
+}
+.pastille-commentaire {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--or-clair);
+  border: 1px solid var(--bord-or);
+  color: var(--or-texte);
+  font-size: 12px;
+  font-weight: 600;
+  vertical-align: middle;
 }
 
 .tuiles {
@@ -2838,4 +2852,11 @@ button:active:not(:disabled),
   left: 0;
   width: min(300px, calc(100vw - 32px));
   min-width: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pastille-note {
+    background: #26304a;
+    color: #c9d4f2;
+  }
 }

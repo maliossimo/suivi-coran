@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
@@ -269,6 +269,12 @@ function LigneJour({ jour, lien, refs }: { jour: JourFiche; lien: string; refs: 
         {contenu ?? (jour.futur ? "" : "+ Ajouter")}
         {s?.corrigee ? <span className="pastille-or">Corrigée</span> : null}
         {s?.noteLibre ? <span className="pastille-note">Note</span> : null}
+        {s?.nbCommentaires ? (
+          <span className="pastille-commentaire">
+            <MessageCircle size={12} strokeWidth={2.6} aria-hidden="true" />
+            Maître
+          </span>
+        ) : null}
       </span>
     </>
   );
