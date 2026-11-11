@@ -22,6 +22,8 @@ export interface Passage {
   versetDebut: number;
   sourateFin: number;
   versetFin: number;
+  /** Vrai si le Cheikh a vu ce passage (lecture seule : posé par la base). */
+  corrige?: boolean;
 }
 
 /** Intervalle fermé d'index globaux. */
@@ -150,4 +152,27 @@ export function lirePassageTexte(ref: Referentiel, texte: string | undefined | n
   } catch {
     return null;
   }
+}
+
+/** Position comparable « sourate, verset » (un verset ne dépasse jamais 286). */
+const rang = (sourate: number, verset: number) => sourate * 1000 + verset;
+
+/**
+ * Premiers passages (index 0-based) qui se chevauchent ou se répètent dans une même séance,
+ * ou null s'il n'y en a pas.
+ */
+export function premierChevauchement(passages: readonly Passage[]): readonly [number, number] | null {
+  for (let i = 0; i < passages.length; i += 1) {
+    const a = passages[i]!;
+    for (let j = i + 1; j < passages.length; j += 1) {
+      const b = passages[j]!;
+      if (
+        rang(a.sourateDebut, a.versetDebut) <= rang(b.sourateFin, b.versetFin) &&
+        rang(b.sourateDebut, b.versetDebut) <= rang(a.sourateFin, a.versetFin)
+      ) {
+        return [i, j];
+      }
+    }
+  }
+  return null;
 }

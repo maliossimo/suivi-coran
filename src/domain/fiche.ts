@@ -28,9 +28,9 @@ export interface Seance {
   dureeMin: number;
   tajwid: string | null;
   noteLibre: string | null;
-  /** Vrai si le maître (ou l'admin) a corrigé la séance. */
+  /** Vrai si le Cheikh (ou l'admin) a corrigé la séance (au moins en partie). */
   corrigee: boolean;
-  /** Nombre de commentaires du maître sur la séance. */
+  /** Nombre de commentaires du Cheikh sur la séance. */
   nbCommentaires?: number;
   passages: Passage[];
 }
@@ -204,4 +204,18 @@ export function formaterDuree(minutes: number): string {
   const m = minutes % 60;
   if (!h) return `${m} min`;
   return m ? `${h} h ${String(m).padStart(2, "0")}` : `${h} h`;
+}
+
+/**
+ * État de correction d'une séance d'après ses passages :
+ * `complete` si le Cheikh a vu tous les passages, `partielle` s'il en manque
+ * (passage ajouté ou modifié après son passage), null s'il ne l'a pas encore vue.
+ */
+export function etatCorrection(
+  seance: Pick<Seance, "corrigee" | "passages">,
+): "complete" | "partielle" | null {
+  if (!seance.corrigee) return null;
+  const vus = seance.passages.filter((p) => p.corrige).length;
+  if (seance.passages.length === 0 || vus === seance.passages.length) return "complete";
+  return "partielle";
 }

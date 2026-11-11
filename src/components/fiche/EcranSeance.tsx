@@ -2,7 +2,7 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { actionSupprimerSeance } from "@/app/actions/fiche";
 import { positionSurFiche, type DateISO } from "@/domain/calendrier";
-import { libelleJourCourt, LIBELLE_TYPE, type TypeSeance } from "@/domain/fiche";
+import { etatCorrection, libelleJourCourt, LIBELLE_TYPE, type TypeSeance } from "@/domain/fiche";
 import type { DonneesSeance } from "@/services/fiche";
 import { FormulaireCommentaire } from "./FormulaireCommentaire";
 import { FormulaireSeance } from "./FormulaireSeance";
@@ -48,13 +48,18 @@ export function EcranSeance({
         </h1>
         <p>
           Semaine {semaine} · {libelleJourCourt(date)}
-          {donnees.seance?.corrigee ? <span className="pastille-or">Corrigée par le maître</span> : null}
+          {donnees.seance && etatCorrection(donnees.seance) === "complete" ? (
+            <span className="pastille-or">Corrigée par le Cheikh</span>
+          ) : null}
+          {donnees.seance && etatCorrection(donnees.seance) === "partielle" ? (
+            <span className="pastille-or pastille-partielle">Corrigée en partie par le Cheikh</span>
+          ) : null}
         </p>
       </header>
 
       {donnees.commentaires.length > 0 ? (
         <section className="commentaire-maitre">
-          <h2>Commentaire{donnees.commentaires.length > 1 ? "s" : ""} du maître</h2>
+          <h2>Commentaire{donnees.commentaires.length > 1 ? "s" : ""} du Cheikh</h2>
           {donnees.commentaires.map((c) => (
             <p key={c.creeLe}>
               {c.texte}

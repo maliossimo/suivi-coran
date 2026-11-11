@@ -22,6 +22,7 @@ import {
   nbVersetsDistincts,
   lirePassageTexte,
   passageSuivant,
+  premierChevauchement,
   versIntervalle,
   type Passage,
   type Sourate,
@@ -177,6 +178,13 @@ export async function enregistrerSeanceEleve(eleveId: string, brut: unknown): Pr
     } catch (e) {
       return { ok: false, erreur: `Passage ${i + 1} : ${(e as Error).message}` };
     }
+  }
+  const doublon = premierChevauchement(passages);
+  if (doublon) {
+    return {
+      ok: false,
+      erreur: `Les passages ${doublon[0] + 1} et ${doublon[1] + 1} se répètent ou se chevauchent : garde-en un seul.`,
+    };
   }
 
   await enregistrerSeance(eleveId, { ...saisie.data, date, passages });

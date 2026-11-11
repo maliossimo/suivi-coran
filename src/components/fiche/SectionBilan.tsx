@@ -29,7 +29,7 @@ export async function SectionBilan({
   const { bilan, commentaires } = await chargerBilan(eleveId, type, mois);
   return (
     <>
-      {bilan?.corrige ? <span className="pastille-or bilan-pastille">Complété par le maître</span> : null}
+      {bilan?.corrige ? <span className="pastille-or bilan-pastille">Complété par le Cheikh</span> : null}
       <FormulaireBilan
         eleveId={eleveId}
         type={type}
@@ -39,7 +39,7 @@ export async function SectionBilan({
       />
       {commentaires.length > 0 ? (
         <div className="commentaire-maitre">
-          <h4>Mot du maître</h4>
+          <h4>Mot du Cheikh</h4>
           {commentaires.map((c) => (
             <p key={c.creeLe}>
               {c.texte}

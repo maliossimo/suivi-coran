@@ -4,6 +4,7 @@ import {
   construireFiche,
   decalerMois,
   dernierJour,
+  etatCorrection,
   formaterDuree,
   libelleJourCourt,
   libelleMois,
@@ -119,5 +120,22 @@ describe("libelleMoisCourt", () => {
   it("n'affiche l'année que si elle change", () => {
     expect(libelleMoisCourt({ annee: 2026, mois: 12 }, 2026)).toBe("déc.");
     expect(libelleMoisCourt({ annee: 2027, mois: 1 }, 2026)).toBe("janv. 2027");
+  });
+});
+
+describe("etatCorrection", () => {
+  const p = (corrige: boolean) => ({ sourateDebut: 1, versetDebut: 1, sourateFin: 1, versetFin: 7, corrige });
+
+  it("pas encore vue par le Cheikh", () => {
+    expect(etatCorrection({ corrigee: false, passages: [p(false)] })).toBeNull();
+  });
+
+  it("entièrement corrigée quand tous les passages ont été vus", () => {
+    expect(etatCorrection({ corrigee: true, passages: [p(true), p(true)] })).toBe("complete");
+    expect(etatCorrection({ corrigee: true, passages: [] })).toBe("complete");
+  });
+
+  it("corrigée en partie quand un passage a été ajouté après", () => {
+    expect(etatCorrection({ corrigee: true, passages: [p(true), p(false)] })).toBe("partielle");
   });
 });
