@@ -22,10 +22,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: package.json
-      # `npm ci` dès que package-lock.json est commité ; `npm install` en attendant.
+          cache-dependency-path: package-lock.json
       - name: Installation
-        run: if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+        run: npm ci --no-audit --no-fund
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
@@ -59,7 +58,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: package.json
+          cache-dependency-path: package-lock.json
       - name: Installation
-        run: if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+        run: npm ci --no-audit --no-fund
       - run: npm run build
