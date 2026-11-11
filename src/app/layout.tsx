@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Amiri, Fraunces, Inter } from "next/font/google";
+import Script from "next/script";
 import { BandeauNotification } from "@/components/BandeauNotification";
 import "./globals.css";
 
@@ -31,7 +31,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <BandeauNotification />
-        <SpeedInsights />
+        {/* Vercel Speed Insights : vitesse réelle mesurée chez les utilisateurs (sans paquet npm). */}
+        <Script id="speed-insights-file" strategy="afterInteractive">
+          {"window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };"}
+        </Script>
+        <Script src="/_vercel/speed-insights/script.js" strategy="afterInteractive" />
       </body>
     </html>
   );
