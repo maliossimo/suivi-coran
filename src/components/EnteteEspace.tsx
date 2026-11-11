@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { actionDeconnexion } from "@/app/actions/auth";
 
 function initiales(nom: string): string {
@@ -14,7 +15,7 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
   return (
     <header className="barre">
       <div className="barre-contenu">
-        <div className="barre-marque">
+        <Link href="/" className="barre-marque" aria-label="Retour à l’accueil">
           <div className="auth-logo auth-logo-petit" aria-hidden="true">
             ق
           </div>
@@ -22,7 +23,7 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
             <span className="barre-app">Suivi cours Coran</span>
             <span className="barre-titre">{titre}</span>
           </div>
-        </div>
+        </Link>
         <div className="barre-utilisateur">
           <div className="barre-identite">
             <span className="avatar" aria-hidden="true">

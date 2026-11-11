@@ -1,3 +1,4 @@
+import Link from "next/link";
 /**
  * Écran affiché instantanément pendant le chargement d'une page :
  * même barre du haut et silhouettes des cartes, pour que la navigation
@@ -8,7 +9,7 @@ export function Chargement({ titre }: { titre: string }) {
     <>
       <header className="barre">
         <div className="barre-contenu">
-          <div className="barre-marque">
+          <Link href="/" className="barre-marque" aria-label="Retour à l’accueil">
             <div className="auth-logo auth-logo-petit" aria-hidden="true">
               ق
             </div>
@@ -16,7 +17,7 @@ export function Chargement({ titre }: { titre: string }) {
               <span className="barre-app">Suivi cours Coran</span>
               <span className="barre-titre">{titre}</span>
             </div>
-          </div>
+          </Link>
         </div>
       </header>
       <main className="espace" aria-busy="true" aria-live="polite">
