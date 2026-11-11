@@ -1009,6 +1009,9 @@ input.champ-texte {
   font-size: 22px;
 }
 .entete-page {
+  /* Au-dessus de la navigation des mois quand le menu ⋯ est ouvert. */
+  position: relative;
+  z-index: 30;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2239,10 +2242,12 @@ input.champ-texte {
 }
 .menu-plus-liste {
   position: absolute;
-  right: 0;
+  /* Le bouton ⋯ est à gauche : le menu s'ouvre vers la droite et reste dans l'écran. */
+  left: 0;
   top: calc(100% + 6px);
-  z-index: 20;
+  z-index: 60;
   min-width: 260px;
+  max-width: calc(100vw - 32px);
   padding: 6px;
   border: 1px solid var(--ligne);
   border-radius: 14px;
@@ -2435,7 +2440,7 @@ h3,
 .espace > *,
 .squelettes,
 .fenetre-contenu {
-  animation: apparition 0.22s ease-out both;
+  animation: apparition 0.22s ease-out backwards;
 }
 .espace > *:nth-child(2) {
   animation-delay: 0.03s;
