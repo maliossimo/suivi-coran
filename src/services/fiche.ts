@@ -36,6 +36,7 @@ import {
   seanceDuJour,
   seancesEntre,
   supprimerSeance,
+  validerSeance,
 } from "@/repositories/seances";
 import { listerSourates } from "@/repositories/sourates";
 
@@ -189,6 +190,24 @@ export async function enregistrerSeanceEleve(eleveId: string, brut: unknown): Pr
 
   await enregistrerSeance(eleveId, { ...saisie.data, date, passages });
   return { ok: true };
+}
+
+/** Validation en un geste par le Cheikh : tous les passages de la séance sont « vus ». */
+export async function validerSeanceEleve(
+  acteur: { role: string },
+  seanceBrute: unknown,
+): Promise<ResultatSaisie> {
+  if (acteur.role !== "maitre" && acteur.role !== "admin") {
+    return { ok: false, erreur: "Seul le Cheikh peut valider une séance." };
+  }
+  const seanceId = z.string().uuid().safeParse(seanceBrute);
+  if (!seanceId.success) return { ok: false, erreur: "Séance introuvable." };
+  try {
+    await validerSeance(seanceId.data);
+    return { ok: true };
+  } catch {
+    return { ok: false, erreur: "La séance n'a pas pu être validée. Réessaie." };
+  }
 }
 
 export async function supprimerSeanceEleve(eleveId: string, typeBrut: unknown, dateBrute: unknown) {

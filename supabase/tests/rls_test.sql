@@ -237,6 +237,29 @@ select pg_temp.attendu(
     where s.date = '2026-11-05' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
   'doublon : deux passages qui se suivent sont acceptés');
 
+-- Validation en un geste
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select public.enregistrer_seance('2026-11-06', 'revision', 10::smallint, null, null,
+  '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10},
+    {"sourateDebut":68,"versetDebut":1,"sourateFin":68,"versetFin":5}]'::jsonb);
+select pg_temp.doit_echouer(
+  $q$select public.valider_seance((select id from public.seances where date = '2026-11-06'
+       and eleve_id = 'a0000000-0000-0000-0000-000000000001'))$q$,
+  'validation : l''élève ne peut pas valider sa propre séance');
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.doit_echouer(
+  $q$select public.valider_seance('5e000000-0000-0000-0000-0000000000a1')$q$,
+  'validation : refusée au Cheikh d''une autre école');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select public.valider_seance((select id from public.seances where date = '2026-11-06'
+  and eleve_id = 'a0000000-0000-0000-0000-000000000001'));
+select pg_temp.attendu(
+  (select count(*) filter (where p.corrige_par = 'a0000000-0000-0000-0000-00000000000a') = 2
+      and bool_and(s.modifiee_par = 'a0000000-0000-0000-0000-00000000000a') and bool_and(s.duree_min = 10)
+     from public.passages p join public.seances s on s.id = p.seance_id
+    where s.date = '2026-11-06' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'validation : le Cheikh valide en un geste, tous les passages sont vus, rien d''autre ne change');
+
 -- Le Cheikh revoit la séance du 4 : tous ses passages sont marqués.
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 select public.enregistrer_seance('2026-11-04', 'apprentissage', 20::smallint, null, null,
