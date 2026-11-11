@@ -5,7 +5,7 @@ Le propriétaire du projet peut le modifier à tout moment.
 
 ## Produit
 
-- Suivi de l'apprentissage et de la révision du Coran. Le tajwid est un champ de chaque séance, pas une activité à part.
+- Suivi de l'apprentissage et de la révision du Coran. Le tajwid n'est plus saisi (colonne `seances.tajwid` conservée pour les anciennes données).
 - Rôles : `eleve` (son suivi uniquement), `maitre` (les élèves de son établissement), `admin` (le fournisseur : tout, plus le journal d'audit).
 - Plusieurs établissements possibles ; chaque maître et ses élèves sont isolés des autres.
 - Fiche du mois : Semaine 1 = jours 1-7, S2 = 8-14, S3 = 15-21, S4 = 22-28, S5 = 29 → fin. « Jour N » = N-ième jour du bloc.

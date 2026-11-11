@@ -31,7 +31,7 @@ function LigneObjectif({ titre, objectif }: { titre: string; objectif: Objectif 
 
 /**
  * Fiche du mois au format papier (A4), une page par type de séance :
- * semaines 1 à 5, jours, passages, tajwid, notes, objectifs et bilan.
+ * semaines 1 à 5, jours, passages, notes, objectifs et bilan.
  * « Télécharger en PDF » ouvre l'impression du navigateur (« Enregistrer en PDF »).
  */
 export function FicheImprimable({
@@ -106,7 +106,6 @@ export function FicheImprimable({
                       <th className="pdf-col-jour">Jour</th>
                       <th className="pdf-col-duree">Durée</th>
                       <th>Passages</th>
-                      <th className="pdf-col-tajwid">Tajwid</th>
                       <th className="pdf-col-note">Note</th>
                     </tr>
                   </thead>
@@ -125,7 +124,6 @@ export function FicheImprimable({
                               <div key={i}>{libellePassage(ref, p)}</div>
                             ))}
                           </td>
-                          <td>{s?.tajwid ?? ""}</td>
                           <td>{s?.noteLibre ?? ""}</td>
                         </tr>
                       );

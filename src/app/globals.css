@@ -1971,11 +1971,8 @@ input.champ-texte {
 .pdf-col-duree {
   width: 9%;
 }
-.pdf-col-tajwid {
-  width: 18%;
-}
 .pdf-col-note {
-  width: 20%;
+  width: 30%;
 }
 .pdf-ligne-vide td {
   height: 26px;
