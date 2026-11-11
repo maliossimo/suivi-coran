@@ -6,7 +6,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import type { Seance, TypeSeance } from "@/domain/fiche";
 import { premierChevauchement, type Passage } from "@/domain/versets";
 import { actionEnregistrerSeanceFond } from "@/app/actions/fiche";
-import { cleSeance, lireEnAttente, marquerEnvoi, marquerErreur, retirer } from "./enregistrementsEnAttente";
+import { cleSeance, lireEnAttente, preparerEnvoi } from "./enregistrementsEnAttente";
 
 export interface SourateOption {
   numero: number;
@@ -147,11 +147,10 @@ export function FormulaireSeance({
     // l'envoi continue en arrière-plan ; la ligne du jour affiche « Enregistrement… ».
     const donnees = new FormData(e.currentTarget);
     setEnvoiEnCours(true);
-    marquerEnvoi(cle, { dureeMin: duree, passages, noteLibre: String(donnees.get("noteLibre") ?? "") });
+    preparerEnvoi(cle, { dureeMin: duree, passages, noteLibre: String(donnees.get("noteLibre") ?? "") }, () =>
+      actionEnregistrerSeanceFond(donnees),
+    );
     router.push(retour);
-    actionEnregistrerSeanceFond(donnees)
-      .then((r) => (r.ok ? retirer(cle) : marquerErreur(cle, r.erreur)))
-      .catch(() => marquerErreur(cle, "pas de connexion. Vérifie ton réseau et réessaie."));
   }
 
   const optionsSourates = sourates.map((s) => (

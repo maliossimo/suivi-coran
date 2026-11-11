@@ -25,6 +25,12 @@ export interface EnAttente {
   saisie: Saisie;
 }
 
+type Resultat = { ok: true } | { ok: false; erreur: string };
+
+// Envois préparés mais pas encore partis : on attend que la fiche soit affichée,
+// sinon Next attend la fin de l'enregistrement avant de changer de page.
+const aEnvoyer = new Map<string, () => Promise<Resultat>>();
+
 const enAttente = new Map<string, EnAttente>();
 const abonnes = new Set<() => void>();
 
@@ -32,9 +38,22 @@ function publier() {
   abonnes.forEach((f) => f());
 }
 
-export function marquerEnvoi(cle: string, saisie: Saisie) {
+/** Prépare l'envoi ; il part dès que la fiche est affichée (ou au bout de 1,5 s). */
+export function preparerEnvoi(cle: string, saisie: Saisie, envoyer: () => Promise<Resultat>) {
   enAttente.set(cle, { etat: "envoi", saisie });
+  aEnvoyer.set(cle, envoyer);
   publier();
+  window.setTimeout(() => lancerEnvoi(cle), 1500);
+}
+
+/** Lance l'envoi préparé (une seule fois). */
+export function lancerEnvoi(cle: string) {
+  const envoyer = aEnvoyer.get(cle);
+  if (!envoyer) return;
+  aEnvoyer.delete(cle);
+  envoyer()
+    .then((r) => (r.ok ? retirer(cle) : marquerErreur(cle, r.erreur)))
+    .catch(() => marquerErreur(cle, "pas de connexion. Vérifie ton réseau et réessaie."));
 }
 
 export function marquerErreur(cle: string, erreur: string) {
