@@ -1,3 +1,4 @@
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import {
   formaterDuree,
@@ -47,7 +48,8 @@ export function FicheImprimable({
     <div className="pdf">
       <div className="pdf-outils">
         <Link href={retour} className="lien-retour">
-          ‹ Retour à la fiche
+          <ChevronLeft size={18} aria-hidden="true" />
+          Retour à la fiche
         </Link>
         <div className="pdf-outils-action">
           <BoutonImprimer />

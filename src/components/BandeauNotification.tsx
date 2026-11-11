@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleAlert, CircleCheck, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
 import { NOM_COOKIE_NOTIFICATION, type Notification } from "./notification-commun";
@@ -83,7 +84,7 @@ export function BandeauNotification() {
       {notification ? (
         <div key={notification.id} className={`notification notification-${notification.genre}`}>
           <span className="notification-icone" aria-hidden="true">
-            {notification.genre === "succes" ? "✓" : "!"}
+            {notification.genre === "succes" ? <CircleCheck size={18} /> : <CircleAlert size={18} />}
           </span>
           <span>{notification.message}</span>
           <button
@@ -92,7 +93,7 @@ export function BandeauNotification() {
             onClick={() => publier(null)}
             aria-label="Fermer"
           >
-            ×
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
       ) : null}
