@@ -2033,17 +2033,6 @@ input.champ-texte {
   margin: 4px 0 0;
   white-space: pre-wrap;
 }
-.pdf-signature {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.pdf-signature span {
-  border-bottom: 1px dashed #b9b2a3;
-  padding-bottom: 26px;
-  font-size: 10px;
-  color: var(--texte-doux);
-}
 
 @media screen and (max-width: 640px) {
   .pdf-page {
