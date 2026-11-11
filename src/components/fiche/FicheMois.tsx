@@ -260,9 +260,7 @@ function majuscule(texte: string): string {
 function LigneJour({ jour, lien, refs }: { jour: JourFiche; lien: string; refs: Referentiel }) {
   const s = jour.seance;
   const contenu = s
-    ? [...s.passages.map((p) => libellePassage(refs, p)), ...(s.tajwid ? [`Tajwid : ${s.tajwid}`] : [])].join(
-        " · ",
-      ) || "Séance sans passage"
+    ? s.passages.map((p) => libellePassage(refs, p)).join(" · ") || "Séance sans passage"
     : null;
 
   const corps = (

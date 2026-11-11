@@ -228,19 +228,8 @@ export function FormulaireSeance({
         </button>
       </section>
 
-      <section className="bloc">
-        <label htmlFor="tajwid" className="bloc-titre">
-          Tajwid travaillé <small>(facultatif)</small>
-        </label>
-        <input
-          id="tajwid"
-          name="tajwid"
-          className="champ-texte"
-          defaultValue={initiale?.tajwid ?? ""}
-          placeholder="ex. Noun sakin : idhar et idgham"
-          maxLength={1000}
-        />
-      </section>
+      {/* Le tajwid n'est plus saisi ; une ancienne valeur est conservée telle quelle. */}
+      <input type="hidden" name="tajwid" value={initiale?.tajwid ?? ""} />
 
       <section className="bloc">
         <label htmlFor="noteLibre" className="bloc-titre">
