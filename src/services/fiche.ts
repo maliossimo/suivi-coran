@@ -3,6 +3,7 @@ import { z } from "zod";
 import { debutDuMois, lireDate, type DateISO, type NumeroSemaine } from "@/domain/calendrier";
 import {
   construireFiche,
+  TYPES_SEANCE,
   dernierJour,
   lireMois,
   positionDuMois,
@@ -223,4 +224,24 @@ export async function enregistrerBilanEleve(eleveId: string, brut: unknown): Pro
   }
   await enregistrerBilan(eleveId, { type, mois: debutDuMois(mois), bienMemorise, aRenforcer });
   return { ok: true };
+}
+
+// ---------- Fiche imprimable (PDF) ----------------------------------------
+
+export interface FicheImprimable {
+  mois: Mois;
+  parties: { fiche: Fiche; bilan: Bilan | null }[];
+}
+
+/** Les deux fiches du mois (apprentissage puis révision) avec leur bilan, pour l'impression. */
+export async function chargerFicheImprimable(eleveId: string, moisParam?: string): Promise<FicheImprimable> {
+  const parties = await Promise.all(
+    TYPES_SEANCE.map(async (type) => {
+      const fiche = await chargerFiche(eleveId, moisParam, type);
+      const { bilan } =
+        fiche.position === "futur" ? { bilan: null } : await chargerBilan(eleveId, type, fiche.mois);
+      return { fiche, bilan };
+    }),
+  );
+  return { mois: parties[0]!.fiche.mois, parties };
 }

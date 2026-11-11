@@ -81,6 +81,22 @@ export function FicheMois({
         })}
       </nav>
 
+      <div className="fiche-actions">
+        <Link href={`${base}/fiche-pdf?mois=${cle}`} className="lien-pdf" prefetch={false}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Fiche du mois en PDF
+        </Link>
+      </div>
+
       <nav className="onglets" aria-label="Type de séance">
         {TYPES_SEANCE.map((t) => (
           <Link
