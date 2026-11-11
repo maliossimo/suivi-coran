@@ -18,8 +18,7 @@ function pastilleHizb(h: HizbARevoir, aujourdhui: string): string {
 }
 
 function detailPortion(p: PortionARevoir, aujourdhui: string): string {
-  if (p.etat === "en_cours")
-    return `en cours d’apprentissage · ${p.connus} verset${p.connus > 1 ? "s" : ""} appris`;
+  if (p.etat === "en_cours") return `${p.connus} verset${p.connus > 1 ? "s" : ""} appris`;
   if (p.etat === "jamais_revisee") {
     return p.jamaisRevises === p.connus
       ? "jamais révisée"
