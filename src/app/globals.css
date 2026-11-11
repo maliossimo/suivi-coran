@@ -2801,3 +2801,23 @@ button:active:not(:disabled),
     stroke: var(--surface-3);
   }
 }
+
+/* Bouton « Enregistrer » collé en bas : toute la largeur. */
+.barre-enregistrer .bouton {
+  width: 100%;
+}
+@media (prefers-color-scheme: dark) {
+  .tuile-alerte {
+    background: #3a2418;
+    border-color: #6b3d22;
+  }
+  .tuile-alerte strong,
+  .tuile-alerte span {
+    color: #f3b98f;
+  }
+  .statut-non_atteint:has(input:checked) {
+    background: #3a2418;
+    border-color: #b5651d;
+    color: #f3b98f;
+  }
+}
