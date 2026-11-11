@@ -109,13 +109,6 @@ export async function enregistrerSeance(eleveId: string, saisie: SaisieSeance): 
   if (error) throw new Error(`Enregistrement impossible : ${error.message}`);
 }
 
-/** Le Cheikh valide la séance telle quelle (la base vérifie qu'il encadre l'élève). */
-export async function validerSeance(seanceId: string): Promise<void> {
-  const supabase = await creerClientServeur();
-  const { error } = await supabase.rpc("valider_seance", { p_seance: seanceId });
-  if (error) throw new Error(`Validation impossible : ${error.message}`);
-}
-
 export async function supprimerSeance(eleveId: string, type: TypeSeance, date: DateISO): Promise<void> {
   const supabase = await creerClientServeur();
   const { error } = await supabase
