@@ -1,10 +1,12 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
-import { startTransition, useActionState, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, type FormEvent } from "react";
 import type { Seance, TypeSeance } from "@/domain/fiche";
 import { premierChevauchement, type Passage } from "@/domain/versets";
-import { actionEnregistrerSeance, type EtatSaisie } from "@/app/actions/fiche";
+import { actionEnregistrerSeanceFond } from "@/app/actions/fiche";
+import { cleSeance, lireEnAttente, marquerEnvoi, marquerErreur, retirer } from "./enregistrementsEnAttente";
 
 export interface SourateOption {
   numero: number;
@@ -46,9 +48,21 @@ export function FormulaireSeance({
   sourates: SourateOption[];
   libelleBouton?: string;
 }) {
-  const [etat, action, enCours] = useActionState<EtatSaisie, FormData>(actionEnregistrerSeance, {});
-  const [duree, setDuree] = useState<number>(initiale?.dureeMin ?? 0);
+  const router = useRouter();
+  const cle = cleSeance(eleveId, date, type);
+  // Un enregistrement en arrière-plan a échoué : on reprend la saisie telle quelle.
+  const [reprise] = useState(() => {
+    const e = lireEnAttente(cle);
+    return e?.etat === "erreur" ? e : undefined;
+  });
+  const [envoiEnCours, setEnvoiEnCours] = useState(false);
+  // Tant que la page n'est pas prête (téléphone lent), le bouton reste inactif :
+  // sinon le navigateur enverrait le formulaire « à l'ancienne » et rien ne serait enregistré.
+  const [pret, setPret] = useState(false);
+  useEffect(() => setPret(true), []);
+  const [duree, setDuree] = useState<number>(reprise?.saisie.dureeMin ?? initiale?.dureeMin ?? 0);
   const [passages, setPassages] = useState<Passage[]>(() => {
+    if (reprise) return reprise.saisie.passages;
     const existants = initiale?.passages ?? [];
     const dejaLa =
       propose &&
@@ -61,7 +75,9 @@ export function FormulaireSeance({
       );
     return propose && !dejaLa ? [...existants, propose] : existants;
   });
-  const [erreurLocale, setErreurLocale] = useState<string | null>(null);
+  const [erreurLocale, setErreurLocale] = useState<string | null>(
+    reprise ? `Séance non enregistrée : ${reprise.erreur ?? "réessaie."}` : null,
+  );
 
   const nbVersets = (numero: number) => sourates.find((s) => s.numero === numero)?.nbVersets ?? 1;
   const nomSourate = (numero: number) => sourates.find((s) => s.numero === numero);
@@ -127,8 +143,15 @@ export function FormulaireSeance({
       );
       return;
     }
+    // Enregistrement instantané : retour immédiat sur la fiche (déjà en mémoire),
+    // l'envoi continue en arrière-plan ; la ligne du jour affiche « Enregistrement… ».
     const donnees = new FormData(e.currentTarget);
-    startTransition(() => action(donnees));
+    setEnvoiEnCours(true);
+    marquerEnvoi(cle, { dureeMin: duree, passages, noteLibre: String(donnees.get("noteLibre") ?? "") });
+    router.push(retour);
+    actionEnregistrerSeanceFond(donnees)
+      .then((r) => (r.ok ? retirer(cle) : marquerErreur(cle, r.erreur)))
+      .catch(() => marquerErreur(cle, "pas de connexion. Vérifie ton réseau et réessaie."));
   }
 
   const optionsSourates = sourates.map((s) => (
@@ -145,9 +168,9 @@ export function FormulaireSeance({
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="passages" value={JSON.stringify(passages)} />
 
-      {erreurLocale || etat.erreur ? (
+      {erreurLocale ? (
         <p className="message-erreur" role="alert">
-          {erreurLocale ?? etat.erreur}
+          {erreurLocale}
         </p>
       ) : null}
 
@@ -310,7 +333,7 @@ export function FormulaireSeance({
           name="noteLibre"
           className="champ-texte"
           rows={3}
-          defaultValue={initiale?.noteLibre ?? ""}
+          defaultValue={reprise?.saisie.noteLibre ?? initiale?.noteLibre ?? ""}
           placeholder={
             vueMaitre
               ? "Remarque sur la séance : difficulté, point à reprendre…"
@@ -321,8 +344,8 @@ export function FormulaireSeance({
       </section>
 
       <div className="barre-enregistrer">
-        <button className="bouton" type="submit" disabled={enCours}>
-          {enCours ? "Enregistrement…" : libelleBouton}
+        <button className="bouton" type="submit" disabled={!pret || envoiEnCours}>
+          {envoiEnCours ? "Enregistrement…" : libelleBouton}
         </button>
       </div>
     </form>
