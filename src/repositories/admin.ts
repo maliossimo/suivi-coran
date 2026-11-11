@@ -2,6 +2,8 @@ import "server-only";
 import { z } from "zod";
 import type { Role } from "@/domain/roles";
 import { creerClientServeur } from "@/lib/supabase/server";
+import type { SeanceUsage } from "@/domain/usage";
+import { clientAdmin } from "@/lib/supabase/admin";
 
 /*
  * Lectures et écritures du back-office. Elles passent par le client de la
@@ -114,12 +116,41 @@ export async function journalRecent(limite = 100): Promise<EvenementAudit[]> {
 }
 
 /** Nombre de séances enregistrées depuis une date (toutes classes). */
-export async function compterSeancesDepuis(depuis: string): Promise<number> {
+/** Séances depuis une date (élève, date, durée) pour les statistiques d'usage. */
+export async function seancesPourStats(depuis: string): Promise<SeanceUsage[]> {
   const supabase = await creerClientServeur();
-  const { count, error } = await supabase
+  const { data, error } = await supabase
     .from("seances")
-    .select("id", { count: "exact", head: true })
-    .gte("date", depuis);
-  if (error) throw new Error(`Comptage impossible : ${error.message}`);
-  return count ?? 0;
+    .select("eleve_id, date, duree_min")
+    .gte("date", depuis)
+    .limit(20000);
+  if (error) throw new Error(`Lecture des séances impossible : ${error.message}`);
+  return z
+    .array(z.object({ eleve_id: z.string().uuid(), date: z.string(), duree_min: z.number() }))
+    .parse(data)
+    .map((s) => ({ eleveId: s.eleve_id, date: s.date, dureeMin: s.duree_min }));
+}
+
+/**
+ * Dernière connexion de chaque compte (lue côté serveur avec la clé « service role »).
+ * Map vide si la clé n'est pas configurée.
+ */
+export async function dernieresConnexions(): Promise<Map<string, string | null>> {
+  const admin = clientAdmin();
+  const resultat = new Map<string, string | null>();
+  if (!admin) return resultat;
+  for (let page = 1; page <= 20; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) break;
+    for (const u of data.users) resultat.set(u.id, u.last_sign_in_at ?? null);
+    if (data.users.length < 1000) break;
+  }
+  return resultat;
+}
+
+/** Suppression définitive d'un élève ou d'un maître (règles vérifiées par la base). */
+export async function supprimerUtilisateurDefinitivement(id: string): Promise<void> {
+  const supabase = await creerClientServeur();
+  const { error } = await supabase.rpc("supprimer_utilisateur", { p_id: id });
+  if (error) throw new Error(error.message);
 }
