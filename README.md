@@ -69,6 +69,30 @@ L'inscription libre est désactivée. Pour tester, dans Supabase Studio (http://
 
 Ne partage jamais ces clés dans un chat, un ticket ou un commit.
 
+## Sauvegardes
+
+Le workflow **« Sauvegarde de la base »** exporte chaque nuit (3 h 17, heure de Paris) toute la base de
+production : rôles, structure et données, comptes de connexion compris. Chaque sauvegarde est gardée
+**30 jours** dans GitHub, onglet _Actions_ → le run du jour → _Artifacts_. On peut aussi en lancer une à la
+main : _Actions_ → _Sauvegarde de la base_ → _Run workflow_.
+
+**Chiffrement (recommandé).** Ajoute un secret de dépôt `SAUVEGARDE_PHRASE` (une longue phrase de passe que
+tu gardes dans ton gestionnaire de mots de passe). Les sauvegardes sont alors chiffrées en AES-256 ; sans
+elle, impossible de les relire. Sans ce secret, elles restent en clair (le run affiche un avertissement).
+
+**Données personnelles.** Un élève supprimé disparaît de la base tout de suite, et des sauvegardes au plus
+tard 30 jours après (durée de conservation).
+
+**Restaurer** (dans un projet Supabase vide de préférence, pour vérifier avant de toucher à la production) :
+
+```bash
+gpg -d sauvegarde-AAAA-MM-JJ.tar.gz.gpg > sauvegarde.tar.gz   # si chiffrée
+mkdir sauvegarde && tar xzf sauvegarde.tar.gz -C sauvegarde
+psql "$URL_DE_LA_BASE" -f sauvegarde/roles.sql
+psql "$URL_DE_LA_BASE" -f sauvegarde/schema.sql
+psql "$URL_DE_LA_BASE" -c "SET session_replication_role = replica" -f sauvegarde/donnees.sql
+```
+
 ## Structure
 
 ```
