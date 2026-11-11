@@ -1,10 +1,24 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useSyncExternalStore } from "react";
 import { NOM_COOKIE_NOTIFICATION, type Notification } from "./notification-commun";
 
 const DUREE_MS = 3200;
+
+// Le message vit hors de React : un rafraîchissement de la page juste après
+// l'enregistrement (revalidation) ne doit pas l'effacer avant qu'on le voie.
+let courante: Notification | null = null;
+const abonnes = new Set<() => void>();
+let minuterie: number | undefined;
+let veilleDemarree = false;
+
+function publier(notification: Notification | null) {
+  courante = notification;
+  abonnes.forEach((f) => f());
+  window.clearTimeout(minuterie);
+  if (notification) minuterie = window.setTimeout(() => publier(null), DUREE_MS);
+}
 
 function lireEtEffacer(): Notification | null {
   const brut = document.cookie
@@ -26,33 +40,40 @@ function lireEtEffacer(): Notification | null {
   }
 }
 
+function relever() {
+  const nouvelle = lireEtEffacer();
+  if (nouvelle) publier(nouvelle);
+}
+
+/** Une seule veille pour toute l'application (actions sans changement d'adresse). */
+function demarrerVeille() {
+  if (veilleDemarree) return;
+  veilleDemarree = true;
+  window.setInterval(relever, 250);
+}
+
+function sAbonner(f: () => void) {
+  abonnes.add(f);
+  return () => abonnes.delete(f);
+}
+
 /**
  * Bandeau « ✓ Séance enregistrée » en bas de l'écran, qui disparaît tout seul.
  * Les actions serveur déposent le message dans un cookie (voir notifier()) ;
- * on le relève à chaque navigation et régulièrement (actions sans changement d'adresse).
+ * on le relève à chaque navigation et en continu.
  */
 export function BandeauNotification() {
-  const [notification, setNotification] = useState<Notification | null>(null);
+  const notification = useSyncExternalStore(
+    sAbonner,
+    () => courante,
+    () => null,
+  );
   const chemin = usePathname();
-  const recherche = useSearchParams();
-
-  const relever = useCallback(() => {
-    const nouvelle = lireEtEffacer();
-    if (nouvelle) setNotification(nouvelle);
-  }, []);
-
-  useEffect(relever, [chemin, recherche, relever]);
 
   useEffect(() => {
-    const minuterie = window.setInterval(relever, 400);
-    return () => window.clearInterval(minuterie);
-  }, [relever]);
-
-  useEffect(() => {
-    if (!notification) return;
-    const minuterie = window.setTimeout(() => setNotification(null), DUREE_MS);
-    return () => window.clearTimeout(minuterie);
-  }, [notification]);
+    demarrerVeille();
+    relever();
+  }, [chemin]);
 
   return (
     <div className="zone-notification" aria-live="polite" role="status">
@@ -65,7 +86,7 @@ export function BandeauNotification() {
           <button
             type="button"
             className="notification-fermer"
-            onClick={() => setNotification(null)}
+            onClick={() => publier(null)}
             aria-label="Fermer"
           >
             ×

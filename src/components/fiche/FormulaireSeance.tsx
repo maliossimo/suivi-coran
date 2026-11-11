@@ -13,6 +13,7 @@ export interface SourateOption {
 }
 
 const PAS = 5;
+const DUREES_RAPIDES = [10, 15, 20, 30, 45, 60];
 
 export function FormulaireSeance({
   eleveId,
@@ -20,6 +21,8 @@ export function FormulaireSeance({
   date,
   type,
   initiale,
+  suggestion = null,
+  vueMaitre = false,
   sourates,
   libelleBouton = "Enregistrer la séance",
 }: {
@@ -28,6 +31,8 @@ export function FormulaireSeance({
   date: string;
   type: TypeSeance;
   initiale: Seance | null;
+  suggestion?: Passage | null;
+  vueMaitre?: boolean;
   sourates: SourateOption[];
   libelleBouton?: string;
 }) {
@@ -36,6 +41,10 @@ export function FormulaireSeance({
   const [passages, setPassages] = useState<Passage[]>(initiale?.passages ?? []);
 
   const nbVersets = (numero: number) => sourates.find((s) => s.numero === numero)?.nbVersets ?? 1;
+  const nomSourate = (numero: number) => sourates.find((s) => s.numero === numero);
+  const libelleSuggestion = suggestion
+    ? `${nomSourate(suggestion.sourateDebut)?.nomLatin ?? ""} · ${suggestion.versetDebut} → ${suggestion.versetFin}`
+    : "";
 
   function modifier(index: number, champ: keyof Passage, valeur: number) {
     setPassages((liste) =>
@@ -117,13 +126,46 @@ export function FormulaireSeance({
             +
           </button>
         </div>
+        <div className="durees-rapides" role="group" aria-label="Durées rapides">
+          {DUREES_RAPIDES.map((m) => (
+            <button
+              key={m}
+              type="button"
+              className="duree-rapide"
+              aria-pressed={duree === m}
+              onClick={() => setDuree(m)}
+            >
+              {m} min
+            </button>
+          ))}
+        </div>
       </section>
 
       <section className="bloc">
         <div className="bloc-entete">
           <h2 className="bloc-titre">{type === "revision" ? "Passages révisés" : "Passages appris"}</h2>
         </div>
-        {passages.length === 0 ? <p className="bloc-vide">Aucun passage pour l’instant.</p> : null}
+        {passages.length === 0 && suggestion ? (
+          <button type="button" className="suggestion" onClick={() => setPassages([suggestion])}>
+            <span className="suggestion-titre">
+              {type === "revision"
+                ? "Réviser la suite"
+                : vueMaitre
+                  ? "Suite du dernier passage"
+                  : "Continuer là où tu t’étais arrêté"}
+            </span>
+            <span className="suggestion-passage">
+              {libelleSuggestion}{" "}
+              <span lang="ar" dir="rtl">
+                {nomSourate(suggestion.sourateDebut)?.nomAr}
+              </span>
+            </span>
+            <span className="suggestion-action">Ajouter ›</span>
+          </button>
+        ) : null}
+        {passages.length === 0 && !suggestion ? (
+          <p className="bloc-vide">Aucun passage pour l’instant.</p>
+        ) : null}
         {passages.map((p, i) => (
           <fieldset key={i} className="passage">
             <legend className="visuellement-cache">Passage {i + 1}</legend>
@@ -210,14 +252,20 @@ export function FormulaireSeance({
           className="champ-texte"
           rows={3}
           defaultValue={initiale?.noteLibre ?? ""}
-          placeholder="Ce que tu veux noter : une difficulté, une question…"
+          placeholder={
+            vueMaitre
+              ? "Remarque sur la séance : difficulté, point à reprendre…"
+              : "Ce que tu veux noter : une difficulté, une question…"
+          }
           maxLength={2000}
         />
       </section>
 
-      <button className="bouton" type="submit" disabled={enCours}>
-        {enCours ? "Enregistrement…" : libelleBouton}
-      </button>
+      <div className="barre-enregistrer">
+        <button className="bouton" type="submit" disabled={enCours}>
+          {enCours ? "Enregistrement…" : libelleBouton}
+        </button>
+      </div>
     </form>
   );
 }

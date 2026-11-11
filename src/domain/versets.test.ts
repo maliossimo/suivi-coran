@@ -4,6 +4,7 @@ import {
   fusionner,
   indexGlobal,
   libellePassage,
+  passageSuivant,
   nbVersetsDistincts,
   pourcentageDuCoran,
   versIntervalle,
@@ -97,7 +98,39 @@ describe("pourcentageDuCoran", () => {
 describe("libellePassage", () => {
   it("affiche les noms dans les deux langues", () => {
     expect(libellePassage(ref, { sourateDebut: 67, versetDebut: 1, sourateFin: 67, versetFin: 15 })).toBe(
-      "Al-Mulk الملك 1 → 15",
+      "Al-Mulk \u2068الملك\u2069 · 1 → 15",
     );
+  });
+
+  it("isole le nom arabe pour que les numéros restent à leur place", () => {
+    const texte = libellePassage(ref, { sourateDebut: 1, versetDebut: 1, sourateFin: 1, versetFin: 7 });
+    expect(texte.startsWith("Al-Fatiha \u2068الفاتحة\u2069")).toBe(true);
+    expect(texte.endsWith("1 → 7")).toBe(true);
+  });
+});
+
+describe("passageSuivant", () => {
+  it("continue la même sourate", () => {
+    expect(passageSuivant(ref, { sourateDebut: 67, versetDebut: 1, sourateFin: 67, versetFin: 15 })).toEqual({
+      sourateDebut: 67,
+      versetDebut: 16,
+      sourateFin: 67,
+      versetFin: 30,
+    });
+  });
+  it("passe à la sourate suivante quand la sourate est terminée", () => {
+    expect(passageSuivant(ref, { sourateDebut: 67, versetDebut: 16, sourateFin: 67, versetFin: 30 })).toEqual(
+      {
+        sourateDebut: 68,
+        versetDebut: 1,
+        sourateFin: 68,
+        versetFin: 52,
+      },
+    );
+  });
+  it("s'arrête après la dernière sourate", () => {
+    expect(
+      passageSuivant(ref, { sourateDebut: 114, versetDebut: 1, sourateFin: 114, versetFin: 6 }),
+    ).toBeNull();
   });
 });

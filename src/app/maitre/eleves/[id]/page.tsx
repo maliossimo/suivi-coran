@@ -47,13 +47,29 @@ export default async function PageEleveMaitre({
             <Link href={`${base}/progression`} className="bouton-secondaire bouton-lien">
               Progression
             </Link>
-            <form action={actionArchiverEleve}>
-              <input type="hidden" name="eleveId" value={eleve.id} />
-              <input type="hidden" name="actif" value={eleve.actif ? "false" : "true"} />
-              <button type="submit" className="bouton-secondaire">
-                {eleve.actif ? "Archiver" : "Réactiver"}
-              </button>
-            </form>
+            {eleve.actif ? (
+              <details className="menu-plus">
+                <summary aria-label="Plus d’actions">⋯</summary>
+                <div className="menu-plus-liste">
+                  <form action={actionArchiverEleve}>
+                    <input type="hidden" name="eleveId" value={eleve.id} />
+                    <input type="hidden" name="actif" value="false" />
+                    <button type="submit" className="menu-plus-item">
+                      Archiver l’élève
+                      <small>Il ne pourra plus se connecter ; son historique est conservé.</small>
+                    </button>
+                  </form>
+                </div>
+              </details>
+            ) : (
+              <form action={actionArchiverEleve}>
+                <input type="hidden" name="eleveId" value={eleve.id} />
+                <input type="hidden" name="actif" value="true" />
+                <button type="submit" className="bouton-secondaire">
+                  Réactiver
+                </button>
+              </form>
+            )}
           </div>
         </div>
         {!eleve.actif ? (

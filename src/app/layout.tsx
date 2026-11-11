@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Amiri, Inter } from "next/font/google";
-import { Suspense } from "react";
 import { BandeauNotification } from "@/components/BandeauNotification";
 import "./globals.css";
 
@@ -24,9 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${inter.variable} ${amiri.variable}`}>
       <body>
         {children}
-        <Suspense fallback={null}>
-          <BandeauNotification />
-        </Suspense>
+        <BandeauNotification />
       </body>
     </html>
   );
