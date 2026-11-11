@@ -37,3 +37,8 @@ export async function chargerCompte(): Promise<{ profil: Profil; email: string |
   const profil = await exigerConnexion();
   return { profil, email: await emailConnecte() };
 }
+
+/** Profil de la personne connectée, sans redirection (pages publiques). */
+export async function profilOptionnel(): Promise<Profil | null> {
+  return profilConnecte();
+}

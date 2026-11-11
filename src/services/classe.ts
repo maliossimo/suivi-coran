@@ -1,9 +1,16 @@
 import "server-only";
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { confirmationValide, resumerClasse, type ResumeEleve } from "@/domain/classe";
+import { etatInvitation, expirationDepuis, type InvitationClasse } from "@/domain/invitation";
 import { decalerMois, dernierJour, lireMois, premierJour, type Mois } from "@/domain/fiche";
 import { ajouterCommentaire } from "@/repositories/commentaires";
-import { inviter } from "@/repositories/invitations";
+import {
+  creerInvitation,
+  desactiverInvitations,
+  invitationActive,
+  inviter,
+} from "@/repositories/invitations";
 import { statutsObjectifsDuMois } from "@/repositories/objectifs";
 import {
   definirActif,
@@ -168,6 +175,45 @@ export async function supprimerEleve(
     await supprimerEleveDefinitivement(eleve.id);
   } catch {
     return { ok: false, erreur: "La suppression a échoué. Réessaie dans un instant." };
+  }
+  return { ok: true };
+}
+
+// ---------- Invitation par QR code ----------------------------------------
+
+/** Code QR actif de la classe du maître, ou null. */
+export async function chargerQrClasse(acteur: Profil): Promise<InvitationClasse | null> {
+  if (acteur.role !== "maitre" || !acteur.etablissementId) return null;
+  const invitation = await invitationActive(acteur.etablissementId);
+  return invitation && etatInvitation(invitation, new Date()) === "valide" ? invitation : null;
+}
+
+/** Crée un nouveau QR code (l'ancien est désactivé). */
+export async function genererQrClasse(acteur: Profil): Promise<ResultatSaisie> {
+  if (acteur.role !== "maitre" || !acteur.actif || !acteur.etablissementId) {
+    return { ok: false, erreur: "Seul un maître rattaché à une classe peut créer un QR code." };
+  }
+  try {
+    await desactiverInvitations(acteur.etablissementId);
+    await creerInvitation({
+      etablissementId: acteur.etablissementId,
+      creePar: acteur.id,
+      code: randomBytes(18).toString("base64url"),
+      expireLe: expirationDepuis(new Date()),
+    });
+  } catch {
+    return { ok: false, erreur: "Le QR code n'a pas pu être créé." };
+  }
+  return { ok: true };
+}
+
+export async function desactiverQrClasse(acteur: Profil): Promise<ResultatSaisie> {
+  if (acteur.role !== "maitre" || !acteur.etablissementId)
+    return { ok: false, erreur: "Action réservée au maître." };
+  try {
+    await desactiverInvitations(acteur.etablissementId);
+  } catch {
+    return { ok: false, erreur: "Le QR code n'a pas pu être désactivé." };
   }
   return { ok: true };
 }
