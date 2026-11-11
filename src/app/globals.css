@@ -2672,3 +2672,65 @@ button:active:not(:disabled),
     color-scheme: light;
   }
 }
+
+/* ---------- Invitation par QR code ------------------------------------ */
+.carte-invitation {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  box-shadow: var(--ombre);
+}
+.carte-invitation h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 19px;
+}
+.qr-code {
+  align-self: center;
+  width: min(78vw, 320px);
+  padding: 12px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--ligne);
+}
+.qr-code svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.qr-infos {
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.qr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.bouton-texte-danger {
+  color: var(--rouge);
+}
+.formulaire-deux {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.auth-bas {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.auth-bas a {
+  color: var(--vert);
+  font-weight: 600;
+}

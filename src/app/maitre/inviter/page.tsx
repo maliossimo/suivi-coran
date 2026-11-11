@@ -1,11 +1,29 @@
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Mail, QrCode as IconeQr } from "lucide-react";
 import Link from "next/link";
+import { actionDesactiverQr, actionGenererQr } from "@/app/actions/classe";
+import { CopierLien } from "@/components/CopierLien";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireInvitation } from "@/components/FormulaireInvitation";
+import { QrCode } from "@/components/QrCode";
+import { envPublic } from "@/lib/env";
 import { exigerEspace } from "@/services/acces";
+import { chargerQrClasse } from "@/services/classe";
+
+function dateHeure(iso: string): string {
+  return new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Paris",
+  }).format(new Date(iso));
+}
 
 export default async function PageInviter() {
   const profil = await exigerEspace("maitre");
+  const qr = await chargerQrClasse(profil);
+  const lien = qr ? `${envPublic.NEXT_PUBLIC_SITE_URL}/rejoindre/${qr.code}` : null;
 
   return (
     <>
@@ -16,10 +34,66 @@ export default async function PageInviter() {
           Toute la classe
         </Link>
         <header className="seance-entete">
-          <h1>Inviter un élève</h1>
-          <p>L’élève reçoit un e-mail avec un lien pour choisir son mot de passe.</p>
+          <h1>Inviter des élèves</h1>
+          <p>Deux façons, au choix : un QR code à scanner en classe, ou une invitation par e-mail.</p>
         </header>
-        <FormulaireInvitation cible="eleve" />
+
+        <section className="carte-invitation">
+          <h2>
+            <IconeQr size={20} aria-hidden="true" /> Par QR code
+          </h2>
+          {qr && lien ? (
+            <>
+              <p className="carte-graphique-sous">
+                Montre ce code à tes élèves : ils le scannent avec l’appareil photo de leur téléphone et
+                créent leur compte eux-mêmes. Ils arrivent directement dans ta classe.
+              </p>
+              <QrCode texte={lien} libelle="QR code pour rejoindre la classe" />
+              <p className="qr-infos">
+                Valable jusqu’au {dateHeure(qr.expireLe)}
+                <br />
+                {qr.utilisations === 0
+                  ? "Aucun élève inscrit avec ce code pour l’instant."
+                  : `${qr.utilisations} élève${qr.utilisations > 1 ? "s" : ""} inscrit${qr.utilisations > 1 ? "s" : ""} avec ce code.`}
+              </p>
+              <div className="qr-actions">
+                <CopierLien lien={lien} />
+                <form action={actionGenererQr}>
+                  <button type="submit" className="bouton-secondaire">
+                    Nouveau code
+                  </button>
+                </form>
+                <form action={actionDesactiverQr}>
+                  <button type="submit" className="bouton-secondaire bouton-texte-danger">
+                    Désactiver
+                  </button>
+                </form>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="carte-graphique-sous">
+                Le plus simple en classe : tu affiches un QR code sur ton téléphone, chaque élève le scanne et
+                s’inscrit tout seul. Le code reste valable 7 jours et tu peux le désactiver à tout moment.
+              </p>
+              <form action={actionGenererQr}>
+                <button type="submit" className="bouton">
+                  <IconeQr size={18} aria-hidden="true" /> Afficher le QR code de la classe
+                </button>
+              </form>
+            </>
+          )}
+        </section>
+
+        <section className="carte-invitation">
+          <h2>
+            <Mail size={20} aria-hidden="true" /> Par e-mail
+          </h2>
+          <p className="carte-graphique-sous">
+            L’élève reçoit un e-mail avec un lien pour choisir son mot de passe.
+          </p>
+          <FormulaireInvitation cible="eleve" />
+        </section>
       </main>
     </>
   );
