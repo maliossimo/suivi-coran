@@ -32,7 +32,14 @@ jobs:
         run: |
           npm audit --omit=dev || true
           npm audit --omit=dev --audit-level=critical
-      - run: npm run format:check
+      # En cas d'écart de mise en forme, affiche les changements attendus (à appliquer tels quels).
+      - name: Mise en forme
+        run: |
+          if ! npm run format:check; then
+            npx prettier --write . >/dev/null
+            git --no-pager diff
+            exit 1
+          fi
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
