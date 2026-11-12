@@ -20,10 +20,13 @@ const TABLES: Record<string, string> = {
   invitations_classe: "QR code de classe",
 };
 
+const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
+
 function dateHeure(iso: string): string {
   return new Intl.DateTimeFormat("fr-FR", {
     day: "numeric",
     month: "short",
+    year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "Europe/Paris",
@@ -36,13 +39,46 @@ export default async function PageJournal({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const profil = await exigerEspace("admin");
-  const { evenements, noms, personnes, filtres } = await chargerJournal(profil, await searchParams);
+  const { evenements, noms, personnes, filtres, connexions } = await chargerJournal(
+    profil,
+    await searchParams,
+  );
   const filtre = Object.values(filtres).some(Boolean);
 
   return (
     <>
       <EnteteEspace titre="Administration" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
+        <section className="carte-graphique">
+          <h2>Dernières connexions</h2>
+          {connexions.length === 0 ? (
+            <p className="carte-graphique-sous">
+              Indisponible : la clé « service role » n’est pas configurée.
+            </p>
+          ) : (
+            <div className="tableau-defilant">
+              <table className="tableau">
+                <thead>
+                  <tr>
+                    <th>Qui</th>
+                    <th>Rôle</th>
+                    <th>Dernière connexion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {connexions.map((c) => (
+                    <tr key={c.id}>
+                      <td>{c.nom}</td>
+                      <td>{ROLES[c.role]}</td>
+                      <td>{c.derniereConnexion ? dateHeure(c.derniereConnexion) : "Jamais"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
         <section className="carte-graphique">
           <h2>Journal d’audit</h2>
           <p className="carte-graphique-sous">
