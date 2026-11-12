@@ -1,12 +1,22 @@
 "use client";
 
-import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useActionState } from "react";
 import { actionDefinirMotDePasse, type EtatFormulaire } from "@/app/actions/auth";
 import { CadreAuth } from "@/components/CadreAuth";
 
 /** Atteinte après le lien d'invitation ou de réinitialisation (session déjà ouverte). */
 export default function PageDefinirMotDePasse() {
+  return (
+    <Suspense>
+      <FormulaireDefinir />
+    </Suspense>
+  );
+}
+
+function FormulaireDefinir() {
   const [etat, action, enCours] = useActionState<EtatFormulaire, FormData>(actionDefinirMotDePasse, {});
+  const bienvenue = useSearchParams().get("bienvenue") === "1";
 
   return (
     <CadreAuth
@@ -14,6 +24,7 @@ export default function PageDefinirMotDePasse() {
       sousTitre="10 caractères minimum. Tu t'en serviras à chaque connexion."
     >
       <form action={action} className="formulaire" noValidate>
+        {bienvenue ? <input type="hidden" name="bienvenue" value="1" /> : null}
         {etat.erreur ? (
           <p className="message-erreur" role="alert">
             {etat.erreur}
