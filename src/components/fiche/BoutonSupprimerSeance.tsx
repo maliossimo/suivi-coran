@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { actionSupprimerSeanceFond } from "@/app/actions/fiche";
 import { effacerBrouillon } from "./brouillon";
 import { cleSeance } from "./cleSeance";
+import { retirer } from "./enregistrementsEnAttente";
 import { programmerSuppression } from "./suppressions";
 
 /** Supprime la séance… après quelques secondes, le temps de pouvoir annuler. */
@@ -33,6 +34,7 @@ export function BoutonSupprimerSeance({
           form.set("date", date);
           form.set("type", type);
           effacerBrouillon(cle);
+          retirer(cle); // plus d'envoi en attente ni d'échec affiché pour une séance supprimée
           programmerSuppression(cle, `Séance du ${libelleJour} supprimée`, () =>
             actionSupprimerSeanceFond(form),
           );
