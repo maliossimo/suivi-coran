@@ -8,6 +8,7 @@ import { SuppressionUtilisateur } from "@/components/SuppressionUtilisateur";
 import { formaterDuree } from "@/domain/fiche";
 import { exigerEspace } from "@/services/acces";
 import { chargerTableauAdmin } from "@/services/admin";
+import { Avatar } from "@/components/Avatar";
 
 const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
 
@@ -152,7 +153,12 @@ export default async function PageAdmin() {
               <tbody>
                 {t.utilisateurs.map((u) => (
                   <tr key={u.id}>
-                    <td>{`${u.prenom} ${u.nom}`.trim() || "—"}</td>
+                    <td>
+                      <span className="nom-avec-avatar">
+                        <Avatar prenom={u.prenom} nom={u.nom} cle={u.id} role={u.role} taille="petit" />
+                        {`${u.prenom} ${u.nom}`.trim() || "—"}
+                      </span>
+                    </td>
                     <td>
                       <span className={`pastille-role pastille-${u.role}`}>{ROLES[u.role]}</span>
                     </td>

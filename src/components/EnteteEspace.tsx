@@ -1,17 +1,9 @@
 import Link from "next/link";
 import type { Role } from "@/domain/roles";
+import { Avatar } from "./Avatar";
 import { NavigationEspace } from "./NavigationEspace";
 
 const LIBELLE_ROLE: Record<Role, string> = { eleve: "Élève", maitre: "Cheikh", admin: "Administrateur" };
-
-function initiales(nom: string): string {
-  const lettres = nom
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((mot) => mot[0]?.toUpperCase() ?? "")
-    .join("");
-  return lettres.slice(0, 2) || "?";
-}
 
 /**
  * Barre du haut des espaces élève, maître et admin : logo (retour à l'accueil),
@@ -32,9 +24,7 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
         </Link>
         <NavigationEspace role={role} />
         <Link href="/compte" className="barre-identite" aria-label="Mon compte">
-          <span className="avatar" aria-hidden="true">
-            {initiales(nom)}
-          </span>
+          <Avatar prenom={nom} cle={nom} role={role} taille="petit" surBarre />
           <span className="barre-nom">
             {nom || "Mon compte"}
             {/* Le maître sait qu'il est maître : on n'affiche son rôle que pour l'élève et l'admin. */}
