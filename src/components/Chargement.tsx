@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoEtoile } from "./logo/LogoEtoile";
 /**
  * Écran affiché instantanément pendant le chargement d'une page :
  * même barre du haut et silhouettes des cartes, pour que la navigation
@@ -10,9 +11,9 @@ export function Chargement({ titre }: { titre: string }) {
       <header className="barre">
         <div className="barre-contenu">
           <Link href="/" className="barre-marque" aria-label="Retour à l’accueil">
-            <div className="auth-logo auth-logo-petit" aria-hidden="true">
-              ق
-            </div>
+            <span className="barre-logo" aria-hidden="true">
+              <LogoEtoile />
+            </span>
             <div className="barre-titres">
               <span className="barre-app">Suivi cours Coran</span>
               <span className="barre-titre">{titre}</span>
