@@ -3529,7 +3529,7 @@ button:active:not(:disabled),
   margin-left: 0;
 }
 
-/* ---------- Ouverture de l'appli installée -------------------------------- */
+/* ---------- Ouverture de l'appli installée (calligraphie) ---------------- */
 .ouverture {
   display: none;
 }
@@ -3540,19 +3540,36 @@ html[data-ouverture] .ouverture {
   display: grid;
   place-items: center;
   background: #1d5c47;
-  animation: ouverture-fondu 0.25s ease-in 0.72s forwards;
+  animation: ouverture-fondu 0.35s ease-in 1.15s forwards;
 }
 .ouverture-logo {
-  width: min(44vw, 200px);
+  width: min(46vw, 210px);
   height: auto;
   overflow: visible;
+  animation: ouverture-envol 0.5s cubic-bezier(0.4, 0, 0.2, 1) 1.05s forwards;
 }
-.ouverture-lettre {
+/* Le ق : tracé à la plume, puis rempli d'encre crème. */
+.ouverture-trait {
   fill: #faf3e0;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: ouverture-lettre 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  fill-opacity: 0;
+  stroke: #faf3e0;
+  stroke-width: 22;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
 }
+.ouverture-corps {
+  animation:
+    ouverture-plume 0.62s cubic-bezier(0.55, 0.1, 0.35, 1) forwards,
+    ouverture-encre 0.28s ease-out 0.5s forwards;
+}
+.ouverture-points {
+  animation:
+    ouverture-plume 0.24s ease-out 0.48s forwards,
+    ouverture-encre 0.24s ease-out 0.62s forwards;
+}
+/* Cadre or, comme sur l'icône. */
 .ouverture-cadre {
   fill: none;
   stroke: #c9a24a;
@@ -3560,22 +3577,124 @@ html[data-ouverture] .ouverture {
   stroke-linecap: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: ouverture-cadre 0.5s ease-out 0.15s forwards;
+  animation: ouverture-plume 0.5s ease-in-out 0.6s forwards;
 }
-@keyframes ouverture-lettre {
-  from {
-    opacity: 0;
-    scale: 0.92;
-  }
+/* Étoile à 8 branches en filigrane derrière la lettre. */
+.ouverture-etoile rect {
+  fill: none;
+  stroke: #c9a24a;
+  stroke-width: 1.2;
+  stroke-opacity: 0;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ouverture-etoile 0.7s ease-out 0.7s forwards;
 }
-@keyframes ouverture-cadre {
+@keyframes ouverture-plume {
   to {
     stroke-dashoffset: 0;
+  }
+}
+@keyframes ouverture-encre {
+  to {
+    fill-opacity: 1;
+    stroke-width: 0;
+  }
+}
+@keyframes ouverture-etoile {
+  to {
+    stroke-dashoffset: 0;
+    stroke-opacity: 0.28;
+  }
+}
+@keyframes ouverture-envol {
+  to {
+    transform: scale(1.08);
   }
 }
 @keyframes ouverture-fondu {
   to {
     opacity: 0;
     visibility: hidden;
+  }
+}
+
+/* ---------- Salutation « السلام عليكم » ----------------------------------- */
+.salutation {
+  position: fixed;
+  left: 50%;
+  top: calc(env(safe-area-inset-top) + 84px);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 190px;
+  padding: 12px 26px 10px;
+  border-radius: 18px;
+  background: var(--carte);
+  border: 1px solid var(--bord-or);
+  box-shadow: 0 14px 34px rgba(11, 42, 32, 0.18);
+  text-align: center;
+  cursor: pointer;
+  transform: translateX(-50%);
+  animation: salutation-entree 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.15) both;
+}
+.salutation::before {
+  /* Petite étoile à 8 branches dorée, comme dans le motif du site. */
+  content: "";
+  width: 14px;
+  height: 14px;
+  margin-bottom: 4px;
+  background: var(--or);
+  clip-path: polygon(
+    50% 0,
+    62% 26%,
+    85% 15%,
+    74% 38%,
+    100% 50%,
+    74% 62%,
+    85% 85%,
+    62% 74%,
+    50% 100%,
+    38% 74%,
+    15% 85%,
+    26% 62%,
+    0 50%,
+    26% 38%,
+    15% 15%,
+    38% 26%
+  );
+}
+.salutation-arabe {
+  font-family: var(--font-arabe), "Amiri", serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--vert-texte);
+}
+.salutation-prenom {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--texte);
+}
+.salutation-sortie {
+  animation: salutation-sortie 0.45s ease-in forwards;
+}
+@keyframes salutation-entree {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -14px) scale(0.96);
+  }
+}
+@keyframes salutation-sortie {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -10px) scale(0.98);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .salutation,
+  .salutation-sortie {
+    animation-duration: 0.01s;
   }
 }
