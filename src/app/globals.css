@@ -4363,7 +4363,6 @@ html[data-ouverture] .ouverture {
     background 0.15s ease;
 }
 .carte-lecture input {
-  grid-row: span 2;
   width: 22px;
   height: 22px;
   accent-color: var(--vert);

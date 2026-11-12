@@ -1,11 +1,6 @@
 import { actionChoisirLecture } from "@/app/actions/lecture";
 import { LECTURES, LIBELLE_LECTURE, NOM_ARABE_LECTURE, type Lecture } from "@/domain/lectures";
 
-const DESCRIPTION: Record<Lecture, string> = {
-  hafs: "Hafs ʿan ʿĀṣim. La plus répandue dans le monde (6236 versets).",
-  warsh: "Warsh ʿan Nāfiʿ. Lue surtout au Maghreb et en Afrique de l’Ouest (6214 versets).",
-};
-
 /**
  * Choix de la lecture (Hafs ou Warsh) : à la première connexion de l'élève,
  * pour corriger une erreur, ou par le Cheikh pour son élève.
@@ -57,7 +52,6 @@ export function ChoixLecture({
                   {NOM_ARABE_LECTURE[l]}
                 </span>
               </span>
-              <span className="carte-lecture-texte">{DESCRIPTION[l]}</span>
             </label>
           ))}
         </div>
