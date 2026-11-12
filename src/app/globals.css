@@ -3806,3 +3806,14 @@ html[data-ouverture] .ouverture {
     animation: none;
   }
 }
+
+/* ---------- iPhone : la barre verte passe sous l'heure et la batterie ---------- */
+.barre {
+  padding-top: env(safe-area-inset-top);
+}
+.auth-visuel-contenu {
+  margin-top: env(safe-area-inset-top);
+}
+.pdf-outils {
+  margin-top: env(safe-area-inset-top);
+}

@@ -36,9 +36,16 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Suivi Coran",
-    statusBarStyle: "default",
+    // La barre verte passe sous l'heure et la batterie (comme une appli native).
+    statusBarStyle: "black-translucent",
     // Écran de démarrage sur iPhone (sinon blanc) : le ق sur le vert du site.
     startupImage: [
+      {
+        // iPhone Air
+        url: "/demarrage/demarrage-1260x2736.png",
+        media:
+          "(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
       {
         url: "/demarrage/demarrage-1320x2868.png",
         media:
@@ -106,6 +113,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#174D3B" },
     { media: "(prefers-color-scheme: dark)", color: "#0F3A2C" },
