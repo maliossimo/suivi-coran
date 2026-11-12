@@ -36,6 +36,8 @@ ESLint bloque les imports qui violent ces frontières.
 ## Façon de travailler
 
 - Branches : `main` = version de test (prévisualisation Vercel), `prod` = production (vrais élèves).
+  Seules ces deux branches sont mises en ligne par Vercel (`vercel.json`) : les branches de travail ne le sont pas
+  (quota de déploiements de l'offre gratuite). Tester une branche : la fusionner dans `main`.
 - Une branche et une PR par fonctionnalité, vers `main`. Pas de push direct sur `main` ni sur `prod`.
 - Noms de branche : `feat/…` (fonctionnalité), `fix/…` (correction), `chore/…`, `docs/…`, `refactor/…`, `perf/…`, `test/…`
   (vérifié par le workflow « Garde-fou branches », qui signale aussi tout commit arrivé sur `main`/`prod` sans PR).
