@@ -30,6 +30,9 @@ export const metadata: Metadata = {
   title: "Suivi cours Coran",
   description: "Suivi de l'apprentissage et de la révision du Coran.",
   robots: { index: false, follow: false },
+  applicationName: "Suivi Coran",
+  // iPhone : une fois ajouté à l'écran d'accueil, le site s'ouvre en plein écran.
+  appleWebApp: { capable: true, title: "Suivi Coran", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

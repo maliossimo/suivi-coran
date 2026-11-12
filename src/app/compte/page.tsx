@@ -1,6 +1,7 @@
 import { actionDeconnexion } from "@/app/actions/auth";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireMotDePasse } from "@/components/FormulaireMotDePasse";
+import { InstallerAppli } from "@/components/InstallerAppli";
 import { chargerCompte } from "@/services/acces";
 
 const LIBELLE_ROLE = { eleve: "Élève", maitre: "Cheikh", admin: "Administrateur" } as const;
@@ -23,6 +24,8 @@ export default async function PageCompte() {
             {email ? <p className="carte-compte-email">{email}</p> : null}
           </div>
         </section>
+
+        <InstallerAppli />
 
         <section className="carte-compte-section">
           <h2>Mot de passe</h2>
