@@ -280,6 +280,8 @@ export async function enregistrerBilanEleve(eleveId: string, brut: unknown): Pro
 export interface FicheImprimable {
   mois: Mois;
   parties: { fiche: Fiche; bilan: Bilan | null }[];
+  /** Date d'édition, imprimée en bas de la fiche. */
+  editeeLe: DateISO;
 }
 
 /** Les deux fiches du mois (apprentissage puis révision) avec leur bilan, pour l'impression. */
@@ -292,5 +294,5 @@ export async function chargerFicheImprimable(eleveId: string, moisParam?: string
       return { fiche, bilan };
     }),
   );
-  return { mois: parties[0]!.fiche.mois, parties };
+  return { mois: parties[0]!.fiche.mois, parties, editeeLe: aujourdhuiParis() };
 }
