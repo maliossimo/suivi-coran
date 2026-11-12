@@ -24,6 +24,17 @@ export interface LigneUtilisateur {
   lecture: Lecture | null;
 }
 
+function dateHeure(iso: string): string {
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Paris",
+  }).format(new Date(iso));
+}
+
 function dateCourte(iso: string): string {
   return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" }).format(
     new Date(iso),
@@ -174,7 +185,7 @@ export function TableauUtilisateurs({
                   )}
                 </td>
                 <td>{dateCourte(u.creeLe)}</td>
-                <td>{u.derniereConnexion ? dateCourte(u.derniereConnexion) : "Jamais"}</td>
+                <td>{u.derniereConnexion ? dateHeure(u.derniereConnexion) : "Jamais"}</td>
                 <td>
                   {u.id === moi ? (
                     "Vous"
