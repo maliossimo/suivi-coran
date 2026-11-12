@@ -1,5 +1,6 @@
 import { actionDeconnexion } from "@/app/actions/auth";
 import Link from "next/link";
+import { COMMIT, LIBELLE_VERSION } from "@/lib/version";
 import { Avatar } from "@/components/Avatar";
 import { EtiquetteLecture } from "@/components/ChoixLecture";
 import { EnteteEspace } from "@/components/EnteteEspace";
@@ -63,6 +64,10 @@ export default async function PageCompte() {
             </button>
           </form>
         </section>
+        <p className="compte-version">
+          Suivi cours Coran · {LIBELLE_VERSION}
+          {COMMIT ? ` (${COMMIT})` : ""}
+        </p>
       </main>
     </>
   );

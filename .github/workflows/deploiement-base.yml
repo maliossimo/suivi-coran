@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: deploiement-base
@@ -27,6 +28,17 @@ jobs:
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
     steps:
+      - name: Le commit vient d'une PR main → prod
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ok=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" \
+            --jq '[.[] | select(.merged_at != null and .base.ref == "prod" and .head.ref == "main")] | length')
+          if [ "$ok" = "0" ]; then
+            echo "::error::Migrations non appliquées : ce commit n'est pas arrivé sur prod par une PR depuis main."
+            exit 1
+          fi
       - uses: actions/checkout@v5
       - uses: supabase/setup-cli@v1
         with:

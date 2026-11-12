@@ -1,4 +1,8 @@
+import { readFileSync } from "node:fs";
 import type { NextConfig } from "next";
+
+// Version de l'appli (package.json) et commit déployé : affichés à l'ouverture et dans « Mon compte ».
+const { version } = JSON.parse(readFileSync("package.json", "utf8")) as { version: string };
 
 // En-têtes de sécurité appliqués à toutes les pages.
 const securityHeaders = [
@@ -11,6 +15,10 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  env: {
+    NEXT_PUBLIC_VERSION: version,
+    NEXT_PUBLIC_COMMIT: (process.env.VERCEL_GIT_COMMIT_SHA ?? "").slice(0, 7),
+  },
   reactStrictMode: true,
   experimental: {
     // Une page déjà vue (ex. la fiche) se rouvre instantanément pendant 30 s ;

@@ -31,7 +31,13 @@ export async function EtatDuSite() {
         <li>
           <span className="etat-site-titre">Version en ligne</span>
           <span>
-            {e.version.commit ? <code>{e.version.commit}</code> : "inconnue"}
+            <b>{e.version.numero}</b>
+            {e.version.commit ? (
+              <>
+                {" · "}
+                <code>{e.version.commit}</code>
+              </>
+            ) : null}
             {e.version.message ? ` · ${e.version.message}` : ""}
             {e.version.environnement !== "production" ? ` · ${e.version.environnement}` : ""}
           </span>
