@@ -49,10 +49,12 @@ export function EcranSeance({
         <p>
           Semaine {semaine} · {libelleJourCourt(date)}
           {donnees.seance && etatCorrection(donnees.seance) === "complete" ? (
-            <span className="pastille-or">Corrigée par le Cheikh</span>
+            <span className="pastille-or">✓ Vu par le Cheikh</span>
           ) : null}
           {donnees.seance && etatCorrection(donnees.seance) === "partielle" ? (
-            <span className="pastille-or pastille-partielle">Corrigée en partie par le Cheikh</span>
+            <span className="pastille-or pastille-partielle">
+              Un ajout n’a pas encore été vu par le Cheikh
+            </span>
           ) : null}
         </p>
       </header>

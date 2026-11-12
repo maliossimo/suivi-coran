@@ -6,6 +6,7 @@ import {
   libelleDerniereSaisie,
   resumerClasse,
   trierParPrenom,
+  phraseEleve,
 } from "./classe";
 
 const eleves = [
@@ -104,5 +105,14 @@ describe("confirmationValide", () => {
     expect(confirmationValide("Élise", " ÉLISE ")).toBe(true);
     expect(confirmationValide("Élise", "Elisa")).toBe(false);
     expect(confirmationValide("", "")).toBe(false);
+  });
+});
+
+describe("phraseEleve", () => {
+  it("dit simplement où en est l'élève", () => {
+    expect(phraseEleve(0)).toBe("A saisi aujourd’hui");
+    expect(phraseEleve(1)).toBe("A saisi hier");
+    expect(phraseEleve(5)).toBe("Rien depuis 5 jours");
+    expect(phraseEleve(null)).toBe("N’a encore rien saisi");
   });
 });
