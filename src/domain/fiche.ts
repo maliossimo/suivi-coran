@@ -197,6 +197,20 @@ export function libelleJourCourt(date: DateISO): string {
   return `${jour} ${MOIS_COURTS[mois - 1]}`;
 }
 
+const JOURS_COURTS = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
+
+/** « jeu. » */
+export function libelleJourSemaine(date: DateISO): string {
+  const { annee, mois, jour } = lireDate(date);
+  return JOURS_COURTS[new Date(Date.UTC(annee, mois - 1, jour)).getUTCDay()]!;
+}
+
+/** « 12 novembre 2026 » */
+export function libelleDateLongue(date: DateISO): string {
+  const { annee, mois, jour } = lireDate(date);
+  return `${jour === 1 ? "1er" : jour} ${NOMS_MOIS[mois - 1]} ${annee}`;
+}
+
 /** « 1 h 15 », « 25 min », « — » */
 export function formaterDuree(minutes: number): string {
   if (!minutes) return "—";

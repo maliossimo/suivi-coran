@@ -6,7 +6,9 @@ import {
   dernierJour,
   etatCorrection,
   formaterDuree,
+  libelleDateLongue,
   libelleJourCourt,
+  libelleJourSemaine,
   libelleMois,
   libelleMoisCourt,
   lireMois,
@@ -81,6 +83,11 @@ describe("mois", () => {
   it("affiche les libellés en français", () => {
     expect(libelleMois({ annee: 2026, mois: 11 })).toBe("novembre 2026");
     expect(libelleJourCourt("2026-11-10")).toBe("10 nov.");
+    expect(libelleJourSemaine("2026-11-12")).toBe("jeu.");
+    expect(libelleJourSemaine("2026-11-08")).toBe("dim.");
+    expect(libelleJourSemaine("2027-01-01")).toBe("ven.");
+    expect(libelleDateLongue("2026-11-12")).toBe("12 novembre 2026");
+    expect(libelleDateLongue("2026-12-01")).toBe("1er décembre 2026");
   });
 });
 
