@@ -346,6 +346,68 @@ select pg_temp.attendu(
   (select count(*) from public.commentaires where bilan_id is not null) = 1,
   'bilan : l''élève lit le mot de son maître');
 
+-- ---------- Lectures Hafs / Warsh ---------------------------------------
+select pg_temp.console();
+update public.profils set actif = true where id = 'a0000000-0000-0000-0000-000000000002';  -- réactivé pour ces tests
+select pg_temp.attendu(
+  (select lecture from public.profils where id = 'a0000000-0000-0000-0000-000000000002') is null,
+  'lecture : pas encore choisie à la création du compte');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
+select public.enregistrer_seance('2026-11-05', 'apprentissage', 20::smallint, '', null,
+  '[{"sourateDebut":1,"versetDebut":2,"sourateFin":1,"versetFin":7},
+    {"sourateDebut":2,"versetDebut":280,"sourateFin":2,"versetFin":286}]'::jsonb);
+select pg_temp.doit_echouer(
+  $q$update public.profils set lecture = 'warsh' where id = 'a0000000-0000-0000-0000-000000000002'$q$,
+  'lecture : pas de changement direct (les passages ne seraient pas convertis)');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select pg_temp.doit_echouer(
+  $q$select public.changer_lecture('a0000000-0000-0000-0000-000000000002', 'warsh')$q$,
+  'lecture : un élève ne change pas celle d''un autre');
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.doit_echouer(
+  $q$select public.changer_lecture('a0000000-0000-0000-0000-000000000002', 'warsh')$q$,
+  'lecture : le Cheikh d''une autre école ne la change pas');
+
+-- Le Cheikh A voit les passages ; l'élève passe en Warsh : passages convertis, marque conservée.
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select public.valider_seance((select id from public.seances
+  where eleve_id = 'a0000000-0000-0000-0000-000000000002' and date = '2026-11-05' and type = 'apprentissage'));
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
+select public.changer_lecture('a0000000-0000-0000-0000-000000000002', 'warsh');
+select pg_temp.attendu(
+  (select lecture from public.profils where id = 'a0000000-0000-0000-0000-000000000002') = 'warsh',
+  'lecture : l''élève choisit Warsh');
+select pg_temp.attendu(
+  (select array_agg(format('%s:%s-%s:%s', sourate_debut, verset_debut, sourate_fin, verset_fin) order by ordre)
+     from public.passages p join public.seances s on s.id = p.seance_id
+    where s.eleve_id = 'a0000000-0000-0000-0000-000000000002' and s.date = '2026-11-05')
+  = array['1:1-1:7', '2:279-2:285'],
+  'lecture : passages convertis en numérotation Warsh (Fatiha sans basmala, Al-Baqara 285 versets)');
+select pg_temp.attendu(
+  (select bool_and(corrige_par is not null) from public.passages p join public.seances s on s.id = p.seance_id
+    where s.eleve_id = 'a0000000-0000-0000-0000-000000000002' and s.date = '2026-11-05'),
+  'lecture : ce que le Cheikh avait vu reste vu après conversion');
+select pg_temp.doit_echouer(
+  $q$select public.enregistrer_seance('2026-11-06', 'apprentissage', 10::smallint, '', null,
+    '[{"sourateDebut":2,"versetDebut":286,"sourateFin":2,"versetFin":286}]'::jsonb)$q$,
+  'lecture : en Warsh, Al-Baqara n''a pas de verset 286');
+select public.enregistrer_seance('2026-11-06', 'apprentissage', 10::smallint, '', null,
+  '[{"sourateDebut":5,"versetDebut":121,"sourateFin":5,"versetFin":122}]'::jsonb);
+select pg_temp.attendu(true, 'lecture : en Warsh, Al-Maida va jusqu''au verset 122');
+
+-- Le Cheikh A remet l'élève en Hafs : retour à la numérotation Hafs.
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select public.changer_lecture('a0000000-0000-0000-0000-000000000002', 'hafs');
+select pg_temp.attendu(
+  (select array_agg(format('%s:%s-%s:%s', sourate_debut, verset_debut, sourate_fin, verset_fin) order by s.date, ordre)
+     from public.passages p join public.seances s on s.id = p.seance_id
+    where s.eleve_id = 'a0000000-0000-0000-0000-000000000002' and s.date in ('2026-11-05', '2026-11-06'))
+  = array['1:2-1:7', '2:280-2:286', '5:119-5:120'],
+  'lecture : le Cheikh la change ; retour en numérotation Hafs');
+select pg_temp.console();
+
 -- ---------- Suppression définitive d'un élève -------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 select pg_temp.doit_echouer(

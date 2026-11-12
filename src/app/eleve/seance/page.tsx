@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { EcranSeance } from "@/components/fiche/EcranSeance";
-import { exigerEspace } from "@/services/acces";
+import { exigerEleveAvecLecture } from "@/services/acces";
 import { chargerSeance, lireDateSaisissable, lireType } from "@/services/fiche";
 
 export default async function PageSeance({
@@ -9,7 +9,7 @@ export default async function PageSeance({
 }: {
   searchParams: Promise<{ date?: string; type?: string; passage?: string }>;
 }) {
-  const profil = await exigerEspace("eleve");
+  const profil = await exigerEleveAvecLecture();
   const params = await searchParams;
   const date = lireDateSaisissable(params.date);
   const type = lireType(params.type);

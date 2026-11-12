@@ -5,6 +5,7 @@
 import { formaterDate, lireDate, type DateISO } from "./calendrier";
 import { joursEntre } from "./classe";
 import type { Objectif, Seance } from "./fiche";
+import type { Lecture } from "./lectures";
 import {
   fusionner,
   pourcentageDuCoran,
@@ -115,7 +116,7 @@ export function calculerProgression(
   seances: readonly Seance[],
   objectifs: readonly (Objectif & { mois: string })[],
   aujourdhui: DateISO,
-  options: { mois?: number; semaines?: number } = {},
+  options: { mois?: number; semaines?: number; lecture?: Lecture } = {},
 ): Progression {
   const nbMois = options.mois ?? 6;
   const nbSemaines = options.semaines ?? 12;
@@ -237,8 +238,8 @@ export function calculerProgression(
   return {
     versetsAppris,
     versetsVus,
-    pourcentageCoran: pourcentageDuCoran(versetsAppris),
-    pourcentageCoranVu: pourcentageDuCoran(versetsVus),
+    pourcentageCoran: pourcentageDuCoran(versetsAppris, options.lecture),
+    pourcentageCoranVu: pourcentageDuCoran(versetsVus, options.lecture),
     souratesCompletes: sourates.filter((s) => s.pourcentage === 100).length,
     souratesCompletesVues: sourates.filter(
       (s) => s.pourcentage === 100 && s.versetsVus >= s.sourate.nbVersets,

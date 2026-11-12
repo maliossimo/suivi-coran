@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { actionArchiverEleve } from "@/app/actions/classe";
 import { ConfirmationSuppression } from "@/components/ConfirmationSuppression";
+import { EtiquetteLecture } from "@/components/ChoixLecture";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { Suspense } from "react";
 import { Squelettes } from "@/components/Chargement";
@@ -41,6 +42,12 @@ export default async function PageEleveMaitre({
               <h1>
                 {eleve.prenom} {eleve.nom}
               </h1>
+              <p className="entete-eleve-lecture">
+                <EtiquetteLecture lecture={eleve.lecture} />
+                <Link href={`${base}/lecture`} className="lien-discret">
+                  {eleve.lecture ? "Changer" : "Choisir"}
+                </Link>
+              </p>
               {!eleve.actif ? <span className="pastille-or">Archivé</span> : null}
             </div>
           </div>

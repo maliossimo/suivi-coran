@@ -5,6 +5,7 @@
 import type { DateISO } from "./calendrier";
 import { joursEntre } from "./classe";
 import type { Seance } from "./fiche";
+import type { Lecture } from "./lectures";
 import { hizbARevoir, SEUIL_REVISION_JOURS, type HizbARevoir } from "./hizb";
 import { fusionner, versIntervalle, type Intervalle, type Referentiel, type Sourate } from "./versets";
 
@@ -60,6 +61,7 @@ export function carteDuCoran(
   seances: readonly Seance[],
   aujourdhui: DateISO,
   seuilJours = SEUIL_REVISION_JOURS,
+  lecture: Lecture = "hafs",
 ): CarteDuCoran {
   // Chaque séance passée réduite à ses intervalles de versets (passages incohérents ignorés).
   const travaux = seances
@@ -122,6 +124,6 @@ export function carteDuCoran(
     cases,
     compte,
     aFaireVoir: cases.filter((c) => c.aFaireVoir).length,
-    hizb: hizbARevoir(ref, seances, aujourdhui, seuilJours),
+    hizb: hizbARevoir(ref, seances, aujourdhui, seuilJours, lecture),
   };
 }

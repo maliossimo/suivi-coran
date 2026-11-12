@@ -4304,3 +4304,126 @@ html[data-ouverture] .ouverture {
   height: 52px;
   border-radius: 999px;
 }
+
+/* ---------- Lecture Hafs / Warsh ---------- */
+.choix-lecture {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.choix-lecture fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.choix-lecture legend {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--vert-texte);
+  margin-bottom: 4px;
+}
+.choix-lecture-aide,
+.choix-lecture-note {
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.choix-lecture-note {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.choix-lecture-bienvenue {
+  margin: 4px 0 0;
+  color: var(--texte-doux);
+}
+.choix-lecture-options {
+  display: grid;
+  gap: 10px;
+}
+.carte-lecture {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 16px;
+  border: 2px solid var(--ligne);
+  background: var(--carte);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.carte-lecture input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--vert);
+  margin: 0;
+}
+.carte-lecture:has(input:checked) {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+}
+.carte-lecture:has(input:focus-visible) {
+  outline: 3px solid var(--or);
+  outline-offset: 2px;
+}
+.carte-lecture-nom {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 19px;
+  font-weight: 700;
+}
+.carte-lecture-nom .arabe {
+  font-family: var(--font-arabe), serif;
+  font-size: 22px;
+  color: var(--vert-texte);
+}
+.carte-lecture-texte {
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.etiquette-lecture {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  vertical-align: middle;
+  border: 1px solid var(--ligne);
+  color: var(--texte-doux);
+  background: var(--surface-2);
+}
+.etiquette-warsh {
+  border-color: #c9a24a;
+  color: var(--or-texte);
+  background: var(--or-clair);
+}
+.etiquette-hafs {
+  border-color: #9cc3b2;
+  color: var(--vert-texte);
+  background: var(--vert-clair);
+}
+.etiquette-vide {
+  border-style: dashed;
+}
+.carte-eleve-nom .etiquette-lecture {
+  align-self: center;
+}
+.entete-eleve-lecture {
+  margin: 4px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}

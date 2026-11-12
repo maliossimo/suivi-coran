@@ -3,6 +3,7 @@
 import { ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "./Avatar";
+import { EtiquetteLecture } from "./ChoixLecture";
 import { EtatVide } from "./EtatVide";
 import { useState } from "react";
 import { actionArchiverEleve } from "@/app/actions/classe";
@@ -65,6 +66,7 @@ export function ListeEleves({
               <Avatar prenom={r.eleve.prenom} nom={r.eleve.nom} cle={r.eleve.id} />
               <span className="carte-eleve-nom">
                 {r.eleve.prenom} {r.eleve.nom}
+                <EtiquetteLecture lecture={r.eleve.lecture ?? null} />
                 {r.aVoir > 0 ? (
                   <span
                     className="pastille-or pastille-a-voir"

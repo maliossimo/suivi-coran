@@ -17,6 +17,16 @@ export async function exigerEspace(espace: Role): Promise<Profil> {
   return profil;
 }
 
+/**
+ * Espace élève, une fois la lecture (Hafs ou Warsh) choisie : sinon, on la demande d'abord
+ * (première connexion). Toute la numérotation des versets en dépend.
+ */
+export async function exigerEleveAvecLecture(): Promise<Profil> {
+  const profil = await exigerEspace("eleve");
+  if (profil.role === "eleve" && profil.lecture === null) redirect("/eleve/lecture");
+  return profil;
+}
+
 /** Page d'arrivée de la personne connectée. */
 export async function destinationApresConnexion(): Promise<string> {
   const profil = await profilConnecte();

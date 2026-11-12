@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { debutDuMois, lireDate, type DateISO, type NumeroSemaine } from "@/domain/calendrier";
+import type { Lecture } from "@/domain/lectures";
 import {
   conflitDeSaisie,
   construireFiche,
@@ -39,6 +40,7 @@ import {
   supprimerSeance,
   validerSeance,
 } from "@/repositories/seances";
+import { lectureEleve } from "@/repositories/profils";
 import { listerSourates } from "@/repositories/sourates";
 
 /** Date du jour à Paris (les élèves et la base raisonnent en heure de Paris). */
@@ -64,6 +66,8 @@ export interface Fiche {
   /** Versets distincts travaillés dans le mois (tous passages confondus). */
   versetsTravailles: number;
   sourates: Sourate[];
+  /** Lecture de l'élève : la numérotation des versets en dépend. */
+  lecture: Lecture;
 }
 
 export async function chargerFiche(eleveId: string, moisParam?: string, typeParam?: string): Promise<Fiche> {
@@ -71,11 +75,13 @@ export async function chargerFiche(eleveId: string, moisParam?: string, typePara
   const mois = lireMois(moisParam, aujourdhui);
   const position = positionDuMois(mois, aujourdhui);
   const type = lireType(typeParam);
-  const [seances, objectifs, sourates] = await Promise.all([
+  const [seances, objectifs, lecture] = await Promise.all([
     position === "futur" ? [] : seancesEntre(eleveId, type, premierJour(mois), dernierJour(mois)),
     objectifsDuMois(eleveId, type, premierJour(mois)),
-    listerSourates(),
+    lectureEleve(eleveId),
   ]);
+  // Les passages sont dans la numérotation de la lecture de l'élève (Hafs ou Warsh).
+  const sourates = await listerSourates(lecture);
   const semaines = construireFiche(mois, seances, objectifs, aujourdhui);
   return {
     mois,
@@ -91,6 +97,7 @@ export async function chargerFiche(eleveId: string, moisParam?: string, typePara
       seances.flatMap((s) => s.passages),
     ),
     sourates,
+    lecture,
   };
 }
 
@@ -111,6 +118,8 @@ export interface DonneesSeance {
   seance: Seance | null;
   commentaires: Commentaire[];
   sourates: Sourate[];
+  /** Numérotation des versets de l'élève. */
+  lecture: Lecture;
   /** Suite logique du dernier passage travaillé (proposée en un toucher). */
   suggestion: Passage | null;
   /** Passage à préremplir (déjà ajouté au formulaire). */
@@ -125,9 +134,9 @@ export async function chargerSeance(
   passagePropose?: string,
 ): Promise<DonneesSeance> {
   // Tout en parallèle : les commentaires sont retrouvés par le jour, sans attendre la séance.
-  const [seance, sourates, precedente, commentaires] = await Promise.all([
+  const [seance, [lecture, sourates], precedente, commentaires] = await Promise.all([
     seanceDuJour(eleveId, type, date),
-    listerSourates(),
+    lectureEleve(eleveId).then(async (l) => [l, await listerSourates(l)] as const),
     derniereSeanceAvecPassagesAvant(eleveId, type, date),
     commentairesDuJour(eleveId, type, date),
   ]);
@@ -135,7 +144,7 @@ export async function chargerSeance(
   const dernier = precedente?.passages.at(-1);
   const suggestion = dernier ? passageSuivant(ref, dernier) : null;
   const propose = lirePassageTexte(ref, passagePropose);
-  return { date, type, seance, commentaires, sourates, suggestion, propose };
+  return { date, type, seance, commentaires, sourates, lecture, suggestion, propose };
 }
 
 // ---------- Saisie d'une séance ----------------------------------------
@@ -193,7 +202,7 @@ export async function enregistrerSeanceEleve(
   }
 
   // Vérifie chaque passage contre le référentiel (versets dans les bornes, ordre début → fin).
-  const ref = creerReferentiel(await listerSourates());
+  const ref = creerReferentiel(await listerSourates(await lectureEleve(eleveId)));
   const passages: Passage[] = saisie.data.passages;
   for (const [i, p] of passages.entries()) {
     try {

@@ -11,6 +11,7 @@ import {
   type Objectif,
   type StatutObjectif,
 } from "@/domain/fiche";
+import { LIBELLE_LECTURE } from "@/domain/lectures";
 import {
   creerReferentiel,
   libellePassage,
@@ -172,7 +173,7 @@ export function FicheImprimable({
                 </h1>
               </div>
               <div className="pdf-entete-eleve">
-                <span>Élève</span>
+                <span>Élève · lecture {LIBELLE_LECTURE[fiche.lecture]}</span>
                 <strong>{eleve}</strong>
               </div>
             </header>

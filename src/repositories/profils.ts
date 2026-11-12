@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { z } from "zod";
+import type { Lecture } from "@/domain/lectures";
 import type { Role } from "@/domain/roles";
 import { creerClientServeur } from "@/lib/supabase/server";
 
@@ -11,6 +12,7 @@ const schemaProfil = z.object({
   prenom: z.string(),
   nom: z.string(),
   actif: z.boolean(),
+  lecture: z.enum(["hafs", "warsh"]).nullable(),
 });
 
 export interface Profil {
@@ -20,6 +22,8 @@ export interface Profil {
   prenom: string;
   nom: string;
   actif: boolean;
+  /** Lecture de l'élève ; null tant qu'il ne l'a pas choisie (Hafs en attendant). */
+  lecture: Lecture | null;
 }
 
 /**
@@ -36,7 +40,7 @@ export const profilConnecte = cache(async (): Promise<Profil | null> => {
 
   const { data, error } = await supabase
     .from("profils")
-    .select("id, role, etablissement_id, prenom, nom, actif")
+    .select("id, role, etablissement_id, prenom, nom, actif, lecture")
     .eq("id", user.id)
     .maybeSingle();
   if (error) throw new Error(`Lecture du profil impossible : ${error.message}`);
@@ -50,6 +54,7 @@ export const profilConnecte = cache(async (): Promise<Profil | null> => {
     prenom: p.prenom,
     nom: p.nom,
     actif: p.actif,
+    lecture: p.lecture,
   };
 });
 
@@ -60,6 +65,7 @@ const schemaEleve = z.array(
     nom: z.string(),
     actif: z.boolean(),
     etablissement_id: z.string().uuid().nullable(),
+    lecture: z.enum(["hafs", "warsh"]).nullable(),
   }),
 );
 
@@ -69,6 +75,7 @@ export interface EleveListe {
   nom: string;
   actif: boolean;
   etablissementId: string | null;
+  lecture: Lecture | null;
 }
 
 /** Élèves visibles par la personne connectée (RLS : ceux de son établissement, ou tous pour l'admin). */
@@ -76,7 +83,7 @@ export async function listerEleves(): Promise<EleveListe[]> {
   const supabase = await creerClientServeur();
   const { data, error } = await supabase
     .from("profils")
-    .select("id, prenom, nom, actif, etablissement_id")
+    .select("id, prenom, nom, actif, etablissement_id, lecture")
     .eq("role", "eleve")
     .order("nom");
   if (error) throw new Error(`Lecture des élèves impossible : ${error.message}`);
@@ -86,6 +93,7 @@ export async function listerEleves(): Promise<EleveListe[]> {
     nom: e.nom,
     actif: e.actif,
     etablissementId: e.etablissement_id,
+    lecture: e.lecture,
   }));
 }
 
@@ -94,7 +102,7 @@ export async function eleveParId(id: string): Promise<EleveListe | null> {
   const supabase = await creerClientServeur();
   const { data, error } = await supabase
     .from("profils")
-    .select("id, prenom, nom, actif, etablissement_id")
+    .select("id, prenom, nom, actif, etablissement_id, lecture")
     .eq("role", "eleve")
     .eq("id", id)
     .maybeSingle();
@@ -102,7 +110,14 @@ export async function eleveParId(id: string): Promise<EleveListe | null> {
   if (!data) return null;
   const [e] = schemaEleve.parse([data]);
   return e
-    ? { id: e.id, prenom: e.prenom, nom: e.nom, actif: e.actif, etablissementId: e.etablissement_id }
+    ? {
+        id: e.id,
+        prenom: e.prenom,
+        nom: e.nom,
+        actif: e.actif,
+        etablissementId: e.etablissement_id,
+        lecture: e.lecture,
+      }
     : null;
 }
 
@@ -121,4 +136,22 @@ export async function supprimerEleveDefinitivement(id: string): Promise<void> {
   const supabase = await creerClientServeur();
   const { error } = await supabase.rpc("supprimer_eleve", { p_eleve: id });
   if (error) throw new Error(error.message);
+}
+
+/** Lecture d'un élève visible (Hafs s'il ne l'a pas encore choisie, ou s'il est introuvable). */
+export const lectureEleve = cache(async (eleveId: string): Promise<Lecture> => {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.from("profils").select("lecture").eq("id", eleveId).maybeSingle();
+  if (error) throw new Error(`Lecture du profil impossible : ${error.message}`);
+  return data?.lecture === "warsh" ? "warsh" : "hafs";
+});
+
+/**
+ * Change la lecture d'un élève (lui-même, son Cheikh ou l'admin : vérifié par la base)
+ * et convertit ses passages déjà saisis dans la nouvelle numérotation.
+ */
+export async function changerLecture(eleveId: string, lecture: Lecture): Promise<void> {
+  const supabase = await creerClientServeur();
+  const { error } = await supabase.rpc("changer_lecture", { p_eleve: eleveId, p_lecture: lecture });
+  if (error) throw new Error(`Changement de lecture impossible : ${error.message}`);
 }
