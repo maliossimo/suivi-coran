@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import type { EtatSaisie } from "@/app/actions/fiche";
 import { actionRejoindre } from "@/app/actions/rejoindre";
+import { AntiRobot } from "@/components/AntiRobot";
 
 /** Création de compte élève après avoir scanné le QR code de la classe. */
 export function FormulaireRejoindre({ code }: { code: string }) {
@@ -44,6 +45,7 @@ export function FormulaireRejoindre({ code }: { code: string }) {
         <label htmlFor="confirmation">Confirme le mot de passe</label>
         <input id="confirmation" name="confirmation" type="password" autoComplete="new-password" required />
       </div>
+      <AntiRobot />
       <button className="bouton" type="submit" disabled={enCours}>
         {enCours ? "Création du compte…" : "Créer mon compte"}
       </button>

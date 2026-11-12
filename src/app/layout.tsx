@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { headers } from "next/headers";
 import Script from "next/script";
 import { BandeauNotification } from "@/components/BandeauNotification";
 import { EtatReseau } from "@/components/EtatReseau";
@@ -122,7 +123,9 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Jeton CSP de la page (middleware) : nos scripts en ligne le portent pour être exécutés.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang="fr"
@@ -138,16 +141,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <EtatReseau />
         {/* Installation sur l'écran d'accueil : l'invitation de Chrome est gardée dès son arrivée
             (elle peut arriver avant que la page soit prête) et le service worker est enregistré. */}
-        <Script id="installation-appli" strategy="beforeInteractive">
+        <Script id="installation-appli" strategy="beforeInteractive" nonce={nonce}>
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__invitationInstallation=e;window.dispatchEvent(new Event("installation-disponible"));});
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}
 try{var appli=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var calme=matchMedia("(prefers-reduced-motion: reduce)").matches;if(appli&&!calme&&!sessionStorage.getItem("ouverture")){sessionStorage.setItem("ouverture","1");var h=document.documentElement;h.setAttribute("data-ouverture","");var fin=function(){h.removeAttribute("data-ouverture");};setTimeout(fin,1350);addEventListener("pointerdown",fin,{once:true});}}catch(e){}`}
         </Script>
         {/* Vercel Speed Insights : vitesse réelle mesurée chez les utilisateurs (sans paquet npm). */}
-        <Script id="speed-insights-file" strategy="afterInteractive">
+        <Script id="speed-insights-file" strategy="afterInteractive" nonce={nonce}>
           {"window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };"}
         </Script>
-        <Script src="/_vercel/speed-insights/script.js" strategy="afterInteractive" />
+        <Script src="/_vercel/speed-insights/script.js" strategy="afterInteractive" nonce={nonce} />
       </body>
     </html>
   );

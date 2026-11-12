@@ -62,6 +62,7 @@ export async function rejoindreClasse(code: string, brut: Record<string, unknown
     };
   }
   await compterUtilisation(invitation.id, invitation.utilisations);
-  await connecter(email, motDePasse);
+  const jeton = typeof brut.jetonAntiRobot === "string" ? brut.jetonAntiRobot.slice(0, 4096) : undefined;
+  await connecter(email, motDePasse, jeton || undefined);
   return { ok: true };
 }

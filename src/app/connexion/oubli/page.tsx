@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { actionMotDePasseOublie, type EtatFormulaire } from "@/app/actions/auth";
 import { CadreAuth } from "@/components/CadreAuth";
+import { AntiRobot } from "@/components/AntiRobot";
 
 export default function PageMotDePasseOublie() {
   const [etat, action, enCours] = useActionState<EtatFormulaire, FormData>(actionMotDePasseOublie, {});
@@ -28,6 +29,7 @@ export default function PageMotDePasseOublie() {
           <label htmlFor="email">Adresse e-mail</label>
           <input id="email" name="email" type="email" autoComplete="email" required />
         </div>
+        <AntiRobot />
         <button className="bouton" type="submit" disabled={enCours}>
           Recevoir un lien
         </button>

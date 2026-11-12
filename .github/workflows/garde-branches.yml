@@ -22,7 +22,7 @@ jobs:
       - name: Vérifier le préfixe
         run: |
           branche="${{ github.head_ref }}"
-          if ! echo "$branche" | grep -Eq '^(feat|fix|chore|docs|refactor|perf|test)/[a-z0-9._-]+$'; then
+          if ! echo "$branche" | grep -Eq '^((feat|fix|chore|docs|refactor|perf|test)/[a-z0-9._-]+|dependabot/.+)$'; then
             echo "::error::Nomme la branche feat/…, fix/…, chore/…, docs/…, refactor/…, perf/… ou test/… (reçu : $branche)."
             exit 1
           fi

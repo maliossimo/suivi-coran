@@ -13,6 +13,7 @@ export async function actionRejoindre(_: EtatSaisie, form: FormData): Promise<Et
     email: form.get("email"),
     motDePasse: form.get("motDePasse"),
     confirmation: form.get("confirmation"),
+    jetonAntiRobot: form.get("cf-turnstile-response"),
   });
   if (!resultat.ok) return { erreur: resultat.erreur };
   await notifier("Bienvenue dans la classe !");
