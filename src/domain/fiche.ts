@@ -233,3 +233,37 @@ export function etatCorrection(
   if (seance.passages.length === 0 || vus === seance.passages.length) return "complete";
   return "partielle";
 }
+
+/** Ce que l'élève saisit pour une séance (sans l'état de correction). */
+export interface ContenuSeance {
+  dureeMin: number;
+  noteLibre: string | null;
+  passages: readonly Passage[];
+}
+
+/** Même contenu de séance : durée, note (espaces ignorés) et passages dans l'ordre. */
+export function memeContenuSeance(a: ContenuSeance, b: ContenuSeance): boolean {
+  const passages = (l: readonly Passage[]) =>
+    JSON.stringify(l.map((p) => [p.sourateDebut, p.versetDebut, p.sourateFin, p.versetFin]));
+  return (
+    a.dureeMin === b.dureeMin &&
+    (a.noteLibre ?? "").trim() === (b.noteLibre ?? "").trim() &&
+    passages(a.passages) === passages(b.passages)
+  );
+}
+
+/**
+ * Un enregistrement fait à partir d'une version ancienne de la séance (hors ligne,
+ * ou renvoyé plus tard) ne doit pas écraser ce qui a changé entre-temps
+ * (correction du Cheikh, ressaisie sur un autre téléphone).
+ * `attendu` : la séance telle que l'élève l'avait sous les yeux (null : pas de séance).
+ */
+export function conflitDeSaisie(
+  attendu: ContenuSeance | null,
+  actuelle: ContenuSeance | null,
+  nouvelle: ContenuSeance,
+): boolean {
+  if (actuelle && memeContenuSeance(actuelle, nouvelle)) return false; // déjà enregistrée
+  if (!attendu) return actuelle !== null;
+  return actuelle === null || !memeContenuSeance(attendu, actuelle);
+}

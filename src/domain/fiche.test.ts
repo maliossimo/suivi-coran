@@ -6,7 +6,9 @@ import {
   dernierJour,
   etatCorrection,
   formaterDuree,
+  conflitDeSaisie,
   libelleDateLongue,
+  memeContenuSeance,
   libelleJourCourt,
   libelleJourSemaine,
   libelleMois,
@@ -144,5 +146,34 @@ describe("etatCorrection", () => {
 
   it("corrigée en partie quand un passage a été ajouté après", () => {
     expect(etatCorrection({ corrigee: true, passages: [p(true), p(false)] })).toBe("partielle");
+  });
+});
+
+describe("conflitDeSaisie", () => {
+  const p = (a: number, b: number) => ({ sourateDebut: 67, versetDebut: a, sourateFin: 67, versetFin: b });
+  const c = (dureeMin: number, passages = [p(1, 10)], noteLibre: string | null = null) => ({
+    dureeMin,
+    noteLibre,
+    passages,
+  });
+
+  it("compare le contenu en ignorant les espaces de la note", () => {
+    expect(memeContenuSeance(c(20, [p(1, 10)], " ok "), c(20, [p(1, 10)], "ok"))).toBe(true);
+    expect(memeContenuSeance(c(20), c(25))).toBe(false);
+  });
+
+  it("accepte une nouvelle séance, ou une séance inchangée depuis l'ouverture", () => {
+    expect(conflitDeSaisie(null, null, c(20))).toBe(false);
+    expect(conflitDeSaisie(c(20), c(20), c(30))).toBe(false);
+  });
+
+  it("refuse d'écraser une séance créée ou modifiée entre-temps", () => {
+    expect(conflitDeSaisie(null, c(15), c(20))).toBe(true);
+    expect(conflitDeSaisie(c(20), c(20, [p(1, 30)]), c(30))).toBe(true);
+    expect(conflitDeSaisie(c(20), null, c(30))).toBe(true); // supprimée entre-temps
+  });
+
+  it("n'y voit pas de conflit si la base a déjà exactement cette saisie", () => {
+    expect(conflitDeSaisie(null, c(20), c(20))).toBe(false);
   });
 });

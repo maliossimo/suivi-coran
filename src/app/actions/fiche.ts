@@ -57,16 +57,29 @@ export async function actionEnregistrerSeanceFond(form: FormData): Promise<Resul
   } catch {
     return { ok: false, erreur: "La liste des passages est invalide." };
   }
+  // Version de la séance sur laquelle l'élève a travaillé (protège des écrasements).
+  let attendu: unknown = undefined;
+  if (form.has("attendu")) {
+    try {
+      attendu = JSON.parse(String(form.get("attendu")));
+    } catch {
+      return { ok: false, erreur: "Certaines informations sont invalides." };
+    }
+  }
   let resultat: ResultatSaisie;
   try {
-    resultat = await enregistrerSeanceEleve(eleveId, {
-      date: String(form.get("date") ?? ""),
-      type: String(form.get("type") ?? ""),
-      dureeMin: form.get("dureeMin"),
-      tajwid: String(form.get("tajwid") ?? ""),
-      noteLibre: String(form.get("noteLibre") ?? ""),
-      passages,
-    });
+    resultat = await enregistrerSeanceEleve(
+      eleveId,
+      {
+        date: String(form.get("date") ?? ""),
+        type: String(form.get("type") ?? ""),
+        dureeMin: form.get("dureeMin"),
+        tajwid: String(form.get("tajwid") ?? ""),
+        noteLibre: String(form.get("noteLibre") ?? ""),
+        passages,
+      },
+      attendu,
+    );
   } catch {
     resultat = { ok: false, erreur: "L'enregistrement a échoué. Réessaie dans un instant." };
   }
