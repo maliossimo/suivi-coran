@@ -3492,16 +3492,21 @@ button:active:not(:disabled),
 
 /* ---------- Légende des pastilles ---------------------------------------- */
 .legende-pastilles {
-  margin: 4px 0 16px;
-  font-size: 14px;
+  margin: 24px 0 8px;
+  font-size: 13px;
   color: var(--texte-doux);
+  text-align: center;
 }
 .legende-pastilles summary {
   cursor: pointer;
-  width: fit-content;
+  display: inline-block;
   padding: 6px 0;
-  color: var(--vert-texte);
-  font-weight: 600;
+  color: var(--texte-doux);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legende-pastilles[open] {
+  text-align: left;
 }
 .legende-pastilles ul {
   list-style: none;
