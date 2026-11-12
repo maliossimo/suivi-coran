@@ -37,6 +37,49 @@ export interface ResumeEleve {
   alerte: boolean;
   /** Séances récentes que le Cheikh n'a pas encore vues (ou ajouts après sa correction). */
   aVoir: number;
+  /** La plus ancienne d'entre elles : la fiche s'ouvre sur son mois et son onglet. */
+  premiereAVoir: { date: DateISO; type: TypeSeance } | null;
+}
+
+/** Une séance récente, réduite à ce qu'il faut pour savoir si le Cheikh doit la voir. */
+export interface SeanceSuivi {
+  eleveId: string;
+  date: DateISO;
+  type: TypeSeance;
+  /** Le Cheikh (ou l'admin) a modifié ou validé la séance. */
+  modifieeParEncadrant: boolean;
+  /** Pour chaque passage : vu par le Cheikh ? */
+  passagesVus: boolean[];
+}
+
+export interface FileAVoir {
+  nombre: number;
+  premiere: { date: DateISO; type: TypeSeance };
+}
+
+/**
+ * À voir : un passage pas encore vu (dont les ajouts après correction),
+ * ou une séance sans passage (durée, note) que le Cheikh n'a jamais ouverte.
+ */
+export function seanceAVoir(s: SeanceSuivi): boolean {
+  if (s.passagesVus.length === 0) return !s.modifieeParEncadrant;
+  return s.passagesVus.some((vu) => !vu);
+}
+
+/** File du Cheikh par élève : nombre de séances à voir et la plus ancienne. */
+export function fileAVoir(seances: readonly SeanceSuivi[]): Map<string, FileAVoir> {
+  const file = new Map<string, FileAVoir>();
+  for (const s of seances) {
+    if (!seanceAVoir(s)) continue;
+    const courant = file.get(s.eleveId);
+    if (!courant) {
+      file.set(s.eleveId, { nombre: 1, premiere: { date: s.date, type: s.type } });
+      continue;
+    }
+    courant.nombre += 1;
+    if (s.date < courant.premiere.date) courant.premiere = { date: s.date, type: s.type };
+  }
+  return file;
 }
 
 /** Fenêtre de la file « à voir » du Cheikh : les séances plus anciennes n'y figurent plus. */
@@ -55,7 +98,7 @@ export function resumerClasse(
   objectifsDuMois: readonly ObjectifStat[],
   dernieresSaisies: ReadonlyMap<string, DateISO>,
   aujourdhui: DateISO,
-  seancesAVoir: ReadonlyMap<string, number> = new Map(),
+  seancesAVoir: ReadonlyMap<string, FileAVoir> = new Map(),
 ): ResumeEleve[] {
   return trierParPrenom(eleves).map((eleve) => {
     const seances = seancesDuMois.filter((s) => s.eleveId === eleve.id);
@@ -74,7 +117,8 @@ export function resumerClasse(
       derniereSaisie: derniere,
       joursSansSaisie,
       alerte: eleve.actif && (joursSansSaisie === null || joursSansSaisie >= SEUIL_ALERTE),
-      aVoir: seancesAVoir.get(eleve.id) ?? 0,
+      aVoir: seancesAVoir.get(eleve.id)?.nombre ?? 0,
+      premiereAVoir: seancesAVoir.get(eleve.id)?.premiere ?? null,
     };
   });
 }

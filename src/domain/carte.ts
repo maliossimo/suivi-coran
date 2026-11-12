@@ -32,11 +32,18 @@ export interface CaseCarte {
   pourcentage: number;
   /** Dernier jour où la sourate a été apprise ou révisée. */
   derniereActivite: DateISO | null;
+  /**
+   * Une partie de ce qui est saisi n'a pas encore été vue par le Cheikh.
+   * L'état reste calculé sur la saisie (les rappels de révision ne dépendent pas de lui).
+   */
+  aFaireVoir: boolean;
 }
 
 export interface CarteDuCoran {
   cases: CaseCarte[];
   compte: Record<EtatSourate, number>;
+  /** Sourates commencées dont une partie n'est pas encore vue par le Cheikh. */
+  aFaireVoir: number;
   /** Hizb à réviser en priorité, du plus urgent au moins urgent (tous). */
   hizb: HizbARevoir[];
 }
@@ -67,8 +74,18 @@ export function carteDuCoran(
           return [];
         }
       }),
+      // Passages que le Cheikh a vus (apprentissage ou révision).
+      vus: s.passages.flatMap((p) => {
+        if (!p.corrige) return [];
+        try {
+          return [versIntervalle(ref, p)];
+        } catch {
+          return [];
+        }
+      }),
     }));
   const tous = travaux.flatMap((t) => t.intervalles);
+  const tousVus = travaux.flatMap((t) => t.vus);
 
   const cases: CaseCarte[] = [...ref.values()]
     .sort((a, b) => a.numero - b.numero)
@@ -94,11 +111,17 @@ export function carteDuCoran(
       } else if (connus > 0) {
         etat = "en_cours";
       }
-      return { sourate, etat, pourcentage, derniereActivite };
+      const aFaireVoir = connus > 0 && couverture(tousVus, debut, fin) < connus;
+      return { sourate, etat, pourcentage, derniereActivite, aFaireVoir };
     });
 
   const compte: Record<EtatSourate, number> = { maitrisee: 0, a_reviser: 0, en_cours: 0, vide: 0 };
   for (const c of cases) compte[c.etat] += 1;
 
-  return { cases, compte, hizb: hizbARevoir(ref, seances, aujourdhui, seuilJours) };
+  return {
+    cases,
+    compte,
+    aFaireVoir: cases.filter((c) => c.aFaireVoir).length,
+    hizb: hizbARevoir(ref, seances, aujourdhui, seuilJours),
+  };
 }

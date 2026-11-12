@@ -48,7 +48,11 @@ export interface Progression {
   /** Versets appris que le Cheikh a vus (passages corrigés) : le reste est seulement déclaré. */
   versetsVus: number;
   pourcentageCoran: number;
+  /** Part du Coran apprise ET vue par le Cheikh. */
+  pourcentageCoranVu: number;
   souratesCompletes: number;
+  /** Sourates complètes dont tous les versets ont été vus par le Cheikh. */
+  souratesCompletesVues: number;
   cumulParMois: PointMois[];
   minutesParSemaine: BarreSemaine[];
   regularite: CaseRegularite[][]; // colonnes = semaines (lundi → dimanche)
@@ -234,7 +238,11 @@ export function calculerProgression(
     versetsAppris,
     versetsVus,
     pourcentageCoran: pourcentageDuCoran(versetsAppris),
+    pourcentageCoranVu: pourcentageDuCoran(versetsVus),
     souratesCompletes: sourates.filter((s) => s.pourcentage === 100).length,
+    souratesCompletesVues: sourates.filter(
+      (s) => s.pourcentage === 100 && s.versetsVus >= s.sourate.nbVersets,
+    ).length,
     cumulParMois,
     minutesParSemaine,
     regularite,

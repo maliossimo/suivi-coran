@@ -83,3 +83,26 @@ describe("carteDuCoran", () => {
     expect(carteDuCoran(ref, [], "2026-11-11").compte.vide).toBe(114);
   });
 });
+
+describe("carteDuCoran : vu par le Cheikh", () => {
+  const carte = carteDuCoran(
+    ref,
+    [
+      seance("2026-11-01", "apprentissage", [{ ...p(112, 1, 4), corrige: true }]), // vue en entier
+      seance("2026-11-02", "apprentissage", [{ ...p(113, 1, 3), corrige: true }, p(113, 4, 5)]), // en partie
+      seance("2026-11-03", "apprentissage", [p(114, 1, 6)]), // pas vue
+      seance("2026-11-04", "revision", [{ ...p(114, 1, 6), corrige: true }]), // vue en révision
+    ],
+    "2026-11-11",
+  );
+  const case_ = (n: number) => carte.cases.find((c) => c.sourate.numero === n)!;
+
+  it("signale les sourates dont une partie n'est pas encore vue, sans changer leur état", () => {
+    expect(case_(112).aFaireVoir).toBe(false);
+    expect(case_(113).aFaireVoir).toBe(true);
+    expect(case_(113).etat).toBe("a_reviser");
+    expect(case_(114).aFaireVoir).toBe(false); // vue lors de la révision
+    expect(case_(1).aFaireVoir).toBe(false); // rien de saisi
+    expect(carte.aFaireVoir).toBe(1);
+  });
+});

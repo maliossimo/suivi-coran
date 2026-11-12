@@ -58,6 +58,9 @@ describe("calculerProgression", () => {
     expect(mulkProgression.versetsAppris).toBe(30);
     expect(mulkProgression.versetsVus).toBe(10);
     expect(p.sourates.find((s) => s.sourate.numero === 68)!.versetsVus).toBe(0);
+    expect(p.souratesCompletes).toBe(1);
+    expect(p.souratesCompletesVues).toBe(0);
+    expect(p.pourcentageCoranVu).toBeLessThan(p.pourcentageCoran);
   });
 
   it("cumule les versets mois par mois", () => {

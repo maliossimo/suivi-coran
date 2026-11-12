@@ -2,7 +2,13 @@ import "server-only";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { ajouterJours } from "@/domain/calendrier";
-import { confirmationValide, JOURS_A_VOIR, resumerClasse, type ResumeEleve } from "@/domain/classe";
+import {
+  confirmationValide,
+  fileAVoir,
+  JOURS_A_VOIR,
+  resumerClasse,
+  type ResumeEleve,
+} from "@/domain/classe";
 import { etatInvitation, expirationDepuis, type InvitationClasse } from "@/domain/invitation";
 import { decalerMois, dernierJour, lireMois, premierJour, type Mois } from "@/domain/fiche";
 import { ajouterCommentaire } from "@/repositories/commentaires";
@@ -20,7 +26,7 @@ import {
   supprimerEleveDefinitivement,
   type Profil,
 } from "@/repositories/profils";
-import { dernieresSaisies, seancesAVoirDepuis, statsSeancesEntre } from "@/repositories/seances";
+import { dernieresSaisies, seancesSuiviDepuis, statsSeancesEntre } from "@/repositories/seances";
 import { aujourdhuiParis, type ResultatSaisie } from "./fiche";
 
 export interface Classe {
@@ -39,9 +45,9 @@ export async function chargerClasse(moisParam?: string): Promise<Classe> {
     statsSeancesEntre(premierJour(mois), dernierJour(mois)),
     statutsObjectifsDuMois(premierJour(mois)),
     dernieresSaisies(depuis),
-    seancesAVoirDepuis(ajouterJours(aujourdhui, -JOURS_A_VOIR)),
+    seancesSuiviDepuis(ajouterJours(aujourdhui, -JOURS_A_VOIR)),
   ]);
-  const resumes = resumerClasse(eleves, seances, objectifs, dernieres, aujourdhui, aVoir);
+  const resumes = resumerClasse(eleves, seances, objectifs, dernieres, aujourdhui, fileAVoir(aVoir));
   return {
     mois,
     actifs: resumes.filter((r) => r.eleve.actif),
