@@ -36,7 +36,7 @@ export interface Classe {
 }
 
 /** Tableau de bord : résumé du mois pour chaque élève visible. */
-export async function chargerClasse(moisParam?: string): Promise<Classe> {
+export async function chargerClasse(moisParam?: string, etablissementId?: string): Promise<Classe> {
   const aujourdhui = aujourdhuiParis();
   const mois = lireMois(moisParam, aujourdhui);
   const depuis = premierJour(decalerMois(mois, -3));
@@ -47,7 +47,9 @@ export async function chargerClasse(moisParam?: string): Promise<Classe> {
     dernieresSaisies(depuis),
     seancesSuiviDepuis(ajouterJours(aujourdhui, -JOURS_A_VOIR)),
   ]);
-  const resumes = resumerClasse(eleves, seances, objectifs, dernieres, aujourdhui, fileAVoir(aVoir));
+  // L'admin peut regarder une seule classe ; le Cheikh ne voit de toute façon que la sienne (RLS).
+  const visibles = etablissementId ? eleves.filter((e) => e.etablissementId === etablissementId) : eleves;
+  const resumes = resumerClasse(visibles, seances, objectifs, dernieres, aujourdhui, fileAVoir(aVoir));
   return {
     mois,
     actifs: resumes.filter((r) => r.eleve.actif),
