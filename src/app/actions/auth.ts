@@ -67,6 +67,8 @@ export async function actionDefinirMotDePasse(_: EtatFormulaire, form: FormData)
   const res = await changerMotDePasse(saisie.data.motDePasse);
   if (!res.ok) return { erreur: "Impossible d'enregistrer ce mot de passe. Réessaie." };
 
+  // Première connexion après une invitation : page d'accueil avec l'installation de l'appli.
+  if (form.get("bienvenue") === "1") redirect("/bienvenue");
   redirect(await destinationApresConnexion());
 }
 
