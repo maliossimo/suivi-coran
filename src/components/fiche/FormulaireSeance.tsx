@@ -342,12 +342,26 @@ export function FormulaireSeance({
                 />
               </label>
             </div>
-            <ChoixSourate
-              libelle="Jusqu’à la sourate"
-              valeur={p.sourateFin}
-              sourates={sourates}
-              onChoix={(n) => modifier(i, "sourateFin", n)}
-            />
+            {/* Cas rare : le passage déborde sur la sourate suivante. Masqué tant qu'il ne sert pas. */}
+            {p.sourateFin !== p.sourateDebut ? (
+              <ChoixSourate
+                libelle="Jusqu’à la sourate"
+                valeur={p.sourateFin}
+                sourates={sourates}
+                onChoix={(n) => modifier(i, "sourateFin", n)}
+              />
+            ) : p.sourateDebut < 114 ? (
+              <button
+                type="button"
+                className="bouton-lien passage-plusieurs"
+                onClick={() => {
+                  modifier(i, "sourateFin", p.sourateDebut + 1);
+                  modifier(i, "versetFin", 1);
+                }}
+              >
+                Le passage continue sur la sourate suivante ?
+              </button>
+            ) : null}
           </fieldset>
         ))}
         <button type="button" className="bouton-ajout" onClick={ajouter} disabled={passages.length >= 20}>

@@ -8,9 +8,7 @@ import {
   formaterDuree,
   libelleJourCourt,
   libelleMois,
-  libelleMoisCourt,
   LIBELLE_TYPE,
-  moisAutour,
   premierJour,
   TYPES_SEANCE,
   type JourFiche,
@@ -45,7 +43,6 @@ export function FicheMois({
   const lien = (mois: string, type: TypeSeance) => `${base}?mois=${mois}&type=${type}`;
   const retour = lien(cle, fiche.type);
   const aVenir = fiche.position === "futur";
-  const raccourcis = moisAutour(fiche.moisCourant, 2, 4);
   const semaineCourante =
     fiche.position === "courant"
       ? (fiche.semaines.find((sem) => sem.jours.some((j) => j.aujourdhui))?.numero ?? null)
@@ -73,22 +70,11 @@ export function FicheMois({
         </Link>
       </nav>
 
-      <nav className="mois-raccourcis" aria-label="Aller à un mois">
-        {raccourcis.map((m) => {
-          const c = cleMois(m);
-          const courant = c === cleMois(fiche.moisCourant);
-          return (
-            <Link
-              key={c}
-              href={lien(c, fiche.type)}
-              className={courant ? "mois-puce mois-puce-courant" : "mois-puce"}
-              aria-current={c === cle ? "page" : undefined}
-            >
-              {courant ? "Ce mois" : majuscule(libelleMoisCourt(m, fiche.moisCourant.annee))}
-            </Link>
-          );
-        })}
-      </nav>
+      {cle !== cleMois(fiche.moisCourant) ? (
+        <p className="mois-retour">
+          <Link href={lien(cleMois(fiche.moisCourant), fiche.type)}>Revenir à ce mois-ci</Link>
+        </p>
+      ) : null}
 
       <nav className="onglets" aria-label="Type de séance">
         {TYPES_SEANCE.map((t) => (
@@ -192,8 +178,8 @@ export function FicheMois({
               />
             </>
           );
-          // Mois en cours : les semaines déjà passées sont repliées, la fiche s'ouvre sur la semaine actuelle.
-          if (semaineCourante !== null && semaine.numero < semaineCourante) {
+          // Mois en cours : seule la semaine actuelle est ouverte, les autres se déplient d'un geste.
+          if (semaineCourante !== null && semaine.numero !== semaineCourante) {
             return (
               <details key={semaine.numero} className="semaine semaine-pliable">
                 <summary className="semaine-entete">{entete}</summary>
@@ -269,10 +255,6 @@ export function FicheMois({
   );
 }
 
-function majuscule(texte: string): string {
-  return texte.charAt(0).toUpperCase() + texte.slice(1);
-}
-
 function LigneJour({
   jour,
   lien,
@@ -316,9 +298,12 @@ function LigneJour({
     </>
   );
 
-  const classes = ["jour", jour.aujourdhui ? "jour-aujourdhui" : "", jour.futur ? "jour-futur" : ""].join(
-    " ",
-  );
+  const classes = [
+    "jour",
+    s ? "jour-rempli" : "jour-sans-seance",
+    jour.aujourdhui ? "jour-aujourdhui" : "",
+    jour.futur ? "jour-futur" : "",
+  ].join(" ");
   if (jour.futur) return <div className={classes}>{corps}</div>;
   return (
     // Aujourd'hui : séance préchargée en entier, elle s'ouvre sans attente.

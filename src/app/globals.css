@@ -3817,3 +3817,63 @@ html[data-ouverture] .ouverture {
 .pdf-outils {
   margin-top: env(safe-area-inset-top);
 }
+
+/* ---------- Fiche sur téléphone : le passage prend toute la largeur ---------- */
+@media (max-width: 600px) {
+  .jour.jour-rempli {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "nom duree"
+      "contenu contenu";
+    row-gap: 4px;
+    align-items: baseline;
+    padding: 10px 10px;
+  }
+  .jour-rempli .jour-nom {
+    grid-area: nom;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .jour-rempli .jour-nom small::before {
+    content: "· ";
+  }
+  .jour-rempli .jour-duree {
+    grid-area: duree;
+    font-size: 13px;
+    color: var(--texte-doux);
+  }
+  .jour-rempli .jour-contenu {
+    grid-area: contenu;
+  }
+  /* Jour sans séance : une seule ligne « Jour 3 · 10 nov.  + Saisir » */
+  .jour.jour-sans-seance {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .jour-sans-seance .jour-nom {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .jour-sans-seance .jour-nom small::before {
+    content: "· ";
+  }
+  .jour-sans-seance .jour-duree {
+    display: none;
+  }
+}
+.mois-retour {
+  margin: -6px 0 12px;
+  text-align: center;
+  font-size: 14px;
+}
+.mois-retour a {
+  color: var(--vert-texte);
+  font-weight: 600;
+}
+.passage-plusieurs {
+  align-self: flex-start;
+  padding: 2px 0;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
