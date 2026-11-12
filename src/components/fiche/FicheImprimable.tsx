@@ -92,9 +92,7 @@ function Chiffres({ fiche }: { fiche: Fiche }) {
         <strong>{fiche.versetsTravailles}</strong>
         <span>
           {pluriel(fiche.versetsTravailles, "verset")}{" "}
-          {fiche.type === "apprentissage"
-            ? pluriel(fiche.versetsTravailles, "appris")
-            : pluriel(fiche.versetsTravailles, "révisé")}
+          {fiche.type === "apprentissage" ? "appris" : pluriel(fiche.versetsTravailles, "révisé")}
         </span>
       </div>
       <div className="pdf-chiffre">
