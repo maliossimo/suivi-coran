@@ -1,24 +1,33 @@
+# Surveillance des dépendances : chaque semaine, Dependabot propose (en PR vers main)
+# les mises à jour, et tout de suite celles qui corrigent une faille connue.
+# Les PR passent par les mêmes vérifications que les autres ; fusion puis mise en production
+# comme d'habitude (avec une nouvelle version CORRECTIF).
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
-    target-branch: main
     schedule:
       interval: weekly
       day: monday
+      time: "06:00"
+      timezone: Europe/Paris
+    target-branch: main
     open-pull-requests-limit: 5
-    # Les versions majeures (TypeScript 7, ESLint 10, Next 16…) cassent souvent la CI :
-    # elles sont traitées à la main, une par une.
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    commit-message:
+      prefix: "Met à jour"
+    labels: [dependances]
     groups:
-      dependances:
-        patterns: ["*"]
-        update-types: ["minor", "patch"]
-
+      # Les petites mises à jour ensemble, pour limiter le nombre de PR.
+      mineures-et-correctifs:
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
-    target-branch: main
     schedule:
       interval: monthly
+    target-branch: main
+    commit-message:
+      prefix: "Met à jour"
+    labels: [dependances]
+    groups:
+      actions:
+        patterns: ["*"]

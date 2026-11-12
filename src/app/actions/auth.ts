@@ -7,6 +7,12 @@ import { changerMotDePasse, connecter, deconnecter, envoyerLienReinitialisation 
 import { destinationApresConnexion } from "@/services/acces";
 import { notifier } from "./notification";
 
+/** Jeton anti-robots (Cloudflare Turnstile) ajouté au formulaire par le composant AntiRobot. */
+function jetonAntiRobot(form: FormData): string | undefined {
+  const jeton = form.get("cf-turnstile-response");
+  return typeof jeton === "string" && jeton.length > 0 && jeton.length < 4096 ? jeton : undefined;
+}
+
 export interface EtatFormulaire {
   erreur?: string;
   info?: string;
@@ -25,7 +31,7 @@ export async function actionConnexion(_: EtatFormulaire, form: FormData): Promis
   });
   if (!saisie.success) return { erreur: "Adresse e-mail ou mot de passe invalide." };
 
-  const { ok } = await connecter(saisie.data.email, saisie.data.motDePasse);
+  const { ok } = await connecter(saisie.data.email, saisie.data.motDePasse, jetonAntiRobot(form));
   // Message volontairement identique dans tous les cas d'échec.
   if (!ok) return { erreur: "Adresse e-mail ou mot de passe incorrect." };
 
@@ -46,6 +52,7 @@ export async function actionMotDePasseOublie(_: EtatFormulaire, form: FormData):
   await envoyerLienReinitialisation(
     saisie.data.email,
     `${envPublic.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/definir-mot-de-passe`,
+    jetonAntiRobot(form),
   );
   return { info: "Si cette adresse est inscrite, un e-mail vient d'être envoyé." };
 }

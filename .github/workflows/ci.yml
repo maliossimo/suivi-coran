@@ -25,6 +25,9 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Installation
         run: npm ci --no-audit --no-fund
+      # Refuse une dépendance de production avec une faille connue grave (high ou critical).
+      - name: Failles connues dans les dépendances
+        run: npm audit --omit=dev --audit-level=high
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
