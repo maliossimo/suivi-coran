@@ -1,8 +1,14 @@
+import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { exigerEspace } from "@/services/acces";
 import { chargerJournal } from "@/services/admin";
 
-const ACTIONS: Record<string, string> = { INSERT: "Création", UPDATE: "Modification", DELETE: "Suppression" };
+const ACTIONS: Record<string, string> = {
+  INSERT: "Création",
+  UPDATE: "Modification",
+  DELETE: "Suppression",
+  SUPPRESSION_UTILISATEUR: "Suppression d’un compte",
+};
 const TABLES: Record<string, string> = {
   seances: "Séance",
   passages: "Passage",
@@ -11,6 +17,7 @@ const TABLES: Record<string, string> = {
   commentaires: "Commentaire",
   profils: "Profil",
   etablissements: "Établissement",
+  invitations_classe: "QR code de classe",
 };
 
 function dateHeure(iso: string): string {
@@ -23,9 +30,14 @@ function dateHeure(iso: string): string {
   }).format(new Date(iso));
 }
 
-export default async function PageJournal() {
+export default async function PageJournal({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   const profil = await exigerEspace("admin");
-  const { evenements, noms } = await chargerJournal(profil);
+  const { evenements, noms, personnes, filtres } = await chargerJournal(profil, await searchParams);
+  const filtre = Object.values(filtres).some(Boolean);
 
   return (
     <>
@@ -34,9 +46,51 @@ export default async function PageJournal() {
         <section className="carte-graphique">
           <h2>Journal d’audit</h2>
           <p className="carte-graphique-sous">
-            Les 150 dernières actions. Ce journal est rempli par la base elle-même et ne peut pas être
-            modifié.
+            Les 150 dernières actions{filtre ? " correspondant aux filtres" : ""}. Ce journal est rempli par
+            la base elle-même et ne peut pas être modifié.
           </p>
+          <form className="filtres-admin" method="get">
+            <select name="personne" defaultValue={filtres.personne ?? ""} aria-label="Personne">
+              <option value="">Tout le monde</option>
+              {personnes.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nom}
+                </option>
+              ))}
+            </select>
+            <select name="action" defaultValue={filtres.action ?? ""} aria-label="Action">
+              <option value="">Toutes les actions</option>
+              {Object.entries(ACTIONS).map(([v, l]) => (
+                <option key={v} value={v}>
+                  {l}
+                </option>
+              ))}
+            </select>
+            <select name="table" defaultValue={filtres.table ?? ""} aria-label="Élément">
+              <option value="">Tous les éléments</option>
+              {Object.entries(TABLES).map(([v, l]) => (
+                <option key={v} value={v}>
+                  {l}
+                </option>
+              ))}
+            </select>
+            <label className="filtre-date">
+              Du
+              <input type="date" name="du" defaultValue={filtres.du ?? ""} />
+            </label>
+            <label className="filtre-date">
+              au
+              <input type="date" name="au" defaultValue={filtres.au ?? ""} />
+            </label>
+            <button type="submit" className="bouton bouton-auto">
+              Filtrer
+            </button>
+            {filtre ? (
+              <Link href="/admin/journal" className="lien-discret">
+                Effacer les filtres
+              </Link>
+            ) : null}
+          </form>
           <div className="tableau-defilant">
             <table className="tableau">
               <thead>

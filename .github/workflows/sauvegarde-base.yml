@@ -64,3 +64,14 @@ jobs:
           path: ${{ env.FICHIER }}
           retention-days: 30
           if-no-files-found: error
+      # Notée dans la base pour que l'administration affiche la date de la dernière sauvegarde.
+      # Un échec ici ne fait pas échouer la sauvegarde elle-même.
+      - name: Noter la sauvegarde dans la base
+        continue-on-error: true
+        run: |
+          taille=$(stat -c %s "$FICHIER")
+          if [ -n "$SAUVEGARDE_PHRASE" ]; then chiffree=true; else chiffree=false; fi
+          curl -sfS -X POST "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"query\":\"insert into public.sauvegardes (chiffree, taille_octets) values ($chiffree, $taille)\"}"

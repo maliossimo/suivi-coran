@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { VueAdmin } from "@/components/admin/VueAdmin";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { EcranSeance } from "@/components/fiche/EcranSeance";
 import { exigerEspace } from "@/services/acces";
@@ -33,7 +34,9 @@ export default async function PageSeanceMaitre({
         role={profil.role}
       />
       <main className="espace espace-etroit">
-        <EcranSeance donnees={donnees} eleveId={eleve.id} base={base} date={date} type={type} vueMaitre />
+        <VueAdmin actif={profil.role === "admin"}>
+          <EcranSeance donnees={donnees} eleveId={eleve.id} base={base} date={date} type={type} vueMaitre />
+        </VueAdmin>
       </main>
     </>
   );
