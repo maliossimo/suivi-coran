@@ -80,6 +80,17 @@ export function libelleDerniereSaisie(jours: number | null): string {
   return `il y a ${jours} jours`;
 }
 
+/**
+ * Phrase d'état d'un élève pour la liste du Cheikh :
+ * « A saisi aujourd'hui », « A saisi hier », « Rien depuis 4 jours », « N'a encore rien saisi ».
+ */
+export function phraseEleve(jours: number | null): string {
+  if (jours === null) return "N’a encore rien saisi";
+  if (jours <= 0) return "A saisi aujourd’hui";
+  if (jours === 1) return "A saisi hier";
+  return `Rien depuis ${jours} jours`;
+}
+
 // ---------- Recherche, tri et confirmation ---------------------------------
 
 /** Texte comparable : sans accents, sans majuscules, espaces réduits. */
