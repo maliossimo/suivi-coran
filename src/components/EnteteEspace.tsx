@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Role } from "@/domain/roles";
 import { Avatar } from "./Avatar";
 import { NavigationEspace } from "./NavigationEspace";
-import { Salutation } from "./Salutation";
+import { TitreBarre } from "./Salutation";
 
 const LIBELLE_ROLE: Record<Role, string> = { eleve: "Élève", maitre: "Cheikh", admin: "Administrateur" };
 
@@ -21,7 +21,7 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
             </div>
             <div className="barre-titres" aria-hidden="true">
               <span className="barre-app">Suivi cours Coran</span>
-              <span className="barre-titre">{titre}</span>
+              <TitreBarre titre={titre} prenom={nom.split(/\s+/)[0] ?? ""} />
             </div>
           </Link>
           <NavigationEspace role={role} />
@@ -35,7 +35,6 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
           </Link>
         </div>
       </header>
-      <Salutation prenom={nom.split(/\s+/)[0] ?? ""} />
     </>
   );
 }

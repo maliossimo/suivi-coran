@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 
 /**
- * « السلام عليكم » + prénom, une fois par visite : apparaît en douceur sous la barre
- * (après l'animation d'ouverture dans l'appli), puis s'efface tout seul. Un appui la ferme.
+ * Titre de la barre du haut avec la salutation : une fois par visite, « السلام عليكم » + prénom
+ * prend la place du titre (après l'animation d'ouverture dans l'appli), puis le titre revient
+ * en douceur. Rien ne recouvre la page.
  */
-export function Salutation({ prenom }: { prenom: string }) {
-  const [etat, setEtat] = useState<"cachee" | "visible" | "sortie">("cachee");
+export function TitreBarre({ titre, prenom }: { titre: string; prenom: string }) {
+  const [salue, setSalue] = useState(false);
 
   useEffect(() => {
     let deja = false;
@@ -18,25 +19,21 @@ export function Salutation({ prenom }: { prenom: string }) {
       /* stockage indisponible : on salue quand même */
     }
     if (deja) return;
-    // Dans l'appli, on attend la fin de l'animation d'ouverture.
-    const attente = document.documentElement.hasAttribute("data-ouverture") ? 1400 : 250;
-    const t1 = window.setTimeout(() => setEtat("visible"), attente);
-    const t2 = window.setTimeout(() => setEtat("sortie"), attente + 4200);
-    const t3 = window.setTimeout(() => setEtat("cachee"), attente + 4700);
-    return () => [t1, t2, t3].forEach((t) => window.clearTimeout(t));
+    const attente = document.documentElement.hasAttribute("data-ouverture") ? 1100 : 0;
+    const t1 = window.setTimeout(() => setSalue(true), attente);
+    const t2 = window.setTimeout(() => setSalue(false), attente + 3600);
+    return () => [t1, t2].forEach((t) => window.clearTimeout(t));
   }, []);
 
-  if (etat === "cachee") return null;
   return (
-    <div
-      className={etat === "sortie" ? "salutation salutation-sortie" : "salutation"}
-      role="status"
-      onClick={() => setEtat("sortie")}
-    >
-      <span className="salutation-arabe" lang="ar" dir="rtl">
-        السلام عليكم
+    <span className={salue ? "barre-titre-zone salue" : "barre-titre-zone"}>
+      <span className="barre-titre">{titre}</span>
+      <span className="barre-salutation" aria-hidden={!salue}>
+        <span className="barre-salutation-arabe" lang="ar" dir="rtl">
+          السلام عليكم
+        </span>
+        {prenom ? <span className="barre-salutation-prenom">{prenom}</span> : null}
       </span>
-      {prenom ? <span className="salutation-prenom">{prenom}</span> : null}
-    </div>
+    </span>
   );
 }
