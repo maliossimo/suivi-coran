@@ -3528,3 +3528,54 @@ button:active:not(:disabled),
 .legende-pastilles li > span:first-child {
   margin-left: 0;
 }
+
+/* ---------- Ouverture de l'appli installée -------------------------------- */
+.ouverture {
+  display: none;
+}
+html[data-ouverture] .ouverture {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: #1d5c47;
+  animation: ouverture-fondu 0.25s ease-in 0.72s forwards;
+}
+.ouverture-logo {
+  width: min(44vw, 200px);
+  height: auto;
+  overflow: visible;
+}
+.ouverture-lettre {
+  fill: #faf3e0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ouverture-lettre 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.ouverture-cadre {
+  fill: none;
+  stroke: #c9a24a;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ouverture-cadre 0.5s ease-out 0.15s forwards;
+}
+@keyframes ouverture-lettre {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+}
+@keyframes ouverture-cadre {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes ouverture-fondu {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

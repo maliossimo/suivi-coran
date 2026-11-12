@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 import { BandeauNotification } from "@/components/BandeauNotification";
+import { OuvertureAppli } from "@/components/OuvertureAppli";
 import { BandeauAnnulation } from "@/components/fiche/BandeauAnnulation";
 import "./globals.css";
 
@@ -32,7 +33,74 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   applicationName: "Suivi Coran",
   // iPhone : une fois ajouté à l'écran d'accueil, le site s'ouvre en plein écran.
-  appleWebApp: { capable: true, title: "Suivi Coran", statusBarStyle: "default" },
+  appleWebApp: {
+    capable: true,
+    title: "Suivi Coran",
+    statusBarStyle: "default",
+    // Écran de démarrage sur iPhone (sinon blanc) : le ق sur le vert du site.
+    startupImage: [
+      {
+        url: "/demarrage/demarrage-1320x2868.png",
+        media:
+          "(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-1290x2796.png",
+        media:
+          "(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-1206x2622.png",
+        media:
+          "(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-1179x2556.png",
+        media:
+          "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-1284x2778.png",
+        media:
+          "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-1170x2532.png",
+        media:
+          "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-1125x2436.png",
+        media:
+          "(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-1080x2340.png",
+        media:
+          "(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-1242x2688.png",
+        media:
+          "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-828x1792.png",
+        media:
+          "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-750x1334.png",
+        media:
+          "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)",
+      },
+      {
+        url: "/demarrage/demarrage-1242x2208.png",
+        media:
+          "(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)",
+      },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
@@ -47,8 +115,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${inter.variable} ${amiri.variable} ${fraunces.variable}`}>
+    <html
+      lang="fr"
+      className={`${inter.variable} ${amiri.variable} ${fraunces.variable}`}
+      // Le script d'ouverture ajoute data-ouverture avant React : pas une erreur.
+      suppressHydrationWarning
+    >
       <body>
+        <OuvertureAppli />
         {children}
         <BandeauNotification />
         <BandeauAnnulation />
@@ -56,7 +130,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             (elle peut arriver avant que la page soit prête) et le service worker est enregistré. */}
         <Script id="installation-appli" strategy="beforeInteractive">
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__invitationInstallation=e;window.dispatchEvent(new Event("installation-disponible"));});
-if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}`}
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}
+try{var appli=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var calme=matchMedia("(prefers-reduced-motion: reduce)").matches;if(appli&&!calme&&!sessionStorage.getItem("ouverture")){sessionStorage.setItem("ouverture","1");var h=document.documentElement;h.setAttribute("data-ouverture","");var fin=function(){h.removeAttribute("data-ouverture");};setTimeout(fin,1000);addEventListener("pointerdown",fin,{once:true});}}catch(e){}`}
         </Script>
         {/* Vercel Speed Insights : vitesse réelle mesurée chez les utilisateurs (sans paquet npm). */}
         <Script id="speed-insights-file" strategy="afterInteractive">
