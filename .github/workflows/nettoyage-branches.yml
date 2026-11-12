@@ -1,0 +1,58 @@
+name: Nettoyage des branches
+
+# Une branche de travail dont la PR est fusionnée ne sert plus : elle est supprimée.
+#  - à chaque PR fusionnée : sa branche (remplace le réglage « Automatically delete head branches ») ;
+#  - chaque lundi, et à l'arrivée de ce fichier sur main : toutes les branches dont la PR est
+#    terminée (fusionnée, ou refermée sans suite) et qui n'ont plus de PR ouverte.
+# Jamais main ni prod. Une branche supprimée se restaure depuis sa PR (« Restore branch »).
+on:
+  pull_request:
+    types: [closed]
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/nettoyage-branches.yml"
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  branche-de-la-pr:
+    name: Supprimer la branche fusionnée
+    if: >-
+      github.event_name == 'pull_request' && github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref != 'main' && github.event.pull_request.head.ref != 'prod'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Supprimer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCHE: ${{ github.event.pull_request.head.ref }}
+        run: gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$BRANCHE" || true
+
+  toutes:
+    name: Supprimer les branches terminées
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parcourir les branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          R: ${{ github.repository }}
+        run: |
+          proprietaire="${R%%/*}"
+          gh api --paginate "repos/$R/branches?per_page=100" --jq '.[].name' | while read -r b; do
+            case "$b" in main|prod) continue ;; esac
+            etats=$(gh api "repos/$R/pulls?state=all&head=$proprietaire:$b" --jq '[.[] | .state] | join(",")')
+            if [ -n "$etats" ] && ! echo "$etats" | grep -q open; then
+              echo "Suppression de $b ($etats)"
+              gh api -X DELETE "repos/$R/git/refs/heads/$b" || true
+            else
+              echo "Gardée : $b (${etats:-aucune PR})"
+            fi
+          done
