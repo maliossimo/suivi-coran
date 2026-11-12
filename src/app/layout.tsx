@@ -131,7 +131,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="installation-appli" strategy="beforeInteractive">
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__invitationInstallation=e;window.dispatchEvent(new Event("installation-disponible"));});
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}
-try{var appli=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var calme=matchMedia("(prefers-reduced-motion: reduce)").matches;if(appli&&!calme&&!sessionStorage.getItem("ouverture")){sessionStorage.setItem("ouverture","1");var h=document.documentElement;h.setAttribute("data-ouverture","");var fin=function(){h.removeAttribute("data-ouverture");};setTimeout(fin,1000);addEventListener("pointerdown",fin,{once:true});}}catch(e){}`}
+try{var appli=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var calme=matchMedia("(prefers-reduced-motion: reduce)").matches;if(appli&&!calme&&!sessionStorage.getItem("ouverture")){sessionStorage.setItem("ouverture","1");var h=document.documentElement;h.setAttribute("data-ouverture","");var fin=function(){h.removeAttribute("data-ouverture");};setTimeout(fin,1600);addEventListener("pointerdown",fin,{once:true});}}catch(e){}`}
         </Script>
         {/* Vercel Speed Insights : vitesse réelle mesurée chez les utilisateurs (sans paquet npm). */}
         <Script id="speed-insights-file" strategy="afterInteractive">
