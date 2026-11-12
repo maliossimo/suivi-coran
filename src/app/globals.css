@@ -3542,9 +3542,9 @@ html[data-ouverture] .ouverture {
   background: #1d5c47;
   animation: ouverture-fondu 0.32s ease-in 0.95s forwards;
 }
-/* Même taille que l'image de l'écran de démarrage : l'enchaînement est invisible. */
 .ouverture-logo {
-  width: min(56vw, 260px);
+  /* Même taille que l'icône de l'écran de démarrage d'Android (étoile ≈ 240 px). */
+  width: min(304px, 82vw);
   height: auto;
   overflow: visible;
   animation: ouverture-envol 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.85s forwards;
