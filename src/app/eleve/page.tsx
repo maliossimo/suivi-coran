@@ -16,7 +16,8 @@ export default async function PageFiche({
     <>
       <EnteteEspace titre="Ma fiche" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
-        <Suspense key={`${params.mois}-${params.type}`} fallback={<Squelettes />}>
+        {/* Pas de clé : en changeant de mois ou d’onglet, la fiche reste affichée jusqu’à l’arrivée de la suivante. */}
+        <Suspense fallback={<Squelettes />}>
           <FicheDifferee eleveId={profil.id} base="/eleve" mois={params.mois} type={params.type} />
         </Suspense>
       </main>

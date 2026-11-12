@@ -21,6 +21,7 @@ import { SectionBilan } from "./SectionBilan";
 import { cleSeance } from "./cleSeance";
 import { BoutonValider, EtatEnregistrement } from "./EtatsLigneJour";
 import { PreparerHorsLigne } from "./PreparerHorsLigne";
+import { IndicateurLien } from "../IndicateurLien";
 
 /**
  * Fiche du mois d'un élève (semaines 1 à 5). Utilisée par l'élève (/eleve)
@@ -69,6 +70,7 @@ export function FicheMois({
           aria-label="Mois précédent"
         >
           <ChevronLeft size={22} aria-hidden="true" />
+          <IndicateurLien />
         </Link>
         <h2 className="mois-titre">{libelleMois(fiche.mois)}</h2>
         <Link
@@ -78,12 +80,16 @@ export function FicheMois({
           aria-label="Mois suivant"
         >
           <ChevronRight size={22} aria-hidden="true" />
+          <IndicateurLien />
         </Link>
       </nav>
 
       {cle !== cleMois(fiche.moisCourant) ? (
         <p className="mois-retour">
-          <Link href={lien(cleMois(fiche.moisCourant), fiche.type)}>Revenir à ce mois-ci</Link>
+          <Link href={lien(cleMois(fiche.moisCourant), fiche.type)}>
+            Revenir à ce mois-ci
+            <IndicateurLien />
+          </Link>
         </p>
       ) : null}
 
@@ -93,9 +99,12 @@ export function FicheMois({
             key={t}
             href={lien(cle, t)}
             className="onglet"
+            // L'autre onglet est préparé : le changement est un simple remplacement.
+            prefetch={t === fiche.type ? null : true}
             aria-current={t === fiche.type ? "page" : undefined}
           >
             {LIBELLE_TYPE[t]}
+            <IndicateurLien />
           </Link>
         ))}
       </nav>
@@ -165,6 +174,9 @@ export function FicheMois({
                       <li key={jour.date} className={aValider ? "jour-avec-action" : undefined}>
                         <LigneJour
                           jour={jour}
+                          // Jours passés de la semaine en cours : séance préparée en entier.
+                          // Les autres préparent leur écran d'attente (partiel, très léger).
+                          precharger={semaine.numero === semaineCourante && !jour.futur}
                           lien={`${base}/seance?date=${jour.date}&type=${fiche.type}`}
                           refs={ref}
                           cle={cleSeance(eleveId, jour.date, fiche.type)}
@@ -271,7 +283,9 @@ function LigneJour({
   lien,
   refs,
   cle,
+  precharger,
 }: {
+  precharger: boolean;
   jour: JourFiche;
   lien: string;
   refs: Referentiel;
@@ -318,7 +332,7 @@ function LigneJour({
   if (jour.futur) return <div className={classes}>{corps}</div>;
   return (
     // Aujourd'hui : séance préchargée en entier, elle s'ouvre sans attente.
-    <Link className={classes} href={lien} prefetch={jour.aujourdhui ? true : null}>
+    <Link className={classes} href={lien} prefetch={precharger ? true : null}>
       {corps}
     </Link>
   );

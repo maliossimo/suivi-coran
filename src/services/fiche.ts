@@ -29,7 +29,7 @@ import {
   type Sourate,
 } from "@/domain/versets";
 import { bilanDuMois, enregistrerBilan } from "@/repositories/bilans";
-import { commentairesDe, commentairesDeSeance, type Commentaire } from "@/repositories/commentaires";
+import { commentairesDe, commentairesDuJour, type Commentaire } from "@/repositories/commentaires";
 import { enregistrerObjectif, objectifsDuMois } from "@/repositories/objectifs";
 import {
   derniereSeanceAvecPassagesAvant,
@@ -124,12 +124,13 @@ export async function chargerSeance(
   /** Passage proposé par l'adresse (bouton « Réviser » de la progression), ex. « 2:142-202 ». */
   passagePropose?: string,
 ): Promise<DonneesSeance> {
-  const [seance, sourates, precedente] = await Promise.all([
+  // Tout en parallèle : les commentaires sont retrouvés par le jour, sans attendre la séance.
+  const [seance, sourates, precedente, commentaires] = await Promise.all([
     seanceDuJour(eleveId, type, date),
     listerSourates(),
     derniereSeanceAvecPassagesAvant(eleveId, type, date),
+    commentairesDuJour(eleveId, type, date),
   ]);
-  const commentaires = seance ? await commentairesDeSeance(seance.id) : [];
   const ref = creerReferentiel(sourates);
   const dernier = precedente?.passages.at(-1);
   const suggestion = dernier ? passageSuivant(ref, dernier) : null;
