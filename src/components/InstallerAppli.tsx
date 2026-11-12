@@ -112,6 +112,13 @@ export function InstallerAppli({ titre = "Appli sur ton téléphone" }: { titre?
             </button>
           ) : null}
 
+          {etapesVisibles && !iphone ? (
+            <p className="carte-compte-aide">
+              Chrome ne propose pas l’installation directe en ce moment (c’est le cas pendant quelques
+              semaines si elle a été refusée une fois, ou si l’appli est déjà installée). Fais-le en 2 étapes
+              :
+            </p>
+          ) : null}
           {iphone || etapesVisibles ? (
             <ol className="etapes-installation">
               {iphone ? (
