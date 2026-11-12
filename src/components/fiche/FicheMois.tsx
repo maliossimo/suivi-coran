@@ -210,6 +210,8 @@ export function FicheMois({
         })}
       </div>
 
+      <LegendePastilles vueMaitre={vueMaitre} />
+
       <section className="semaine">
         <header className="semaine-entete">
           <h3>Objectif du mois</h3>
@@ -323,5 +325,37 @@ function LigneJour({
     <Link className={classes} href={lien} prefetch={jour.aujourdhui ? true : null}>
       {corps}
     </Link>
+  );
+}
+
+/** Légende repliable : ce que veut dire chaque pastille de la fiche. */
+function LegendePastilles({ vueMaitre }: { vueMaitre: boolean }) {
+  return (
+    <details className="legende-pastilles">
+      <summary>Que veulent dire les pastilles ?</summary>
+      <ul>
+        <li>
+          <span className="pastille-or">✓ Vu par le Cheikh</span>
+          {vueMaitre ? "tu as validé la séance." : "ton Cheikh a validé la séance."}
+        </li>
+        <li>
+          <span className="pastille-or pastille-partielle">Ajout à voir</span>
+          {vueMaitre
+            ? "l’élève a ajouté ou modifié un passage après ta correction."
+            : "tu as ajouté un passage après la correction : ton Cheikh ne l’a pas encore vu."}
+        </li>
+        <li>
+          <span className="pastille-commentaire">
+            <MessageCircle size={12} strokeWidth={2.6} aria-hidden="true" />
+            Commentaire
+          </span>
+          {vueMaitre ? "tu as laissé un commentaire." : "ton Cheikh t’a laissé un commentaire."}
+        </li>
+        <li>
+          <span className="pastille-note">Note</span>
+          {vueMaitre ? "l’élève a écrit une note." : "tu as écrit une note sur ta séance."}
+        </li>
+      </ul>
+    </details>
   );
 }

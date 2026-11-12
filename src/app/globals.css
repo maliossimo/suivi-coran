@@ -13,6 +13,8 @@
   --vert-fonce: #123c2e;
   --vert-nuit: #0b2a20;
   --vert-clair: #e2eee8;
+  /* Vert pour le texte (plus clair en mode sombre pour rester lisible). */
+  --vert-texte: var(--vert);
   --or: #c9a24a;
   --or-clair: #f5ebd8;
   --or-texte: #7a4f0e;
@@ -51,7 +53,7 @@ body {
 }
 
 a {
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 a:hover {
   color: var(--vert-fonce);
@@ -294,7 +296,7 @@ a:hover {
 }
 .bouton-secondaire:hover {
   border-color: var(--vert);
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 
 .message-erreur {
@@ -500,7 +502,7 @@ a:hover {
 }
 .mois-fleche:hover {
   border-color: var(--vert);
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 /* Raccourcis vers les mois proches (défilent horizontalement sur téléphone). */
 .mois-raccourcis {
@@ -530,7 +532,7 @@ a:hover {
 }
 .mois-puce:hover {
   border-color: var(--vert);
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .mois-puce-courant {
   border-color: var(--or);
@@ -580,7 +582,7 @@ a:hover {
   color: var(--texte-doux);
 }
 .bilan-chiffres strong {
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .bilan-aide {
   margin: 0;
@@ -606,7 +608,7 @@ a:hover {
   font-weight: 700;
 }
 .bilan-etiquette-acquis {
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .bilan-etiquette-renfort {
   color: #9a5a12;
@@ -618,7 +620,7 @@ a:hover {
   gap: 12px;
 }
 .bilan-ok {
-  color: var(--vert);
+  color: var(--vert-texte);
   font-weight: 600;
   font-size: 14px;
 }
@@ -647,7 +649,7 @@ a:hover {
 }
 .onglet[aria-current="page"] {
   background: var(--carte);
-  color: var(--vert);
+  color: var(--vert-texte);
   font-weight: 700;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
@@ -739,7 +741,7 @@ a.jour:hover {
   overflow-wrap: anywhere;
 }
 .jour-vide {
-  color: var(--vert);
+  color: var(--vert-texte);
   font-weight: 600;
 }
 
@@ -795,7 +797,7 @@ a.jour:hover {
 .statut:has(input:checked) {
   border-color: var(--vert);
   background: var(--vert-clair);
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .statut-non_atteint:has(input:checked) {
   border-color: #b5651d;
@@ -947,7 +949,7 @@ a.jour:hover {
   border: 1.5px dashed var(--vert);
   border-radius: 12px;
   background: var(--carte);
-  color: var(--vert);
+  color: var(--vert-texte);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -1001,7 +1003,7 @@ input.champ-texte {
   margin-bottom: -1px;
 }
 .sous-menu a[aria-current="page"] {
-  color: var(--vert);
+  color: var(--vert-texte);
   border-bottom-color: var(--vert);
 }
 .titre-page {
@@ -1093,7 +1095,7 @@ input.champ-texte {
 }
 .tuile strong {
   font-size: 24px;
-  color: var(--vert);
+  color: var(--vert-texte);
   line-height: 1.2;
 }
 .tuile span {
@@ -1188,7 +1190,7 @@ input.champ-texte {
 }
 .avatar-clair {
   background: var(--vert-clair);
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .avatar-grand {
   width: 52px;
@@ -1327,7 +1329,7 @@ input.champ-texte {
   font-size: 14px;
 }
 .liste-sourates-ligne .arabe {
-  color: var(--vert);
+  color: var(--vert-texte);
   font-size: 17px;
 }
 .liste-sourates-info {
@@ -1416,7 +1418,7 @@ input.champ-texte {
 }
 .pastille-eleve {
   background: var(--vert-clair);
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .pastille-maitre {
   background: var(--or-clair);
@@ -1432,7 +1434,7 @@ input.champ-texte {
   padding: 6px 0;
   font: inherit;
   font-size: 13px;
-  color: var(--vert);
+  color: var(--vert-texte);
   cursor: pointer;
 }
 .lien-action:hover {
@@ -1618,7 +1620,7 @@ input.champ-texte {
   min-height: 40px;
   border: 0;
   background: transparent;
-  color: var(--vert);
+  color: var(--vert-texte);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -1766,12 +1768,12 @@ input.champ-texte {
   }
   .nav-onglet:hover {
     background: transparent;
-    color: var(--vert);
+    color: var(--vert-texte);
   }
   .nav-onglet[aria-current="page"] {
     background: transparent;
     box-shadow: none;
-    color: var(--vert);
+    color: var(--vert-texte);
   }
   .nav-onglet[aria-current="page"] svg {
     background: var(--vert-clair);
@@ -1853,7 +1855,7 @@ input.champ-texte {
   gap: 6px;
   min-height: 40px;
   padding: 0 4px;
-  color: var(--vert);
+  color: var(--vert-texte);
   font-weight: 600;
   font-size: 14px;
   text-decoration: none;
@@ -1944,7 +1946,7 @@ input.champ-texte {
 .pdf-entete-titres h1 {
   margin: 0;
   font-size: 18px;
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .pdf-entete-eleve {
   display: flex;
@@ -1961,7 +1963,7 @@ input.champ-texte {
   color: var(--texte-doux);
 }
 .pdf-resume strong {
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .pdf-semaine {
   break-inside: avoid;
@@ -1973,7 +1975,7 @@ input.champ-texte {
   padding: 4px 8px;
   background: var(--vert-clair);
   border-radius: 6px 6px 0 0;
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .pdf-table {
   width: 100%;
@@ -2037,7 +2039,7 @@ input.champ-texte {
   font-weight: 600;
 }
 .pdf-statut-atteint {
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .pdf-statut-non_atteint {
   color: var(--rouge);
@@ -2061,7 +2063,7 @@ input.champ-texte {
 }
 .pdf-bilan-titre {
   font-weight: 700;
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .pdf-bilan p {
   margin: 4px 0 0;
@@ -2210,13 +2212,13 @@ input.champ-texte {
 .suggestion-passage {
   grid-column: 1;
   font-weight: 700;
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .suggestion-action {
   grid-column: 2;
   grid-row: 1 / span 2;
   font-weight: 700;
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 /* Bouton « Enregistrer » toujours visible en bas de l'écran. */
 .barre-enregistrer {
@@ -2366,7 +2368,7 @@ input.champ-texte {
 }
 .carte-vide {
   background: var(--c-vide);
-  color: #9a9488;
+  color: #66615a;
 }
 .carte-pastille.carte-maitrisee {
   background: var(--c-maitrisee);
@@ -2462,7 +2464,7 @@ input.champ-texte {
 }
 .hizb-pastille.hizb-en_cours {
   background: var(--vert-clair);
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .hizb-chevron {
   color: var(--texte-doux);
@@ -2760,7 +2762,9 @@ button:active:not(:disabled),
     --texte-doux: #a2aea8;
     --ligne: #2a3832;
     --champ: #3a4943;
-    --vert: #3f8f70;
+    /* Contrastes vérifiés (WCAG AA) : texte blanc sur --vert 5,2:1 ; --vert-texte sur les cartes 7,9:1. */
+    --vert: #2f7a5e;
+    --vert-texte: #6cc3a0;
     --vert-clair: #1c3a2f;
     --or-clair: #2b2416;
     --bord-or: #5b4a24;
@@ -2787,7 +2791,7 @@ button:active:not(:disabled),
     --c-vide: #24312b;
   }
   .carte-vide {
-    color: #6f7c76;
+    color: #94a19b;
   }
   .carte-en_cours {
     --c-en-cours: #2c5546;
@@ -2883,7 +2887,7 @@ button:active:not(:disabled),
   color: var(--texte-doux);
 }
 .auth-bas a {
-  color: var(--vert);
+  color: var(--vert-texte);
   font-weight: 600;
 }
 
@@ -2991,7 +2995,7 @@ button:active:not(:disabled),
   margin: 0 0 8px;
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 .passage-pas-vu {
   color: var(--or-texte);
@@ -3050,7 +3054,7 @@ button:active:not(:disabled),
   border: 1px solid var(--vert);
   border-radius: 10px;
   background: var(--carte);
-  color: var(--vert);
+  color: var(--vert-texte);
   font: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -3071,7 +3075,7 @@ button:active:not(:disabled),
     color: #f2a58e;
   }
   .bouton-valider-ok {
-    color: #0e1613;
+    color: #fff;
   }
 }
 
@@ -3209,7 +3213,7 @@ button:active:not(:disabled),
 }
 .choix-sourate-option.actuelle {
   background: var(--vert-clair);
-  color: var(--vert);
+  color: var(--vert-texte);
   font-weight: 700;
 }
 .choix-sourate-numero {
@@ -3308,7 +3312,7 @@ button:active:not(:disabled),
   }
 }
 .texte-ok {
-  color: var(--vert);
+  color: var(--vert-texte);
 }
 
 /* ---------- Installer l'appli ------------------------------------------- */
@@ -3334,7 +3338,7 @@ button:active:not(:disabled),
   flex: none;
   width: 18px;
   text-align: center;
-  color: var(--vert);
+  color: var(--vert-texte);
   font-weight: 700;
 }
 .bouton-installer {
@@ -3366,4 +3370,156 @@ button:active:not(:disabled),
   align-items: center;
   justify-content: center;
   text-decoration: none;
+}
+
+/* ---------- Contrastes en mode sombre (normes WCAG AA, 4,5:1 minimum) ---- */
+@media (prefers-color-scheme: dark) {
+  .message-erreur {
+    background: #3a1d19;
+    color: #f2a58e;
+  }
+  .texte-alerte {
+    color: #f0b36b !important;
+  }
+}
+
+/* ---------- Avatars : carré arrondi comme la tuile ق, une teinte par personne ---------- */
+.avatar {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 30%;
+  font-family: var(--font-titre), Georgia, serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+.avatar-petit {
+  width: 34px;
+  height: 34px;
+  font-size: 13px;
+}
+.avatar-grand {
+  width: 60px;
+  height: 60px;
+  font-size: 22px;
+}
+.avatar-teinte-0 {
+  background: #dcefe6;
+  color: #14513d;
+}
+.avatar-teinte-1 {
+  background: #d9eef0;
+  color: #0f5560;
+}
+.avatar-teinte-2 {
+  background: #f5e7c8;
+  color: #6b4510;
+}
+.avatar-teinte-3 {
+  background: #f6ddd2;
+  color: #7d3218;
+}
+.avatar-teinte-4 {
+  background: #e6ecd3;
+  color: #45541a;
+}
+.avatar-teinte-5 {
+  background: #e0e4f1;
+  color: #2c3c6b;
+}
+/* Sur la barre verte du haut : version or. */
+.avatar-barre {
+  background: var(--or);
+  color: var(--vert-nuit);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+/* Rôle : liseré or pour le Cheikh, vert pour l'admin. */
+.avatar-cheikh {
+  box-shadow:
+    0 0 0 2px var(--carte),
+    0 0 0 4px var(--or);
+}
+.avatar-admin {
+  box-shadow:
+    0 0 0 2px var(--carte),
+    0 0 0 4px var(--vert);
+}
+.avatar-barre.avatar-cheikh,
+.avatar-barre.avatar-admin {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+.nom-avec-avatar {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  .avatar {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+  .avatar-teinte-0 {
+    background: #1d3e32;
+    color: #a8dcc4;
+  }
+  .avatar-teinte-1 {
+    background: #173f45;
+    color: #9fd7de;
+  }
+  .avatar-teinte-2 {
+    background: #3d3018;
+    color: #ecc98a;
+  }
+  .avatar-teinte-3 {
+    background: #45251b;
+    color: #f2b9a3;
+  }
+  .avatar-teinte-4 {
+    background: #2f3a1c;
+    color: #c8d79a;
+  }
+  .avatar-teinte-5 {
+    background: #232c48;
+    color: #b9c5ea;
+  }
+}
+
+/* ---------- Légende des pastilles ---------------------------------------- */
+.legende-pastilles {
+  margin: 4px 0 16px;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.legende-pastilles summary {
+  cursor: pointer;
+  width: fit-content;
+  padding: 6px 0;
+  color: var(--vert-texte);
+  font-weight: 600;
+}
+.legende-pastilles ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 12px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+}
+.legende-pastilles li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.legende-pastilles li > span:first-child {
+  margin-left: 0;
 }

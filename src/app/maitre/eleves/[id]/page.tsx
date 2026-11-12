@@ -9,6 +9,7 @@ import { Squelettes } from "@/components/Chargement";
 import { FicheDifferee } from "@/components/fiche/FicheDifferee";
 import { exigerEspace } from "@/services/acces";
 import { chargerEleve } from "@/services/classe";
+import { Avatar } from "@/components/Avatar";
 
 export default async function PageEleveMaitre({
   params,
@@ -35,9 +36,7 @@ export default async function PageEleveMaitre({
         </Link>
         <div className="entete-page">
           <div className="entete-eleve">
-            <span className="avatar avatar-clair avatar-grand" aria-hidden="true">
-              {`${eleve.prenom[0] ?? ""}${eleve.nom[0] ?? ""}`.toUpperCase()}
-            </span>
+            <Avatar prenom={eleve.prenom} nom={eleve.nom} cle={eleve.id} taille="grand" />
             <div>
               <h1>
                 {eleve.prenom} {eleve.nom}

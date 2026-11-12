@@ -1,4 +1,5 @@
 import { actionDeconnexion } from "@/app/actions/auth";
+import { Avatar } from "@/components/Avatar";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireMotDePasse } from "@/components/FormulaireMotDePasse";
 import { InstallerAppli } from "@/components/InstallerAppli";
@@ -15,9 +16,14 @@ export default async function PageCompte() {
       <EnteteEspace titre="Mon compte" nom={nom} role={profil.role} />
       <main className="espace espace-etroit">
         <section className="carte-compte">
-          <span className="avatar avatar-clair avatar-grand" aria-hidden="true">
-            {`${profil.prenom[0] ?? ""}${profil.nom[0] ?? ""}`.toUpperCase() || "?"}
-          </span>
+          <Avatar
+            prenom={profil.prenom}
+            nom={profil.nom}
+            email={email}
+            cle={profil.id}
+            role={profil.role}
+            taille="grand"
+          />
           <div>
             <h1>{nom || "Mon compte"}</h1>
             <p>{LIBELLE_ROLE[profil.role]}</p>
