@@ -1,8 +1,9 @@
 name: Garde-fou prod
 
 # Le dépôt est privé sur un compte gratuit : GitHub n'applique pas les règles de branche.
-# Ce contrôle échoue si une PR vers prod ne vient pas de main, pour que la mise en
-# production passe toujours par : fonctionnalité → main (testé) → prod.
+# Ces contrôles échouent (croix rouge, fusion à ne pas faire) si :
+#  - une PR vers prod ne vient pas de main ;
+#  - elle ne porte pas une nouvelle version (package.json) décrite dans CHANGELOG.md.
 on:
   pull_request:
     branches: [prod]
@@ -19,5 +20,26 @@ jobs:
         run: |
           if [ "${{ github.head_ref }}" != "main" ]; then
             echo "::error::Une PR vers prod doit partir de main (reçu : ${{ github.head_ref }})."
+            exit 1
+          fi
+
+  version:
+    name: Nouvelle version décrite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Comparer la version de main à celle de prod
+        run: |
+          nouvelle=$(node -p "require('./package.json').version")
+          actuelle=$(git show origin/prod:package.json | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).version")
+          echo "Version en production : $actuelle → proposée : $nouvelle"
+          if [ "$nouvelle" = "$actuelle" ] || [ "$(printf '%s\n%s\n' "$actuelle" "$nouvelle" | sort -V | tail -1)" != "$nouvelle" ]; then
+            echo "::error::Augmente la version (npm run version:correctif | version:mineure | version:majeure) : $actuelle est déjà en production."
+            exit 1
+          fi
+          if ! grep -q "^## \[$nouvelle\]" CHANGELOG.md; then
+            echo "::error::Décris la version $nouvelle dans CHANGELOG.md (titre « ## [$nouvelle] — date »)."
             exit 1
           fi

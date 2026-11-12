@@ -4596,3 +4596,40 @@ fieldset.lecture-seule {
   min-width: 0;
   display: contents;
 }
+
+/* ---------- Version de l'appli ---------- */
+html[data-ouverture] .ouverture-version {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(28px + env(safe-area-inset-bottom));
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: rgba(250, 243, 224, 0.92);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  animation: ouverture-version 0.5s ease-out 0.25s both;
+}
+.ouverture-version span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #d9c38d;
+  letter-spacing: 0.06em;
+}
+@keyframes ouverture-version {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.auth-version,
+.compte-version {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--texte-doux);
+}
