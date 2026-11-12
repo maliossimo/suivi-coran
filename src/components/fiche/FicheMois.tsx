@@ -210,8 +210,6 @@ export function FicheMois({
         })}
       </div>
 
-      <LegendePastilles vueMaitre={vueMaitre} />
-
       <section className="semaine">
         <header className="semaine-entete">
           <h3>Objectif du mois</h3>
@@ -265,6 +263,8 @@ export function FicheMois({
           </Suspense>
         </section>
       )}
+
+      <LegendePastilles vueMaitre={vueMaitre} />
     </>
   );
 }

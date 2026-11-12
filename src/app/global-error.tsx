@@ -1,6 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 
 /** Dernier filet : une erreur imprévue affiche cette page et part dans les alertes. */
@@ -12,7 +11,10 @@ export default function ErreurGlobale({
   reset: () => void;
 }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    // Sentry n'est chargé que s'il est configuré.
+    if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+      void import("@sentry/nextjs").then((Sentry) => Sentry.captureException(error));
+    }
   }, [error]);
 
   return (
