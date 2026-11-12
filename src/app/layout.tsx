@@ -52,6 +52,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <BandeauNotification />
         <BandeauAnnulation />
+        {/* Installation sur l'écran d'accueil : l'invitation de Chrome est gardée dès son arrivée
+            (elle peut arriver avant que la page soit prête) et le service worker est enregistré. */}
+        <Script id="installation-appli" strategy="beforeInteractive">
+          {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__invitationInstallation=e;window.dispatchEvent(new Event("installation-disponible"));});
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}`}
+        </Script>
         {/* Vercel Speed Insights : vitesse réelle mesurée chez les utilisateurs (sans paquet npm). */}
         <Script id="speed-insights-file" strategy="afterInteractive">
           {"window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };"}

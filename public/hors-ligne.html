@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pas de connexion · Suivi Coran</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #1d5c47;
+        color: #faf3e0;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+        padding: 24px;
+        box-sizing: border-box;
+      }
+      .logo {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 20px;
+        border-radius: 18px;
+        border: 2px solid #c9a24a;
+        display: grid;
+        place-items: center;
+        font-size: 40px;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 0 0 24px;
+        opacity: 0.85;
+        line-height: 1.5;
+      }
+      button {
+        height: 48px;
+        padding: 0 24px;
+        border: 0;
+        border-radius: 12px;
+        background: #faf3e0;
+        color: #1d5c47;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="logo" aria-hidden="true">ق</div>
+      <h1>Pas de connexion</h1>
+      <p>Vérifie ton Wi-Fi ou tes données mobiles,<br />puis réessaie.</p>
+      <button type="button" onclick="location.reload()">Réessayer</button>
+    </main>
+  </body>
+</html>

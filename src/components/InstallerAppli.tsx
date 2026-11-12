@@ -4,12 +4,22 @@ import { Download, Share, SquarePlus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 /** Événement Chrome/Android qui permet de proposer l'installation en un appui. */
-interface EvenementInstallation extends Event {
+export interface EvenementInstallation extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-type Appareil = "installee" | "android" | "iphone" | "iphone-autre-navigateur" | "autre";
+type Appareil = "installee" | "deja-installee" | "android" | "iphone" | "iphone-autre-navigateur" | "autre";
+
+declare global {
+  interface Window {
+    /** Invitation de Chrome gardée par le script du layout (elle peut arriver avant cette section). */
+    __invitationInstallation?: EvenementInstallation;
+  }
+  interface Navigator {
+    getInstalledRelatedApps?: () => Promise<{ platform: string; url?: string }[]>;
+  }
+}
 
 function detecterAppareil(): Appareil {
   const nav = window.navigator as Navigator & { standalone?: boolean };
@@ -32,15 +42,25 @@ export function InstallerAppli() {
 
   useEffect(() => {
     setAppareil(detecterAppareil());
-    const surInvite = (e: Event) => {
-      e.preventDefault();
-      setInvite(e as EvenementInstallation);
+    // L'invitation de Chrome est peut-être déjà arrivée.
+    if (window.__invitationInstallation) setInvite(window.__invitationInstallation);
+    // Déjà installée sur ce téléphone (on est dans le navigateur, pas dans l'appli) ?
+    navigator
+      .getInstalledRelatedApps?.()
+      .then((apps) => {
+        if (apps.length > 0) setAppareil((a) => (a === "installee" ? a : "deja-installee"));
+      })
+      .catch(() => undefined);
+    const surInvite = () => setInvite(window.__invitationInstallation ?? null);
+    const surInstallee = () => {
+      window.__invitationInstallation = undefined;
+      setInvite(null);
+      setAppareil("installee");
     };
-    const surInstallee = () => setAppareil("installee");
-    window.addEventListener("beforeinstallprompt", surInvite);
+    window.addEventListener("installation-disponible", surInvite);
     window.addEventListener("appinstalled", surInstallee);
     return () => {
-      window.removeEventListener("beforeinstallprompt", surInvite);
+      window.removeEventListener("installation-disponible", surInvite);
       window.removeEventListener("appinstalled", surInstallee);
     };
   }, []);
@@ -51,7 +71,11 @@ export function InstallerAppli() {
     <section className="carte-compte-section">
       <h2>Appli sur ton téléphone</h2>
       {appareil === "installee" ? (
-        <p className="carte-compte-aide">C’est fait : le site est installé sur ton écran d’accueil.</p>
+        <p className="carte-compte-aide">C’est fait : tu utilises l’appli installée sur ton téléphone.</p>
+      ) : appareil === "deja-installee" ? (
+        <p className="carte-compte-aide">
+          L’appli est déjà installée sur ce téléphone : ouvre-la depuis ton écran d’accueil (icône ق verte).
+        </p>
       ) : (
         <>
           <p className="carte-compte-aide">
@@ -61,10 +85,11 @@ export function InstallerAppli() {
           {invite ? (
             <button
               type="button"
-              className="bouton"
+              className="bouton bouton-installer"
               onClick={async () => {
                 await invite.prompt();
                 const choix = await invite.userChoice;
+                window.__invitationInstallation = undefined;
                 setInvite(null);
                 if (choix.outcome === "accepted") setAppareil("installee");
               }}
