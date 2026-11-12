@@ -39,8 +39,8 @@ jobs:
             echo "::error::Migrations non appliquées : ce commit n'est pas arrivé sur prod par une PR depuis main."
             exit 1
           fi
-      - uses: actions/checkout@v5
-      - uses: supabase/setup-cli@v1
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
         with:
           version: latest
       - name: Vérifier la configuration
