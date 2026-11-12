@@ -7,6 +7,7 @@ import {
   resumerClasse,
   trierParPrenom,
   phraseEleve,
+  deNom,
 } from "./classe";
 
 const eleves = [
@@ -114,5 +115,18 @@ describe("phraseEleve", () => {
     expect(phraseEleve(1)).toBe("A saisi hier");
     expect(phraseEleve(5)).toBe("Rien depuis 5 jours");
     expect(phraseEleve(null)).toBe("N’a encore rien saisi");
+  });
+});
+
+describe("deNom", () => {
+  it("élide devant une voyelle, même accentuée", () => {
+    expect(deNom("Ilyes")).toBe("d’Ilyes");
+    expect(deNom("Élève Test")).toBe("d’Élève Test");
+    expect(deNom("omar")).toBe("d’omar");
+  });
+
+  it("garde « de » devant une consonne (et le h)", () => {
+    expect(deNom("Karim")).toBe("de Karim");
+    expect(deNom("Hamza")).toBe("de Hamza");
   });
 });

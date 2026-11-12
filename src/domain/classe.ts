@@ -120,3 +120,9 @@ export function confirmationValide(prenom: string, saisie: string): boolean {
   const attendu = normaliserNom(prenom);
   return attendu.length > 0 && normaliserNom(saisie) === attendu;
 }
+
+/** « de Karim », « d’Ilyes », « d’Élève Test » : élision devant une voyelle. */
+export function deNom(nom: string): string {
+  const propre = nom.trim();
+  return /^[aeiouyàâäéèêëîïôöûüÿæœ]/i.test(propre) ? `d’${propre}` : `de ${propre}`;
+}

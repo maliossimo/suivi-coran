@@ -71,10 +71,6 @@ export function EcranSeance({
         </section>
       ) : null}
 
-      {vueMaitre && donnees.seance ? (
-        <FormulaireCommentaire eleveId={eleveId} cible="seance" cibleId={donnees.seance.id} />
-      ) : null}
-
       <FormulaireSeance
         eleveId={eleveId}
         retour={retour}
@@ -92,6 +88,11 @@ export function EcranSeance({
           nbVersets: s.nbVersets,
         }))}
       />
+
+      {/* Le Cheikh commente après avoir vu les passages. */}
+      {vueMaitre && donnees.seance ? (
+        <FormulaireCommentaire eleveId={eleveId} cible="seance" cibleId={donnees.seance.id} />
+      ) : null}
 
       {donnees.seance ? (
         <BoutonSupprimerSeance

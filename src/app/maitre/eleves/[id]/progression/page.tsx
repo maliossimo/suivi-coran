@@ -7,6 +7,7 @@ import { Squelettes } from "@/components/Chargement";
 import { ProgressionDifferee } from "@/components/progression/ProgressionDifferee";
 import { exigerEspace } from "@/services/acces";
 import { chargerEleve } from "@/services/classe";
+import { deNom } from "@/domain/classe";
 
 export default async function PageProgressionMaitre({ params }: { params: Promise<{ id: string }> }) {
   const profil = await exigerEspace("maitre");
@@ -20,11 +21,9 @@ export default async function PageProgressionMaitre({ params }: { params: Promis
       <main className="espace">
         <Link href={`/maitre/eleves/${eleve.id}`} className="lien-retour">
           <ChevronLeft size={18} aria-hidden="true" />
-          Fiche de {eleve.prenom}
+          Fiche {deNom(eleve.prenom)}
         </Link>
-        <h1 className="titre-page">
-          Progression de {eleve.prenom} {eleve.nom}
-        </h1>
+        <h1 className="titre-page">Progression {deNom(`${eleve.prenom} ${eleve.nom}`)}</h1>
         <Suspense fallback={<Squelettes cartes={4} />}>
           <ProgressionDifferee eleveId={eleve.id} base={`/maitre/eleves/${eleve.id}`} />
         </Suspense>
