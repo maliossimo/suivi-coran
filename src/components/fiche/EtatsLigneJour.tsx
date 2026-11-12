@@ -3,6 +3,7 @@
 import { Check } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { actionValiderSeance } from "@/app/actions/fiche";
+import { envoiInterrompu } from "./brouillon";
 import { lancerEnvoi, useEnAttente } from "./enregistrementsEnAttente";
 import { useSuppressionEnAttente } from "./suppressions";
 
@@ -14,9 +15,18 @@ export function EtatEnregistrement({ cle }: { cle: string }) {
     const t = window.setTimeout(() => lancerEnvoi(cle), 0);
     return () => window.clearTimeout(t);
   }, [cle]);
+  // Envoi commencé lors d'une visite précédente mais jamais confirmé (onglet fermé, coupure).
+  const [interrompu, setInterrompu] = useState(false);
+  useEffect(() => {
+    setInterrompu(!e && envoiInterrompu(cle));
+  }, [cle, e]);
   const suppression = useSuppressionEnAttente(cle);
   if (suppression) return <span className="pastille-envoi">Suppression…</span>;
-  if (!e) return null;
+  if (!e) {
+    return interrompu ? (
+      <span className="pastille-echec">Pas encore enregistrée · touche pour la retrouver</span>
+    ) : null;
+  }
   return e.etat === "envoi" ? (
     <span className="pastille-envoi">Enregistrement…</span>
   ) : (

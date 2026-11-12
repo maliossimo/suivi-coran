@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ajouterJours,
   debutDuMois,
   jourDansSemaine,
   nbJoursDuMois,
@@ -74,5 +75,12 @@ describe("semainesDuMois", () => {
 describe("debutDuMois", () => {
   it("renvoie le 1er du mois", () => {
     expect(debutDuMois("2026-11-10")).toBe("2026-11-01");
+  });
+});
+
+describe("ajouterJours", () => {
+  it("passe les mois et les années", () => {
+    expect(ajouterJours("2026-11-12", -30)).toBe("2026-10-13");
+    expect(ajouterJours("2026-12-31", 1)).toBe("2027-01-01");
   });
 });

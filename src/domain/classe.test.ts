@@ -55,6 +55,12 @@ describe("resumerClasse", () => {
     expect(resume[1]?.alerte).toBe(true);
     expect(resume[0]?.alerte).toBe(false); // archivé : pas d'alerte
   });
+  it("compte les séances à voir par le Cheikh (0 par défaut)", () => {
+    expect(resume[2]?.aVoir).toBe(0);
+    const avecFile = resumerClasse(eleves, [], [], new Map(), "2026-11-10", new Map([["a", 2]]));
+    expect(avecFile.find((r) => r.eleve.id === "a")?.aVoir).toBe(2);
+    expect(avecFile.find((r) => r.eleve.id === "b")?.aVoir).toBe(0);
+  });
 });
 
 describe("utilitaires", () => {

@@ -26,7 +26,7 @@ const seance = (
 const mulk = (a: number, b: number) => ({ sourateDebut: 67, versetDebut: a, sourateFin: 67, versetFin: b });
 
 const seances = [
-  seance("2026-09-15", "apprentissage", 30, [mulk(1, 10)]),
+  seance("2026-09-15", "apprentissage", 30, [{ ...mulk(1, 10), corrige: true }]),
   seance("2026-10-20", "apprentissage", 30, [mulk(11, 30)]),
   seance("2026-11-08", "apprentissage", 20, [
     { sourateDebut: 68, versetDebut: 1, sourateFin: 68, versetFin: 10 },
@@ -50,6 +50,14 @@ describe("calculerProgression", () => {
   it("compte les versets appris distincts (apprentissage seulement)", () => {
     expect(p.versetsAppris).toBe(40);
     expect(p.pourcentageCoran).toBe(0.6);
+  });
+
+  it("distingue les versets vus par le Cheikh des versets seulement déclarés", () => {
+    expect(p.versetsVus).toBe(10);
+    const mulkProgression = p.sourates.find((s) => s.sourate.numero === 67)!;
+    expect(mulkProgression.versetsAppris).toBe(30);
+    expect(mulkProgression.versetsVus).toBe(10);
+    expect(p.sourates.find((s) => s.sourate.numero === 68)!.versetsVus).toBe(0);
   });
 
   it("cumule les versets mois par mois", () => {

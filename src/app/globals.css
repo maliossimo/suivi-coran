@@ -4128,3 +4128,39 @@ html[data-ouverture] .ouverture {
   font-size: 13px;
   color: var(--texte-doux);
 }
+
+/* ---------- Progression : vu par le Cheikh / seulement saisi ---------- */
+.tuile .tuile-detail {
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+.tuile-forte .tuile-detail {
+  color: rgba(255, 255, 255, 0.85);
+}
+.puce-declare {
+  background: #a9cbbb;
+}
+.jauge-double > span {
+  background: #a9cbbb;
+}
+.jauge-double > span > span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--vert);
+}
+.liste-sourates-vus {
+  color: var(--texte-doux);
+}
+@media (prefers-color-scheme: dark) {
+  .puce-declare,
+  .jauge-double > span {
+    background: rgba(79, 163, 130, 0.35);
+  }
+}
+
+/* ---------- Liste des élèves : séances à voir par le Cheikh ---------- */
+.carte-eleve-nom .pastille-a-voir {
+  margin-left: 0;
+  align-self: center;
+}
