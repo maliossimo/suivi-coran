@@ -20,6 +20,7 @@ import { FormulaireObjectif } from "./FormulaireObjectif";
 import { SectionBilan } from "./SectionBilan";
 import { cleSeance } from "./cleSeance";
 import { BoutonValider, EtatEnregistrement } from "./EtatsLigneJour";
+import { PreparerHorsLigne } from "./PreparerHorsLigne";
 
 /**
  * Fiche du mois d'un élève (semaines 1 à 5). Utilisée par l'élève (/eleve)
@@ -48,8 +49,18 @@ export function FicheMois({
       ? (fiche.semaines.find((sem) => sem.jours.some((j) => j.aujourdhui))?.numero ?? null)
       : null;
 
+  const aujourdhui = fiche.semaines.flatMap((s) => s.jours).find((j) => j.aujourdhui)?.date;
+  const pagesHorsLigne = aujourdhui
+    ? [
+        `${base}/seance?date=${aujourdhui}&type=apprentissage`,
+        `${base}/seance?date=${aujourdhui}&type=revision`,
+        lien(cle, fiche.type === "apprentissage" ? "revision" : "apprentissage"),
+      ]
+    : [];
+
   return (
     <>
+      {pagesHorsLigne.length ? <PreparerHorsLigne pages={pagesHorsLigne} /> : null}
       <nav className="mois" aria-label="Changer de mois">
         <Link
           className="mois-fleche"
