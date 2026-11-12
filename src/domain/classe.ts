@@ -1,6 +1,7 @@
 /**
  * Résumé de la classe pour le tableau de bord du maître. Code pur.
  */
+import type { Lecture } from "./lectures";
 import type { DateISO } from "./calendrier";
 import type { StatutObjectif, TypeSeance } from "./fiche";
 
@@ -9,6 +10,8 @@ export interface EleveClasse {
   prenom: string;
   nom: string;
   actif: boolean;
+  /** Hafs ou Warsh ; null tant que l'élève ne l'a pas choisie. */
+  lecture?: Lecture | null;
 }
 
 export interface SeanceStat {

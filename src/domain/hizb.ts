@@ -1,23 +1,16 @@
 /**
- * Découpage du Coran en 60 hizb (lecture Hafs) et révision par hizb.
- * Code pur, testé.
- *
- * Source des limites : liste des quarts de hizb de la bibliothèque quran-meta
- * (données Tanzil), un hizb sur quatre quarts. Vérifiées contre les débuts de juz.
+ * Découpage du Coran en 60 hizb (selon la lecture : Hafs ou Warsh) et révision par hizb.
+ * Code pur, testé. Limites : voir lectures.ts.
  */
 import type { DateISO } from "./calendrier";
 import { joursEntre } from "./classe";
 import type { Seance } from "./fiche";
+import { DEBUTS_HIZB_LECTURE, TOTAL_VERSETS_LECTURE, type Lecture } from "./lectures";
 import { versIntervalle, type Referentiel, type Sourate } from "./versets";
 
-/** Index global (1 à 6236) du premier verset de chaque hizb, du hizb 1 au hizb 60. */
-export const DEBUTS_HIZB: readonly number[] = [
-  1, 82, 149, 210, 260, 308, 386, 464, 517, 581, 641, 696, 751, 825, 900, 955, 1042, 1125, 1201, 1269, 1328,
-  1390, 1479, 1557, 1649, 1726, 1803, 1952, 2030, 2128, 2215, 2349, 2484, 2596, 2674, 2812, 2876, 3043, 3215,
-  3303, 3386, 3491, 3564, 3630, 3733, 3933, 4090, 4174, 4265, 4349, 4511, 4601, 4706, 4902, 5105, 5178, 5242,
-  5448, 5673, 5949,
-];
-export const TOTAL_VERSETS = 6236;
+/** Lecture Hafs (valeurs par défaut des fonctions ci-dessous). */
+export const DEBUTS_HIZB = DEBUTS_HIZB_LECTURE.hafs;
+export const TOTAL_VERSETS = TOTAL_VERSETS_LECTURE.hafs;
 
 /** Au-delà de ce nombre de jours sans révision, une partie connue est à revoir. */
 export const SEUIL_REVISION_JOURS = 30;
@@ -28,17 +21,19 @@ export interface Position {
 }
 
 /** Bornes globales [début, fin] du hizb n (1 à 60). */
-export function bornesHizb(numero: number): readonly [number, number] {
+export function bornesHizb(numero: number, lecture: Lecture = "hafs"): readonly [number, number] {
   if (!Number.isInteger(numero) || numero < 1 || numero > 60) throw new Error(`Hizb inconnu : ${numero}`);
-  const debut = DEBUTS_HIZB[numero - 1]!;
-  const fin = numero === 60 ? TOTAL_VERSETS : DEBUTS_HIZB[numero]! - 1;
+  const debuts = DEBUTS_HIZB_LECTURE[lecture];
+  const debut = debuts[numero - 1]!;
+  const fin = numero === 60 ? TOTAL_VERSETS_LECTURE[lecture] : debuts[numero]! - 1;
   return [debut, fin];
 }
 
 /** Hizb (1 à 60) contenant le verset d'index global donné. */
-export function hizbDuVerset(global: number): number {
+export function hizbDuVerset(global: number, lecture: Lecture = "hafs"): number {
+  const debuts = DEBUTS_HIZB_LECTURE[lecture];
   let n = 1;
-  while (n < 60 && DEBUTS_HIZB[n]! <= global) n += 1;
+  while (n < 60 && debuts[n]! <= global) n += 1;
   return n;
 }
 
@@ -106,9 +101,11 @@ export function hizbARevoir(
   seances: readonly Seance[],
   aujourdhui: DateISO,
   seuilJours = SEUIL_REVISION_JOURS,
+  lecture: Lecture = "hafs",
 ): HizbARevoir[] {
-  const connu = new Uint8Array(TOTAL_VERSETS + 1);
-  const derniere: (DateISO | null)[] = new Array(TOTAL_VERSETS + 1).fill(null);
+  const total = TOTAL_VERSETS_LECTURE[lecture];
+  const connu = new Uint8Array(total + 1);
+  const derniere: (DateISO | null)[] = new Array(total + 1).fill(null);
 
   for (const s of seances) {
     if (s.date > aujourdhui) continue;
@@ -120,7 +117,7 @@ export function hizbARevoir(
         continue; // passage incohérent : ignoré
       }
       const [a, b] = intervalle;
-      for (let g = Math.max(1, a); g <= Math.min(TOTAL_VERSETS, b); g += 1) {
+      for (let g = Math.max(1, a); g <= Math.min(total, b); g += 1) {
         connu[g] = 1;
         if (s.type === "revision" && (derniere[g] === null || derniere[g]! < s.date)) derniere[g] = s.date;
       }
@@ -144,7 +141,7 @@ export function hizbARevoir(
   const resultat: HizbARevoir[] = [];
 
   for (let numero = 1; numero <= 60; numero += 1) {
-    const [debutH, finH] = bornesHizb(numero);
+    const [debutH, finH] = bornesHizb(numero, lecture);
     const portions: PortionARevoir[] = [];
 
     for (const sourate of sourates) {

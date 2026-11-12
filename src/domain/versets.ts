@@ -7,6 +7,8 @@
  * (sans doublon quand un même passage est révisé plusieurs fois).
  */
 
+import { TOTAL_VERSETS_LECTURE, type Lecture } from "./lectures";
+
 export const TOTAL_VERSETS = 6236;
 
 export interface Sourate {
@@ -82,8 +84,8 @@ export function nbVersetsDistincts(ref: Referentiel, passages: readonly Passage[
 }
 
 /** Part du Coran (en %, arrondie à 0,1) représentée par un nombre de versets. */
-export function pourcentageDuCoran(nbVersets: number): number {
-  return Math.round((nbVersets / TOTAL_VERSETS) * 1000) / 10;
+export function pourcentageDuCoran(nbVersets: number, lecture: Lecture = "hafs"): number {
+  return Math.round((nbVersets / TOTAL_VERSETS_LECTURE[lecture]) * 1000) / 10;
 }
 
 /** Libellé lisible d'un passage, ex. « Al-Mulk الملك 1 → 15 ». */
