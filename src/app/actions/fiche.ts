@@ -37,12 +37,6 @@ export type EtatSaisie = { erreur?: string; enregistre?: boolean };
 
 const uuid = z.string().uuid();
 
-/** Chemin de retour : uniquement vers la fiche élève ou l'espace maître. */
-function retourSur(valeur: FormDataEntryValue | null): string {
-  const chemin = String(valeur ?? "");
-  return /^\/(eleve|maitre)(\/|\?|$)/.test(chemin) && !chemin.includes("//") ? chemin : "/";
-}
-
 async function acteurEtEleve(form: FormData) {
   const acteur = await profilConnecte();
   if (!acteur || !acteur.actif) redirect("/connexion");
@@ -92,16 +86,18 @@ export async function actionValiderSeance(form: FormData): Promise<ResultatSaisi
   return resultat;
 }
 
-export async function actionSupprimerSeance(form: FormData): Promise<void> {
+/** Suppression différée (annulable) : appelée par le navigateur une fois le délai passé. */
+export async function actionSupprimerSeanceFond(form: FormData): Promise<ResultatSaisie> {
   const { eleveId } = await acteurEtEleve(form);
   try {
     await supprimerSeanceEleve(eleveId, form.get("type"), form.get("date"));
-    await notifier("Séance supprimée");
+    revaliderEleve(eleveId);
+    return { ok: true };
   } catch {
     await notifier("La séance n'a pas pu être supprimée.", "erreur");
+    revaliderEleve(eleveId);
+    return { ok: false, erreur: "La séance n'a pas pu être supprimée." };
   }
-  revaliderEleve(eleveId);
-  redirect(retourSur(form.get("retour")));
 }
 
 export async function actionEnregistrerObjectif(form: FormData): Promise<void> {

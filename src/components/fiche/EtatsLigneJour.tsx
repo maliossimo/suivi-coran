@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { actionValiderSeance } from "@/app/actions/fiche";
 import { lancerEnvoi, useEnAttente } from "./enregistrementsEnAttente";
+import { useSuppressionEnAttente } from "./suppressions";
 
 /** « Enregistrement… » puis rien (ou « Non enregistrée ») sur la ligne du jour. */
 export function EtatEnregistrement({ cle }: { cle: string }) {
@@ -13,6 +14,8 @@ export function EtatEnregistrement({ cle }: { cle: string }) {
     const t = window.setTimeout(() => lancerEnvoi(cle), 0);
     return () => window.clearTimeout(t);
   }, [cle]);
+  const suppression = useSuppressionEnAttente(cle);
+  if (suppression) return <span className="pastille-envoi">Suppression…</span>;
   if (!e) return null;
   return e.etat === "envoi" ? (
     <span className="pastille-envoi">Enregistrement…</span>

@@ -1,9 +1,9 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { actionSupprimerSeance } from "@/app/actions/fiche";
 import { positionSurFiche, type DateISO } from "@/domain/calendrier";
 import { etatCorrection, libelleJourCourt, LIBELLE_TYPE, type TypeSeance } from "@/domain/fiche";
 import type { DonneesSeance } from "@/services/fiche";
+import { BoutonSupprimerSeance } from "./BoutonSupprimerSeance";
 import { FormulaireCommentaire } from "./FormulaireCommentaire";
 import { FormulaireSeance } from "./FormulaireSeance";
 
@@ -92,15 +92,13 @@ export function EcranSeance({
       />
 
       {donnees.seance ? (
-        <form action={actionSupprimerSeance} className="zone-suppression">
-          <input type="hidden" name="eleveId" value={eleveId} />
-          <input type="hidden" name="retour" value={retour} />
-          <input type="hidden" name="date" value={date} />
-          <input type="hidden" name="type" value={type} />
-          <button type="submit" className="bouton-danger">
-            Supprimer cette séance
-          </button>
-        </form>
+        <BoutonSupprimerSeance
+          eleveId={eleveId}
+          date={date}
+          type={type}
+          retour={retour}
+          libelleJour={libelleJourCourt(date)}
+        />
       ) : null}
     </>
   );

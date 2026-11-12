@@ -2,10 +2,12 @@
 
 import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Seance, TypeSeance } from "@/domain/fiche";
 import { premierChevauchement, type Passage } from "@/domain/versets";
 import { actionEnregistrerSeanceFond } from "@/app/actions/fiche";
+import { ChoixSourate } from "./ChoixSourate";
+import { ecrireBrouillon, effacerBrouillon, lireBrouillon, memeSaisie, type Brouillon } from "./brouillon";
 import { cleSeance, lireEnAttente, preparerEnvoi } from "./enregistrementsEnAttente";
 
 export interface SourateOption {
@@ -75,6 +77,40 @@ export function FormulaireSeance({
       );
     return propose && !dejaLa ? [...existants, propose] : existants;
   });
+  const [note, setNote] = useState<string>(reprise?.saisie.noteLibre ?? initiale?.noteLibre ?? "");
+
+  // Brouillon : ce qui était tapé avant de quitter la page est retrouvé.
+  const depart = useRef<Brouillon>({ dureeMin: duree, passages, noteLibre: note });
+  const [brouillonCharge, setBrouillonCharge] = useState(false);
+  const [brouillonRetrouve, setBrouillonRetrouve] = useState(false);
+  useEffect(() => {
+    if (!reprise) {
+      const b = lireBrouillon(cle);
+      if (b && !memeSaisie(b, depart.current)) {
+        setDuree(b.dureeMin);
+        setPassages(b.passages);
+        setNote(b.noteLibre);
+        setBrouillonRetrouve(true);
+      }
+    }
+    setBrouillonCharge(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- une seule fois, à l'ouverture
+  }, []);
+  useEffect(() => {
+    if (!brouillonCharge) return;
+    const saisie = { dureeMin: duree, passages, noteLibre: note };
+    if (memeSaisie(saisie, depart.current)) effacerBrouillon(cle);
+    else ecrireBrouillon(cle, saisie);
+  }, [brouillonCharge, cle, duree, passages, note]);
+
+  function oublierBrouillon() {
+    effacerBrouillon(cle);
+    setDuree(depart.current.dureeMin);
+    setPassages(depart.current.passages);
+    setNote(depart.current.noteLibre);
+    setBrouillonRetrouve(false);
+  }
+
   const [erreurLocale, setErreurLocale] = useState<string | null>(
     reprise ? `Séance non enregistrée : ${reprise.erreur ?? "réessaie."}` : null,
   );
@@ -147,20 +183,23 @@ export function FormulaireSeance({
     // l'envoi continue en arrière-plan ; la ligne du jour affiche « Enregistrement… ».
     const donnees = new FormData(e.currentTarget);
     setEnvoiEnCours(true);
-    preparerEnvoi(cle, { dureeMin: duree, passages, noteLibre: String(donnees.get("noteLibre") ?? "") }, () =>
+    effacerBrouillon(cle);
+    preparerEnvoi(cle, { dureeMin: duree, passages, noteLibre: note }, () =>
       actionEnregistrerSeanceFond(donnees),
     );
     router.push(retour);
   }
 
-  const optionsSourates = sourates.map((s) => (
-    <option key={s.numero} value={s.numero}>
-      {s.numero}. {s.nomLatin} — {s.nomAr}
-    </option>
-  ));
-
   return (
     <form onSubmit={envoyer} className="formulaire seance-formulaire" noValidate>
+      {brouillonRetrouve ? (
+        <div className="bandeau-brouillon" role="status">
+          <span>Brouillon retrouvé : ta saisie précédente n’était pas enregistrée.</span>
+          <button type="button" className="bouton-lien" onClick={oublierBrouillon}>
+            Effacer
+          </button>
+        </div>
+      ) : null}
       <input type="hidden" name="eleveId" value={eleveId} />
       <input type="hidden" name="retour" value={retour} />
       <input type="hidden" name="date" value={date} />
@@ -262,15 +301,14 @@ export function FormulaireSeance({
               )
             ) : null}
             <div className="passage-ligne">
-              <label className="champ passage-sourate">
-                <span>Sourate</span>
-                <select
-                  value={p.sourateDebut}
-                  onChange={(e) => modifier(i, "sourateDebut", Number(e.target.value))}
-                >
-                  {optionsSourates}
-                </select>
-              </label>
+              <div className="passage-sourate">
+                <ChoixSourate
+                  libelle="Sourate"
+                  valeur={p.sourateDebut}
+                  sourates={sourates}
+                  onChoix={(n) => modifier(i, "sourateDebut", n)}
+                />
+              </div>
               <button
                 type="button"
                 className="passage-retirer"
@@ -304,15 +342,12 @@ export function FormulaireSeance({
                 />
               </label>
             </div>
-            <label className="champ">
-              <span>Jusqu’à la sourate</span>
-              <select
-                value={p.sourateFin}
-                onChange={(e) => modifier(i, "sourateFin", Number(e.target.value))}
-              >
-                {optionsSourates}
-              </select>
-            </label>
+            <ChoixSourate
+              libelle="Jusqu’à la sourate"
+              valeur={p.sourateFin}
+              sourates={sourates}
+              onChoix={(n) => modifier(i, "sourateFin", n)}
+            />
           </fieldset>
         ))}
         <button type="button" className="bouton-ajout" onClick={ajouter} disabled={passages.length >= 20}>
@@ -332,7 +367,8 @@ export function FormulaireSeance({
           name="noteLibre"
           className="champ-texte"
           rows={3}
-          defaultValue={reprise?.saisie.noteLibre ?? initiale?.noteLibre ?? ""}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
           placeholder={
             vueMaitre
               ? "Remarque sur la séance : difficulté, point à reprendre…"

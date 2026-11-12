@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 import { BandeauNotification } from "@/components/BandeauNotification";
+import { BandeauAnnulation } from "@/components/fiche/BandeauAnnulation";
 import "./globals.css";
 
 // Polices intégrées au site (paquets Fontsource) : le build ne dépend plus de Google Fonts.
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <BandeauNotification />
+        <BandeauAnnulation />
         {/* Vercel Speed Insights : vitesse réelle mesurée chez les utilisateurs (sans paquet npm). */}
         <Script id="speed-insights-file" strategy="afterInteractive">
           {"window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };"}
