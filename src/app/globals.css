@@ -3074,3 +3074,236 @@ button:active:not(:disabled),
     color: #0e1613;
   }
 }
+
+/* ---------- Choix de sourate avec recherche ----------------------------- */
+.choix-sourate {
+  min-width: 0;
+}
+.choix-sourate-bouton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--champ);
+  border-radius: 10px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.choix-sourate-bouton:focus-visible {
+  outline: none;
+  border-color: var(--vert);
+  box-shadow: 0 0 0 4px var(--vert-clair);
+}
+.choix-sourate-texte {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.choix-sourate-panneau {
+  width: min(520px, 100vw);
+  max-width: 100vw;
+  height: min(640px, 100dvh);
+  max-height: 100dvh;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  background: var(--carte);
+  color: var(--texte);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+.choix-sourate-panneau[open] {
+  display: flex;
+  flex-direction: column;
+}
+.choix-sourate-panneau::backdrop {
+  background: rgba(10, 20, 16, 0.55);
+}
+@media (max-width: 600px) {
+  .choix-sourate-panneau {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+  }
+}
+.choix-sourate-entete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--surface-3);
+}
+.choix-sourate-recherche {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--champ);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--texte-doux);
+}
+.choix-sourate-recherche:focus-within {
+  border-color: var(--vert);
+  box-shadow: 0 0 0 4px var(--vert-clair);
+}
+.choix-sourate-recherche input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--texte);
+  font: inherit;
+  font-size: 16px; /* pas de zoom automatique sur iPhone */
+  outline: none;
+}
+.choix-sourate-fermer {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--texte-doux);
+  cursor: pointer;
+}
+.choix-sourate-liste {
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 6px 8px 16px;
+  overscroll-behavior: contain;
+}
+.choix-sourate-option {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--texte);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.choix-sourate-option:hover,
+.choix-sourate-option:focus-visible {
+  background: var(--surface-2);
+  outline: none;
+}
+.choix-sourate-option.actuelle {
+  background: var(--vert-clair);
+  color: var(--vert);
+  font-weight: 700;
+}
+.choix-sourate-numero {
+  color: var(--texte-doux);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.choix-sourate-option .arabe {
+  font-size: 19px;
+}
+.choix-sourate-vide {
+  padding: 24px 12px;
+  color: var(--texte-doux);
+  text-align: center;
+}
+
+/* ---------- Brouillon et suppression annulable -------------------------- */
+.bandeau-brouillon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--or-clair);
+  border: 1px solid var(--bord-or);
+  color: var(--or-texte);
+  font-size: 14px;
+}
+.bandeau-annulation-zone {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + 72px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  z-index: 101;
+  pointer-events: none;
+}
+.bandeau-annulation {
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 440px;
+  padding: 12px 12px 12px 16px;
+  border-radius: 14px;
+  background: #1f2a25;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 12px 32px rgba(20, 40, 32, 0.28);
+  animation: notification-entree 0.22s ease-out;
+}
+.bandeau-annulation button {
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #fff;
+  color: #1f2a25;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bandeau-annulation-temps {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--or);
+  transform-origin: left;
+  animation: compte-a-rebours linear forwards;
+}
+@keyframes compte-a-rebours {
+  to {
+    transform: scaleX(0);
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .bandeau-annulation {
+    background: #e6ece8;
+    color: #0e1613;
+  }
+  .bandeau-annulation button {
+    background: #0e1613;
+    color: #e6ece8;
+  }
+}
