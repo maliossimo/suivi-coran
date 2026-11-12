@@ -3337,3 +3337,11 @@ button:active:not(:disabled),
   color: var(--vert);
   font-weight: 700;
 }
+.bouton-installer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
