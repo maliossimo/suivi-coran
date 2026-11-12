@@ -1,0 +1,43 @@
+name: Garde-fou branches
+
+# Sans protection de branche GitHub (dépôt privé gratuit), on vérifie après coup :
+#  - le nom des branches de travail (feat/, fix/, chore/, docs/, refactor/, perf/, test/) ;
+#  - qu'aucun commit n'arrive sur main ou prod sans passer par une PR (croix rouge sinon).
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, prod]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  nom:
+    name: Nom de la branche
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vérifier le préfixe
+        run: |
+          branche="${{ github.head_ref }}"
+          if ! echo "$branche" | grep -Eq '^(feat|fix|chore|docs|refactor|perf|test)/[a-z0-9._-]+$'; then
+            echo "::error::Nomme la branche feat/…, fix/…, chore/…, docs/…, refactor/…, perf/… ou test/… (reçu : $branche)."
+            exit 1
+          fi
+
+  pas-de-push-direct:
+    name: Arrivé par une PR
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Le commit poussé vient d'une PR fusionnée
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prs=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" --jq '[.[] | select(.merged_at != null)] | length')
+          if [ "$prs" = "0" ]; then
+            echo "::error::Push direct sur ${{ github.ref_name }} : ce commit n'est passé par aucune PR. À éviter (voir CLAUDE.md)."
+            exit 1
+          fi

@@ -1,3 +1,4 @@
+import { LIBELLE_VERSION } from "@/lib/version";
 import { LogoEtoile } from "./logo/LogoEtoile";
 
 /**
@@ -35,6 +36,7 @@ export function CadreAuth({
             {sousTitre ? <p>{sousTitre}</p> : null}
           </header>
           {children}
+          <p className="auth-version">{LIBELLE_VERSION}</p>
         </div>
       </section>
     </main>

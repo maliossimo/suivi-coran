@@ -1,6 +1,6 @@
 {
   "name": "suivi-coran",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Suivi des cours de Coran : apprentissage et révision, espace élève, maître et admin.",
   "engines": {
@@ -21,7 +21,10 @@
     "db:reset": "supabase db reset",
     "db:test": "psql \"${DB_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}\" -v ON_ERROR_STOP=1 -f supabase/tests/rls_test.sql",
     "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test"
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test",
+    "version:correctif": "npm version patch --no-git-tag-version",
+    "version:mineure": "npm version minor --no-git-tag-version",
+    "version:majeure": "npm version major --no-git-tag-version"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.0",

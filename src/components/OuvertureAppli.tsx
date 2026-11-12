@@ -7,6 +7,8 @@
  * demande de réduire les animations ; un appui la passe.
  * Pur HTML/CSS : le script du layout ajoute data-ouverture sur <html>.
  */
+import { LIBELLE_VERSION } from "@/lib/version";
+
 export function OuvertureAppli() {
   return (
     <div className="ouverture" aria-hidden="true">
@@ -37,6 +39,10 @@ export function OuvertureAppli() {
           />
         </g>
       </svg>
+      <p className="ouverture-version">
+        Suivi cours Coran
+        <span>{LIBELLE_VERSION}</span>
+      </p>
     </div>
   );
 }
