@@ -20,8 +20,16 @@ function estPublique(chemin: string): boolean {
  * Rafraîchit la session Supabase à chaque requête et renvoie vers la page de
  * connexion toute personne non connectée qui demande une page protégée.
  */
-export async function mettreAJourSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+export async function mettreAJourSession(
+  request: NextRequest,
+  entetes: Headers = new Headers(request.headers),
+) {
+  // `entetes` : en-têtes transmis aux pages (dont le jeton CSP), cookies de session tenus à jour.
+  const suite = () => {
+    entetes.set("cookie", request.headers.get("cookie") ?? "");
+    return NextResponse.next({ request: { headers: entetes } });
+  };
+  let response = suite();
 
   const supabase = createServerClient(
     envPublic.NEXT_PUBLIC_SUPABASE_URL,
@@ -33,7 +41,7 @@ export async function mettreAJourSession(request: NextRequest) {
         },
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           for (const { name, value } of cookiesToSet) request.cookies.set(name, value);
-          response = NextResponse.next({ request });
+          response = suite();
           for (const { name, value, options } of cookiesToSet) response.cookies.set(name, value, options);
         },
       },

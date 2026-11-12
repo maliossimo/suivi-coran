@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { actionConnexion, type EtatFormulaire } from "@/app/actions/auth";
+import { AntiRobot } from "@/components/AntiRobot";
 
 export function FormulaireConnexion({ erreurInitiale }: { erreurInitiale?: string }) {
   const [etat, action, enCours] = useActionState<EtatFormulaire, FormData>(actionConnexion, {
@@ -36,6 +37,7 @@ export function FormulaireConnexion({ erreurInitiale }: { erreurInitiale?: strin
         </div>
         <input id="motDePasse" name="motDePasse" type="password" autoComplete="current-password" required />
       </div>
+      <AntiRobot />
       <button className="bouton" type="submit" disabled={enCours}>
         {enCours ? "Connexion…" : "Se connecter"}
       </button>

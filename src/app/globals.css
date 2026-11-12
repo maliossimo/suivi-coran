@@ -4633,3 +4633,13 @@ html[data-ouverture] .ouverture-version {
   font-size: 12px;
   color: var(--texte-doux);
 }
+
+/* ---------- Anti-robots (n'apparaît qu'en cas de doute) ---------- */
+.anti-robot:empty {
+  display: none;
+}
+.anti-robot {
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+}
