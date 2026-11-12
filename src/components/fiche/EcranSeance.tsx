@@ -3,6 +3,7 @@ import Link from "next/link";
 import { positionSurFiche, type DateISO } from "@/domain/calendrier";
 import { etatCorrection, libelleJourCourt, LIBELLE_TYPE, type TypeSeance } from "@/domain/fiche";
 import type { DonneesSeance } from "@/services/fiche";
+import { EtiquetteLecture } from "../ChoixLecture";
 import { BoutonSupprimerSeance } from "./BoutonSupprimerSeance";
 import { FormulaireCommentaire } from "./FormulaireCommentaire";
 import { FormulaireSeance } from "./FormulaireSeance";
@@ -47,7 +48,7 @@ export function EcranSeance({
           {LIBELLE_TYPE[type]} · Jour {jour}
         </h1>
         <p>
-          Semaine {semaine} · {libelleJourCourt(date)}
+          Semaine {semaine} · {libelleJourCourt(date)} · <EtiquetteLecture lecture={donnees.lecture} />
           {donnees.seance && etatCorrection(donnees.seance) === "complete" ? (
             <span className="pastille-or">✓ Vu par le Cheikh</span>
           ) : null}

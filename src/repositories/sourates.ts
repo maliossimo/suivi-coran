@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { z } from "zod";
+import { souratesDeLecture, type Lecture } from "@/domain/lectures";
 import type { Sourate } from "@/domain/versets";
 import { creerClientServeur } from "@/lib/supabase/server";
 
@@ -18,8 +19,13 @@ const schema = z.array(
 // (plus de requête à la base pour chaque page).
 let enMemoire: Sourate[] | null = null;
 
-/** Les 114 sourates. */
-export const listerSourates = cache(async (): Promise<Sourate[]> => {
+/** Les 114 sourates, dans la numérotation de la lecture demandée (Hafs par défaut). */
+export const listerSourates = cache(async (lecture: Lecture = "hafs"): Promise<Sourate[]> => {
+  return souratesDeLecture(await souratesHafs(), lecture);
+});
+
+/** Le référentiel de la base (numérotation Hafs). */
+const souratesHafs = cache(async (): Promise<Sourate[]> => {
   if (enMemoire) return enMemoire;
   const supabase = await creerClientServeur();
   const { data, error } = await supabase

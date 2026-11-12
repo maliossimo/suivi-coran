@@ -2,14 +2,14 @@ import { EnteteEspace } from "@/components/EnteteEspace";
 import { Suspense } from "react";
 import { Squelettes } from "@/components/Chargement";
 import { FicheDifferee } from "@/components/fiche/FicheDifferee";
-import { exigerEspace } from "@/services/acces";
+import { exigerEleveAvecLecture } from "@/services/acces";
 
 export default async function PageFiche({
   searchParams,
 }: {
   searchParams: Promise<{ mois?: string; type?: string }>;
 }) {
-  const profil = await exigerEspace("eleve");
+  const profil = await exigerEleveAvecLecture();
   const params = await searchParams;
 
   return (

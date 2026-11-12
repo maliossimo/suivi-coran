@@ -1,5 +1,7 @@
 import { actionDeconnexion } from "@/app/actions/auth";
+import Link from "next/link";
 import { Avatar } from "@/components/Avatar";
+import { EtiquetteLecture } from "@/components/ChoixLecture";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireMotDePasse } from "@/components/FormulaireMotDePasse";
 import { InstallerAppli } from "@/components/InstallerAppli";
@@ -32,6 +34,19 @@ export default async function PageCompte() {
         </section>
 
         <InstallerAppli />
+
+        {profil.role === "eleve" ? (
+          <section className="carte-compte-section">
+            <h2>Ma lecture</h2>
+            <p className="carte-compte-aide">
+              Tu récites en <EtiquetteLecture lecture={profil.lecture} /> : la numérotation des versets suit
+              cette lecture.
+            </p>
+            <Link href="/eleve/lecture" className="bouton-secondaire bouton-lien">
+              {profil.lecture ? "Changer de lecture" : "Choisir ma lecture"}
+            </Link>
+          </section>
+        ) : null}
 
         <section className="carte-compte-section">
           <h2>Mot de passe</h2>

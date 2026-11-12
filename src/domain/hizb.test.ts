@@ -39,6 +39,8 @@ describe("découpage en hizb", () => {
     expect(ou(bornesHizb(2)[0])).toBe("2:75");
     expect(ou(bornesHizb(3)[0])).toBe("2:142"); // début du juz 2
     expect(ou(bornesHizb(5)[0])).toBe("2:253"); // début du juz 3
+    expect(ou(bornesHizb(7)[0])).toBe("3:92"); // juz 4, « لن تنالوا البر » (mushaf de Médine)
+    expect(ou(bornesHizb(21)[0])).toBe("9:94"); // juz 11, « يعتذرون »
     expect(ou(bornesHizb(26)[0])).toBe("13:19");
     expect(ou(bornesHizb(41)[0])).toBe("29:46"); // juz 21
     expect(ou(bornesHizb(57)[0])).toBe("67:1"); // juz 29, Al-Mulk
