@@ -2,6 +2,7 @@ import "server-only";
 import { z } from "zod";
 import { debutDuMois, lireDate, type DateISO, type NumeroSemaine } from "@/domain/calendrier";
 import {
+  conflitDeSaisie,
   construireFiche,
   TYPES_SEANCE,
   dernierJour,
@@ -156,9 +157,29 @@ export const schemaSaisieSeance = z.object({
   passages: z.array(schemaPassage).max(20),
 });
 
-export type ResultatSaisie = { ok: true } | { ok: false; erreur: string };
+export type ResultatSaisie = { ok: true } | { ok: false; erreur: string; conflit?: true };
 
-export async function enregistrerSeanceEleve(eleveId: string, brut: unknown): Promise<ResultatSaisie> {
+/** La séance telle que l'élève l'avait sous les yeux en saisissant (null : aucune). */
+const schemaAttendu = z
+  .object({
+    dureeMin: entier(0, 600),
+    noteLibre: z.string().max(2000).nullable(),
+    passages: z.array(schemaPassage).max(20),
+  })
+  .nullable();
+
+export const MESSAGE_CONFLIT =
+  "La séance a changé entre-temps (correction du Cheikh ou autre téléphone). Rouvre-la pour choisir quoi garder.";
+
+/**
+ * `attenduBrut` (facultatif) : la version de la séance sur laquelle l'élève a travaillé.
+ * Si la base a changé depuis, rien n'est écrasé (enregistrement hors ligne ou renvoyé plus tard).
+ */
+export async function enregistrerSeanceEleve(
+  eleveId: string,
+  brut: unknown,
+  attenduBrut?: unknown,
+): Promise<ResultatSaisie> {
   const saisie = schemaSaisieSeance.safeParse(brut);
   if (!saisie.success) return { ok: false, erreur: "Certaines informations sont invalides." };
   const date = lireDateSaisissable(saisie.data.date);
@@ -188,7 +209,17 @@ export async function enregistrerSeanceEleve(eleveId: string, brut: unknown): Pr
     };
   }
 
-  await enregistrerSeance(eleveId, { ...saisie.data, date, passages });
+  let tajwid = saisie.data.tajwid;
+  if (attenduBrut !== undefined) {
+    const attendu = schemaAttendu.safeParse(attenduBrut);
+    if (!attendu.success) return { ok: false, erreur: "Certaines informations sont invalides." };
+    const actuelle = await seanceDuJour(eleveId, saisie.data.type, date);
+    if (conflitDeSaisie(attendu.data, actuelle, { ...saisie.data, passages })) {
+      return { ok: false, erreur: MESSAGE_CONFLIT, conflit: true };
+    }
+    tajwid ||= actuelle?.tajwid ?? ""; // ancienne donnée conservée (le tajwid n'est plus saisi)
+  }
+  await enregistrerSeance(eleveId, { ...saisie.data, tajwid, date, passages });
   return { ok: true };
 }
 

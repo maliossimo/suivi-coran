@@ -52,11 +52,17 @@ export function FormulaireSeance({
 }) {
   const router = useRouter();
   const cle = cleSeance(eleveId, date, type);
-  // Un enregistrement en arrière-plan a échoué : on reprend la saisie telle quelle.
+  // Un enregistrement en arrière-plan a échoué ou attend le réseau : on reprend la saisie
+  // telle quelle. (En cas de conflit, c'est le brouillon qui la propose, à côté de la version en base.)
   const [reprise] = useState(() => {
     const e = lireEnAttente(cle);
-    return e?.etat === "erreur" ? e : undefined;
+    return (e?.etat === "erreur" && !e.conflit) || e?.etat === "attente" ? e : undefined;
   });
+  // La séance telle qu'elle est en base à l'ouverture : la base refusera d'écraser
+  // une version modifiée entre-temps (saisie hors ligne, Cheikh, autre téléphone).
+  const attendu = initiale
+    ? { dureeMin: initiale.dureeMin, noteLibre: initiale.noteLibre, passages: initiale.passages }
+    : null;
   const [envoiEnCours, setEnvoiEnCours] = useState(false);
   // Tant que la page n'est pas prête (téléphone lent), le bouton reste inactif :
   // sinon le navigateur enverrait le formulaire « à l'ancienne » et rien ne serait enregistré.
@@ -184,11 +190,13 @@ export function FormulaireSeance({
     const donnees = new FormData(e.currentTarget);
     setEnvoiEnCours(true);
     // Le brouillon reste jusqu'à la confirmation de la base (voir brouillon.ts).
-    ecrireBrouillon(cle, { dureeMin: duree, passages, noteLibre: note }, true);
+    ecrireBrouillon(cle, { dureeMin: duree, passages, noteLibre: note }, true, attendu);
     preparerEnvoi(cle, { dureeMin: duree, passages, noteLibre: note }, () =>
       actionEnregistrerSeanceFond(donnees),
     );
-    router.push(retour);
+    // Sans réseau, la page précédente (déjà chargée) se réaffiche sans rien demander au serveur.
+    if (!navigator.onLine && window.history.length > 1) router.back();
+    else router.push(retour);
   }
 
   return (
@@ -206,6 +214,7 @@ export function FormulaireSeance({
       <input type="hidden" name="date" value={date} />
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="passages" value={JSON.stringify(passages)} />
+      <input type="hidden" name="attendu" value={JSON.stringify(attendu)} />
 
       {erreurLocale ? (
         <p className="message-erreur" role="alert">
