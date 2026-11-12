@@ -16,5 +16,5 @@ export async function actionRejoindre(_: EtatSaisie, form: FormData): Promise<Et
   });
   if (!resultat.ok) return { erreur: resultat.erreur };
   await notifier("Bienvenue dans la classe !");
-  redirect("/eleve");
+  redirect("/bienvenue");
 }

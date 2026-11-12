@@ -9,7 +9,13 @@ export interface EvenementInstallation extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-type Appareil = "installee" | "deja-installee" | "android" | "iphone" | "iphone-autre-navigateur" | "autre";
+type Appareil =
+  | "installee"
+  | "deja-installee"
+  | "android"
+  | "iphone"
+  | "iphone-autre-navigateur"
+  | "ordinateur";
 
 declare global {
   interface Window {
@@ -28,23 +34,23 @@ function detecterAppareil(): Appareil {
   const iphone = /iPhone|iPad|iPod/.test(ua) || (ua.includes("Macintosh") && nav.maxTouchPoints > 1);
   if (iphone) return /CriOS|FxiOS|EdgiOS|OPiOS/.test(ua) ? "iphone-autre-navigateur" : "iphone";
   if (/Android/.test(ua)) return "android";
-  return "autre";
+  return "ordinateur";
 }
 
 /**
- * « Installer l'appli » : ajoute le site à l'écran d'accueil du téléphone.
- * Android : bouton en un appui (si Chrome le permet), sinon les étapes.
- * iPhone : les 2 étapes dans Safari.
+ * « Installer l'appli » (téléphones uniquement, rien sur ordinateur).
+ * Android : un bouton ; s'il ne peut pas installer directement, il affiche les 2 étapes.
+ * iPhone : Apple n'autorise pas de bouton, on affiche les 2 étapes.
+ * Le site reste toujours utilisable sans rien installer.
  */
-export function InstallerAppli() {
+export function InstallerAppli({ titre = "Appli sur ton téléphone" }: { titre?: string }) {
   const [appareil, setAppareil] = useState<Appareil | null>(null);
   const [invite, setInvite] = useState<EvenementInstallation | null>(null);
+  const [etapesVisibles, setEtapesVisibles] = useState(false);
 
   useEffect(() => {
     setAppareil(detecterAppareil());
-    // L'invitation de Chrome est peut-être déjà arrivée.
     if (window.__invitationInstallation) setInvite(window.__invitationInstallation);
-    // Déjà installée sur ce téléphone (on est dans le navigateur, pas dans l'appli) ?
     navigator
       .getInstalledRelatedApps?.()
       .then((apps) => {
@@ -65,11 +71,27 @@ export function InstallerAppli() {
     };
   }, []);
 
-  if (appareil === null) return null;
+  // Rien sur ordinateur (ni pendant la détection).
+  if (appareil === null || appareil === "ordinateur") return null;
+
+  async function installer() {
+    const evt = invite ?? window.__invitationInstallation;
+    if (!evt) {
+      setEtapesVisibles(true); // le navigateur ne permet pas l'installation directe : on montre comment faire
+      return;
+    }
+    await evt.prompt();
+    const choix = await evt.userChoice;
+    window.__invitationInstallation = undefined;
+    setInvite(null);
+    if (choix.outcome === "accepted") setAppareil("installee");
+  }
+
+  const iphone = appareil === "iphone" || appareil === "iphone-autre-navigateur";
 
   return (
     <section className="carte-compte-section">
-      <h2>Appli sur ton téléphone</h2>
+      <h2>{titre}</h2>
       {appareil === "installee" ? (
         <p className="carte-compte-aide">C’est fait : tu utilises l’appli installée sur ton téléphone.</p>
       ) : appareil === "deja-installee" ? (
@@ -82,59 +104,57 @@ export function InstallerAppli() {
             Ajoute le site sur ton écran d’accueil : il s’ouvrira en plein écran, comme une appli. Rien à
             télécharger sur le Play Store ou l’App Store.
           </p>
-          {invite ? (
-            <button
-              type="button"
-              className="bouton bouton-installer"
-              onClick={async () => {
-                await invite.prompt();
-                const choix = await invite.userChoice;
-                window.__invitationInstallation = undefined;
-                setInvite(null);
-                if (choix.outcome === "accepted") setAppareil("installee");
-              }}
-            >
+
+          {!iphone ? (
+            <button type="button" className="bouton bouton-installer" onClick={installer}>
               <Download size={18} aria-hidden="true" />
               Installer l’appli
             </button>
-          ) : appareil === "iphone" || appareil === "iphone-autre-navigateur" ? (
+          ) : null}
+
+          {iphone || etapesVisibles ? (
             <ol className="etapes-installation">
-              <li>
-                <Share size={18} aria-hidden="true" />
-                <span>
-                  Touche le bouton <b>Partager</b>{" "}
-                  {appareil === "iphone"
-                    ? "en bas de Safari."
-                    : "(dans Chrome, il est en haut à droite, dans la barre d’adresse)."}
-                </span>
-              </li>
+              {iphone ? (
+                <li>
+                  <Share size={18} aria-hidden="true" />
+                  <span>
+                    Touche le bouton <b>Partager</b>{" "}
+                    {appareil === "iphone"
+                      ? "en bas de Safari."
+                      : "(dans Chrome, il est en haut à droite, dans la barre d’adresse)."}
+                  </span>
+                </li>
+              ) : (
+                <li>
+                  <span className="etape-menu" aria-hidden="true">
+                    ⋮
+                  </span>
+                  <span>
+                    Ouvre le menu du navigateur : <b>⋮</b> dans Chrome (en haut à droite), <b>≡</b> dans
+                    Samsung Internet (en bas).
+                  </span>
+                </li>
+              )}
               <li>
                 <SquarePlus size={18} aria-hidden="true" />
                 <span>
-                  Choisis <b>Sur l’écran d’accueil</b>, puis <b>Ajouter</b>.
+                  {iphone ? (
+                    <>
+                      Choisis <b>Sur l’écran d’accueil</b>, puis <b>Ajouter</b>.
+                    </>
+                  ) : (
+                    <>
+                      Choisis <b>Installer l’application</b> ou <b>Ajouter à l’écran d’accueil</b>.
+                    </>
+                  )}
                 </span>
               </li>
             </ol>
-          ) : (
-            <ol className="etapes-installation">
-              <li>
-                <span className="etape-menu" aria-hidden="true">
-                  ⋮
-                </span>
-                <span>
-                  Ouvre le menu du navigateur : <b>⋮</b> dans Chrome (en haut à droite), <b>≡</b> dans Samsung
-                  Internet (en bas).
-                </span>
-              </li>
-              <li>
-                <SquarePlus size={18} aria-hidden="true" />
-                <span>
-                  Choisis <b>Ajouter à l’écran d’accueil</b>, <b>Installer l’application</b> ou{" "}
-                  <b>Ajouter la page à → Écran d’accueil</b>.
-                </span>
-              </li>
-            </ol>
-          )}
+          ) : null}
+
+          <p className="carte-compte-aide installer-sans">
+            Ça ne marche pas ? Pas de souci : le site fonctionne aussi normalement dans ton navigateur.
+          </p>
         </>
       )}
     </section>
