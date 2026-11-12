@@ -1898,84 +1898,176 @@ input.champ-texte {
 .pdf-page {
   /* La fiche imprimable reste claire, même en mode sombre. */
   --vert: #1d5c47;
-  --vert-clair: #e2eee8;
+  --vert-fonce: #174d3b;
+  --vert-texte: #1d5c47;
+  --vert-clair: #e6f0eb;
+  --or: #c9a24a;
+  --or-clair: #f6eedb;
   --texte-doux: #5b6660;
   --rouge: #9b2c1f;
-  --ligne: #e3dfd5;
+  --trait: #dcd6c8;
+  --trait-doux: #ebe6db;
   background: #fff;
-  border: 1px solid var(--ligne);
+  border: 1px solid var(--trait);
   border-radius: 12px;
   box-shadow: var(--ombre);
-  padding: 22px 24px;
+  padding: 0 0 18px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  font-family: var(--font-texte), system-ui, sans-serif;
   font-size: 11.5px;
+  line-height: 1.35;
   color: #1c2420;
 }
+.pdf-page > :not(.pdf-entete) {
+  margin-inline: 22px;
+}
+
+/* En-tête : la barre verte de l'appli, filet or. */
 .pdf-entete {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--vert);
+  gap: 14px;
+  padding: 14px 22px;
+  background: var(--vert-fonce);
+  color: #faf3e0;
+  box-shadow: inset 0 -3px 0 var(--or);
 }
 .pdf-logo {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  background: var(--vert);
-  color: #f0d796;
-  font-family: var(--font-arabe), serif;
-  font-size: 22px;
+  width: 44px;
+  height: 44px;
+  flex: none;
 }
 .pdf-entete-titres {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 .pdf-entete-titres span,
 .pdf-entete-eleve span {
-  font-size: 10px;
-  color: var(--texte-doux);
+  font-size: 9.5px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
+  color: #d9c38d;
 }
 .pdf-entete-titres h1 {
-  margin: 0;
-  font-size: 18px;
-  color: var(--vert-texte);
+  margin: 1px 0 0;
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: #fff;
 }
 .pdf-entete-eleve {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  text-align: right;
 }
 .pdf-entete-eleve strong {
   font-size: 15px;
+  color: #fff;
 }
-.pdf-resume {
+
+/* Les chiffres du mois. */
+.pdf-chiffres {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.pdf-chiffre {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px 18px;
+  flex-direction: column;
+  gap: 1px;
+  padding: 7px 10px;
+  border: 1px solid var(--trait-doux);
+  border-radius: 8px;
+  background: #fbfaf6;
+}
+.pdf-chiffre strong {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--vert-texte);
+  line-height: 1.1;
+}
+.pdf-chiffre span {
+  font-size: 10px;
   color: var(--texte-doux);
 }
-.pdf-resume strong {
-  color: var(--vert-texte);
+
+/* Régularité : une case par jour du mois. */
+.pdf-regularite {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+.pdf-regularite-titre {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--texte-doux);
+  white-space: nowrap;
+}
+.pdf-regularite-jours {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+}
+.pdf-regularite-semaine {
+  display: flex;
+  gap: 2px;
+}
+.pdf-case {
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  font-size: 8.5px;
+  font-variant-numeric: tabular-nums;
+  color: #9aa39e;
+  border: 1px solid var(--trait-doux);
+}
+.pdf-case-travaille {
+  background: var(--vert);
+  border-color: var(--vert);
+  color: #fff;
+  font-weight: 600;
+}
+.pdf-case-futur {
+  border-style: dashed;
+  color: #c3c8c5;
+}
+
+/* Une semaine. */
 .pdf-semaine {
   break-inside: avoid;
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  overflow: hidden;
 }
 .pdf-semaine-titre {
   display: flex;
-  justify-content: space-between;
+  align-items: baseline;
   gap: 8px;
-  padding: 4px 8px;
+  padding: 4px 10px;
   background: var(--vert-clair);
-  border-radius: 6px 6px 0 0;
   color: var(--vert-texte);
+  border-bottom: 1px solid var(--trait);
+}
+.pdf-semaine-titre strong {
+  font-size: 12px;
+}
+.pdf-semaine-titre .pdf-semaine-dates {
+  color: var(--texte-doux);
+}
+.pdf-semaine-titre .pdf-semaine-total {
+  margin-left: auto;
+  font-weight: 600;
 }
 .pdf-table {
   width: 100%;
@@ -1984,71 +2076,150 @@ input.champ-texte {
 }
 .pdf-table th,
 .pdf-table td {
-  border: 1px solid #d9d4c7;
-  padding: 3px 6px;
+  padding: 3px 8px;
   text-align: left;
   vertical-align: top;
   word-wrap: break-word;
+  border-bottom: 1px solid var(--trait-doux);
+}
+.pdf-table td + td,
+.pdf-table th + th {
+  border-left: 1px solid var(--trait-doux);
+}
+.pdf-table tbody tr:last-child td {
+  border-bottom: 0;
 }
 .pdf-table th {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--texte-doux);
-  background: #faf8f3;
-}
-.pdf-table td small {
-  display: block;
-  font-size: 9.5px;
-  color: var(--texte-doux);
+  background: #fbfaf6;
 }
 .pdf-col-jour {
-  width: 13%;
+  width: 15%;
 }
 .pdf-col-duree {
   width: 9%;
 }
 .pdf-col-note {
-  width: 30%;
+  width: 27%;
 }
-.pdf-ligne-vide td {
-  height: 26px;
+.pdf-col-cheikh {
+  width: 10%;
 }
-.pdf-objectif {
+.pdf-jour {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  padding: 4px 8px;
-  border: 1px solid #d9d4c7;
-  border-top: 0;
-  border-radius: 0 0 6px 6px;
-  min-height: 24px;
+  gap: 5px;
+  white-space: nowrap;
 }
-.pdf-bas .pdf-objectif {
-  border-top: 1px solid #d9d4c7;
-  border-radius: 6px;
+.pdf-jour strong {
+  font-weight: 600;
+}
+.pdf-jour small {
+  font-size: 9.5px;
+  color: var(--texte-doux);
+}
+.pdf-ligne-vide td {
+  height: 22px;
+}
+.pdf-ligne-vide .pdf-jour {
+  color: #8a938e;
+}
+.pdf-duree {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pdf-passage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 5px;
+}
+.pdf-passage + .pdf-passage {
+  margin-top: 1px;
+}
+.pdf-sourate {
+  font-weight: 600;
+}
+.pdf-ar {
+  font-family: var(--font-arabe), "Amiri", serif;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--vert-texte);
+}
+.pdf-versets {
+  color: var(--texte-doux);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pdf-vu {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.pdf-vu-partielle {
+  background: var(--or-clair);
+  color: #7a5a14;
+}
+
+/* Objectifs. */
+.pdf-objectif {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  min-height: 24px;
+  background: #fdfcf9;
+  border-top: 1px solid var(--trait);
 }
 .pdf-objectif-titre {
   font-weight: 600;
   white-space: nowrap;
+  color: var(--vert-texte);
 }
 .pdf-objectif-texte {
   flex: 1;
+  border-bottom: 1px dotted #c9c3b5;
+  min-height: 14px;
 }
 .pdf-statut {
   white-space: nowrap;
+  font-size: 9.5px;
   font-weight: 600;
+  padding: 0 7px;
+  border-radius: 999px;
+}
+.pdf-statut-en_cours {
+  background: var(--or-clair);
+  color: #7a5a14;
 }
 .pdf-statut-atteint {
+  background: var(--vert-clair);
   color: var(--vert-texte);
 }
 .pdf-statut-non_atteint {
+  background: #f8e5e2;
   color: var(--rouge);
 }
+
+/* Bas de page : objectif du mois, bilan, visas. */
 .pdf-bas {
   display: flex;
   flex-direction: column;
   gap: 8px;
   break-inside: avoid;
+}
+.pdf-bas .pdf-objectif {
+  border: 1px solid var(--trait);
+  border-radius: 8px;
 }
 .pdf-bilan {
   display: grid;
@@ -2056,27 +2227,68 @@ input.champ-texte {
   gap: 8px;
 }
 .pdf-bilan > div {
-  border: 1px solid #d9d4c7;
-  border-radius: 6px;
-  padding: 6px 8px;
-  min-height: 64px;
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  padding: 6px 10px;
+  min-height: 60px;
 }
 .pdf-bilan-titre {
   font-weight: 700;
   color: var(--vert-texte);
 }
+.pdf-bilan-renforcer .pdf-bilan-titre {
+  color: #7a5a14;
+}
 .pdf-bilan p {
   margin: 4px 0 0;
   white-space: pre-wrap;
+}
+.pdf-visas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.pdf-visa {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px 10px 0;
+  min-height: 44px;
+  border: 1px dashed var(--trait);
+  border-radius: 8px;
+  font-size: 10px;
+  color: var(--texte-doux);
+}
+.pdf-pied {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 9px;
+  color: #8a938e;
 }
 
 @media screen and (max-width: 640px) {
   .pdf-page {
     overflow-x: auto;
-    padding: 16px;
+  }
+  .pdf-page > :not(.pdf-entete) {
+    margin-inline: 14px;
   }
   .pdf-table {
     min-width: 560px;
+  }
+  .pdf-semaine {
+    overflow-x: auto;
+  }
+  .pdf-chiffres {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pdf-regularite {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .pdf-regularite-jours {
+    flex-wrap: wrap;
   }
   .pdf-outils-action {
     align-items: stretch;
@@ -2088,7 +2300,7 @@ input.champ-texte {
 
 @page {
   size: A4;
-  margin: 10mm;
+  margin: 9mm;
 }
 @media print {
   html,
@@ -2111,29 +2323,68 @@ input.champ-texte {
   }
   .pdf-page {
     border: 0;
-    border-radius: 0;
+    border-radius: 10px;
     box-shadow: none;
-    padding: 0;
+    padding-bottom: 0;
+    gap: 5px;
     break-after: page;
-    font-size: 10px;
+    font-size: 9.5px;
   }
   .pdf-page:last-child {
     break-after: auto;
   }
+  .pdf-page > :not(.pdf-entete) {
+    margin-inline: 0;
+  }
+  .pdf-entete {
+    border-radius: 10px;
+    padding: 10px 16px;
+  }
+  .pdf-entete-titres h1 {
+    font-size: 19px;
+  }
+  .pdf-chiffre {
+    padding: 4px 9px;
+  }
+  .pdf-chiffre strong {
+    font-size: 15px;
+  }
   .pdf-ligne-vide td {
-    height: 16px;
+    height: 14px;
   }
   .pdf-table th,
   .pdf-table td {
-    padding: 2px 5px;
+    padding: 1px 7px;
+  }
+  .pdf-table th {
+    font-size: 8px;
+  }
+  .pdf-case {
+    width: 15px;
+    height: 15px;
+    font-size: 8px;
+  }
+  .pdf-ar {
+    font-size: 11.5px;
   }
   .pdf-semaine-titre,
   .pdf-objectif {
-    padding: 2px 6px;
+    padding: 1px 9px;
     min-height: 0;
   }
+  .pdf-semaine-titre strong {
+    font-size: 10.5px;
+  }
+  .pdf-bas {
+    gap: 5px;
+  }
   .pdf-bilan > div {
-    min-height: 48px;
+    min-height: 40px;
+    padding: 4px 9px;
+  }
+  .pdf-visa {
+    min-height: 30px;
+    padding-top: 3px;
   }
 }
 

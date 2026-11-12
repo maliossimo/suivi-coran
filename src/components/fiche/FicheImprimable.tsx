@@ -1,21 +1,31 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import {
+  etatCorrection,
   formaterDuree,
   LIBELLE_TYPE,
+  libelleDateLongue,
   libelleJourCourt,
+  libelleJourSemaine,
   libelleMois,
   type Objectif,
   type StatutObjectif,
 } from "@/domain/fiche";
-import { creerReferentiel, libellePassage } from "@/domain/versets";
-import type { FicheImprimable as Donnees } from "@/services/fiche";
+import {
+  creerReferentiel,
+  libellePassage,
+  type Passage,
+  type Referentiel,
+  type Sourate,
+} from "@/domain/versets";
+import type { FicheImprimable as Donnees, Fiche } from "@/services/fiche";
+import { LogoEtoile } from "../logo/LogoEtoile";
 import { BoutonImprimer } from "./BoutonImprimer";
 
 const STATUT: Record<StatutObjectif, string> = {
   en_cours: "En cours",
-  atteint: "✓ Atteint",
-  non_atteint: "✗ Non atteint",
+  atteint: "Atteint",
+  non_atteint: "Non atteint",
 };
 
 function LigneObjectif({ titre, objectif }: { titre: string; objectif: Objectif | null }) {
@@ -23,16 +33,106 @@ function LigneObjectif({ titre, objectif }: { titre: string; objectif: Objectif 
     <div className="pdf-objectif">
       <span className="pdf-objectif-titre">{titre}</span>
       <span className="pdf-objectif-texte">{objectif?.description ?? ""}</span>
-      <span className={`pdf-statut pdf-statut-${objectif?.statut ?? "vide"}`}>
-        {objectif ? STATUT[objectif.statut] : ""}
+      {objectif && (
+        <span className={`pdf-statut pdf-statut-${objectif.statut}`}>{STATUT[objectif.statut]}</span>
+      )}
+    </div>
+  );
+}
+
+/** « Al-Baqara البقرة v. 1 → 141 », le nom arabe dans sa police. */
+function PassagePdf({ referentiel: ref, passage: p }: { referentiel: Referentiel; passage: Passage }) {
+  const debut = ref.get(p.sourateDebut);
+  const fin = ref.get(p.sourateFin);
+  if (!debut || !fin) return <div className="pdf-passage">{libellePassage(ref, p)}</div>;
+  const nom = (s: Sourate) => (
+    <>
+      <span className="pdf-sourate">{s.nomLatin}</span>
+      <span className="pdf-ar" lang="ar" dir="rtl">
+        {s.nomAr}
       </span>
+    </>
+  );
+  if (p.sourateDebut === p.sourateFin) {
+    const entiere = p.versetDebut === 1 && p.versetFin === debut.nbVersets;
+    return (
+      <div className="pdf-passage">
+        {nom(debut)}
+        <span className="pdf-versets">
+          {entiere ? `en entier (${debut.nbVersets} v.)` : `v. ${p.versetDebut} → ${p.versetFin}`}
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className="pdf-passage">
+      {nom(debut)}
+      <span className="pdf-versets">v. {p.versetDebut} →</span>
+      {nom(fin)}
+      <span className="pdf-versets">v. {p.versetFin}</span>
+    </div>
+  );
+}
+
+function Chiffres({ fiche }: { fiche: Fiche }) {
+  const seances = fiche.semaines.flatMap((s) => s.jours.flatMap((j) => (j.seance ? [j.seance] : [])));
+  const vues = seances.filter((s) => etatCorrection(s) === "complete").length;
+  const pluriel = (n: number, mot: string) => `${mot}${n > 1 ? "s" : ""}`;
+  return (
+    <div className="pdf-chiffres">
+      <div className="pdf-chiffre">
+        <strong>{formaterDuree(fiche.totalMinutes)}</strong>
+        <span>de travail</span>
+      </div>
+      <div className="pdf-chiffre">
+        <strong>{fiche.joursTravailles}</strong>
+        <span>{pluriel(fiche.joursTravailles, "jour")} de travail</span>
+      </div>
+      <div className="pdf-chiffre">
+        <strong>{fiche.versetsTravailles}</strong>
+        <span>
+          {pluriel(fiche.versetsTravailles, "verset")}{" "}
+          {fiche.type === "apprentissage"
+            ? pluriel(fiche.versetsTravailles, "appris")
+            : pluriel(fiche.versetsTravailles, "révisé")}
+        </span>
+      </div>
+      <div className="pdf-chiffre">
+        <strong>{seances.length ? `${vues} / ${seances.length}` : "—"}</strong>
+        <span>
+          {pluriel(seances.length, "séance")} {pluriel(seances.length, "vue")} par le Cheikh
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** Une case par jour du mois : la régularité se lit d'un coup d'œil. */
+function Regularite({ fiche }: { fiche: Fiche }) {
+  return (
+    <div className="pdf-regularite">
+      <span className="pdf-regularite-titre">Jours travaillés</span>
+      <div className="pdf-regularite-jours" aria-hidden="true">
+        {fiche.semaines.map((semaine) => (
+          <div key={semaine.numero} className="pdf-regularite-semaine">
+            {semaine.jours.map((jour) => (
+              <span
+                key={jour.date}
+                className={`pdf-case${jour.seance ? " pdf-case-travaille" : jour.futur ? " pdf-case-futur" : ""}`}
+              >
+                {jour.jourDuMois}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 /**
  * Fiche du mois au format papier (A4), une page par type de séance :
- * semaines 1 à 5, jours, passages, notes, objectifs et bilan.
+ * chiffres du mois, semaines 1 à 5, passages, notes, objectifs, bilan et visas.
  * « Télécharger en PDF » ouvre l'impression du navigateur (« Enregistrer en PDF »).
  */
 export function FicheImprimable({
@@ -65,7 +165,7 @@ export function FicheImprimable({
           <section key={fiche.type} className="pdf-page">
             <header className="pdf-entete">
               <div className="pdf-logo" aria-hidden="true">
-                ق
+                <LogoEtoile />
               </div>
               <div className="pdf-entete-titres">
                 <span>Suivi cours Coran</span>
@@ -79,54 +179,69 @@ export function FicheImprimable({
               </div>
             </header>
 
-            <div className="pdf-resume">
-              <span>
-                <strong>{formaterDuree(fiche.totalMinutes)}</strong> de travail
-              </span>
-              <span>
-                <strong>{fiche.joursTravailles}</strong> jour{fiche.joursTravailles > 1 ? "s" : ""}
-              </span>
-              <span>
-                <strong>{fiche.versetsTravailles}</strong> verset{fiche.versetsTravailles > 1 ? "s" : ""}{" "}
-                {fiche.type === "apprentissage" ? "appris" : "révisés"}
-              </span>
-            </div>
+            <Chiffres fiche={fiche} />
+            <Regularite fiche={fiche} />
 
-            {fiche.semaines.map((semaine) => (
+            {fiche.semaines.map((semaine, index) => (
               <div key={semaine.numero} className="pdf-semaine">
                 <div className="pdf-semaine-titre">
                   <strong>Semaine {semaine.numero}</strong>
-                  <span>
+                  <span className="pdf-semaine-dates">
                     {libelleJourCourt(semaine.jours[0]!.date)} →{" "}
                     {libelleJourCourt(semaine.jours.at(-1)!.date)}
-                    {semaine.totalMinutes ? ` · ${formaterDuree(semaine.totalMinutes)}` : ""}
                   </span>
+                  {semaine.joursTravailles > 0 && (
+                    <span className="pdf-semaine-total">
+                      {semaine.joursTravailles} jour{semaine.joursTravailles > 1 ? "s" : ""}
+                      {semaine.totalMinutes ? ` · ${formaterDuree(semaine.totalMinutes)}` : ""}
+                    </span>
+                  )}
                 </div>
                 <table className="pdf-table">
-                  <thead>
+                  {/* Les titres de colonnes ne figurent qu'une fois : la page tient sur une feuille. */}
+                  <colgroup>
+                    <col className="pdf-col-jour" />
+                    <col className="pdf-col-duree" />
+                    <col />
+                    <col className="pdf-col-note" />
+                    <col className="pdf-col-cheikh" />
+                  </colgroup>
+                  <thead className={index === 0 ? undefined : "visuellement-cache"}>
                     <tr>
-                      <th className="pdf-col-jour">Jour</th>
-                      <th className="pdf-col-duree">Durée</th>
+                      <th>Jour</th>
+                      <th>Durée</th>
                       <th>Passages</th>
-                      <th className="pdf-col-note">Note</th>
+                      <th>Note</th>
+                      <th>Cheikh</th>
                     </tr>
                   </thead>
                   <tbody>
                     {semaine.jours.map((jour) => {
                       const s = jour.seance;
+                      const etat = s ? etatCorrection(s) : null;
                       return (
                         <tr key={jour.date} className={s ? undefined : "pdf-ligne-vide"}>
                           <td>
-                            Jour {jour.numero}
-                            <small>{libelleJourCourt(jour.date)}</small>
+                            <span className="pdf-jour">
+                              <strong>Jour {jour.numero}</strong>
+                              <small>
+                                {libelleJourSemaine(jour.date)} {libelleJourCourt(jour.date)}
+                              </small>
+                            </span>
                           </td>
-                          <td>{s ? formaterDuree(s.dureeMin) : ""}</td>
+                          <td className="pdf-duree">{s ? formaterDuree(s.dureeMin) : ""}</td>
                           <td>
                             {s?.passages.map((p, i) => (
-                              <div key={i}>{libellePassage(ref, p)}</div>
+                              <PassagePdf key={i} referentiel={ref} passage={p} />
                             ))}
                           </td>
                           <td>{s?.noteLibre ?? ""}</td>
+                          <td>
+                            {etat === "complete" && <span className="pdf-vu">✓ Vue</span>}
+                            {etat === "partielle" && (
+                              <span className="pdf-vu pdf-vu-partielle">En partie</span>
+                            )}
+                          </td>
                         </tr>
                       );
                     })}
@@ -143,12 +258,20 @@ export function FicheImprimable({
                   <span className="pdf-bilan-titre">✓ Bien mémorisé</span>
                   <p>{bilan?.bienMemorise ?? ""}</p>
                 </div>
-                <div>
+                <div className="pdf-bilan-renforcer">
                   <span className="pdf-bilan-titre">↻ À renforcer</span>
                   <p>{bilan?.aRenforcer ?? ""}</p>
                 </div>
               </div>
+              <div className="pdf-visas">
+                <div className="pdf-visa">Visa du Cheikh</div>
+                <div className="pdf-visa">Signature de l’élève ou d’un parent</div>
+              </div>
             </div>
+            <footer className="pdf-pied">
+              <span>Suivi cours Coran · {eleve}</span>
+              <span>Fiche éditée le {libelleDateLongue(donnees.editeeLe)}</span>
+            </footer>
           </section>
         );
       })}
