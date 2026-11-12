@@ -2,6 +2,7 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChoixLecture } from "@/components/ChoixLecture";
+import { VueAdmin } from "@/components/admin/VueAdmin";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { deNom } from "@/domain/classe";
 import { exigerEspace } from "@/services/acces";
@@ -19,17 +20,19 @@ export default async function PageLectureEleveParCheikh({ params }: { params: Pr
     <>
       <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace espace-etroit">
-        <Link href={base} className="lien-retour">
-          <ChevronLeft size={18} aria-hidden="true" />
-          Fiche {deNom(nom)}
-        </Link>
-        <ChoixLecture
-          eleveId={eleve.id}
-          actuelle={eleve.lecture}
-          retour={base}
-          premiereFois={false}
-          pourUnEleve={eleve.prenom || nom}
-        />
+        <VueAdmin actif={profil.role === "admin"}>
+          <Link href={base} className="lien-retour">
+            <ChevronLeft size={18} aria-hidden="true" />
+            Fiche {deNom(nom)}
+          </Link>
+          <ChoixLecture
+            eleveId={eleve.id}
+            actuelle={eleve.lecture}
+            retour={base}
+            premiereFois={false}
+            pourUnEleve={eleve.prenom || nom}
+          />
+        </VueAdmin>
       </main>
     </>
   );

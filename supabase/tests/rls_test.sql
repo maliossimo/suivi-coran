@@ -408,6 +408,62 @@ select pg_temp.attendu(
   'lecture : le Cheikh la change ; retour en numérotation Hafs');
 select pg_temp.console();
 
+-- ---------- Administration : établissements, erreurs, sauvegardes --------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+update public.etablissements set nom = 'Piratée' where id = 'aaaaaaaa-0000-0000-0000-000000000000';
+delete from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000';
+select pg_temp.console();
+select pg_temp.attendu(
+  (select nom from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') = 'École A',
+  'établissement : un Cheikh ne le renomme ni ne le supprime (rien n''est modifié)');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.doit_echouer(
+  $q$update public.profils set etablissement_id = 'bbbbbbbb-0000-0000-0000-000000000000'
+      where id = 'a0000000-0000-0000-0000-000000000001'$q$,
+  'déplacement : un Cheikh ne change pas un élève d''établissement');
+
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+update public.etablissements set nom = 'École A bis' where id = 'aaaaaaaa-0000-0000-0000-000000000000';
+select pg_temp.attendu(
+  (select nom from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') = 'École A bis',
+  'établissement : l''admin le renomme');
+select pg_temp.doit_echouer(
+  $q$delete from public.etablissements where id = 'bbbbbbbb-0000-0000-0000-000000000000'$q$,
+  'établissement : pas de suppression tant qu''il a des comptes');
+insert into public.etablissements (id, nom) values ('cccccccc-0000-0000-0000-000000000000', 'École vide');
+delete from public.etablissements where id = 'cccccccc-0000-0000-0000-000000000000';
+select pg_temp.attendu(
+  not exists (select 1 from public.etablissements where id = 'cccccccc-0000-0000-0000-000000000000'),
+  'établissement : l''admin supprime un établissement vide');
+update public.profils set etablissement_id = 'bbbbbbbb-0000-0000-0000-000000000000'
+ where id = 'a0000000-0000-0000-0000-000000000002';
+select pg_temp.attendu(
+  (select etablissement_id from public.profils where id = 'a0000000-0000-0000-0000-000000000002')
+    = 'bbbbbbbb-0000-0000-0000-000000000000',
+  'déplacement : l''admin change un élève d''établissement');
+update public.profils set etablissement_id = 'aaaaaaaa-0000-0000-0000-000000000000'
+ where id = 'a0000000-0000-0000-0000-000000000002';
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+insert into public.erreurs (page, message) values ('/eleve', 'Erreur de test');
+select pg_temp.doit_echouer(
+  $q$insert into public.erreurs (utilisateur_id, page, message)
+      values ('a0000000-0000-0000-0000-000000000002', '/eleve', 'au nom d''un autre')$q$,
+  'erreurs : on ne signale pas au nom d''un autre');
+select pg_temp.attendu((select count(*) from public.erreurs) = 0, 'erreurs : un élève ne les lit pas');
+select pg_temp.attendu((select count(*) from public.sauvegardes) = 0, 'sauvegardes : un élève ne les lit pas');
+select pg_temp.doit_echouer(
+  $q$insert into public.sauvegardes (chiffree) values (true)$q$,
+  'sauvegardes : personne ne les écrit depuis l''appli');
+select pg_temp.console();
+insert into public.sauvegardes (chiffree, taille_octets) values (true, 1234);
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu(
+  (select count(*) from public.erreurs where message = 'Erreur de test') = 1
+  and (select count(*) from public.sauvegardes) = 1,
+  'erreurs et sauvegardes : l''admin les lit');
+select pg_temp.console();
+
 -- ---------- Suppression définitive d'un élève -------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 select pg_temp.doit_echouer(

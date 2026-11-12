@@ -4,6 +4,7 @@
  */
 import type { DateISO } from "./calendrier";
 import { joursEntre } from "./classe";
+import type { Lecture } from "./lectures";
 import type { Role } from "./roles";
 
 export interface UtilisateurStat {
@@ -11,6 +12,8 @@ export interface UtilisateurStat {
   role: Role;
   actif: boolean;
   etablissementId: string | null;
+  /** Élèves : Hafs, Warsh, ou null s'il ne l'a pas encore choisie. */
+  lecture?: Lecture | null;
 }
 
 export interface SeanceUsage {
@@ -33,7 +36,15 @@ export interface EtablissementUsage {
   maitres: number;
   eleves: number;
   elevesActifs7j: number;
+  /** Élèves (comptes actifs) sans aucune séance ces 7 derniers jours. */
+  sansSaisie7j: number;
   seances30j: number;
+  /** Séances en attente du Cheikh (pas encore vues). */
+  aVoir: number;
+  hafs: number;
+  warsh: number;
+  /** Élèves qui n'ont pas encore choisi leur lecture. */
+  sansLecture: number;
 }
 
 export interface StatsUsage {
@@ -69,6 +80,8 @@ export function calculerStatsUsage(
   seances: readonly SeanceUsage[],
   aujourdhui: DateISO,
   nbSemaines = 12,
+  /** Séances à voir par élève (file du Cheikh). */
+  aVoirParEleve: ReadonlyMap<string, number> = new Map(),
 ): StatsUsage {
   const eleves = utilisateurs.filter((u) => u.role === "eleve");
   const maitres = utilisateurs.filter((u) => u.role === "maitre");
@@ -99,7 +112,12 @@ export function calculerStatsUsage(
       maitres: maitres.filter((u) => u.etablissementId === e.id && u.actif).length,
       eleves: elevesEtab.length,
       elevesActifs7j: [...actifs7j].filter((id) => ids.has(id)).length,
+      sansSaisie7j: elevesEtab.filter((u) => !actifs7j.has(u.id)).length,
       seances30j: s30.filter((s) => etabDe.get(s.eleveId) === e.id).length,
+      aVoir: elevesEtab.reduce((t, u) => t + (aVoirParEleve.get(u.id) ?? 0), 0),
+      hafs: elevesEtab.filter((u) => u.lecture === "hafs").length,
+      warsh: elevesEtab.filter((u) => u.lecture === "warsh").length,
+      sansLecture: elevesEtab.filter((u) => !u.lecture).length,
     };
   });
 

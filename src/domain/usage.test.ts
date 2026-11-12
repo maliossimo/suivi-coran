@@ -4,8 +4,8 @@ import { calculerStatsUsage, lundiDe, type SeanceUsage, type UtilisateurStat } f
 const utilisateurs: UtilisateurStat[] = [
   { id: "m1", role: "maitre", actif: true, etablissementId: "A" },
   { id: "m2", role: "maitre", actif: false, etablissementId: "B" },
-  { id: "e1", role: "eleve", actif: true, etablissementId: "A" },
-  { id: "e2", role: "eleve", actif: true, etablissementId: "A" },
+  { id: "e1", role: "eleve", actif: true, etablissementId: "A", lecture: "hafs" },
+  { id: "e2", role: "eleve", actif: true, etablissementId: "A", lecture: "warsh" },
   { id: "e3", role: "eleve", actif: true, etablissementId: "B" },
   { id: "e4", role: "eleve", actif: false, etablissementId: "B" },
   { id: "ad", role: "admin", actif: true, etablissementId: null },
@@ -34,7 +34,18 @@ describe("lundiDe", () => {
 });
 
 describe("calculerStatsUsage", () => {
-  const stats = calculerStatsUsage(utilisateurs, etablissements, seances, "2026-11-11");
+  const stats = calculerStatsUsage(
+    utilisateurs,
+    etablissements,
+    seances,
+    "2026-11-11",
+    12,
+    new Map([
+      ["e1", 2],
+      ["e3", 1],
+      ["e4", 5], // archivé : pas compté
+    ]),
+  );
 
   it("compte les comptes par rôle", () => {
     expect(stats.eleves).toEqual({ actifs: 3, archives: 1 });
@@ -57,8 +68,32 @@ describe("calculerStatsUsage", () => {
 
   it("détaille par établissement", () => {
     expect(stats.parEtablissement).toEqual([
-      { id: "A", nom: "École A", maitres: 1, eleves: 2, elevesActifs7j: 2, seances30j: 3 },
-      { id: "B", nom: "École B", maitres: 0, eleves: 1, elevesActifs7j: 0, seances30j: 2 },
+      {
+        id: "A",
+        nom: "École A",
+        maitres: 1,
+        eleves: 2,
+        elevesActifs7j: 2,
+        sansSaisie7j: 0,
+        seances30j: 3,
+        aVoir: 2,
+        hafs: 1,
+        warsh: 1,
+        sansLecture: 0,
+      },
+      {
+        id: "B",
+        nom: "École B",
+        maitres: 0,
+        eleves: 1,
+        elevesActifs7j: 0,
+        sansSaisie7j: 1,
+        seances30j: 2,
+        aVoir: 1,
+        hafs: 0,
+        warsh: 0,
+        sansLecture: 1,
+      },
     ]);
   });
 });

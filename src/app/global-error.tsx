@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { actionSignalerErreur } from "./actions/erreur";
 
 /** Dernier filet : une erreur imprévue affiche cette page et part dans les alertes. */
 export default function ErreurGlobale({
@@ -11,6 +12,8 @@ export default function ErreurGlobale({
   reset: () => void;
 }) {
   useEffect(() => {
+    const message = error.digest ? `${error.message} (réf. ${error.digest})` : error.message;
+    void actionSignalerErreur(window.location.pathname + window.location.search, message);
     // Sentry n'est chargé que s'il est configuré.
     if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
       void import("@sentry/nextjs").then((Sentry) => Sentry.captureException(error));

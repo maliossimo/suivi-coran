@@ -36,6 +36,29 @@ export async function inviter(
   return { ok: false, raison: "echec", detail: error.message };
 }
 
+/**
+ * Renvoie l'e-mail d'invitation à un compte qui ne s'est jamais connecté
+ * (mêmes prénom, nom, rôle et établissement). À n'appeler qu'après avoir vérifié
+ * que l'appelant est l'administrateur.
+ */
+export async function renvoyerInvitation(id: string): Promise<ResultatInvitation> {
+  const admin = clientAdmin();
+  if (!admin) return { ok: false, raison: "non_configure" };
+  const { data, error } = await admin.auth.admin.getUserById(id);
+  if (error || !data.user?.email) return { ok: false, raison: "echec", detail: error?.message };
+  if (data.user.last_sign_in_at) return { ok: false, raison: "deja_inscrit" };
+  const { error: e } = await admin.auth.admin.inviteUserByEmail(data.user.email, {
+    data: data.user.user_metadata,
+    redirectTo: `${envPublic.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/definir-mot-de-passe`,
+  });
+  if (!e) return { ok: true };
+  // Compte déjà créé : on envoie à la place le lien « choisir un mot de passe » (même effet).
+  const { error: r } = await admin.auth.resetPasswordForEmail(data.user.email, {
+    redirectTo: `${envPublic.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/definir-mot-de-passe`,
+  });
+  return r ? { ok: false, raison: "echec", detail: r.message } : { ok: true };
+}
+
 // ---------- Invitations par QR code ---------------------------------------
 
 const schemaInvitation = z.object({

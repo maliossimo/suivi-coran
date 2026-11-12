@@ -1,14 +1,18 @@
-import { actionBasculerUtilisateur } from "@/app/actions/admin";
+import Link from "next/link";
+import { Suspense } from "react";
+import { actionRenvoyerInvitation } from "@/app/actions/admin";
+import { EtatDuSite } from "@/components/admin/EtatDuSite";
+import { LigneEtablissement } from "@/components/admin/LigneEtablissement";
+import { TableauUtilisateurs } from "@/components/admin/TableauUtilisateurs";
+import { Squelettes } from "@/components/Chargement";
 import { AnneauProgression } from "@/components/AnneauProgression";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireEtablissement } from "@/components/FormulaireEtablissement";
 import { FormulaireInvitation } from "@/components/FormulaireInvitation";
 import { GraphiqueUsage } from "@/components/admin/GraphiqueUsage";
-import { SuppressionUtilisateur } from "@/components/SuppressionUtilisateur";
 import { formaterDuree } from "@/domain/fiche";
 import { exigerEspace } from "@/services/acces";
 import { chargerTableauAdmin } from "@/services/admin";
-import { Avatar } from "@/components/Avatar";
 
 const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
 
@@ -86,16 +90,28 @@ export default async function PageAdmin() {
                       <th>Cheikhs</th>
                       <th>Élèves</th>
                       <th>Actifs 7 j</th>
+                      <th>Sans saisie 7 j</th>
+                      <th>À voir</th>
+                      <th>Hafs / Warsh</th>
+                      <th>Lecture à choisir</th>
                       <th>Séances 30 j</th>
                     </tr>
                   </thead>
                   <tbody>
                     {st.parEtablissement.map((e) => (
                       <tr key={e.id}>
-                        <td>{e.nom}</td>
+                        <td>
+                          <Link href={`/maitre?classe=${e.id}`}>{e.nom}</Link>
+                        </td>
                         <td>{e.maitres}</td>
                         <td>{e.eleves}</td>
                         <td>{e.elevesActifs7j}</td>
+                        <td className={e.sansSaisie7j ? "cellule-alerte" : undefined}>{e.sansSaisie7j}</td>
+                        <td className={e.aVoir ? "cellule-or" : undefined}>{e.aVoir}</td>
+                        <td>
+                          {e.hafs} / {e.warsh}
+                        </td>
+                        <td className={e.sansLecture ? "cellule-or" : undefined}>{e.sansLecture}</td>
                         <td>{e.seances30j}</td>
                       </tr>
                     ))}
@@ -114,14 +130,16 @@ export default async function PageAdmin() {
                 Crée le premier établissement pour pouvoir inviter un Cheikh.
               </p>
             ) : (
-              <ul className="liste-simple">
+              <ul className="liste-simple liste-etablissements">
                 {t.etablissements.map((e) => (
-                  <li key={e.id}>
-                    <b>{e.nom}</b>
-                    <span>
-                      {e.maitres} Cheikh{e.maitres > 1 ? "s" : ""} · {e.eleves} élève{e.eleves > 1 ? "s" : ""}
-                    </span>
-                  </li>
+                  <LigneEtablissement
+                    key={e.id}
+                    id={e.id}
+                    nom={e.nom}
+                    maitres={e.maitres}
+                    eleves={e.eleves}
+                    comptes={e.comptes}
+                  />
                 ))}
               </ul>
             )}
@@ -135,65 +153,54 @@ export default async function PageAdmin() {
           </section>
         </div>
 
+        {t.invitationsEnAttente.length > 0 ? (
+          <section className="carte-graphique">
+            <h2>Invitations en attente ({t.invitationsEnAttente.length})</h2>
+            <p className="carte-graphique-sous">
+              Invités qui ne se sont encore jamais connectés. « Renvoyer » leur envoie un nouvel e-mail pour
+              choisir leur mot de passe.
+            </p>
+            <ul className="liste-simple">
+              {t.invitationsEnAttente.map((u) => (
+                <li key={u.id} className="ligne-invitation">
+                  <span className="ligne-invitation-qui">
+                    <b>{`${u.prenom} ${u.nom}`.trim() || "Sans nom"}</b>
+                    <span>
+                      {ROLES[u.role]}
+                      {u.etablissementId ? ` · ${nomEtab.get(u.etablissementId) ?? ""}` : ""}
+                      {u.email ? ` · ${u.email}` : ""}
+                      {u.inviteLe ? ` · invité le ${dateCourte(u.inviteLe)}` : ""}
+                    </span>
+                  </span>
+                  <form action={actionRenvoyerInvitation}>
+                    <input type="hidden" name="id" value={u.id} />
+                    <button type="submit" className="bouton-secondaire bouton-auto">
+                      Renvoyer
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         <section className="carte-graphique">
           <h2>Utilisateurs ({t.utilisateurs.length})</h2>
-          <div className="tableau-defilant">
-            <table className="tableau">
-              <thead>
-                <tr>
-                  <th>Nom</th>
-                  <th>Rôle</th>
-                  <th>Établissement</th>
-                  <th>Inscrit le</th>
-                  <th>Dernière connexion</th>
-                  <th>Statut</th>
-                  <th>Suppression</th>
-                </tr>
-              </thead>
-              <tbody>
-                {t.utilisateurs.map((u) => (
-                  <tr key={u.id}>
-                    <td>
-                      <span className="nom-avec-avatar">
-                        <Avatar prenom={u.prenom} nom={u.nom} cle={u.id} role={u.role} taille="petit" />
-                        {`${u.prenom} ${u.nom}`.trim() || "—"}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`pastille-role pastille-${u.role}`}>{ROLES[u.role]}</span>
-                    </td>
-                    <td>{u.etablissementId ? (nomEtab.get(u.etablissementId) ?? "—") : "—"}</td>
-                    <td>{dateCourte(u.creeLe)}</td>
-                    <td>{u.derniereConnexion ? dateCourte(u.derniereConnexion) : "Jamais"}</td>
-                    <td>
-                      {u.id === profil.id ? (
-                        "Vous"
-                      ) : (
-                        <form action={actionBasculerUtilisateur}>
-                          <input type="hidden" name="id" value={u.id} />
-                          <input type="hidden" name="actif" value={u.actif ? "false" : "true"} />
-                          <button
-                            type="submit"
-                            className={u.actif ? "lien-action" : "lien-action lien-action-off"}
-                          >
-                            {u.actif ? "Actif · désactiver" : "Désactivé · réactiver"}
-                          </button>
-                        </form>
-                      )}
-                    </td>
-                    <td>
-                      {u.id === profil.id || u.role === "admin" ? (
-                        "—"
-                      ) : (
-                        <SuppressionUtilisateur id={u.id} prenom={u.prenom} nom={u.nom} role={u.role} />
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {!t.comptesLisibles ? (
+            <p className="carte-graphique-sous">
+              Dernières connexions et invitations indisponibles : clé « service role » non configurée.
+            </p>
+          ) : null}
+          <TableauUtilisateurs
+            utilisateurs={t.utilisateurs}
+            etablissements={t.etablissements}
+            moi={profil.id}
+          />
         </section>
+
+        <Suspense fallback={<Squelettes cartes={1} tuiles={false} />}>
+          <EtatDuSite />
+        </Suspense>
       </main>
     </>
   );
