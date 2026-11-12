@@ -48,9 +48,10 @@ export function EcranProgression({
         <div className="tuile tuile-anneau">
           <AnneauProgression
             pourcentage={p.pourcentageCoran}
+            pourcentageVu={p.pourcentageCoranVu}
             taille={64}
             epaisseur={7}
-            libelle={`${p.pourcentageCoran.toLocaleString("fr-FR")} % du Coran`}
+            libelle={`${p.pourcentageCoran.toLocaleString("fr-FR")} % du Coran, dont ${p.pourcentageCoranVu.toLocaleString("fr-FR")} % vu par le Cheikh`}
             texte={`${p.pourcentageCoran.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %`}
           />
           <span>du Coran</span>
@@ -60,6 +61,13 @@ export function EcranProgression({
           <span>
             sourate{p.souratesCompletes > 1 ? "s" : ""} complète{p.souratesCompletes > 1 ? "s" : ""}
           </span>
+          {p.souratesCompletes > p.souratesCompletesVues ? (
+            <small className="tuile-detail">
+              {p.souratesCompletesVues === 0
+                ? "pas encore vues par le Cheikh"
+                : `dont ${p.souratesCompletesVues} vue${p.souratesCompletesVues > 1 ? "s" : ""} par le Cheikh`}
+            </small>
+          ) : null}
         </div>
         <div className="tuile">
           <strong>{p.joursConsecutifs}</strong>
@@ -145,6 +153,9 @@ export function EcranProgression({
                             ? ` · ${s.versetsVus} vu${s.versetsVus > 1 ? "s" : ""}`
                             : " · pas encore vus"}
                         </span>
+                      ) : null}
+                      {s.pourcentage === 100 && s.versetsVus < s.versetsAppris ? (
+                        <span className="pastille-a-faire-voir">À faire voir</span>
                       ) : null}
                       {renforcer ? <span className="pastille-or">À réviser</span> : null}
                     </span>

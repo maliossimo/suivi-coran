@@ -7,7 +7,8 @@ import type { Passage } from "@/domain/versets";
  * quitte la page en pleine saisie (appel, écran verrouillé), il retrouve ce
  * qu'il avait tapé. Au clic sur « Enregistrer », il est marqué « envoi » et
  * n'est effacé qu'une fois la base d'accord : si l'onglet se ferme ou si le
- * réseau coupe pendant l'envoi, la séance n'est pas perdue. Oublié au bout de 7 jours.
+ * réseau coupe pendant l'envoi, la séance n'est pas perdue : elle est renvoyée
+ * au prochain affichage de la fiche (voir EtatEnregistrement). Oublié au bout de 7 jours.
  */
 export interface Brouillon {
   dureeMin: number;

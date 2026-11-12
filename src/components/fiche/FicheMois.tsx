@@ -280,7 +280,7 @@ function LigneJour({
       <span className="jour-duree">{s ? formaterDuree(s.dureeMin) : "—"}</span>
       <span className={s ? "jour-contenu" : "jour-contenu jour-vide"}>
         {contenu ?? (jour.futur ? "" : "+ Saisir")}
-        <EtatEnregistrement cle={cle} />
+        <EtatEnregistrement cle={cle} enBase={s} />
         {s && etatCorrection(s) === "complete" ? (
           <span className="pastille-or">✓ Vu par le Cheikh</span>
         ) : null}
