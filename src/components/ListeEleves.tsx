@@ -54,7 +54,14 @@ export function ListeEleves({
       <ul className="liste-eleves">
         {visibles.map((r) => (
           <li key={r.eleve.id}>
-            <Link href={`/maitre/eleves/${r.eleve.id}?mois=${cleMois}`} className="carte-eleve">
+            <Link
+              href={
+                r.premiereAVoir
+                  ? `/maitre/eleves/${r.eleve.id}?mois=${r.premiereAVoir.date.slice(0, 7)}&type=${r.premiereAVoir.type}`
+                  : `/maitre/eleves/${r.eleve.id}?mois=${cleMois}`
+              }
+              className="carte-eleve"
+            >
               <Avatar prenom={r.eleve.prenom} nom={r.eleve.nom} cle={r.eleve.id} />
               <span className="carte-eleve-nom">
                 {r.eleve.prenom} {r.eleve.nom}

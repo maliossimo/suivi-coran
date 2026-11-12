@@ -4164,3 +4164,45 @@ html[data-ouverture] .ouverture {
   margin-left: 0;
   align-self: center;
 }
+
+/* ---------- Vu par le Cheikh : anneau, carte, sourates ---------- */
+.anneau-declare {
+  stroke: #a9cbbb;
+}
+/* Hachures : saisi mais pas encore vu par le Cheikh. */
+.carte-a-voir::after,
+.carte-pastille-a-voir {
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0 2px, transparent 2px 5px);
+}
+.carte-a-voir::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.carte-pastille-a-voir {
+  background-color: #7fb39b;
+}
+.pastille-a-faire-voir {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  border: 1px dashed var(--vert);
+  color: var(--vert-texte);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+@media (prefers-color-scheme: dark) {
+  .anneau-declare {
+    stroke: rgba(79, 163, 130, 0.35);
+  }
+  .carte-a-voir::after,
+  .carte-pastille-a-voir {
+    background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 5px);
+  }
+  .carte-pastille-a-voir {
+    background-color: #3f8f70;
+  }
+}

@@ -8,6 +8,8 @@ import {
   trierParPrenom,
   phraseEleve,
   deNom,
+  fileAVoir,
+  seanceAVoir,
 } from "./classe";
 
 const eleves = [
@@ -57,8 +59,20 @@ describe("resumerClasse", () => {
   });
   it("compte les séances à voir par le Cheikh (0 par défaut)", () => {
     expect(resume[2]?.aVoir).toBe(0);
-    const avecFile = resumerClasse(eleves, [], [], new Map(), "2026-11-10", new Map([["a", 2]]));
+    const avecFile = resumerClasse(
+      eleves,
+      [],
+      [],
+      new Map(),
+      "2026-11-10",
+      new Map([["a", { nombre: 2, premiere: { date: "2026-10-20", type: "revision" as const } }]]),
+    );
     expect(avecFile.find((r) => r.eleve.id === "a")?.aVoir).toBe(2);
+    expect(avecFile.find((r) => r.eleve.id === "a")?.premiereAVoir).toEqual({
+      date: "2026-10-20",
+      type: "revision",
+    });
+    expect(avecFile.find((r) => r.eleve.id === "b")?.premiereAVoir).toBe(null);
     expect(avecFile.find((r) => r.eleve.id === "b")?.aVoir).toBe(0);
   });
 });
@@ -134,5 +148,33 @@ describe("deNom", () => {
   it("garde « de » devant une consonne (et le h)", () => {
     expect(deNom("Karim")).toBe("de Karim");
     expect(deNom("Hamza")).toBe("de Hamza");
+  });
+});
+
+describe("file à voir du Cheikh", () => {
+  const s = (eleveId: string, date: string, passagesVus: boolean[], modifieeParEncadrant = false) => ({
+    eleveId,
+    date,
+    type: "apprentissage" as const,
+    modifieeParEncadrant,
+    passagesVus,
+  });
+
+  it("une séance est à voir s'il reste un passage non vu, ou sans passage et jamais ouverte", () => {
+    expect(seanceAVoir(s("a", "2026-11-01", [true, false]))).toBe(true);
+    expect(seanceAVoir(s("a", "2026-11-01", [true, true]))).toBe(false);
+    expect(seanceAVoir(s("a", "2026-11-01", []))).toBe(true);
+    expect(seanceAVoir(s("a", "2026-11-01", [], true))).toBe(false);
+  });
+
+  it("compte par élève et garde la plus ancienne", () => {
+    const file = fileAVoir([
+      s("a", "2026-11-08", [false]),
+      s("a", "2026-10-25", []),
+      s("a", "2026-11-01", [true]),
+      s("b", "2026-11-09", [true]),
+    ]);
+    expect(file.get("a")).toEqual({ nombre: 2, premiere: { date: "2026-10-25", type: "apprentissage" } });
+    expect(file.has("b")).toBe(false);
   });
 });

@@ -28,15 +28,25 @@ export function CarteCoran({
             {LIBELLE_ETAT[etat]} <b>{carte.compte[etat]}</b>
           </li>
         ))}
+        {carte.aFaireVoir > 0 ? (
+          <li>
+            <span className="carte-pastille carte-pastille-a-voir" aria-hidden="true" />
+            Pas encore vu par le Cheikh <b>{carte.aFaireVoir}</b>
+          </li>
+        ) : null}
       </ul>
 
       <ol className="carte-grille">
         {carte.cases.map((c) => {
           const description = `${c.sourate.numero}. ${c.sourate.nomLatin} (${c.sourate.nomAr}) — ${LIBELLE_ETAT[c.etat]}${
             c.etat === "en_cours" ? `, ${c.pourcentage} %` : ""
-          }`;
+          }${c.aFaireVoir ? ", pas encore vu en entier par le Cheikh" : ""}`;
           return (
-            <li key={c.sourate.numero} className={`carte-case carte-${c.etat}`} title={description}>
+            <li
+              key={c.sourate.numero}
+              className={`carte-case carte-${c.etat}${c.aFaireVoir ? " carte-a-voir" : ""}`}
+              title={description}
+            >
               <span aria-hidden="true">{c.sourate.numero}</span>
               <span className="visuellement-cache">{description}</span>
               {c.etat === "en_cours" ? (
