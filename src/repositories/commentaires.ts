@@ -33,6 +33,27 @@ export function commentairesDeSeance(seanceId: string): Promise<Commentaire[]> {
   return commentairesDe({ seanceId });
 }
 
+/**
+ * Commentaires de la séance d'un jour, sans connaître son identifiant :
+ * lus en même temps que la séance (un aller-retour de moins).
+ */
+export async function commentairesDuJour(
+  eleveId: string,
+  type: string,
+  date: string,
+): Promise<Commentaire[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("commentaires")
+    .select("texte, cree_le, seances!inner(date, type)")
+    .eq("eleve_id", eleveId)
+    .eq("seances.date", date)
+    .eq("seances.type", type)
+    .order("cree_le", { ascending: false });
+  if (error) throw new Error(`Lecture des commentaires impossible : ${error.message}`);
+  return schema.parse(data).map((c) => ({ texte: c.texte, creeLe: c.cree_le }));
+}
+
 export async function ajouterCommentaire(
   eleveId: string,
   auteurId: string,

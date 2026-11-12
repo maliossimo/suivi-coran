@@ -4244,3 +4244,63 @@ html[data-ouverture] .ouverture {
     color: #cfd8de;
   }
 }
+
+/* ---------- Lien en cours de chargement ---------- */
+.indicateur-lien {
+  display: none;
+}
+.indicateur-lien.actif {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--or);
+  vertical-align: middle;
+  animation: indicateur-lien 0.8s ease-in-out infinite alternate;
+}
+.mois-fleche {
+  position: relative;
+}
+.mois-fleche .indicateur-lien.actif {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  margin-left: -3px;
+}
+@keyframes indicateur-lien {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .indicateur-lien.actif {
+    animation: none;
+  }
+}
+
+/* ---------- Écran d'attente d'une séance ---------- */
+.squelette-titre-seance {
+  height: 54px;
+  max-width: 260px;
+}
+.squelette-formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+.squelette-champ-court {
+  height: 52px;
+  max-width: 180px;
+}
+.squelette-champ {
+  height: 96px;
+}
+.squelette-bouton {
+  height: 52px;
+  border-radius: 999px;
+}

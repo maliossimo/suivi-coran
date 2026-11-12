@@ -84,7 +84,8 @@ export default async function PageEleveMaitre({
             <ConfirmationSuppression eleveId={eleve.id} prenom={eleve.prenom} nom={eleve.nom} />
           </section>
         ) : null}
-        <Suspense key={`${mois}-${type}`} fallback={<Squelettes />}>
+        {/* Pas de clé : en changeant de mois ou d’onglet, la fiche reste affichée jusqu’à l’arrivée de la suivante. */}
+        <Suspense fallback={<Squelettes />}>
           <FicheDifferee eleveId={eleve.id} base={base} mois={mois} type={type} vueMaitre />
         </Suspense>
       </main>

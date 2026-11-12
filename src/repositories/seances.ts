@@ -216,3 +216,59 @@ export async function seancesSuiviDepuis(depuis: DateISO): Promise<SeanceSuivi[]
       passagesVus: l.passages.map((p) => p.corrige_par !== null),
     }));
 }
+
+/**
+ * Tout l'historique d'un élève jusqu'à `fin`, en une seule lecture et réduit à ce que
+ * la progression utilise (date, type, durée, passages et « vu par le Cheikh ») :
+ * pas de note, de tajwid ni de commentaires.
+ */
+export async function historiquePourProgression(eleveId: string, fin: DateISO): Promise<Seance[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("seances")
+    .select(
+      "date, type, duree_min, passages(ordre, sourate_debut, verset_debut, sourate_fin, verset_fin, corrige_par)",
+    )
+    .eq("eleve_id", eleveId)
+    .lte("date", fin)
+    .order("date")
+    .limit(20000);
+  if (error) throw new Error(`Lecture de l'historique impossible : ${error.message}`);
+  return z
+    .array(
+      z.object({
+        date: z.string(),
+        type: z.enum(["apprentissage", "revision"]),
+        duree_min: z.number(),
+        passages: z.array(
+          z.object({
+            ordre: z.number(),
+            sourate_debut: z.number(),
+            verset_debut: z.number(),
+            sourate_fin: z.number(),
+            verset_fin: z.number(),
+            corrige_par: z.string().nullable(),
+          }),
+        ),
+      }),
+    )
+    .parse(data)
+    .map((l) => ({
+      id: `${l.date}-${l.type}`,
+      date: l.date,
+      type: l.type,
+      dureeMin: l.duree_min,
+      tajwid: null,
+      noteLibre: null,
+      corrigee: false,
+      passages: [...l.passages]
+        .sort((a, b) => a.ordre - b.ordre)
+        .map((p) => ({
+          sourateDebut: p.sourate_debut,
+          versetDebut: p.verset_debut,
+          sourateFin: p.sourate_fin,
+          versetFin: p.verset_fin,
+          corrige: p.corrige_par !== null,
+        })),
+    }));
+}

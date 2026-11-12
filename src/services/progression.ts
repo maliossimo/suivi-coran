@@ -4,7 +4,7 @@ import { carteDuCoran, type CarteDuCoran } from "@/domain/carte";
 import { calculerProgression, type Progression } from "@/domain/progression";
 import { creerReferentiel } from "@/domain/versets";
 import { objectifsEntre } from "@/repositories/objectifs";
-import { seancesEntre } from "@/repositories/seances";
+import { historiquePourProgression } from "@/repositories/seances";
 import { listerSourates } from "@/repositories/sourates";
 import { aujourdhuiParis } from "./fiche";
 
@@ -17,19 +17,17 @@ export async function chargerProgression(
 ): Promise<Progression & { aujourdhui: string; carte: CarteDuCoran }> {
   const aujourdhui = aujourdhuiParis();
   const { annee, mois } = lireDate(aujourdhui);
-  const debut = "2000-01-01"; // tout l'historique : une sourate apprise il y a longtemps reste connue
   const index = annee * 12 + (mois - 1) - 5; // 6 mois, le mois courant compris
   const debutObjectifs = formaterDate(Math.floor(index / 12), (index % 12) + 1, 1);
 
-  const [apprentissage, revision, objectifs, sourates] = await Promise.all([
-    seancesEntre(eleveId, "apprentissage", debut, aujourdhui),
-    seancesEntre(eleveId, "revision", debut, aujourdhui),
+  // Tout l'historique (une sourate apprise il y a longtemps reste connue), en une lecture allégée.
+  const [seances, objectifs, sourates] = await Promise.all([
+    historiquePourProgression(eleveId, aujourdhui),
     objectifsEntre(eleveId, debutObjectifs, formaterDate(annee, mois, 1)),
     listerSourates(),
   ]);
 
   const ref = creerReferentiel(sourates);
-  const seances = [...apprentissage, ...revision];
   return {
     ...calculerProgression(ref, seances, objectifs, aujourdhui),
     aujourdhui,
