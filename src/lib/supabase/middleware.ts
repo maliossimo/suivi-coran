@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { envPublic } from "@/lib/env";
 
 /** Pages accessibles sans être connecté. */
-const ROUTES_PUBLIQUES = ["/connexion", "/auth/", "/rejoindre/"];
+const ROUTES_PUBLIQUES = ["/connexion", "/auth/", "/rejoindre/", "/manifest.webmanifest"];
 
 function estPublique(chemin: string): boolean {
   return ROUTES_PUBLIQUES.some((r) => chemin === r || chemin.startsWith(r));
