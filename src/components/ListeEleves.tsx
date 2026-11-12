@@ -5,7 +5,7 @@ import Link from "next/link";
 import { EtatVide } from "./EtatVide";
 import { useState } from "react";
 import { actionArchiverEleve } from "@/app/actions/classe";
-import { correspondARecherche, libelleDerniereSaisie, type ResumeEleve } from "@/domain/classe";
+import { correspondARecherche, phraseEleve, type ResumeEleve } from "@/domain/classe";
 import { formaterDuree } from "@/domain/fiche";
 
 function initiales(r: ResumeEleve): string {
@@ -63,8 +63,11 @@ export function ListeEleves({
               </span>
               <span className="carte-eleve-nom">
                 {r.eleve.prenom} {r.eleve.nom}
-                <small className={r.alerte ? "texte-alerte" : undefined}>
-                  Dernière saisie : {libelleDerniereSaisie(r.joursSansSaisie)}
+                <small
+                  className={r.alerte ? "texte-alerte" : r.joursSansSaisie === 0 ? "texte-ok" : undefined}
+                >
+                  {r.joursSansSaisie === 0 ? "✓ " : r.alerte ? "⚠ " : ""}
+                  {phraseEleve(r.joursSansSaisie)}
                 </small>
               </span>
               <span className="carte-eleve-stats">
@@ -77,12 +80,14 @@ export function ListeEleves({
                 <span>
                   <b>{r.joursTravailles}</b> j travaillés
                 </span>
-                <span>
-                  <b>
-                    {r.objectifsAtteints}/{r.objectifsTotal}
-                  </b>{" "}
-                  objectifs
-                </span>
+                {r.objectifsTotal ? (
+                  <span>
+                    <b>
+                      {r.objectifsAtteints}/{r.objectifsTotal}
+                    </b>{" "}
+                    objectifs
+                  </span>
+                ) : null}
               </span>
               <span className="chevron" aria-hidden="true">
                 <ChevronRight size={20} />

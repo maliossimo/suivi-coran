@@ -3307,3 +3307,6 @@ button:active:not(:disabled),
     color: #e6ece8;
   }
 }
+.texte-ok {
+  color: var(--vert);
+}

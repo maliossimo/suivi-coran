@@ -117,18 +117,21 @@ export function FicheMois({
             <strong>{formaterDuree(fiche.totalMinutes)}</strong> de travail
           </li>
           <li>
-            <strong>{fiche.joursTravailles}</strong> jour{fiche.joursTravailles > 1 ? "s" : ""}
+            <strong>{fiche.joursTravailles}</strong> jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé
+            {fiche.joursTravailles > 1 ? "s" : ""}
           </li>
           <li>
             <strong>{fiche.versetsTravailles}</strong> verset{fiche.versetsTravailles > 1 ? "s" : ""}
           </li>
-          <li>
-            <strong>
-              {fiche.semaines.filter((s) => s.objectif?.statut === "atteint").length}/
-              {fiche.semaines.filter((s) => s.objectif).length}
-            </strong>{" "}
-            objectifs
-          </li>
+          {fiche.semaines.some((s) => s.objectif) ? (
+            <li>
+              <strong>
+                {fiche.semaines.filter((s) => s.objectif?.statut === "atteint").length}/
+                {fiche.semaines.filter((s) => s.objectif).length}
+              </strong>{" "}
+              objectifs atteints
+            </li>
+          ) : null}
         </ul>
       )}
 
@@ -146,7 +149,11 @@ export function FicheMois({
               <h3 id={`s${semaine.numero}`}>Semaine {semaine.numero}</h3>
               <span>
                 {libelleJourCourt(semaine.jours[0]!.date)} → {libelleJourCourt(semaine.jours.at(-1)!.date)} ·{" "}
-                {aVenir ? `${semaine.jours.length} jours` : formaterDuree(semaine.totalMinutes)}
+                {aVenir
+                  ? `${semaine.jours.length} jours`
+                  : semaine.totalMinutes
+                    ? formaterDuree(semaine.totalMinutes)
+                    : "rien saisi"}
               </span>
             </>
           );
@@ -229,7 +236,8 @@ export function FicheMois({
               <strong>{formaterDuree(fiche.totalMinutes)}</strong> de travail
             </li>
             <li>
-              <strong>{fiche.joursTravailles}</strong> jour{fiche.joursTravailles > 1 ? "s" : ""}
+              <strong>{fiche.joursTravailles}</strong> jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé
+              {fiche.joursTravailles > 1 ? "s" : ""}
             </li>
             <li>
               <strong>{fiche.versetsTravailles}</strong> verset{fiche.versetsTravailles > 1 ? "s" : ""}{" "}
@@ -287,17 +295,19 @@ function LigneJour({
       </span>
       <span className="jour-duree">{s ? formaterDuree(s.dureeMin) : "—"}</span>
       <span className={s ? "jour-contenu" : "jour-contenu jour-vide"}>
-        {contenu ?? (jour.futur ? "" : "+ Ajouter")}
+        {contenu ?? (jour.futur ? "" : "+ Saisir")}
         <EtatEnregistrement cle={cle} />
-        {s && etatCorrection(s) === "complete" ? <span className="pastille-or">Corrigée</span> : null}
+        {s && etatCorrection(s) === "complete" ? (
+          <span className="pastille-or">✓ Vu par le Cheikh</span>
+        ) : null}
         {s && etatCorrection(s) === "partielle" ? (
-          <span className="pastille-or pastille-partielle">Corrigée en partie</span>
+          <span className="pastille-or pastille-partielle">Ajout à voir</span>
         ) : null}
         {s?.noteLibre ? <span className="pastille-note">Note</span> : null}
         {s?.nbCommentaires ? (
           <span className="pastille-commentaire">
             <MessageCircle size={12} strokeWidth={2.6} aria-hidden="true" />
-            Cheikh
+            Commentaire
           </span>
         ) : null}
       </span>
