@@ -72,12 +72,15 @@ export function InstallerAppli() {
               <Download size={18} aria-hidden="true" />
               Installer l’appli
             </button>
-          ) : appareil === "iphone" ? (
+          ) : appareil === "iphone" || appareil === "iphone-autre-navigateur" ? (
             <ol className="etapes-installation">
               <li>
                 <Share size={18} aria-hidden="true" />
                 <span>
-                  Touche le bouton <b>Partager</b> en bas de Safari.
+                  Touche le bouton <b>Partager</b>{" "}
+                  {appareil === "iphone"
+                    ? "en bas de Safari."
+                    : "(dans Chrome, il est en haut à droite, dans la barre d’adresse)."}
                 </span>
               </li>
               <li>
@@ -87,10 +90,6 @@ export function InstallerAppli() {
                 </span>
               </li>
             </ol>
-          ) : appareil === "iphone-autre-navigateur" ? (
-            <p className="carte-compte-aide">
-              Sur iPhone, ouvre ce site dans <b>Safari</b> pour pouvoir l’ajouter à l’écran d’accueil.
-            </p>
           ) : (
             <ol className="etapes-installation">
               <li>
@@ -98,13 +97,15 @@ export function InstallerAppli() {
                   ⋮
                 </span>
                 <span>
-                  Ouvre le menu <b>⋮</b> de Chrome (en haut à droite).
+                  Ouvre le menu du navigateur : <b>⋮</b> dans Chrome (en haut à droite), <b>≡</b> dans Samsung
+                  Internet (en bas).
                 </span>
               </li>
               <li>
                 <SquarePlus size={18} aria-hidden="true" />
                 <span>
-                  Choisis <b>Ajouter à l’écran d’accueil</b> ou <b>Installer l’application</b>.
+                  Choisis <b>Ajouter à l’écran d’accueil</b>, <b>Installer l’application</b> ou{" "}
+                  <b>Ajouter la page à → Écran d’accueil</b>.
                 </span>
               </li>
             </ol>
