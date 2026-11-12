@@ -2,15 +2,12 @@
 
 import { ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
+import { Avatar } from "./Avatar";
 import { EtatVide } from "./EtatVide";
 import { useState } from "react";
 import { actionArchiverEleve } from "@/app/actions/classe";
 import { correspondARecherche, phraseEleve, type ResumeEleve } from "@/domain/classe";
 import { formaterDuree } from "@/domain/fiche";
-
-function initiales(r: ResumeEleve): string {
-  return `${r.eleve.prenom[0] ?? ""}${r.eleve.nom[0] ?? ""}`.toUpperCase() || "?";
-}
 
 /**
  * Liste de la classe (déjà triée par prénom) avec recherche instantanée,
@@ -58,9 +55,7 @@ export function ListeEleves({
         {visibles.map((r) => (
           <li key={r.eleve.id}>
             <Link href={`/maitre/eleves/${r.eleve.id}?mois=${cleMois}`} className="carte-eleve">
-              <span className="avatar avatar-clair" aria-hidden="true">
-                {initiales(r)}
-              </span>
+              <Avatar prenom={r.eleve.prenom} nom={r.eleve.nom} cle={r.eleve.id} />
               <span className="carte-eleve-nom">
                 {r.eleve.prenom} {r.eleve.nom}
                 <small
