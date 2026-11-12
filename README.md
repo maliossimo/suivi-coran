@@ -31,7 +31,8 @@ L'inscription libre est désactivée. Pour tester, dans Supabase Studio (http://
    -- un établissement
    insert into etablissements (nom) values ('Ma classe') returning id;
    ```
-   Les invitations de maîtres et d'élèves depuis l'application arrivent dans une prochaine PR.
+   Ensuite, tout se fait depuis l'application : l'administrateur invite les Cheikhs et les élèves
+   par e-mail, et chaque classe a son QR code d'invitation (page « Inviter des élèves »).
 
 ## Commandes utiles
 

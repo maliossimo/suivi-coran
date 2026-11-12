@@ -35,6 +35,15 @@ export function EcranProgression({
         <div className="tuile tuile-forte">
           <strong>{p.versetsAppris}</strong>
           <span>versets appris</span>
+          {p.versetsAppris > 0 ? (
+            <small className="tuile-detail">
+              {p.versetsVus >= p.versetsAppris
+                ? "tous vus par le Cheikh"
+                : p.versetsVus === 0
+                  ? "pas encore vus par le Cheikh"
+                  : `dont ${p.versetsVus} vu${p.versetsVus > 1 ? "s" : ""} par le Cheikh`}
+            </small>
+          ) : null}
         </div>
         <div className="tuile tuile-anneau">
           <AnneauProgression
@@ -105,6 +114,12 @@ export function EcranProgression({
 
       <section className="carte-graphique">
         <h2>Sourates</h2>
+        {p.sourates.some((s) => s.versetsVus < s.versetsAppris) ? (
+          <p className="carte-graphique-sous">
+            <span className="puce puce-vert" /> vu par le Cheikh <span className="puce puce-declare" /> saisi,
+            pas encore vu
+          </p>
+        ) : null}
         {p.sourates.length === 0 ? (
           <p className="carte-graphique-sous">
             Les sourates apparaîtront ici dès les premières séances d’apprentissage.
@@ -124,11 +139,23 @@ export function EcranProgression({
                     </span>
                     <span className="liste-sourates-info">
                       {s.versetsAppris}/{s.sourate.nbVersets} versets
+                      {s.versetsVus < s.versetsAppris ? (
+                        <span className="liste-sourates-vus">
+                          {s.versetsVus
+                            ? ` · ${s.versetsVus} vu${s.versetsVus > 1 ? "s" : ""}`
+                            : " · pas encore vus"}
+                        </span>
+                      ) : null}
                       {renforcer ? <span className="pastille-or">À réviser</span> : null}
                     </span>
                   </div>
-                  <span className="jauge">
-                    <span style={{ width: `${s.pourcentage}%` }} />
+                  <span
+                    className="jauge jauge-double"
+                    title={`${s.versetsVus} vu${s.versetsVus > 1 ? "s" : ""} par le Cheikh sur ${s.versetsAppris} saisis`}
+                  >
+                    <span style={{ width: `${s.pourcentage}%` }}>
+                      <span style={{ width: `${(s.versetsVus / s.versetsAppris) * 100}%` }} />
+                    </span>
                   </span>
                   <small className="liste-sourates-revision">
                     {s.derniereRevision

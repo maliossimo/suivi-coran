@@ -5,7 +5,9 @@ import type { Passage } from "@/domain/versets";
 /**
  * Brouillon d'une séance gardé dans le téléphone (localStorage) : si l'élève
  * quitte la page en pleine saisie (appel, écran verrouillé), il retrouve ce
- * qu'il avait tapé. Effacé à l'enregistrement, oublié au bout de 7 jours.
+ * qu'il avait tapé. Au clic sur « Enregistrer », il est marqué « envoi » et
+ * n'est effacé qu'une fois la base d'accord : si l'onglet se ferme ou si le
+ * réseau coupe pendant l'envoi, la séance n'est pas perdue. Oublié au bout de 7 jours.
  */
 export interface Brouillon {
   dureeMin: number;
@@ -14,26 +16,34 @@ export interface Brouillon {
 }
 
 const DUREE_VIE_MS = 7 * 24 * 3600 * 1000;
-const cleStockage = (cle: string) => `brouillon-seance:${cle}`;
+const PREFIXE = "brouillon-seance:";
+const cleStockage = (cle: string) => `${PREFIXE}${cle}`;
+
+function lireBrut(cle: string): (Brouillon & { le: number; envoi?: boolean }) | null {
+  const brut = window.localStorage.getItem(cleStockage(cle));
+  if (!brut) return null;
+  const b = JSON.parse(brut) as Brouillon & { le: number; envoi?: boolean };
+  if (typeof b.le !== "number" || Date.now() - b.le > DUREE_VIE_MS || !Array.isArray(b.passages)) {
+    window.localStorage.removeItem(cleStockage(cle));
+    return null;
+  }
+  return b;
+}
 
 export function lireBrouillon(cle: string): Brouillon | null {
   try {
-    const brut = window.localStorage.getItem(cleStockage(cle));
-    if (!brut) return null;
-    const b = JSON.parse(brut) as Brouillon & { le: number };
-    if (typeof b.le !== "number" || Date.now() - b.le > DUREE_VIE_MS || !Array.isArray(b.passages)) {
-      window.localStorage.removeItem(cleStockage(cle));
-      return null;
-    }
+    const b = lireBrut(cle);
+    if (!b) return null;
     return { dureeMin: Number(b.dureeMin) || 0, passages: b.passages, noteLibre: String(b.noteLibre ?? "") };
   } catch {
     return null; // stockage indisponible (navigation privée…) : pas de brouillon
   }
 }
 
-export function ecrireBrouillon(cle: string, b: Brouillon) {
+/** `envoi` : la séance a été envoyée, on attend la confirmation de la base. */
+export function ecrireBrouillon(cle: string, b: Brouillon, envoi = false) {
   try {
-    window.localStorage.setItem(cleStockage(cle), JSON.stringify({ ...b, le: Date.now() }));
+    window.localStorage.setItem(cleStockage(cle), JSON.stringify({ ...b, le: Date.now(), envoi }));
   } catch {
     /* stockage plein ou indisponible : tant pis */
   }
@@ -44,6 +54,15 @@ export function effacerBrouillon(cle: string) {
     window.localStorage.removeItem(cleStockage(cle));
   } catch {
     /* rien */
+  }
+}
+
+/** Vrai si un envoi de cette séance n'a jamais été confirmé (onglet fermé, coupure…). */
+export function envoiInterrompu(cle: string): boolean {
+  try {
+    return lireBrut(cle)?.envoi === true;
+  } catch {
+    return false;
   }
 }
 
