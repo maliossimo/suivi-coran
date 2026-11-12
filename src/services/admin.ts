@@ -157,6 +157,8 @@ export async function chargerJournal(
   noms: Map<string, string>;
   personnes: { id: string; nom: string }[];
   filtres: z.infer<typeof schemaFiltres>;
+  /** Dernière connexion de chaque compte, la plus récente d'abord (vide sans clé « service role »). */
+  connexions: { id: string; nom: string; role: Utilisateur["role"]; derniereConnexion: string | null }[];
 }> {
   exigerAdmin(acteur);
   const filtres = schemaFiltres.parse(filtresBruts);
@@ -167,12 +169,25 @@ export async function chargerJournal(
     du: filtres.du,
     au: filtres.au,
   };
-  const [evenements, utilisateurs] = await Promise.all([journalRecent(150, f), listerUtilisateurs()]);
+  const [evenements, utilisateurs, comptes] = await Promise.all([
+    journalRecent(150, f),
+    listerUtilisateurs(),
+    comptesConnexion().catch(() => new Map<string, CompteConnexion>()),
+  ]);
   const noms = new Map(utilisateurs.map((u) => [u.id, `${u.prenom} ${u.nom}`.trim() || "Sans nom"]));
   const personnes = [...noms]
     .map(([id, nom]) => ({ id, nom }))
     .sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
-  return { evenements, noms, personnes, filtres };
+  const connexions = utilisateurs
+    .filter((u) => comptes.has(u.id) && (!filtres.personne || u.id === filtres.personne))
+    .map((u) => ({
+      id: u.id,
+      nom: noms.get(u.id) ?? "Sans nom",
+      role: u.role,
+      derniereConnexion: comptes.get(u.id)?.derniereConnexion ?? null,
+    }))
+    .sort((a, b) => (b.derniereConnexion ?? "").localeCompare(a.derniereConnexion ?? ""));
+  return { evenements, noms, personnes, filtres, connexions };
 }
 
 // ---------- Établissements ------------------------------------------------
