@@ -35,7 +35,12 @@ export interface ResumeEleve {
   joursSansSaisie: number | null;
   /** Rien saisi depuis au moins `SEUIL_ALERTE` jours (ou jamais). */
   alerte: boolean;
+  /** Séances récentes que le Cheikh n'a pas encore vues (ou ajouts après sa correction). */
+  aVoir: number;
 }
+
+/** Fenêtre de la file « à voir » du Cheikh : les séances plus anciennes n'y figurent plus. */
+export const JOURS_A_VOIR = 30;
 
 export const SEUIL_ALERTE = 3;
 
@@ -50,6 +55,7 @@ export function resumerClasse(
   objectifsDuMois: readonly ObjectifStat[],
   dernieresSaisies: ReadonlyMap<string, DateISO>,
   aujourdhui: DateISO,
+  seancesAVoir: ReadonlyMap<string, number> = new Map(),
 ): ResumeEleve[] {
   return trierParPrenom(eleves).map((eleve) => {
     const seances = seancesDuMois.filter((s) => s.eleveId === eleve.id);
@@ -68,6 +74,7 @@ export function resumerClasse(
       derniereSaisie: derniere,
       joursSansSaisie,
       alerte: eleve.actif && (joursSansSaisie === null || joursSansSaisie >= SEUIL_ALERTE),
+      aVoir: seancesAVoir.get(eleve.id) ?? 0,
     };
   });
 }

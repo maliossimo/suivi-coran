@@ -187,3 +187,23 @@ export async function derniereSeanceAvecPassagesAvant(
   const seances = z.array(schemaLigne).parse(data).map(versSeance);
   return seances.find((s) => s.passages.length > 0) ?? null;
 }
+
+/**
+ * Nombre de séances par élève (depuis `depuis`) ayant au moins un passage
+ * que le Cheikh n'a pas encore vu : sa file de correction.
+ */
+export async function seancesAVoirDepuis(depuis: DateISO): Promise<Map<string, number>> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("seances")
+    .select("id, eleve_id, passages!inner(ordre)")
+    .is("passages.corrige_par", null)
+    .gte("date", depuis)
+    .limit(10000);
+  if (error) throw new Error(`Lecture des séances à voir impossible : ${error.message}`);
+  const resultat = new Map<string, number>();
+  for (const s of z.array(z.object({ id: z.string(), eleve_id: z.string() })).parse(data)) {
+    resultat.set(s.eleve_id, (resultat.get(s.eleve_id) ?? 0) + 1);
+  }
+  return resultat;
+}

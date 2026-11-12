@@ -183,7 +183,8 @@ export function FormulaireSeance({
     // l'envoi continue en arrière-plan ; la ligne du jour affiche « Enregistrement… ».
     const donnees = new FormData(e.currentTarget);
     setEnvoiEnCours(true);
-    effacerBrouillon(cle);
+    // Le brouillon reste jusqu'à la confirmation de la base (voir brouillon.ts).
+    ecrireBrouillon(cle, { dureeMin: duree, passages, noteLibre: note }, true);
     preparerEnvoi(cle, { dureeMin: duree, passages, noteLibre: note }, () =>
       actionEnregistrerSeanceFond(donnees),
     );

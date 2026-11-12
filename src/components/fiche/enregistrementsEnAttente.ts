@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import type { Passage } from "@/domain/versets";
+import { effacerBrouillon } from "./brouillon";
 
 export { cleSeance } from "./cleSeance";
 
@@ -52,7 +53,11 @@ export function lancerEnvoi(cle: string) {
   if (!envoyer) return;
   aEnvoyer.delete(cle);
   envoyer()
-    .then((r) => (r.ok ? retirer(cle) : marquerErreur(cle, r.erreur)))
+    .then((r) => {
+      if (!r.ok) return marquerErreur(cle, r.erreur);
+      effacerBrouillon(cle); // la base a la séance : le brouillon ne sert plus
+      retirer(cle);
+    })
     .catch(() => marquerErreur(cle, "pas de connexion. Vérifie ton réseau et réessaie."));
 }
 

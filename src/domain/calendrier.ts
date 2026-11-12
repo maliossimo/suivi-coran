@@ -79,3 +79,10 @@ export function debutDuMois(date: DateISO): DateISO {
   const { annee, mois } = lireDate(date);
   return formaterDate(annee, mois, 1);
 }
+
+/** Date décalée de `n` jours (négatif : dans le passé). */
+export function ajouterJours(date: DateISO, n: number): DateISO {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}

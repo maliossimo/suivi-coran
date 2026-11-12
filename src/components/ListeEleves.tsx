@@ -6,7 +6,7 @@ import { Avatar } from "./Avatar";
 import { EtatVide } from "./EtatVide";
 import { useState } from "react";
 import { actionArchiverEleve } from "@/app/actions/classe";
-import { correspondARecherche, phraseEleve, type ResumeEleve } from "@/domain/classe";
+import { correspondARecherche, JOURS_A_VOIR, phraseEleve, type ResumeEleve } from "@/domain/classe";
 import { formaterDuree } from "@/domain/fiche";
 
 /**
@@ -58,6 +58,14 @@ export function ListeEleves({
               <Avatar prenom={r.eleve.prenom} nom={r.eleve.nom} cle={r.eleve.id} />
               <span className="carte-eleve-nom">
                 {r.eleve.prenom} {r.eleve.nom}
+                {r.aVoir > 0 ? (
+                  <span
+                    className="pastille-or pastille-a-voir"
+                    title={`Séances des ${JOURS_A_VOIR} derniers jours pas encore vues`}
+                  >
+                    {r.aVoir} séance{r.aVoir > 1 ? "s" : ""} à voir
+                  </span>
+                ) : null}
                 <small
                   className={r.alerte ? "texte-alerte" : r.joursSansSaisie === 0 ? "texte-ok" : undefined}
                 >
