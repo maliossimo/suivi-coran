@@ -37,11 +37,11 @@ export function EcranProgression({
           <span>versets appris</span>
           {p.versetsAppris > 0 ? (
             <small className="tuile-detail">
-              {p.versetsVus >= p.versetsAppris
-                ? "tous vus par le Cheikh"
+              {p.versetsValides >= p.versetsAppris
+                ? "tous validés par le Cheikh"
                 : p.versetsVus === 0
-                  ? "pas encore vus par le Cheikh"
-                  : `dont ${p.versetsVus} vu${p.versetsVus > 1 ? "s" : ""} par le Cheikh`}
+                  ? "pas encore écoutés par le Cheikh"
+                  : `dont ${p.versetsValides} validé${p.versetsValides > 1 ? "s" : ""}, ${p.versetsVus} écouté${p.versetsVus > 1 ? "s" : ""} par le Cheikh`}
             </small>
           ) : null}
         </div>
@@ -51,7 +51,7 @@ export function EcranProgression({
             pourcentageVu={p.pourcentageCoranVu}
             taille={64}
             epaisseur={7}
-            libelle={`${p.pourcentageCoran.toLocaleString("fr-FR")} % du Coran, dont ${p.pourcentageCoranVu.toLocaleString("fr-FR")} % vu par le Cheikh`}
+            libelle={`${p.pourcentageCoran.toLocaleString("fr-FR")} % du Coran, dont ${p.pourcentageCoranVu.toLocaleString("fr-FR")} % écouté par le Cheikh`}
             texte={`${p.pourcentageCoran.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %`}
           />
           <span>du Coran</span>
@@ -124,8 +124,8 @@ export function EcranProgression({
         <h2>Sourates</h2>
         {p.sourates.some((s) => s.versetsVus < s.versetsAppris) ? (
           <p className="carte-graphique-sous">
-            <span className="puce puce-vert" /> vu par le Cheikh <span className="puce puce-declare" /> saisi,
-            pas encore vu
+            <span className="puce puce-vert" /> écouté ou validé par le Cheikh{" "}
+            <span className="puce puce-declare" /> saisi, pas encore écouté
           </p>
         ) : null}
         {p.sourates.length === 0 ? (
@@ -150,19 +150,22 @@ export function EcranProgression({
                       {s.versetsVus < s.versetsAppris ? (
                         <span className="liste-sourates-vus">
                           {s.versetsVus
-                            ? ` · ${s.versetsVus} vu${s.versetsVus > 1 ? "s" : ""}`
-                            : " · pas encore vus"}
+                            ? ` · ${s.versetsVus} écouté${s.versetsVus > 1 ? "s" : ""}`
+                            : " · pas encore écoutés"}
                         </span>
                       ) : null}
                       {s.pourcentage === 100 && s.versetsVus < s.versetsAppris ? (
-                        <span className="pastille-a-faire-voir">À faire voir</span>
+                        <span className="pastille-a-faire-voir">À faire écouter</span>
+                      ) : null}
+                      {s.pourcentage === 100 && s.versetsValides >= s.sourate.nbVersets ? (
+                        <span className="pastille-or">✓ Validée</span>
                       ) : null}
                       {renforcer ? <span className="pastille-or">À réviser</span> : null}
                     </span>
                   </div>
                   <span
                     className="jauge jauge-double"
-                    title={`${s.versetsVus} vu${s.versetsVus > 1 ? "s" : ""} par le Cheikh sur ${s.versetsAppris} saisis`}
+                    title={`${s.versetsValides} validé${s.versetsValides > 1 ? "s" : ""}, ${s.versetsVus} écouté${s.versetsVus > 1 ? "s" : ""} par le Cheikh sur ${s.versetsAppris} saisis`}
                   >
                     <span style={{ width: `${s.pourcentage}%` }}>
                       <span style={{ width: `${(s.versetsVus / s.versetsAppris) * 100}%` }} />

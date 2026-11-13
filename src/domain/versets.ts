@@ -24,8 +24,10 @@ export interface Passage {
   versetDebut: number;
   sourateFin: number;
   versetFin: number;
-  /** Vrai si le Cheikh a vu ce passage (lecture seule : posé par la base). */
+  /** Vrai si le Cheikh a écouté ce passage (lecture seule : posé par la base). */
   corrige?: boolean;
+  /** Vrai si le Cheikh l'a validé : acquis (suppose « écouté »). */
+  valide?: boolean;
 }
 
 /** Intervalle fermé d'index globaux. */

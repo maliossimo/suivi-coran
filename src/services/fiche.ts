@@ -39,6 +39,7 @@ import {
   seancesEntre,
   supprimerSeance,
   validerSeance,
+  marquerPassages,
   aDejaUneSeance,
 } from "@/repositories/seances";
 import { lectureEleve } from "@/repositories/profils";
@@ -253,6 +254,31 @@ export async function validerSeanceEleve(
     return { ok: true };
   } catch {
     return { ok: false, erreur: "La séance n'a pas pu être validée. Réessaie." };
+  }
+}
+
+const schemaMarquage = z.object({
+  seanceId: z.string().uuid(),
+  etat: z.enum(["aucun", "ecoute", "valide"]),
+  /** Ordres des passages (1, 2…) ; absent : toute la séance. */
+  ordres: z.array(z.number().int().min(1).max(20)).max(20).optional(),
+});
+
+/** Le Cheikh marque des passages « écoutés » ou « validés » (ou retire sa marque). */
+export async function marquerPassagesSeance(
+  acteur: { role: string; actif: boolean },
+  brut: unknown,
+): Promise<ResultatSaisie> {
+  if (!acteur.actif || (acteur.role !== "maitre" && acteur.role !== "admin")) {
+    return { ok: false, erreur: "Seul le Cheikh marque les passages." };
+  }
+  const m = schemaMarquage.safeParse(brut);
+  if (!m.success) return { ok: false, erreur: "Passage introuvable : recharge la page." };
+  try {
+    await marquerPassages(m.data.seanceId, m.data.etat, m.data.ordres);
+    return { ok: true };
+  } catch {
+    return { ok: false, erreur: "Le changement n'a pas pu être enregistré. Réessaie." };
   }
 }
 

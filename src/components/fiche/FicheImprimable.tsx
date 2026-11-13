@@ -1,7 +1,7 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import {
-  etatCorrection,
+  etatCheikh,
   formaterDuree,
   LIBELLE_TYPE,
   libelleDateLongue,
@@ -77,7 +77,7 @@ function PassagePdf({ referentiel: ref, passage: p }: { referentiel: Referentiel
 
 function Chiffres({ fiche }: { fiche: Fiche }) {
   const seances = fiche.semaines.flatMap((s) => s.jours.flatMap((j) => (j.seance ? [j.seance] : [])));
-  const vues = seances.filter((s) => etatCorrection(s) === "complete").length;
+  const validees = seances.filter((s) => etatCheikh(s) === "valide").length;
   const pluriel = (n: number, mot: string) => `${mot}${n > 1 ? "s" : ""}`;
   return (
     <div className="pdf-chiffres">
@@ -97,9 +97,9 @@ function Chiffres({ fiche }: { fiche: Fiche }) {
         </span>
       </div>
       <div className="pdf-chiffre">
-        <strong>{seances.length ? `${vues} / ${seances.length}` : "—"}</strong>
+        <strong>{seances.length ? `${validees} / ${seances.length}` : "—"}</strong>
         <span>
-          {pluriel(seances.length, "séance")} {pluriel(seances.length, "vue")} par le Cheikh
+          {pluriel(seances.length, "séance")} {pluriel(seances.length, "validée")} par le Cheikh
         </span>
       </div>
     </div>
@@ -217,7 +217,7 @@ export function FicheImprimable({
                   <tbody>
                     {semaine.jours.map((jour) => {
                       const s = jour.seance;
-                      const etat = s ? etatCorrection(s) : null;
+                      const etat = s ? etatCheikh(s) : null;
                       return (
                         <tr key={jour.date} className={s ? undefined : "pdf-ligne-vide"}>
                           <td>
@@ -236,7 +236,8 @@ export function FicheImprimable({
                           </td>
                           <td>{s?.noteLibre ?? ""}</td>
                           <td>
-                            {etat === "complete" && <span className="pdf-vu">✓ Vue</span>}
+                            {etat === "valide" && <span className="pdf-vu">✓ Validé</span>}
+                            {etat === "ecoute" && <span className="pdf-vu pdf-vu-ecoute">🎧 Écouté</span>}
                             {etat === "partielle" && (
                               <span className="pdf-vu pdf-vu-partielle">En partie</span>
                             )}

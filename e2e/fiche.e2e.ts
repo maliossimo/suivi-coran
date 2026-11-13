@@ -47,4 +47,36 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await corriger.click();
     await expect(page).toHaveURL(new RegExp(`/maitre/eleves/${IDS.eleveA}(\\?|$)`));
   });
+
+  test("le Cheikh écoute puis valide un passage, l'élève le voit", async ({ browser }) => {
+    const cheikh = await browser.newContext();
+    const page = await cheikh.newPage();
+    await seConnecter(page, COMPTES.cheikhA, /\/maitre/);
+    await page.goto(`/maitre/eleves/${IDS.eleveA}/seance?date=${jourParis(-1)}&type=revision`);
+    const recitation = page.getByRole("region", { name: "Écoute du Cheikh" });
+    await recitation.getByRole("button", { name: "Tout écouté" }).click();
+    await expect(recitation.getByRole("radio", { name: /Écouté/ }).first()).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    await recitation
+      .getByRole("radio", { name: /Validé/ })
+      .first()
+      .click();
+    await expect(recitation.getByRole("radio", { name: /Validé/ }).first()).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    await capture(page, "23-cheikh-valide");
+    await page.waitForLoadState("networkidle");
+    await cheikh.close();
+
+    const eleve = await browser.newContext();
+    const page2 = await eleve.newPage();
+    await seConnecter(page2, COMPTES.eleveA, /\/eleve/);
+    await page2.goto(`/eleve/seance?date=${jourParis(-1)}&type=revision`);
+    await expect(page2.getByText("✓ Validé par le Cheikh").first()).toBeVisible();
+    await capture(page2, "12-eleve-valide");
+    await eleve.close();
+  });
 });

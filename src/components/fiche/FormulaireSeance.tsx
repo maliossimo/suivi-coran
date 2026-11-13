@@ -128,12 +128,12 @@ export function FormulaireSeance({
     ? `${nomSourate(suggestion.sourateDebut)?.nomLatin ?? ""} · ${suggestion.versetDebut} → ${suggestion.versetFin}`
     : "";
 
-  function modifier(index: number, champ: Exclude<keyof Passage, "corrige">, valeur: number) {
+  function modifier(index: number, champ: Exclude<keyof Passage, "corrige" | "valide">, valeur: number) {
     setPassages((liste) =>
       liste.map((p, i) => {
         if (i !== index) return p;
-        // Un passage modifié n'est plus « vu par le Cheikh ».
-        const suivant: Passage = { ...p, [champ]: valeur, corrige: false };
+        // Un passage modifié n'est plus « écouté » ni « validé » par le Cheikh.
+        const suivant: Passage = { ...p, [champ]: valeur, corrige: false, valide: false };
         // Quand on change la sourate de début, la fin suit (cas le plus courant).
         if (champ === "sourateDebut" && p.sourateFin === p.sourateDebut) {
           suivant.sourateFin = valeur;
@@ -305,11 +305,14 @@ export function FormulaireSeance({
         {passages.map((p, i) => (
           <fieldset key={i} className="passage">
             <legend className="visuellement-cache">Passage {i + 1}</legend>
-            {initiale?.corrigee ? (
-              p.corrige ? (
-                <p className="passage-vu">✓ Vu par le Cheikh</p>
+            {/* L'élève voit où en est chaque passage ; le Cheikh a ses boutons au-dessus. */}
+            {initiale?.corrigee && !vueMaitre ? (
+              p.valide ? (
+                <p className="passage-vu">✓ Validé par le Cheikh</p>
+              ) : p.corrige ? (
+                <p className="passage-vu passage-ecoute">🎧 Écouté par le Cheikh</p>
               ) : (
-                <p className="passage-vu passage-pas-vu">Pas encore vu par le Cheikh</p>
+                <p className="passage-vu passage-pas-vu">Pas encore écouté par le Cheikh</p>
               )
             ) : null}
             <div className="passage-ligne">

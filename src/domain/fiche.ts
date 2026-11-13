@@ -225,14 +225,29 @@ export function formaterDuree(minutes: number): string {
  * `complete` si le Cheikh a vu tous les passages, `partielle` s'il en manque
  * (passage ajouté ou modifié après son passage), null s'il ne l'a pas encore vue.
  */
-export function etatCorrection(
-  seance: Pick<Seance, "corrigee" | "passages">,
-): "complete" | "partielle" | null {
-  if (!seance.corrigee) return null;
-  const vus = seance.passages.filter((p) => p.corrige).length;
-  if (seance.passages.length === 0 || vus === seance.passages.length) return "complete";
-  return "partielle";
+export type EtatCheikh = "valide" | "ecoute" | "partielle";
+
+/**
+ * Où en est la séance chez le Cheikh (passage par passage) :
+ * - « valide »   : tous les passages validés ;
+ * - « ecoute »   : tous écoutés (au moins), pas tous validés ; séance sans passage vue par le Cheikh ;
+ * - « partielle » : un passage n'a pas encore été écouté (ajouté ou modifié depuis) ;
+ * - null         : le Cheikh n'est pas encore passé.
+ */
+export function etatCheikh(seance: Pick<Seance, "corrigee" | "passages">): EtatCheikh | null {
+  const { passages } = seance;
+  if (passages.length === 0) return seance.corrigee ? "ecoute" : null;
+  const ecoutes = passages.filter((p) => p.corrige || p.valide).length;
+  if (ecoutes === 0) return seance.corrigee ? "partielle" : null;
+  if (ecoutes < passages.length) return "partielle";
+  return passages.every((p) => p.valide) ? "valide" : "ecoute";
 }
+
+export const LIBELLE_ETAT_CHEIKH: Record<EtatCheikh, string> = {
+  valide: "✓ Validé par le Cheikh",
+  ecoute: "🎧 Écouté par le Cheikh",
+  partielle: "Ajout à écouter",
+};
 
 /** Ce que l'élève saisit pour une séance (sans l'état de correction). */
 export interface ContenuSeance {

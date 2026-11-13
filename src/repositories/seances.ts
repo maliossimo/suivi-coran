@@ -7,7 +7,7 @@ import type { Passage } from "@/domain/versets";
 import { creerClientServeur } from "@/lib/supabase/server";
 
 const COLONNES =
-  "id, date, type, duree_min, tajwid, note_libre, modifiee_par, passages(ordre, sourate_debut, verset_debut, sourate_fin, verset_fin, corrige_par), commentaires(count)";
+  "id, date, type, duree_min, tajwid, note_libre, modifiee_par, passages(ordre, sourate_debut, verset_debut, sourate_fin, verset_fin, corrige_par, valide_le), commentaires(count)";
 
 const schemaLigne = z.object({
   id: z.string().uuid(),
@@ -26,6 +26,7 @@ const schemaLigne = z.object({
       sourate_fin: z.number().int(),
       verset_fin: z.number().int(),
       corrige_par: z.string().uuid().nullable(),
+      valide_le: z.string().nullable(),
     }),
   ),
 });
@@ -48,6 +49,7 @@ function versSeance(ligne: z.infer<typeof schemaLigne>): Seance {
         sourateFin: p.sourate_fin,
         versetFin: p.verset_fin,
         corrige: p.corrige_par !== null,
+        valide: p.valide_le !== null,
       })),
   };
 }
@@ -109,7 +111,22 @@ export async function enregistrerSeance(eleveId: string, saisie: SaisieSeance): 
   if (error) throw new Error(`Enregistrement impossible : ${error.message}`);
 }
 
-/** Le Cheikh valide la séance telle quelle (la base vérifie qu'il encadre l'élève). */
+/** Marque du Cheikh sur les passages : « aucun », « écouté » ou « validé » (tous, ou par ordre). */
+export async function marquerPassages(
+  seanceId: string,
+  etat: "aucun" | "ecoute" | "valide",
+  ordres?: number[],
+): Promise<void> {
+  const supabase = await creerClientServeur();
+  const { error } = await supabase.rpc("marquer_passages", {
+    p_seance: seanceId,
+    p_etat: etat,
+    ...(ordres ? { p_ordres: ordres } : {}),
+  });
+  if (error) throw new Error(`Marquage impossible : ${error.message}`);
+}
+
+/** « Valider en un geste » : tous les passages écoutés et validés (la base vérifie qu'il encadre l'élève). */
 export async function validerSeance(seanceId: string): Promise<void> {
   const supabase = await creerClientServeur();
   const { error } = await supabase.rpc("valider_seance", { p_seance: seanceId });
@@ -227,7 +244,7 @@ export async function historiquePourProgression(eleveId: string, fin: DateISO): 
   const { data, error } = await supabase
     .from("seances")
     .select(
-      "date, type, duree_min, passages(ordre, sourate_debut, verset_debut, sourate_fin, verset_fin, corrige_par)",
+      "date, type, duree_min, passages(ordre, sourate_debut, verset_debut, sourate_fin, verset_fin, corrige_par, valide_le)",
     )
     .eq("eleve_id", eleveId)
     .lte("date", fin)
@@ -248,6 +265,7 @@ export async function historiquePourProgression(eleveId: string, fin: DateISO): 
             sourate_fin: z.number(),
             verset_fin: z.number(),
             corrige_par: z.string().nullable(),
+            valide_le: z.string().nullable(),
           }),
         ),
       }),
@@ -269,6 +287,7 @@ export async function historiquePourProgression(eleveId: string, fin: DateISO): 
           sourateFin: p.sourate_fin,
           versetFin: p.verset_fin,
           corrige: p.corrige_par !== null,
+          valide: p.valide_le !== null,
         })),
     }));
 }

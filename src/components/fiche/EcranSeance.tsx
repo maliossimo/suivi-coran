@@ -1,10 +1,12 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { positionSurFiche, type DateISO } from "@/domain/calendrier";
-import { etatCorrection, libelleJourCourt, LIBELLE_TYPE, type TypeSeance } from "@/domain/fiche";
+import { etatCheikh, libelleJourCourt, LIBELLE_TYPE, type TypeSeance } from "@/domain/fiche";
 import type { DonneesSeance } from "@/services/fiche";
 import { EtiquetteLecture } from "../ChoixLecture";
 import { BoutonSupprimerSeance } from "./BoutonSupprimerSeance";
+import { EcouteCheikh } from "./EcouteCheikh";
+import { PastilleCheikh } from "./PastilleCheikh";
 import { FormulaireCommentaire } from "./FormulaireCommentaire";
 import { FormulaireSeance } from "./FormulaireSeance";
 
@@ -49,14 +51,7 @@ export function EcranSeance({
         </h1>
         <p>
           Semaine {semaine} · {libelleJourCourt(date)} · <EtiquetteLecture lecture={donnees.lecture} />
-          {donnees.seance && etatCorrection(donnees.seance) === "complete" ? (
-            <span className="pastille-or">✓ Vu par le Cheikh</span>
-          ) : null}
-          {donnees.seance && etatCorrection(donnees.seance) === "partielle" ? (
-            <span className="pastille-or pastille-partielle">
-              Un ajout n’a pas encore été vu par le Cheikh
-            </span>
-          ) : null}
+          <PastilleCheikh etat={donnees.seance ? etatCheikh(donnees.seance) : null} />
         </p>
       </header>
 
@@ -70,6 +65,17 @@ export function EcranSeance({
             </p>
           ))}
         </section>
+      ) : null}
+
+      {vueMaitre && donnees.seance ? (
+        <EcouteCheikh
+          // Remonté si les passages changent (nouvel enregistrement).
+          key={donnees.seance.passages.map((p) => `${p.sourateDebut}:${p.versetDebut}-${p.versetFin}`).join()}
+          eleveId={eleveId}
+          seanceId={donnees.seance.id}
+          passages={donnees.seance.passages}
+          sourates={donnees.sourates}
+        />
       ) : null}
 
       <FormulaireSeance
