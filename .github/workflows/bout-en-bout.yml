@@ -33,7 +33,10 @@ jobs:
         with:
           version: latest
       - name: Démarrer Supabase (base, authentification, API)
-        run: supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,postgres-meta
+        # Seulement ce qui sert aux tests ; un second essai si un conteneur démarre mal.
+        run: |
+          SERVICES=studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,postgres-meta,inbucket,supavisor
+          supabase start -x "$SERVICES" || { supabase stop --no-backup; sleep 5; supabase start -x "$SERVICES"; }
       - name: Comptes et données fictifs
         run: |
           supabase status -o env > .env.supabase
