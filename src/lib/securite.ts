@@ -5,7 +5,8 @@
  *
  * - scripts : jeton + 'strict-dynamic' (les scripts chargés par un script de confiance,
  *   comme Next ou Cloudflare Turnstile, sont admis) ;
- * - connexions : l'appli, Sentry (erreurs) et Cloudflare Turnstile (anti-robots) ;
+ * - connexions : l'appli, Sentry (erreurs), Cloudflare Turnstile (anti-robots) et les repères
+ *   mot par mot des récitations (jsDelivr) ;
  * - sons : l'appli et les récitations (EveryAyah, mp3quran.net) ;
  * - cadres : seulement Turnstile ; l'appli elle-même ne peut pas être affichée dans un cadre.
  */
@@ -16,7 +17,7 @@ export function politiqueContenu(nonce: string, developpement = false): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://*.ingest.us.sentry.io https://challenges.cloudflare.com",
+    "connect-src 'self' https://cdn.jsdelivr.net https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://*.ingest.us.sentry.io https://challenges.cloudflare.com",
     "frame-src https://challenges.cloudflare.com",
     "worker-src 'self'",
     "manifest-src 'self'",

@@ -5374,6 +5374,9 @@ html[data-ouverture] .ouverture-version {
   background: var(--carte);
 }
 .coran-legende summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   cursor: pointer;
   font-weight: 600;
 }
@@ -5411,6 +5414,191 @@ html[data-ouverture] .ouverture-version {
   text-align: center;
   color: var(--texte-doux);
 }
+/* Lecture / affichage */
+.coran-modes {
+  display: grid;
+  gap: 10px;
+}
+.coran-vues {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.coran-vues a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  border: 1px solid var(--ligne);
+  border-radius: 10px;
+  background: var(--carte);
+  color: var(--texte-doux);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.coran-vues a[aria-current="page"] {
+  border-color: var(--bord-or);
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.coran-choix-page {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.coran-cartouche a {
+  color: inherit;
+}
+.coran-bouton-actif {
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.coran-reglages-titre {
+  margin: 0;
+  font-weight: 700;
+}
+.coran-passage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.coran-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.coran-actions .bouton,
+.coran-actions .bouton-secondaire {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.coran-taille-apercu {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  font-family: "KFGQPC Hafs", var(--font-arabe), serif;
+  font-size: 22px;
+}
+
+/* Mots et passage */
+.mot {
+  border-radius: 6px;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+.mot.actif {
+  background: color-mix(in srgb, var(--vert) 22%, transparent);
+  color: var(--vert-texte);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--vert) 22%, transparent);
+}
+.coran-tajwid .mot.actif {
+  background: color-mix(in srgb, var(--or) 40%, transparent);
+  color: inherit;
+}
+.hors-passage {
+  opacity: 0.32;
+}
+.avec-passage .coran-verset:not(.hors-passage) {
+  background: color-mix(in srgb, var(--or) 8%, transparent);
+}
+.avec-passage .coran-verset.actif {
+  background: color-mix(in srgb, var(--or) 26%, transparent);
+}
+
+/* Vue page du mushaf */
+.coran-vue-page {
+  min-height: 70vh;
+}
+.coran-vue-page .coran-versets {
+  text-align: justify;
+}
+.coran-bloc + .coran-bloc {
+  margin-top: 6px;
+}
+.coran-titre-sourate {
+  display: grid;
+  place-items: center;
+  margin: 6px 0 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--bord-or);
+  border-radius: 999px;
+  background: var(--motif-clair), linear-gradient(120deg, var(--vert) 0%, var(--vert-nuit) 100%);
+  background-size:
+    80px 80px,
+    cover;
+}
+.coran-titre-sourate span {
+  font-size: calc(var(--taille-coran, 30px) * 0.8);
+  line-height: 1.6;
+  color: #f3dfa6;
+}
+.coran-hafs .coran-titre-sourate span {
+  font-family: "KFGQPC Hafs", var(--font-arabe), serif;
+}
+.coran-warsh .coran-titre-sourate span {
+  font-family: "KFGQPC Warsh", var(--font-arabe), serif;
+}
+.coran-pied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ligne);
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+.coran-numero-page {
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
+  border: 1.5px solid var(--or);
+  border-radius: 50%;
+  font-family: var(--font-arabe), serif;
+  font-size: 15px;
+  color: var(--or-texte);
+}
+
+/* Séance vue par l'admin : écouter les passages */
+.ecouter-passages {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--bord-or);
+  border-radius: 14px;
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.ecouter-passages h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+}
+.ecouter-passages ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ecouter-passages a {
+  color: inherit;
+  font-weight: 600;
+}
+
 @media (max-width: 520px) {
   .coran-page {
     padding: 18px 14px 22px;

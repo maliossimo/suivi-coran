@@ -54,3 +54,30 @@ describe("récitateurs verset par verset", () => {
     expect(RECITATEURS_VERSETS.some((r) => r.lecture === "warsh")).toBe(true);
   });
 });
+
+describe("mushaf et correspondance Warsh", () => {
+  const lire = (f: string) => JSON.parse(readFileSync(join(dossier, f), "utf8")) as unknown;
+
+  it.each(["hafs", "warsh"])("%s : 604 pages, chaque verset sur une seule page", (lecture) => {
+    const { pages, juz } = lire(`pages-${lecture}.json`) as { pages: number[][][]; juz: number[] };
+    expect(pages).toHaveLength(604);
+    expect(juz).toHaveLength(30);
+    const vus = new Set<string>();
+    for (const page of pages)
+      for (const [s, debut, fin] of page)
+        for (let v = debut!; v <= fin!; v++) {
+          expect(vus.has(`${s}:${v}`)).toBe(false);
+          vus.add(`${s}:${v}`);
+        }
+    expect(vus.size).toBe(lecture === "hafs" ? 6236 : 6214);
+  });
+
+  it("chaque verset Warsh est dans au moins un fichier audio (numérotation Hafs)", () => {
+    const table = lire("warsh-hafs.json") as Record<string, number[][]>;
+    NB_VERSETS_WARSH.forEach((nb, i) => {
+      const couverts = new Set(table[String(i + 1)]!.flat());
+      for (let v = 1; v <= nb; v++) expect(couverts.has(v)).toBe(true);
+      expect(table[String(i + 1)]).toHaveLength(SOURATES[i]!.nbVersets);
+    });
+  });
+});
