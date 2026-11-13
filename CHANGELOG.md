@@ -15,6 +15,7 @@ Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z
 
 - Administration : chaque mosquée affiche ses classes (Cheikhs, nombre d'élèves, jours), avec « + Nouvelle classe » ; « Voir la classe » devient « Voir les élèves » (toute la mosquée).
 - Invitation d'un Cheikh : on choisit sa mosquée puis sa classe ; à sa première connexion, il en devient le Cheikh.
+- Chaque mosquée qui avait des Cheikhs mais pas encore de classe reçoit une « Classe de test » avec tous ses Cheikhs et ses élèves.
 
 ## [1.18.0] — 2026-11-13
 
