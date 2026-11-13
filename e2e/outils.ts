@@ -25,11 +25,11 @@ export const test = base.extend<{ journal: void }>({
 });
 export { expect };
 
-/** Appui long au doigt (vrais évènements tactiles), au centre haut de l'élément. */
+/** Appui long au doigt (vrais évènements tactiles), au centre de l'élément. */
 export async function appuiLong(page: Page, cible: Locator, duree = 800): Promise<void> {
   const boite = await cible.boundingBox();
   if (!boite) throw new Error("Élément invisible");
-  const point = { x: Math.round(boite.x + boite.width / 2), y: Math.round(boite.y + 12) };
+  const point = { x: Math.round(boite.x + boite.width / 2), y: Math.round(boite.y + boite.height / 2) };
   const cdp = await page.context().newCDPSession(page);
   await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point] });
   await page.waitForTimeout(duree);

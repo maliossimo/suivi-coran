@@ -10,7 +10,7 @@
  * - sons : l'appli et les récitations (EveryAyah, mp3quran.net) ;
  * - cadres : seulement Turnstile ; l'appli elle-même ne peut pas être affichée dans un cadre.
  */
-export function politiqueContenu(nonce: string, developpement = false): string {
+export function politiqueContenu(nonce: string, developpement = false, httpsSeulement = true): string {
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${developpement ? " 'unsafe-eval'" : ""}`,
@@ -28,7 +28,9 @@ export function politiqueContenu(nonce: string, developpement = false): string {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
+    // En HTTPS (production), tout passe en HTTPS ; en HTTP local (tests de bout en bout),
+    // cette règle enverrait les requêtes vers un HTTPS qui n'existe pas.
+    ...(httpsSeulement ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
 }
 
