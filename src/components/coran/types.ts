@@ -23,3 +23,9 @@ export interface BlocAffiche {
   basmala: string | null;
   versets: { n: number; texte: string; tajwid: SegmentTajwid[] | null }[];
 }
+
+/** Réponse de /api/coran/explication (voir src/services/explications.ts). */
+export interface ExplicationsAffichees {
+  versets: Record<number, { texte: string; notes: string | null }[]>;
+  source: { titre: string; editeur: string; lien: string; version: string | null };
+}

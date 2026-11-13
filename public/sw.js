@@ -140,6 +140,23 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Explication des versets : réseau d'abord, copie gardée pour le hors-ligne
+  // (effacée à la déconnexion avec le reste du Coran).
+  if (url.pathname === "/api/coran/explication") {
+    event.respondWith(
+      fetch(requete)
+        .then((reponse) => {
+          if (reponse.ok) {
+            const copie = reponse.clone();
+            event.waitUntil(caches.open(CORAN).then((cache) => cache.put(requete, copie)));
+          }
+          return reponse;
+        })
+        .catch(async () => (await caches.match(requete, { cacheName: CORAN })) || Response.error()),
+    );
+    return;
+  }
+
   // Fichiers de l'appli : nom unique par version, on les garde.
   if (
     url.pathname.startsWith("/_next/static/") ||
