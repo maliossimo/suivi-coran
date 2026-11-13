@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test";
-import { COMPTES, capture, seConnecter } from "./outils";
+import { appuiLong, capture, COMPTES, expect, seConnecter, test } from "./outils";
 
 test.describe("Coran (admin)", () => {
   test.beforeEach(async ({ page }) => {
@@ -34,11 +33,7 @@ test.describe("Coran (admin)", () => {
     await page.goto("/admin/coran?lecture=hafs&sourate=18");
     const verset = page.locator('.coran-verset[data-cle="18:10"]');
     await verset.scrollIntoViewIfNeeded();
-    const boite = (await verset.boundingBox())!;
-    await page.mouse.move(boite.x + boite.width / 2, boite.y + 10);
-    await page.mouse.down();
-    await page.waitForTimeout(800);
-    await page.mouse.up();
+    await appuiLong(page, verset);
 
     const feuille = page.getByRole("dialog", { name: "Verset 10" });
     await expect(feuille).toBeVisible();

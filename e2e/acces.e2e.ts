@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test";
-import { COMPTES, IDS, MOT_DE_PASSE, capture, seConnecter } from "./outils";
+import { capture, COMPTES, expect, IDS, MOT_DE_PASSE, seConnecter, test } from "./outils";
 
 test.describe("Connexion et droits", () => {
   test("un mauvais mot de passe est refusé", async ({ page }) => {
