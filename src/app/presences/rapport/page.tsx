@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { BoutonPartager } from "@/components/presences/BoutonPartager";
 import { ChoixVue } from "@/components/presences/ChoixVue";
+import { Selecteur } from "@/components/Selecteur";
 import { lireDate } from "@/domain/calendrier";
 import { libelleDateLongue } from "@/domain/fiche";
 import {
@@ -108,17 +109,18 @@ export default async function PageRapport({
               <span>Au</span>
               <input type="date" name="au" defaultValue={r.periode.au} required />
             </label>
-            <label className="formulaire-rapport-classe">
+            <div className="formulaire-rapport-classe">
               <span>Classe</span>
-              <select name="classe" defaultValue={r.classeChoisie ?? ""}>
-                <option value="">Toutes les classes</option>
-                {r.toutes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nom}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <Selecteur
+                titre="Classe"
+                name="classe"
+                defaultValue={r.classeChoisie ?? ""}
+                options={[
+                  { valeur: "", libelle: "Toutes les classes" },
+                  ...r.toutes.map((c) => ({ valeur: c.id, libelle: c.nom })),
+                ]}
+              />
+            </div>
             {apercu ? <input type="hidden" name="vue" value={apercu} /> : null}
             <button type="submit" className="bouton-secondaire">
               Afficher
