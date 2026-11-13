@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { actionRenommerEtablissement, actionSupprimerEtablissement } from "@/app/actions/admin";
 import type { EtatSaisie } from "@/app/actions/fiche";
 import { confirmationValide } from "@/domain/classe";
+import type { EtablissementUsage } from "@/domain/usage";
 
 /** Un établissement : voir la classe, renommer, supprimer (vide seulement, en retapant son nom). */
 export function LigneEtablissement({
@@ -13,6 +14,7 @@ export function LigneEtablissement({
   maitres,
   eleves,
   comptes,
+  activite,
 }: {
   id: string;
   nom: string;
@@ -20,6 +22,8 @@ export function LigneEtablissement({
   eleves: number;
   /** Tous les comptes rattachés, archivés compris. */
   comptes: number;
+  /** Activité récente (élèves actifs, séances à voir…). */
+  activite?: EtablissementUsage;
 }) {
   const [etatNom, renommer, renommage] = useActionState<EtatSaisie, FormData>(
     actionRenommerEtablissement,
@@ -40,6 +44,28 @@ export function LigneEtablissement({
           {maitres} Cheikh{maitres > 1 ? "s" : ""} · {eleves} élève{eleves > 1 ? "s" : ""}
         </span>
       </div>
+      {activite ? (
+        <div className="ligne-etablissement-activite">
+          <span className="jauge-activite" aria-hidden="true">
+            <span
+              style={{
+                width: `${eleves ? Math.min(100, Math.round((activite.elevesActifs7j / eleves) * 100)) : 0}%`,
+              }}
+            />
+          </span>
+          <span>
+            {activite.elevesActifs7j} actif{activite.elevesActifs7j > 1 ? "s" : ""} sur 7 j ·{" "}
+            {activite.seances30j} séances en 30 j
+          </span>
+          {activite.aVoir ? <span className="pastille-etat etat-valide">{activite.aVoir} à voir</span> : null}
+          {activite.sansSaisie7j ? (
+            <span className="pastille-etat etat-a-ecouter">{activite.sansSaisie7j} sans saisie</span>
+          ) : null}
+          {activite.sansLecture ? (
+            <span className="pastille-etat etat-a-ecouter">{activite.sansLecture} lecture à choisir</span>
+          ) : null}
+        </div>
+      ) : null}
       <div className="ligne-etablissement-actions">
         <Link href={`/maitre?classe=${id}`} className="lien-discret">
           Voir la classe

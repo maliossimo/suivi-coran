@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { actionRenvoyerInvitation } from "@/app/actions/admin";
 import { EtatDuSite } from "@/components/admin/EtatDuSite";
@@ -27,11 +26,12 @@ export default async function PageAdmin() {
   const t = await chargerTableauAdmin(profil);
   const nomEtab = new Map(t.etablissements.map((e) => [e.id, e.nom]));
   const st = t.stats;
+  const activite = new Map(st.parEtablissement.map((e) => [e.id, e]));
 
   return (
     <>
       <EnteteEspace titre="Administration" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
-      <main className="espace">
+      <main className="espace espace-admin">
         <div className="tuiles">
           <div className="tuile">
             <strong>{st.eleves.actifs}</strong>
@@ -67,125 +67,85 @@ export default async function PageAdmin() {
           </div>
         </div>
 
-        <div className="grille-graphiques">
-          <section className="carte-graphique">
-            <h2>Séances par semaine</h2>
-            <p className="carte-graphique-sous">
-              Les 12 dernières semaines · {st.seances30j} séances sur 30 jours. La semaine en cours est en
-              doré.
-            </p>
-            <GraphiqueUsage semaines={st.semaines} />
-          </section>
-
-          <section className="carte-graphique">
-            <h2>Activité par établissement</h2>
-            {st.parEtablissement.length === 0 ? (
-              <p className="carte-graphique-sous">Aucun établissement pour l’instant.</p>
-            ) : (
-              <div className="tableau-defilant">
-                <table className="tableau">
-                  <thead>
-                    <tr>
-                      <th>Établissement</th>
-                      <th>Cheikhs</th>
-                      <th>Élèves</th>
-                      <th>Actifs 7 j</th>
-                      <th>Sans saisie 7 j</th>
-                      <th>À voir</th>
-                      <th>Hafs / Warsh</th>
-                      <th>Lecture à choisir</th>
-                      <th>Séances 30 j</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {st.parEtablissement.map((e) => (
-                      <tr key={e.id}>
-                        <td>
-                          <Link href={`/maitre?classe=${e.id}`}>{e.nom}</Link>
-                        </td>
-                        <td>{e.maitres}</td>
-                        <td>{e.eleves}</td>
-                        <td>{e.elevesActifs7j}</td>
-                        <td className={e.sansSaisie7j ? "cellule-alerte" : undefined}>{e.sansSaisie7j}</td>
-                        <td className={e.aVoir ? "cellule-or" : undefined}>{e.aVoir}</td>
-                        <td>
-                          {e.hafs} / {e.warsh}
-                        </td>
-                        <td className={e.sansLecture ? "cellule-or" : undefined}>{e.sansLecture}</td>
-                        <td>{e.seances30j}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        </div>
-
-        <div className="grille-graphiques">
-          <section className="carte-graphique">
-            <h2>Établissements</h2>
-            {t.etablissements.length === 0 ? (
-              <p className="carte-graphique-sous">
-                Crée le premier établissement pour pouvoir inviter un Cheikh.
-              </p>
-            ) : (
-              <ul className="liste-simple liste-etablissements">
-                {t.etablissements.map((e) => (
-                  <LigneEtablissement
-                    key={e.id}
-                    id={e.id}
-                    nom={e.nom}
-                    maitres={e.maitres}
-                    eleves={e.eleves}
-                    comptes={e.comptes}
-                  />
-                ))}
-              </ul>
-            )}
-            <FormulaireEtablissement />
-          </section>
-
-          <section className="carte-graphique">
-            <h2>Inviter un Cheikh</h2>
-            <p className="carte-graphique-sous">Il pourra ensuite inviter ses élèves.</p>
-            <FormulaireInvitation cible="maitre" etablissements={t.etablissements} />
-          </section>
-        </div>
-
-        {t.invitationsEnAttente.length > 0 ? (
-          <section className="carte-graphique">
-            <h2>Invitations en attente ({t.invitationsEnAttente.length})</h2>
-            <p className="carte-graphique-sous">
-              Invités qui ne se sont encore jamais connectés. « Renvoyer » leur envoie un nouvel e-mail pour
-              choisir leur mot de passe.
-            </p>
-            <ul className="liste-simple">
-              {t.invitationsEnAttente.map((u) => (
-                <li key={u.id} className="ligne-invitation">
-                  <span className="ligne-invitation-qui">
-                    <b>{`${u.prenom} ${u.nom}`.trim() || "Sans nom"}</b>
-                    <span>
-                      {ROLES[u.role]}
-                      {u.etablissementId ? ` · ${nomEtab.get(u.etablissementId) ?? ""}` : ""}
-                      {u.email ? ` · ${u.email}` : ""}
-                      {u.inviteLe ? ` · invité le ${dateCourte(u.inviteLe)}` : ""}
-                    </span>
-                  </span>
-                  <form action={actionRenvoyerInvitation}>
-                    <input type="hidden" name="id" value={u.id} />
-                    <button type="submit" className="bouton-secondaire bouton-auto">
-                      Renvoyer
-                    </button>
-                  </form>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
+        <Suspense fallback={<Squelettes cartes={1} tuiles={false} />}>
+          <EtatDuSite />
+        </Suspense>
 
         <section className="carte-graphique">
-          <h2>Utilisateurs ({t.utilisateurs.length})</h2>
+          <div className="admin-titre">
+            <h2>Séances par semaine</h2>
+            <span className="admin-compte">{st.seances30j} sur 30 jours</span>
+          </div>
+          <GraphiqueUsage semaines={st.semaines} />
+        </section>
+
+        <section className="carte-graphique">
+          <div className="admin-titre">
+            <h2>Établissements</h2>
+            <span className="admin-compte">{t.etablissements.length}</span>
+          </div>
+          {t.etablissements.length === 0 ? (
+            <p className="carte-graphique-sous">
+              Crée le premier établissement pour pouvoir inviter un Cheikh.
+            </p>
+          ) : (
+            <ul className="liste-etablissements">
+              {t.etablissements.map((e) => (
+                <LigneEtablissement
+                  key={e.id}
+                  id={e.id}
+                  nom={e.nom}
+                  maitres={e.maitres}
+                  eleves={e.eleves}
+                  comptes={e.comptes}
+                  activite={activite.get(e.id)}
+                />
+              ))}
+            </ul>
+          )}
+          <details className="admin-repli" open={t.etablissements.length === 0}>
+            <summary>+ Nouvel établissement</summary>
+            <FormulaireEtablissement />
+          </details>
+        </section>
+
+        <section className="carte-graphique">
+          <h2>Inviter un Cheikh</h2>
+          <p className="carte-graphique-sous">Il pourra ensuite inviter ses élèves.</p>
+          <FormulaireInvitation cible="maitre" etablissements={t.etablissements} />
+          {t.invitationsEnAttente.length > 0 ? (
+            <details className="admin-repli">
+              <summary>En attente de première connexion ({t.invitationsEnAttente.length})</summary>
+              <ul className="liste-simple">
+                {t.invitationsEnAttente.map((u) => (
+                  <li key={u.id} className="ligne-invitation">
+                    <span className="ligne-invitation-qui">
+                      <b>{`${u.prenom} ${u.nom}`.trim() || "Sans nom"}</b>
+                      <span>
+                        {ROLES[u.role]}
+                        {u.etablissementId ? ` · ${nomEtab.get(u.etablissementId) ?? ""}` : ""}
+                        {u.email ? ` · ${u.email}` : ""}
+                        {u.inviteLe ? ` · invité le ${dateCourte(u.inviteLe)}` : ""}
+                      </span>
+                    </span>
+                    <form action={actionRenvoyerInvitation}>
+                      <input type="hidden" name="id" value={u.id} />
+                      <button type="submit" className="bouton-secondaire bouton-auto">
+                        Renvoyer
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
+        </section>
+
+        <section className="carte-graphique">
+          <div className="admin-titre">
+            <h2>Comptes</h2>
+            <span className="admin-compte">{t.utilisateurs.length}</span>
+          </div>
           {!t.comptesLisibles ? (
             <p className="carte-graphique-sous">
               Dernières connexions et invitations indisponibles : clé « service role » non configurée.
@@ -197,10 +157,6 @@ export default async function PageAdmin() {
             moi={profil.id}
           />
         </section>
-
-        <Suspense fallback={<Squelettes cartes={1} tuiles={false} />}>
-          <EtatDuSite />
-        </Suspense>
       </main>
     </>
   );
