@@ -17,8 +17,8 @@ jobs:
     name: Qualité, types et tests unitaires
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -32,7 +32,14 @@ jobs:
         run: |
           npm audit --omit=dev || true
           npm audit --omit=dev --audit-level=critical
-      - run: npm run format:check
+      # En cas d'écart de mise en forme, affiche les changements attendus (à appliquer tels quels).
+      - name: Mise en forme
+        run: |
+          if ! npm run format:check; then
+            npx prettier --write . >/dev/null
+            git --no-pager diff
+            exit 1
+          fi
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
@@ -41,8 +48,8 @@ jobs:
     name: Migrations et règles d'accès (RLS)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: supabase/setup-cli@v1
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
         with:
           version: latest
       - name: Démarrer PostgreSQL Supabase et appliquer les migrations
@@ -60,8 +67,8 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key-000000
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm

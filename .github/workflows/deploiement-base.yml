@@ -33,14 +33,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          ok=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" \
-            --jq '[.[] | select(.merged_at != null and .base.ref == "prod" and .head.ref == "main")] | length')
+          # GitHub met quelques secondes à relier un commit de fusion à sa PR : on réessaie.
+          for essai in 1 2 3 4 5 6; do
+            ok=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" \
+              --jq '[.[] | select(.merged_at != null and .base.ref == "prod" and .head.ref == "main")] | length')
+            [ "$ok" != "0" ] && break
+            sleep 10
+          done
           if [ "$ok" = "0" ]; then
             echo "::error::Migrations non appliquées : ce commit n'est pas arrivé sur prod par une PR depuis main."
             exit 1
           fi
-      - uses: actions/checkout@v5
-      - uses: supabase/setup-cli@v1
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
         with:
           version: latest
       - name: Vérifier la configuration
