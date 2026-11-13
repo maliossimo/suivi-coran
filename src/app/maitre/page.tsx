@@ -84,7 +84,7 @@ export default async function PageClasse({
   const profil = await exigerEspace("maitre");
   const { mois: moisParam, classe: classeParam, groupe: groupeParam } = await searchParams;
   const mois = lireMois(moisParam, aujourdhuiParis());
-  // L'admin regarde une classe précise (lien « Voir la classe » de l'administration).
+  // L'admin regarde une mosquée précise (lien « Voir les élèves » de l'administration).
   const admin = profil.role === "admin";
   const [classes, appelDuJour, sesClasses] = await Promise.all([
     admin ? listerClasses(profil) : Promise.resolve([]),
@@ -97,7 +97,11 @@ export default async function PageClasse({
   const suffixe = classe ? `&classe=${classe.id}` : groupe ? `&groupe=${groupe.id}` : "";
   return (
     <>
-      <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
+      <EnteteEspace
+        titre={admin ? "Élèves" : "Ma classe"}
+        nom={`${profil.prenom} ${profil.nom}`.trim()}
+        role={profil.role}
+      />
       <main className="espace">
         {classe ? null : <AppelDuJour classes={appelDuJour} />}
         <div className="entete-page">
