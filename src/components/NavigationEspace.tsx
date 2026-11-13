@@ -17,15 +17,7 @@ import { usePathname } from "next/navigation";
 import type { Role } from "@/domain/roles";
 
 type Icone =
-  | "fiche"
-  | "progression"
-  | "compte"
-  | "classe"
-  | "inviter"
-  | "admin"
-  | "journal"
-  | "coran"
-  | "presences";
+  "fiche" | "progression" | "compte" | "classe" | "inviter" | "admin" | "journal" | "coran" | "presences";
 
 interface Onglet {
   href: string;
