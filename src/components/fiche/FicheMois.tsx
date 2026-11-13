@@ -20,6 +20,7 @@ import { FormulaireObjectif } from "./FormulaireObjectif";
 import { SectionBilan } from "./SectionBilan";
 import { cleSeance } from "./cleSeance";
 import { BoutonValider, EtatEnregistrement } from "./EtatsLigneJour";
+import { GestesFiche } from "./GestesFiche";
 import { PreparerHorsLigne } from "./PreparerHorsLigne";
 import { IndicateurLien } from "../IndicateurLien";
 
@@ -60,8 +61,21 @@ export function FicheMois({
     : [];
 
   return (
-    <>
+    <GestesFiche
+      moisPrecedent={lien(cleMois(decalerMois(fiche.mois, -1)), fiche.type)}
+      moisSuivant={lien(cleMois(decalerMois(fiche.mois, 1)), fiche.type)}
+      ongletGauche={fiche.type === "apprentissage" ? null : lien(cle, "apprentissage")}
+      ongletDroite={fiche.type === "revision" ? null : lien(cle, "revision")}
+      cleFiche={`${cle}-${fiche.type}`}
+    >
       {pagesHorsLigne.length ? <PreparerHorsLigne pages={pagesHorsLigne} /> : null}
+      {fiche.premiereFois && !aVenir ? (
+        <AccueilPremiereFois
+          vueMaitre={vueMaitre}
+          saisir={`${base}/seance?date=${aujourdhui ?? premierJour(fiche.mois)}&type=apprentissage`}
+          aujourdhui={Boolean(aujourdhui)}
+        />
+      ) : null}
       <nav className="mois" aria-label="Changer de mois">
         <Link
           className="mois-fleche"
@@ -274,7 +288,7 @@ export function FicheMois({
       )}
 
       <LegendePastilles vueMaitre={vueMaitre} />
-    </>
+    </GestesFiche>
   );
 }
 
@@ -367,5 +381,45 @@ function LegendePastilles({ vueMaitre }: { vueMaitre: boolean }) {
         </li>
       </ul>
     </details>
+  );
+}
+
+/** Élève tout neuf (aucune séance) : un mot d'accueil et le premier geste à faire. */
+function AccueilPremiereFois({
+  vueMaitre,
+  saisir,
+  aujourdhui,
+}: {
+  vueMaitre: boolean;
+  saisir: string;
+  aujourdhui: boolean;
+}) {
+  if (vueMaitre) {
+    return (
+      <p className="accueil-premiere-fois accueil-cheikh">
+        Cet élève n’a encore saisi aucune séance. Sa fiche se remplira au fil de ses saisies.
+      </p>
+    );
+  }
+  return (
+    <section className="accueil-premiere-fois" aria-labelledby="titre-accueil">
+      <span className="accueil-icone" aria-hidden="true">
+        ✦
+      </span>
+      <h3 id="titre-accueil">Bienvenue, ta fiche est prête&nbsp;!</h3>
+      <p>
+        Chaque jour de travail, note ici ce que tu as <b>appris</b> ou <b>révisé</b> : la sourate, les versets
+        et le temps passé. Ton Cheikh suit ta fiche et la corrige.
+      </p>
+      {aujourdhui ? (
+        <Link href={saisir} className="bouton">
+          Saisir ma première séance
+        </Link>
+      ) : null}
+      <p className="accueil-astuce">
+        Astuce : glisse le doigt sur la fiche pour changer de mois, et sur les onglets pour passer de
+        l’apprentissage à la révision.
+      </p>
+    </section>
   );
 }

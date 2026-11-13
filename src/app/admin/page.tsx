@@ -13,6 +13,7 @@ import { GraphiqueUsage } from "@/components/admin/GraphiqueUsage";
 import { formaterDuree } from "@/domain/fiche";
 import { exigerEspace } from "@/services/acces";
 import { chargerTableauAdmin } from "@/services/admin";
+import { chargerSecurite } from "@/services/securite";
 
 const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
 
@@ -24,7 +25,7 @@ function dateCourte(iso: string): string {
 
 export default async function PageAdmin() {
   const profil = await exigerEspace("admin");
-  const t = await chargerTableauAdmin(profil);
+  const [t, securite] = await Promise.all([chargerTableauAdmin(profil), chargerSecurite(profil)]);
   const nomEtab = new Map(t.etablissements.map((e) => [e.id, e.nom]));
   const st = t.stats;
 
@@ -32,6 +33,17 @@ export default async function PageAdmin() {
     <>
       <EnteteEspace titre="Administration" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
+        {securite.appareils.length === 0 ? (
+          <div className="bandeau-archive" role="status">
+            <p>
+              <strong>Active la double vérification.</strong> Un code de ton téléphone sera demandé en plus du
+              mot de passe : ton compte admin reste protégé même si le mot de passe fuite.
+            </p>
+            <Link href="/admin/securite" className="bouton">
+              Activer
+            </Link>
+          </div>
+        ) : null}
         <div className="tuiles">
           <div className="tuile">
             <strong>{st.eleves.actifs}</strong>
@@ -201,6 +213,14 @@ export default async function PageAdmin() {
         <Suspense fallback={<Squelettes cartes={1} tuiles={false} />}>
           <EtatDuSite />
         </Suspense>
+
+        <p className="carte-graphique-sous">
+          Double vérification :{" "}
+          {securite.appareils.length
+            ? `active (${securite.appareils.length} appareil${securite.appareils.length > 1 ? "s" : ""})`
+            : "non active"}{" "}
+          · <Link href="/admin/securite">Gérer les appareils</Link>
+        </p>
       </main>
     </>
   );

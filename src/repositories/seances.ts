@@ -272,3 +272,15 @@ export async function historiquePourProgression(eleveId: string, fin: DateISO): 
         })),
     }));
 }
+
+/** L'élève a-t-il déjà enregistré au moins une séance (tous types, toutes dates) ? */
+export async function aDejaUneSeance(eleveId: string): Promise<boolean> {
+  const supabase = await creerClientServeur();
+  const { count, error } = await supabase
+    .from("seances")
+    .select("id", { count: "exact", head: true })
+    .eq("eleve_id", eleveId)
+    .limit(1);
+  if (error) throw new Error(`Lecture des séances impossible : ${error.message}`);
+  return (count ?? 0) > 0;
+}

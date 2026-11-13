@@ -72,6 +72,7 @@ function envoyerMaintenant(cle: string, envoyer: () => Promise<Resultat>) {
     .then((r) => {
       if (r.ok) {
         effacerBrouillon(cle); // la base a la séance : le brouillon ne sert plus
+        navigator.vibrate?.(30); // petite vibration (Android) : c'est enregistré
         aRelancer.delete(cle);
         retirer(cle);
         window.dispatchEvent(new Event(EVENEMENT_ENREGISTREE));
