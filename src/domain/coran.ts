@@ -157,7 +157,35 @@ export function pistesLecture(
 /** Répétitions pour mémoriser : chaque fichier `verset` fois, tout le passage `passage` fois (0 : sans fin). */
 export interface Repetition {
   verset: number;
+  /** 0 : en boucle. */
   passage: number;
+}
+
+/** Passage d'une sourate (versets inclus). */
+export interface Passage {
+  du: number;
+  au: number;
+}
+
+/** « Versets 3 à 7 : chaque verset 3 fois, puis le tout en boucle. » */
+export function resumeMemoriser(p: Passage, r: Repetition): string {
+  const quoi = p.du === p.au ? `Verset ${p.du}` : `Versets ${p.du} à ${p.au}`;
+  const verset = r.verset > 1 ? `chaque verset ${r.verset} fois` : "";
+  const toutLe = verset || p.du !== p.au ? "le tout " : "";
+  const tout = r.passage === 0 ? `${toutLe}en boucle` : r.passage > 1 ? `${toutLe}${r.passage} fois` : "";
+  const suite = [verset, tout].filter(Boolean).join(", puis ");
+  return suite ? `${quoi} : ${suite}.` : `${quoi}, une fois.`;
+}
+
+/** Version courte pour le lecteur : « Versets 3 → 7 · 3× chacun · en boucle ». */
+export function resumeCourtMemoriser(p: Passage, r: Repetition): string {
+  return [
+    p.du === p.au ? `Verset ${p.du}` : `Versets ${p.du} → ${p.au}`,
+    r.verset > 1 ? `${r.verset}× chacun` : "",
+    r.passage === 0 ? "en boucle" : r.passage > 1 ? `${r.passage}× le tout` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 export interface Position {

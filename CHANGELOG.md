@@ -9,6 +9,31 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.10.0] — 2026-11-13
+
+### Nouveautés
+
+- Présences : organisation de la mosquée. Le responsable crée les classes et désigne leurs Cheikhs ; le Cheikh fait l'appel et ajoute les élèves arrivés en cours d'année.
+- Rapport des présences pour le responsable : cette semaine, la semaine dernière, ce mois-ci, le mois dernier ou du … au …, pour une classe ou toutes ; à imprimer ou enregistrer en PDF, ou à partager.
+- Carte « Appel du jour » en haut de « Ma classe » : bien visible tant que l'appel n'est pas fait, discrète ensuite.
+- Aperçus « Voir comme le Cheikh » et « Voir comme le responsable » (administrateur).
+- Coran : toucher un verset propose « Écouter à partir d'ici », « Répéter ce verset en boucle » ou « Mémoriser à partir d'ici ».
+- Coran : « Aller à » une sourate (recherche par nom ou numéro), un juz ou une page du mushaf.
+
+### Amélioré
+
+- Présences : deux états seulement, présent ou absent (les anciens « en retard » comptent présents, les « excusés » absents). L'appel se fait d'un toucher sur ✓ ou ✗.
+- Coran : le lecteur reste en bas de l'écran ; réglages rangés par thème (lecture Hafs / Warsh, récitation, affichage, hors ligne) ; « Mémoriser un passage » ne change plus la lecture avant « Écouter » et résume clairement les répétitions.
+
+### Corrigé
+
+- Coran : ouvrir les réglages ou la répétition puis faire défiler ne fait plus défiler la page derrière.
+
+### Interne
+
+- Droits en base pour le rôle « responsable » (lecture des présences de sa mosquée, organisation des classes, sans appel ni accès au Coran des élèves), testés.
+- Feuille du bas réutilisable (fenêtre modale, défilement de la page bloqué).
+
 ## [1.9.1] — 2026-11-13
 
 ### Amélioré

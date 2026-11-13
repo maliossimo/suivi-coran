@@ -1,7 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import type { DateISO } from "@/domain/calendrier";
-import type { StatutPresence } from "@/domain/presences";
+import { STATUTS, type StatutPresence } from "@/domain/presences";
 import { creerClientServeur } from "@/lib/supabase/server";
 
 /*
@@ -39,7 +39,7 @@ export interface Appel {
 const nomComplet = (p: { prenom: string | null; nom: string | null } | null) =>
   `${p?.prenom ?? ""} ${p?.nom ?? ""}`.trim() || "Sans nom";
 
-const schemaStatut = z.enum(["present", "absent", "retard", "excuse"]);
+const schemaStatut = z.enum(STATUTS);
 const schemaPersonne = z.object({ prenom: z.string().nullable(), nom: z.string().nullable() }).nullable();
 
 const schemaClasse = z.object({

@@ -52,7 +52,7 @@ L'inscription libre est désactivée. Pour tester, dans Supabase Studio (http://
 - **Mise en production** : PR `main` → `prod` (le workflow `Garde-fou prod` refuse toute autre source). À la fusion, Vercel met le site en production et le workflow `Déploiement de la base` applique les nouvelles migrations à Supabase.
 - **Dependabot** propose chaque semaine les mises à jour mineures (vers `main`) ; les versions majeures se font à la main.
 
-> Le dépôt est privé sur un compte GitHub gratuit : les règles de protection de branche ne sont pas appliquées par GitHub. Les conventions de `CLAUDE.md` (PR obligatoires, CI verte) sont donc à respecter.
+> Le dépôt est public : aucun secret ni donnée réelle ne doit y figurer (code, historique, artifacts). Les sauvegardes nocturnes sont toujours chiffrées (secret `SAUVEGARDE_PHRASE` obligatoire). Les conventions de `CLAUDE.md` (PR obligatoires, CI verte) sont à respecter.
 
 ## Mise en production (une seule fois)
 
