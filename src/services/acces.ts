@@ -1,7 +1,7 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { accueilDuRole, peutOuvrirEspace, type Role } from "@/domain/roles";
-import { emailConnecte, niveauVerification } from "@/repositories/auth";
+import { emailConnecte } from "@/repositories/auth";
 import { profilConnecte, type Profil } from "@/repositories/profils";
 
 /**
@@ -14,18 +14,7 @@ export async function exigerEspace(espace: Role): Promise<Profil> {
   if (!profil) redirect("/connexion");
   if (!profil.actif) redirect("/connexion?erreur=inactif");
   if (!peutOuvrirEspace(profil.role, espace)) redirect(accueilDuRole(profil.role));
-  await exigerCodeAdmin(profil);
   return profil;
-}
-
-/**
- * Admin avec un appareil enregistré : le code de l'appli est demandé avant tout accès
- * (la base refuse de toute façon ses droits d'admin sans ce code).
- */
-export async function exigerCodeAdmin(profil: Profil): Promise<void> {
-  if (profil.role !== "admin") return;
-  const niveau = await niveauVerification();
-  if (niveau.suivant === "aal2" && niveau.actuel !== "aal2") redirect("/verification");
 }
 
 /**
@@ -50,7 +39,6 @@ export async function exigerConnexion(): Promise<Profil> {
   const profil = await profilConnecte();
   if (!profil) redirect("/connexion");
   if (!profil.actif) redirect("/connexion?erreur=inactif");
-  await exigerCodeAdmin(profil);
   return profil;
 }
 

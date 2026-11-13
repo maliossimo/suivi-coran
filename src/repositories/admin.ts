@@ -287,3 +287,42 @@ export async function enregistrerErreur(
   const supabase = await creerClientServeur();
   await supabase.from("erreurs").insert({ page, message, version });
 }
+
+export interface UtilisationAppli {
+  derniere: string;
+  ouvertures7j: number;
+}
+
+/** Dernière ouverture de l'appli de chaque personne. */
+export async function dernieresOuvertures(): Promise<Map<string, UtilisationAppli>> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("dernieres_ouvertures");
+  if (error) throw new Error(`Lecture des ouvertures impossible : ${error.message}`);
+  const lignes = z
+    .array(z.object({ user_id: z.string().uuid(), derniere: z.string(), ouvertures_7j: z.coerce.number() }))
+    .parse(data ?? []);
+  return new Map(lignes.map((l) => [l.user_id, { derniere: l.derniere, ouvertures7j: l.ouvertures_7j }]));
+}
+
+export interface Ouverture {
+  id: number;
+  personneId: string;
+  quand: string;
+}
+
+/** Ouvertures les plus récentes (toutes, ou celles d'une personne). */
+export async function ouverturesRecentes(limite: number, personneId?: string): Promise<Ouverture[]> {
+  const supabase = await creerClientServeur();
+  let requete = supabase
+    .from("ouvertures")
+    .select("id, user_id, ouverte_le")
+    .order("ouverte_le", { ascending: false })
+    .limit(limite);
+  if (personneId) requete = requete.eq("user_id", personneId);
+  const { data, error } = await requete;
+  if (error) throw new Error(`Lecture des ouvertures impossible : ${error.message}`);
+  return z
+    .array(z.object({ id: z.number(), user_id: z.string().uuid(), ouverte_le: z.string() }))
+    .parse(data ?? [])
+    .map((o) => ({ id: o.id, personneId: o.user_id, quand: o.ouverte_le }));
+}

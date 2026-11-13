@@ -9,6 +9,20 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.3.0] — 2026-11-13
+
+### Nouveautés
+
+- Utilisation de l'appli : chaque ouverture (ou retour sur l'appli déjà connectée) est notée. L'administration affiche la dernière utilisation de chacun et le détail des ouvertures dans le journal.
+
+### Retiré
+
+- Double vérification de l'administrateur (appli d'authentification) : la connexion admin redevient le seul mot de passe.
+
+### Amélioré
+
+- Changement de mois et d'onglet plus fluide : le mois suit le doigt, s'efface dans le sens du geste puis le nouveau arrive de l'autre côté, sans saut de mise en page. Même effet avec les flèches.
+
 ## [1.2.0] — 2026-11-13
 
 ### Nouveautés

@@ -82,6 +82,7 @@ export function FicheMois({
           prefetch
           href={lien(cleMois(decalerMois(fiche.mois, -1)), fiche.type)}
           aria-label="Mois précédent"
+          data-sens="droite"
         >
           <ChevronLeft size={22} aria-hidden="true" />
           <IndicateurLien />
@@ -92,6 +93,7 @@ export function FicheMois({
           prefetch
           href={lien(cleMois(decalerMois(fiche.mois, 1)), fiche.type)}
           aria-label="Mois suivant"
+          data-sens="gauche"
         >
           <ChevronRight size={22} aria-hidden="true" />
           <IndicateurLien />
@@ -100,7 +102,10 @@ export function FicheMois({
 
       {cle !== cleMois(fiche.moisCourant) ? (
         <p className="mois-retour">
-          <Link href={lien(cleMois(fiche.moisCourant), fiche.type)}>
+          <Link
+            href={lien(cleMois(fiche.moisCourant), fiche.type)}
+            data-sens={cle < cleMois(fiche.moisCourant) ? "gauche" : "droite"}
+          >
             Revenir à ce mois-ci
             <IndicateurLien />
           </Link>
@@ -116,6 +121,7 @@ export function FicheMois({
             // L'autre onglet est préparé : le changement est un simple remplacement.
             prefetch={t === fiche.type ? null : true}
             aria-current={t === fiche.type ? "page" : undefined}
+            data-sens={t === fiche.type ? undefined : t === "revision" ? "gauche" : "droite"}
           >
             {LIBELLE_TYPE[t]}
             <IndicateurLien />

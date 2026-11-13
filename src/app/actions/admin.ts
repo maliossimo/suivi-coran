@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { profilConnecte } from "@/repositories/profils";
-import { exigerCodeAdmin } from "@/services/acces";
 import {
   ajouterEtablissement,
   basculerUtilisateur,
@@ -19,7 +18,6 @@ import { notifier } from "./notification";
 async function admin() {
   const profil = await profilConnecte();
   if (!profil || !profil.actif || profil.role !== "admin") redirect("/");
-  await exigerCodeAdmin(profil);
   return profil;
 }
 
