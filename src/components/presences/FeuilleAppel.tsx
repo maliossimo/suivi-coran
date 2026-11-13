@@ -1,16 +1,9 @@
 "use client";
 
-import { Check, CloudOff, MessageSquareText } from "lucide-react";
+import { Check, CloudOff, MessageSquareText, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import {
-  LETTRE_STATUT,
-  LIBELLE_STATUT,
-  STATUTS,
-  libelleResume,
-  resumeAppel,
-  type StatutPresence,
-} from "@/domain/presences";
+import { LIBELLE_STATUT, STATUTS, libelleResume, resumeAppel, type StatutPresence } from "@/domain/presences";
 import { envoyerAppel } from "./appelsEnAttente";
 
 interface Membre {
@@ -19,6 +12,8 @@ interface Membre {
   nom: string;
   avecCompte: boolean;
 }
+
+const ICONE: Record<StatutPresence, typeof Check> = { present: Check, absent: X };
 
 /**
  * L'appel d'un cours : tout le monde est présent par défaut, on ne touche que les exceptions.
@@ -132,20 +127,23 @@ export function FeuilleAppel({
                   {!m.avecCompte ? <small>sans compte</small> : null}
                 </button>
                 <div className="choix-statut" role="radiogroup" aria-label={`Présence de ${m.prenom}`}>
-                  {STATUTS.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      role="radio"
-                      aria-checked={statut === s}
-                      aria-label={LIBELLE_STATUT[s]}
-                      title={LIBELLE_STATUT[s]}
-                      className={`statut-${s}`}
-                      onClick={() => setStatuts((x) => ({ ...x, [m.id]: s }))}
-                    >
-                      {LETTRE_STATUT[s]}
-                    </button>
-                  ))}
+                  {STATUTS.map((s) => {
+                    const Icone = ICONE[s];
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        role="radio"
+                        aria-checked={statut === s}
+                        aria-label={LIBELLE_STATUT[s]}
+                        title={LIBELLE_STATUT[s]}
+                        className={`statut-${s}`}
+                        onClick={() => setStatuts((x) => ({ ...x, [m.id]: s }))}
+                      >
+                        <Icone size={20} strokeWidth={2.6} aria-hidden="true" />
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               {noteOuverte === m.id ? (
@@ -164,7 +162,7 @@ export function FeuilleAppel({
       </ul>
 
       <p className="legende-statuts">
-        P présent · A absent · R en retard · E excusé · touche un nom pour ajouter une note
+        Tout le monde est présent au départ : touche la croix des absents, ou un nom pour ajouter une note.
       </p>
 
       {erreur ? (

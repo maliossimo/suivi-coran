@@ -1,9 +1,7 @@
-import { BookOpen, ChevronLeft, ChevronRight, ScrollText } from "lucide-react";
 import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
-import { ChoixPage } from "@/components/coran/ChoixPage";
-import { ChoixSourate } from "@/components/coran/ChoixSourate";
 import { LectureCoran } from "@/components/coran/LectureCoran";
+import { NavigationCoran } from "@/components/coran/NavigationCoran";
 import { chiffresArabes } from "@/domain/coran";
 import { LIBELLE_LECTURE } from "@/domain/lectures";
 import { exigerEspace } from "@/services/acces";
@@ -45,69 +43,17 @@ export default async function PageCoran({
     <>
       <EnteteEspace titre="Coran" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace espace-coran">
-        <div className="coran-modes">
-          <nav className="onglets" aria-label="Lecture">
-            {(["hafs", "warsh"] as const).map((l) => (
-              <Link
-                key={l}
-                href={ici(l)}
-                className="onglet"
-                aria-current={l === p.lecture ? "page" : undefined}
-                scroll={false}
-              >
-                {LIBELLE_LECTURE[l]}
-              </Link>
-            ))}
-          </nav>
-          <nav className="coran-vues" aria-label="Affichage">
-            <Link
-              href={lienSourate(p.lecture, p.sourate)}
-              aria-current={p.vue === "sourate" ? "page" : undefined}
-              scroll={false}
-            >
-              <ScrollText size={16} aria-hidden="true" />
-              Sourate
-            </Link>
-            <Link
-              href={lienPage(p.lecture, p.page)}
-              aria-current={p.vue === "page" ? "page" : undefined}
-              scroll={false}
-            >
-              <BookOpen size={16} aria-hidden="true" />
-              Mushaf
-            </Link>
-          </nav>
-        </div>
-
-        <div className="coran-navigation">
-          {precedent ? (
-            <Link
-              className="mois-fleche"
-              href={precedent}
-              aria-label={p.vue === "page" ? "Page précédente" : "Sourate précédente"}
-            >
-              <ChevronLeft size={22} aria-hidden="true" />
-            </Link>
-          ) : (
-            <span className="mois-fleche inactif" aria-hidden="true" />
-          )}
-          {p.vue === "page" ? (
-            <ChoixPage lecture={p.lecture} page={p.page} juz={p.juz} debutsJuz={p.debutsJuz} />
-          ) : (
-            <ChoixSourate lecture={p.lecture} sourate={p.sourate} sourates={p.sourates} />
-          )}
-          {suivant ? (
-            <Link
-              className="mois-fleche"
-              href={suivant}
-              aria-label={p.vue === "page" ? "Page suivante" : "Sourate suivante"}
-            >
-              <ChevronRight size={22} aria-hidden="true" />
-            </Link>
-          ) : (
-            <span className="mois-fleche inactif" aria-hidden="true" />
-          )}
-        </div>
+        <NavigationCoran
+          lecture={p.lecture}
+          vue={p.vue}
+          sourate={p.sourate}
+          page={p.page}
+          juz={p.juz}
+          sourates={p.sourates}
+          debutsJuz={p.debutsJuz}
+          precedent={precedent}
+          suivant={suivant}
+        />
 
         {p.vue === "sourate" ? (
           <header className={`coran-cartouche coran-${p.lecture}`}>
@@ -131,6 +77,7 @@ export default async function PageCoran({
           recitations={p.recitations}
           bibliothequeDisponible={p.bibliothequeDisponible}
           titre={p.vue === "page" ? `Page ${p.page}` : `${bloc.sourate}. ${bloc.nomLatin}`}
+          liensLecture={{ hafs: ici("hafs"), warsh: ici("warsh") }}
           pagePrecedente={p.vue === "page" ? precedent : null}
           pageSuivante={p.vue === "page" ? suivant : null}
           piedDePage={

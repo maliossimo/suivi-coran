@@ -1,19 +1,27 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { actionChangerMembre } from "@/app/actions/presences";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { AjoutMembre } from "@/components/presences/AjoutMembre";
 import { FormulaireClasse } from "@/components/presences/FormulaireClasse";
+import { avecVue } from "@/domain/presences";
 import { chargerFormulaireClasse, exigerPresences } from "@/services/presences";
 
 export const metadata = { title: "Modifier la classe" };
 
-export default async function PageModifierClasse({ params }: { params: Promise<{ id: string }> }) {
-  const profil = await exigerPresences();
+export default async function PageModifierClasse({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ vue?: string }>;
+}) {
+  const { profil, apercu, peut } = await exigerPresences((await searchParams).vue);
   const id = (await params).id;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
-  const f = await chargerFormulaireClasse(profil, id);
+  if (!peut.organiser && !peut.eleves) redirect(avecVue(`/presences/${id}`, apercu));
+  const f = await chargerFormulaireClasse(id);
   if (!f.classe) notFound();
   const classe = f.classe;
   const dejaDansLaClasse = new Set(f.membres.filter((m) => m.actif && m.eleveId).map((m) => m.eleveId));
@@ -24,7 +32,7 @@ export default async function PageModifierClasse({ params }: { params: Promise<{
     <>
       <EnteteEspace titre="Présences" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace espace-etroit">
-        <Link href={`/presences/${classe.id}`} className="lien-retour">
+        <Link href={avecVue(`/presences/${classe.id}`, apercu)} className="lien-retour">
           <ChevronLeft size={18} aria-hidden="true" />
           {classe.nom}
         </Link>
@@ -80,21 +88,27 @@ export default async function PageModifierClasse({ params }: { params: Promise<{
           <p className="carte-graphique-sous">Un élève retiré garde son historique de présences.</p>
         </section>
 
-        <section className="carte-graphique">
-          <h2>La classe</h2>
-          <FormulaireClasse
-            classe={{
-              id: classe.id,
-              nom: classe.nom,
-              jours: classe.jours,
-              archivee: classe.archivee,
-              cheikhs: classe.cheikhs.map((c) => c.id),
-            }}
-            etablissements={f.etablissements}
-            etablissementId={classe.etablissementId}
-            maitres={f.personnes.maitres}
-          />
-        </section>
+        {peut.organiser ? (
+          <section className="carte-graphique">
+            <h2>La classe</h2>
+            <FormulaireClasse
+              classe={{
+                id: classe.id,
+                nom: classe.nom,
+                jours: classe.jours,
+                archivee: classe.archivee,
+                cheikhs: classe.cheikhs.map((c) => c.id),
+              }}
+              etablissements={f.etablissements}
+              etablissementId={classe.etablissementId}
+              maitres={f.personnes.maitres}
+            />
+          </section>
+        ) : (
+          <p className="carte-graphique-sous">
+            Le nom de la classe, ses jours et son Cheikh sont fixés par le responsable de la mosquée.
+          </p>
+        )}
       </main>
     </>
   );

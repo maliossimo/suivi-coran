@@ -525,6 +525,54 @@ select pg_temp.attendu((select count(*) from public.classes) = 0, 'présences : 
 select pg_temp.console();
 update public.profils set actif = true where id = 'a0000000-0000-0000-0000-00000000000a';
 
+-- Statuts : présent ou absent seulement.
+select pg_temp.doit_echouer(
+  $q$update public.presences set statut = 'retard'$q$,
+  'présences : seuls « présent » et « absent » existent');
+
+-- Le Cheikh ne crée pas de classe (c'est le responsable).
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.doit_echouer(
+  $q$insert into public.classes (etablissement_id, nom) values ('aaaaaaaa-0000-0000-0000-000000000000', 'Tajwid')$q$,
+  'présences : un Cheikh ne crée pas de classe');
+insert into public.membres_classe (classe_id, prenom) values ('c1a55e00-0000-0000-0000-000000000001', 'Nouvel');
+select pg_temp.attendu(
+  exists (select 1 from public.membres_classe where prenom = 'Nouvel'),
+  'présences : le Cheikh ajoute un élève arrivé en cours d''année');
+select pg_temp.console();
+
+-- Responsable de la mosquée A.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('e0000000-0000-0000-0000-00000000000e', 'resp.a@test.local',
+   '{"etablissement_id":"aaaaaaaa-0000-0000-0000-000000000000","prenom":"Resp","nom":"A"}');
+update public.profils set role = 'responsable' where id = 'e0000000-0000-0000-0000-00000000000e';
+select pg_temp.en_tant_que('e0000000-0000-0000-0000-00000000000e');
+select pg_temp.attendu((select count(*) from public.classes) = 2,
+  'responsable : voit toutes les classes de sa mosquée');
+select pg_temp.attendu((select count(*) from public.presences) > 0, 'responsable : voit les présences');
+select pg_temp.attendu((select count(*) from public.seances) = 0 and (select count(*) from public.passages) = 0,
+  'responsable : aucun accès au suivi du Coran');
+select pg_temp.attendu(
+  exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000001'),
+  'responsable : voit les noms des élèves de sa mosquée');
+insert into public.classes (id, etablissement_id, nom, jours) values
+  ('c1a55e00-0000-0000-0000-000000000003', 'aaaaaaaa-0000-0000-0000-000000000000', 'Arabe', '{3}');
+insert into public.classes_cheikhs (classe_id, maitre_id) values
+  ('c1a55e00-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-00000000000a');
+insert into public.membres_classe (classe_id, prenom, nom) values ('c1a55e00-0000-0000-0000-000000000003', 'Lina', 'K.');
+select pg_temp.attendu((select count(*) from public.classes) = 3, 'responsable : crée une classe et désigne son Cheikh');
+select pg_temp.doit_echouer(
+  $q$select public.enregistrer_appel('c1a55e00-0000-0000-0000-000000000003', current_date, '[]'::jsonb)$q$,
+  'responsable : ne fait pas l''appel');
+select pg_temp.doit_echouer(
+  $q$insert into public.classes (etablissement_id, nom) values ('bbbbbbbb-0000-0000-0000-000000000000', 'Ailleurs')$q$,
+  'responsable : ne crée pas de classe dans une autre mosquée');
+select pg_temp.doit_echouer(
+  $q$insert into public.classes_cheikhs (classe_id, maitre_id)
+     values ('c1a55e00-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-00000000000b')$q$,
+  'responsable : ne désigne pas un Cheikh d''une autre mosquée');
+select pg_temp.console();
+
 -- ---------- Ouvertures de l'appli -------------------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 insert into public.ouvertures default values;

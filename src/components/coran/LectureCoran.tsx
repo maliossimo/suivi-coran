@@ -1,23 +1,6 @@
 "use client";
 
-import {
-  BookOpenText,
-  CloudDownload,
-  CloudOff,
-  Trash2,
-  Minus,
-  Palette,
-  Pause,
-  Play,
-  Plus,
-  Repeat,
-  ScanEye,
-  Settings2,
-  SkipBack,
-  SkipForward,
-  TextCursor,
-  X,
-} from "lucide-react";
+import { BookOpenText, Pause, Play, Repeat, Settings2, SkipBack, SkipForward, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   memo,
@@ -40,48 +23,22 @@ import {
   fichierVerset,
   motA,
   pistesLecture,
+  resumeCourtMemoriser,
+  type Passage,
   type Piste,
   type Position,
   type RepereMot,
+  type Repetition,
   type SegmentTajwid,
 } from "@/domain/coran";
-import { adresseAudio, adresseMots, taille, useHorsLigne } from "./horsLigne";
-
-export interface RecitationAffichee {
-  id: string;
-  nom: string;
-  style: string;
-  suivi: boolean;
-  source: string;
-  mots: string | null;
-  dossier: string | null;
-  alignement: string | null;
-}
-
-export interface BlocAffiche {
-  sourate: number;
-  nomAr: string;
-  nomLatin: string;
-  nbVersets: number;
-  debut: boolean;
-  basmala: string | null;
-  versets: { n: number; texte: string; tajwid: SegmentTajwid[] | null }[];
-}
-
-interface Reglages {
-  recitation: Record<string, string>;
-  vitesse: number;
-  suivre: boolean;
-  tajwid: boolean;
-  motParMot: boolean;
-  taille: number;
-}
+import { ActionsVerset } from "./ActionsVerset";
+import { adresseAudio, adresseMots, useHorsLigne } from "./horsLigne";
+import { MemoriserCoran } from "./MemoriserCoran";
+import { ReglagesCoran, TAILLES, type Reglages } from "./ReglagesCoran";
+import type { BlocAffiche, RecitationAffichee } from "./types";
 
 const CLE = "coran-reglages";
-const TAILLES = [22, 26, 30, 34, 40, 46];
-const VITESSES = [0.75, 1, 1.25, 1.5];
-const FOIS_VERSET = [1, 2, 3, 5, 10];
-const FOIS_PASSAGE = [1, 2, 3, 5, 0];
+const UNE_FOIS: Repetition = { verset: 1, passage: 1 };
 const DEFAUT: Reglages = {
   recitation: {},
   vitesse: 1,
@@ -128,6 +85,7 @@ export function LectureCoran({
   recitations,
   bibliothequeDisponible,
   titre,
+  liensLecture,
   pagePrecedente,
   pageSuivante,
   piedDePage,
@@ -135,18 +93,24 @@ export function LectureCoran({
   lecture: "hafs" | "warsh";
   vue: "sourate" | "page";
   blocs: BlocAffiche[];
-  passageInitial: { du: number; au: number } | null;
+  passageInitial: Passage | null;
   correspondance: Record<string, number[][]> | null;
   recitations: RecitationAffichee[];
   bibliothequeDisponible: boolean;
   titre: string;
+  /** Même endroit, l'autre lecture (Hafs / Warsh). */
+  liensLecture: Record<"hafs" | "warsh", string>;
   pagePrecedente: string | null;
   pageSuivante: string | null;
   piedDePage: ReactNode;
 }) {
   const router = useRouter();
   const [reglages, setReglages] = useState<Reglages>(DEFAUT);
-  const [ouvert, setOuvert] = useState<"reglages" | "passage" | null>(passageInitial ? "passage" : null);
+  const [ouvert, setOuvert] = useState<"reglages" | "memoriser" | null>(null);
+  /** Verset touché : sa feuille d'actions est ouverte. */
+  const [versetChoisi, setVersetChoisi] = useState<string | null>(null);
+  /** Passage proposé à l'ouverture de « Mémoriser ». */
+  const [brouillon, setBrouillon] = useState<Passage | null>(null);
   const [joue, setJoue] = useState(false);
   const [charge, setCharge] = useState(false);
   const [position, setPosition] = useState<Position | null>(null);
@@ -154,14 +118,17 @@ export function LectureCoran({
   const [progression, setProgression] = useState({ temps: 0, duree: 0 });
   const [erreur, setErreur] = useState<string | null>(null);
   const [passage, setPassage] = useState(passageInitial);
-  const [repetition, setRepetition] = useState({ verset: 1, passage: 1 });
+  const [repetition, setRepetition] = useState<Repetition>(UNE_FOIS);
   const audio = useRef<HTMLAudioElement>(null);
   const prochain = useRef<HTMLAudioElement | null>(null);
   const positionRef = useRef<Position | null>(null);
   const reperes = useRef<RepereMot[] | null>(null);
   const texte = useRef<HTMLDivElement>(null);
-  /** « Écouter le passage » : la récitation démarre une fois le nouveau passage appliqué. */
-  const aLancer = useRef(false);
+  /**
+   * Récitation à lancer une fois le nouveau passage appliqué :
+   * undefined = rien ; null = depuis le début ; sinon la clé du verset de départ.
+   */
+  const aLancer = useRef<string | null | undefined>(undefined);
 
   useEffect(() => setReglages(lireReglages()), []);
   const modifier = useCallback((m: Partial<Reglages>) => {
@@ -336,12 +303,33 @@ export function LectureCoran({
   }, [recitation?.id, passage, arreter]);
 
   useEffect(() => {
-    if (!aLancer.current) return;
-    aLancer.current = false;
-    lancerDepuis();
+    const depart = aLancer.current;
+    if (depart === undefined) return;
+    aLancer.current = undefined;
+    lancerDepuis(depart ?? undefined);
     // Seulement quand les fichiers à réciter changent (nouveau passage).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pistes]);
+
+  /** Applique un passage (ou toute la sourate) et lance la récitation, depuis `cle` si donnée. */
+  const ecouter = useCallback(
+    (nouveau: Passage | null, rep: Repetition, cle?: string) => {
+      setRepetition(rep);
+      setOuvert(null);
+      setVersetChoisi(null);
+      const meme = nouveau?.du === passage?.du && nouveau?.au === passage?.au;
+      if (meme) {
+        lancerDepuis(cle);
+      } else {
+        aLancer.current = cle ?? null;
+        setPassage(nouveau);
+      }
+    },
+    [lancerDepuis, passage],
+  );
+
+  const numero = (cle: string) => Number(cle.split(":")[1]);
+  const dansLePassage = (cle: string) => !passage || (numero(cle) >= passage.du && numero(cle) <= passage.au);
 
   useEffect(() => {
     if (audio.current) audio.current.playbackRate = reglages.vitesse;
@@ -389,38 +377,52 @@ export function LectureCoran({
   // Vue page : glisser pour tourner les pages (sens du mushaf : vers la droite = page suivante).
   const depart = useRef<{ x: number; y: number } | null>(null);
 
-  const touche = useCallback(
-    (cle: string) => {
-      if (recitation?.suivi) lancerDepuis(cle);
-    },
-    [lancerDepuis, recitation?.suivi],
-  );
+  /** Toucher un verset ouvre ses actions (stable : les versets ne se redessinent pas). */
+  const touche = useCallback((cle: string) => setVersetChoisi(cle), []);
 
-  const total = pistes.length;
   const etat =
     erreur ??
     (recitation?.suivi
       ? position
         ? `${libelleCles(piste?.cles ?? [])}${repetition.verset > 1 ? ` · ${position.foisVerset + 1}/${repetition.verset}` : ""}${
             passage && repetition.passage !== 1
-              ? ` · passage ${position.foisPassage + 1}${repetition.passage ? `/${repetition.passage}` : ""}`
+              ? ` · tour ${position.foisPassage + 1}${repetition.passage ? `/${repetition.passage}` : ""}`
               : ""
           }`
-        : passage
-          ? `Passage ${passage.du} → ${passage.au}`
-          : `${total} fichier${total > 1 ? "s" : ""} à réciter`
+        : "▶ ou touche un verset"
       : progression.duree
         ? `${minutes(progression.temps)} / ${minutes(progression.duree)}`
-        : "Sourate entière");
+        : "Écoute de la sourate entière");
 
-  const groupes = [
-    { libelle: "Le texte suit la récitation", liste: recitations.filter((r) => r.suivi) },
-    { libelle: "Écoute seule (sourate entière)", liste: recitations.filter((r) => !r.suivi) },
-  ];
+  const memorisation = Boolean(sourateUnique && recitation?.suivi);
+  const ouvrirMemoriser = (depart: Passage) => {
+    setVersetChoisi(null);
+    setBrouillon(depart);
+    setOuvert("memoriser");
+  };
 
   return (
     <>
-      <section className="coran-barre" aria-label="Récitation">
+      <section className="coran-lecteur" aria-label="Récitation">
+        {passage && sourateUnique ? (
+          <div className="coran-lecteur-passage">
+            <Repeat size={15} aria-hidden="true" />
+            <button type="button" onClick={() => ouvrirMemoriser(passage)}>
+              {resumeCourtMemoriser(passage, repetition)}
+            </button>
+            <button
+              type="button"
+              className="coran-lecteur-effacer"
+              onClick={() => {
+                setPassage(null);
+                setRepetition(UNE_FOIS);
+              }}
+              aria-label="Revenir à toute la sourate"
+            >
+              <X size={16} aria-hidden="true" />
+            </button>
+          </div>
+        ) : null}
         <div className="coran-barre-ligne">
           <button
             type="button"
@@ -449,20 +451,25 @@ export function LectureCoran({
           >
             <SkipForward size={20} aria-hidden="true" />
           </button>
-          <div className="coran-barre-infos">
+          <button
+            type="button"
+            className="coran-barre-infos"
+            onClick={() => setOuvert("reglages")}
+            aria-label="Choisir le récitateur"
+          >
             <strong>
               {recitation
                 ? `${recitation.nom}${recitation.style ? ` · ${recitation.style}` : ""}`
                 : "Aucune récitation"}
             </strong>
             <span className={erreur ? "erreur" : undefined}>{etat}</span>
-          </div>
-          {sourateUnique && recitation?.suivi ? (
+          </button>
+          {memorisation ? (
             <button
               type="button"
               className={passage ? "coran-bouton coran-bouton-actif" : "coran-bouton"}
-              onClick={() => setOuvert((o) => (o === "passage" ? null : "passage"))}
-              aria-expanded={ouvert === "passage"}
+              onClick={() => ouvrirMemoriser(passage ?? { du: 1, au: Math.min(5, sourateUnique!.nbVersets) })}
+              aria-haspopup="dialog"
               aria-label="Mémoriser un passage"
             >
               <Repeat size={20} aria-hidden="true" />
@@ -471,9 +478,9 @@ export function LectureCoran({
           <button
             type="button"
             className="coran-bouton"
-            onClick={() => setOuvert((o) => (o === "reglages" ? null : "reglages"))}
-            aria-expanded={ouvert === "reglages"}
-            aria-label="Réglages de lecture"
+            onClick={() => setOuvert("reglages")}
+            aria-haspopup="dialog"
+            aria-label="Réglages"
           >
             <Settings2 size={20} aria-hidden="true" />
           </button>
@@ -493,235 +500,6 @@ export function LectureCoran({
           />
         ) : null}
 
-        {ouvert === "passage" && sourateUnique ? (
-          <div className="coran-reglages">
-            <p className="coran-reglages-titre">Mémoriser un passage</p>
-            <div className="coran-passage">
-              <label className="coran-reglage">
-                <span>Du verset</span>
-                <select
-                  value={passage?.du ?? 1}
-                  onChange={(e) => {
-                    const du = Number(e.target.value);
-                    setPassage({ du, au: Math.max(du, passage?.au ?? sourateUnique.nbVersets) });
-                  }}
-                >
-                  {sourateUnique.versets.map((v) => (
-                    <option key={v.n} value={v.n}>
-                      {v.n}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="coran-reglage">
-                <span>Au verset</span>
-                <select
-                  value={passage?.au ?? sourateUnique.nbVersets}
-                  onChange={(e) => {
-                    const au = Number(e.target.value);
-                    setPassage({ du: Math.min(au, passage?.du ?? 1), au });
-                  }}
-                >
-                  {sourateUnique.versets.map((v) => (
-                    <option key={v.n} value={v.n}>
-                      {v.n}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <Choix
-              libelle="Répéter chaque verset"
-              valeurs={FOIS_VERSET}
-              valeur={repetition.verset}
-              afficher={(v) => `${v}×`}
-              onChange={(v) => setRepetition((r) => ({ ...r, verset: v }))}
-            />
-            <Choix
-              libelle="Répéter le passage"
-              valeurs={FOIS_PASSAGE}
-              valeur={repetition.passage}
-              afficher={(v) => (v === 0 ? "∞" : `${v}×`)}
-              onChange={(v) => setRepetition((r) => ({ ...r, passage: v }))}
-            />
-            <div className="coran-actions">
-              {passage ? (
-                <button type="button" className="bouton-secondaire" onClick={() => setPassage(null)}>
-                  <X size={16} aria-hidden="true" />
-                  Toute la sourate
-                </button>
-              ) : null}
-              <button
-                type="button"
-                className="bouton"
-                onClick={() => {
-                  setOuvert(null);
-                  if (passage) {
-                    lancerDepuis();
-                  } else {
-                    aLancer.current = true;
-                    setPassage({ du: 1, au: sourateUnique.nbVersets });
-                  }
-                }}
-              >
-                <Play size={16} aria-hidden="true" />
-                Écouter le passage
-              </button>
-            </div>
-          </div>
-        ) : null}
-
-        {ouvert === "reglages" ? (
-          <div className="coran-reglages">
-            <label className="coran-reglage">
-              <span>Récitateur</span>
-              <select
-                value={recitation?.id ?? ""}
-                onChange={(e) =>
-                  modifier({ recitation: { ...reglages.recitation, [lecture]: e.target.value } })
-                }
-              >
-                {groupes.map((g) =>
-                  g.liste.length ? (
-                    <optgroup key={g.libelle} label={g.libelle}>
-                      {g.liste.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.nom}
-                          {r.style ? ` · ${r.style}` : ""}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ) : null,
-                )}
-              </select>
-              {!bibliothequeDisponible ? (
-                <small>Les récitations « sourate entière » sont momentanément indisponibles.</small>
-              ) : null}
-            </label>
-            <Choix
-              libelle="Vitesse"
-              valeurs={VITESSES}
-              valeur={reglages.vitesse}
-              afficher={(v) => `${String(v).replace(".", ",")}×`}
-              onChange={(v) => modifier({ vitesse: v })}
-            />
-            <div className="coran-interrupteurs">
-              <Interrupteur
-                icone={<ScanEye size={18} aria-hidden="true" />}
-                libelle="Suivre la récitation à l’écran"
-                actif={reglages.suivre}
-                desactive={!recitation?.suivi}
-                onChange={(v) => modifier({ suivre: v })}
-              />
-              <Interrupteur
-                icone={<TextCursor size={18} aria-hidden="true" />}
-                libelle={lecture === "hafs" ? "Surligner mot par mot" : "Mot par mot (Hafs seulement)"}
-                actif={reglages.motParMot && Boolean(recitation?.mots)}
-                desactive={!recitation?.mots}
-                onChange={(v) => modifier({ motParMot: v })}
-              />
-              {lecture === "hafs" ? (
-                <Interrupteur
-                  icone={<Palette size={18} aria-hidden="true" />}
-                  libelle="Couleurs du tajwid"
-                  actif={reglages.tajwid}
-                  onChange={(v) => modifier({ tajwid: v })}
-                />
-              ) : null}
-            </div>
-            <div className="coran-reglage">
-              <span>Taille du texte</span>
-              <div className="coran-choix-ligne" role="group" aria-label="Taille du texte">
-                <button
-                  type="button"
-                  onClick={() => modifier({ taille: Math.max(0, reglages.taille - 1) })}
-                  aria-label="Texte plus petit"
-                >
-                  <Minus size={16} aria-hidden="true" />
-                </button>
-                <span className="coran-taille-apercu" lang="ar">
-                  ب
-                </span>
-                <button
-                  type="button"
-                  onClick={() => modifier({ taille: Math.min(TAILLES.length - 1, reglages.taille + 1) })}
-                  aria-label="Texte plus grand"
-                >
-                  <Plus size={16} aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-
-            {horsLigne.possible ? (
-              <div className="coran-hors-ligne">
-                <p className="coran-reglages-titre">
-                  <CloudOff size={16} aria-hidden="true" />
-                  Hors ligne
-                </p>
-                {vue === "sourate" ? (
-                  recitation?.suivi && recitation.dossier ? (
-                    horsLigne.sourateTelechargee ? (
-                      <div className="coran-hors-ligne-ligne">
-                        <span>✓ Récitation de cette sourate sur le téléphone ({recitation.nom})</span>
-                        <button
-                          type="button"
-                          className="coran-bouton"
-                          onClick={() => void horsLigne.supprimerSourate()}
-                          aria-label="Retirer du téléphone"
-                        >
-                          <Trash2 size={18} aria-hidden="true" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        className="bouton-secondaire"
-                        disabled={horsLigne.progres !== null}
-                        onClick={() => void horsLigne.telechargerSourate()}
-                      >
-                        <CloudDownload size={16} aria-hidden="true" />
-                        Télécharger la récitation de cette sourate
-                      </button>
-                    )
-                  ) : (
-                    <small>Choisis un récitateur « le texte suit » pour télécharger la récitation.</small>
-                  )
-                ) : null}
-                {horsLigne.texteGarde ? (
-                  <small>
-                    ✓ Texte des 114 sourates ({lecture === "warsh" ? "Warsh" : "Hafs"}) gardé sur le
-                    téléphone.
-                  </small>
-                ) : null}
-                <button
-                  type="button"
-                  className="bouton-secondaire"
-                  disabled={horsLigne.progres !== null}
-                  onClick={() => void horsLigne.garderTexte()}
-                >
-                  <CloudDownload size={16} aria-hidden="true" />
-                  {horsLigne.texteGarde
-                    ? "Mettre à jour le texte gardé"
-                    : "Garder tout le texte sur le téléphone"}
-                </button>
-                {horsLigne.progres ? (
-                  <div className="coran-progres" role="status">
-                    <span>
-                      {horsLigne.progres.quoi === "texte" ? "Texte" : "Récitation"} : {horsLigne.progres.fait}{" "}
-                      / {horsLigne.progres.total}
-                    </span>
-                    <progress value={horsLigne.progres.fait} max={horsLigne.progres.total} />
-                  </div>
-                ) : null}
-                {horsLigne.erreur ? <small className="erreur">{horsLigne.erreur}</small> : null}
-                {horsLigne.place !== null ? (
-                  <small>Place utilisée par l’appli : {taille(horsLigne.place)}</small>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-
         <audio
           ref={audio}
           preload="none"
@@ -738,12 +516,64 @@ export function LectureCoran({
             setErreur(
               navigator.onLine
                 ? "Récitation introuvable pour ce passage. Essaie un autre récitateur."
-                : "Pas de réseau : télécharge cette sourate (⚙ → Hors ligne) pour l’écouter sans connexion.",
+                : "Pas de réseau : télécharge cette sourate (Réglages → Hors ligne) pour l’écouter sans connexion.",
             );
             arreter();
           }}
         />
       </section>
+
+      <ReglagesCoran
+        ouverte={ouvert === "reglages"}
+        onFermer={() => setOuvert(null)}
+        lecture={lecture}
+        liensLecture={liensLecture}
+        vue={vue}
+        reglages={reglages}
+        modifier={modifier}
+        recitations={recitations}
+        recitation={recitation}
+        bibliothequeDisponible={bibliothequeDisponible}
+        horsLigne={horsLigne}
+      />
+
+      {sourateUnique ? (
+        <MemoriserCoran
+          ouverte={ouvert === "memoriser"}
+          onFermer={() => setOuvert(null)}
+          nbVersets={sourateUnique.nbVersets}
+          depart={brouillon ?? passage ?? { du: 1, au: sourateUnique.nbVersets }}
+          repetitionDepart={passage ? repetition : { verset: 3, passage: 1 }}
+          passageActif={passage !== null}
+          onEcouter={(p, r) => ecouter(p, r)}
+          onEffacer={() => {
+            setOuvert(null);
+            setPassage(null);
+            setRepetition(UNE_FOIS);
+          }}
+        />
+      ) : null}
+
+      <ActionsVerset
+        cle={versetChoisi}
+        onFermer={() => setVersetChoisi(null)}
+        suivi={Boolean(recitation?.suivi)}
+        memorisation={memorisation}
+        onEcouter={(cle) =>
+          ecouter(dansLePassage(cle) ? passage : null, dansLePassage(cle) ? repetition : UNE_FOIS, cle)
+        }
+        onRepeter={(cle) => ecouter({ du: numero(cle), au: numero(cle) }, { verset: 1, passage: 0 })}
+        onMemoriser={(cle) =>
+          ouvrirMemoriser({
+            du: numero(cle),
+            au: Math.min(numero(cle) + 4, sourateUnique?.nbVersets ?? numero(cle)),
+          })
+        }
+        onReglages={() => {
+          setVersetChoisi(null);
+          setOuvert("reglages");
+        }}
+      />
 
       <article
         className={[
@@ -751,7 +581,7 @@ export function LectureCoran({
           `coran-${lecture}`,
           vue === "page" ? "coran-vue-page" : "",
           avecTajwid ? "coran-tajwid" : "",
-          recitation?.suivi ? "cliquable" : "",
+          "cliquable",
           passage ? "avec-passage" : "",
         ].join(" ")}
         lang="ar"
@@ -930,62 +760,6 @@ const Basmala = memo(function Basmala({
     </p>
   );
 });
-
-function Choix<T extends number>({
-  libelle,
-  valeurs,
-  valeur,
-  afficher,
-  onChange,
-}: {
-  libelle: string;
-  valeurs: readonly T[];
-  valeur: T;
-  afficher: (v: T) => string;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="coran-reglage">
-      <span>{libelle}</span>
-      <div className="coran-choix-ligne" role="group" aria-label={libelle}>
-        {valeurs.map((v) => (
-          <button key={v} type="button" aria-pressed={valeur === v} onClick={() => onChange(v)}>
-            {afficher(v)}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Interrupteur({
-  icone,
-  libelle,
-  actif,
-  desactive = false,
-  onChange,
-}: {
-  icone: ReactNode;
-  libelle: string;
-  actif: boolean;
-  desactive?: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={actif}
-      disabled={desactive}
-      className="coran-interrupteur"
-      onClick={() => onChange(!actif)}
-    >
-      {icone}
-      <span>{libelle}</span>
-      <span className="coran-interrupteur-pastille" aria-hidden="true" />
-    </button>
-  );
-}
 
 /** « Verset 3 », « Versets 6-7 », « Basmala ». */
 function libelleCles(cles: readonly string[]): string {

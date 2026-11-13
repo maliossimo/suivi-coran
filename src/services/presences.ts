@@ -3,12 +3,19 @@ import { z } from "zod";
 import { ajouterJours, formaterDate, lireDate, type DateISO } from "@/domain/calendrier";
 import {
   SEUIL_ABSENCES,
+  STATUTS,
   absencesDAffilee,
   aCoursLe,
+  capacites,
   joursDeCoursDuMois,
+  joursDeCoursEntre,
+  lirePeriode,
   prochainCours,
   resumeAppel,
   tauxPresence,
+  type Capacites,
+  type Periode,
+  type PointDeVue,
   type StatutPresence,
 } from "@/domain/presences";
 import { listerEtablissements } from "@/repositories/admin";
@@ -35,29 +42,55 @@ import { exigerConnexion } from "./acces";
 import { aujourdhuiParis, type ResultatSaisie } from "./fiche";
 
 /**
- * Version de test : les présences ne sont ouvertes qu'à l'administrateur.
- * Pour les ouvrir aux Cheikhs (et plus tard au responsable de la mosquée), il suffit
- * d'élargir ces deux fonctions : la base applique déjà les bons droits.
+ * Point de vue du compte sur les présences ; null : pas d'accès.
+ *
+ * Version de test : seul l'administrateur y a accès. Pour ouvrir la fonctionnalité,
+ * il suffit de rendre ici « cheikh » aux maîtres et « responsable » aux responsables :
+ * la base applique déjà les droits de chacun (voir supabase/tests/rls_test.sql).
  */
+function vueDuCompte(profil: Profil): PointDeVue | null {
+  if (!profil.actif) return null;
+  return profil.role === "admin" ? "admin" : null;
+}
+
 export function peutVoirPresences(profil: Profil): boolean {
-  return profil.actif && profil.role === "admin";
-}
-export function peutFaireAppel(profil: Profil): boolean {
-  return profil.actif && profil.role === "admin";
+  return vueDuCompte(profil) !== null;
 }
 
-/** Garde des pages « Présences ». */
-export async function exigerPresences(): Promise<Profil> {
+/** Ce que la page affiche : le point de vue (éventuellement en aperçu) et ce qu'il permet. */
+export interface AccesPresences {
+  profil: Profil;
+  vue: PointDeVue;
+  /** L'admin regarde avec les yeux d'un autre rôle (lecture seule côté serveur inchangée). */
+  apercu: PointDeVue | null;
+  peut: Capacites;
+}
+
+const schemaApercu = z.enum(["cheikh", "responsable"]);
+
+/** Garde des pages « Présences » ; `?vue=cheikh|responsable` : aperçu réservé à l'admin. */
+export async function exigerPresences(vueDemandee?: unknown): Promise<AccesPresences> {
   const profil = await exigerConnexion();
-  if (!peutVoirPresences(profil)) redirect(accueilDuRole(profil.role));
-  return profil;
+  const vue = vueDuCompte(profil);
+  if (!vue) redirect(accueilDuRole(profil.role));
+  const a = schemaApercu.safeParse(vueDemandee);
+  const apercu = vue === "admin" && a.success ? a.data : null;
+  const effective = apercu ?? vue;
+  return { profil, vue: effective, apercu, peut: capacites(effective) };
 }
 
-function exigerVue(acteur: Profil) {
-  if (!peutVoirPresences(acteur)) throw new Error("Présences non disponibles pour ce compte.");
-}
-function exigerAppel(acteur: Profil): ResultatSaisie | null {
-  return peutFaireAppel(acteur) ? null : { ok: false, erreur: "Seul le Cheikh de la classe fait l’appel." };
+type Action = keyof Capacites;
+const REFUS: Record<Action, string> = {
+  appel: "Seul le Cheikh de la classe fait l’appel.",
+  organiser: "Seul le responsable de la mosquée organise les classes.",
+  eleves: "Tu ne peux pas modifier les élèves de cette classe.",
+  rapport: "Le rapport est réservé au responsable de la mosquée.",
+};
+
+/** Garde des écritures : toujours le vrai rôle du compte, jamais l'aperçu. */
+function refuser(acteur: Profil, action: Action): ResultatSaisie | null {
+  const vue = vueDuCompte(acteur);
+  return vue && capacites(vue)[action] ? null : { ok: false, erreur: REFUS[action] };
 }
 
 const schemaId = z.string().uuid();
@@ -73,8 +106,7 @@ export interface ClasseAccueil extends Classe {
   dernierAppel: { date: DateISO; resume: Record<StatutPresence, number> } | null;
 }
 
-export async function chargerAccueilPresences(acteur: Profil) {
-  exigerVue(acteur);
+export async function chargerAccueilPresences() {
   const aujourdhui = aujourdhuiParis();
   const [classes, appels, etablissements] = await Promise.all([
     listerClasses(),
@@ -103,7 +135,6 @@ export async function chargerAccueilPresences(acteur: Profil) {
     aujourdhui,
     classes: liste,
     archivees: classes.filter((c) => c.archivee),
-    peutCreer: peutFaireAppel(acteur),
   };
 }
 
@@ -116,8 +147,7 @@ export interface LigneMois {
   absencesDAffilee: number;
 }
 
-export async function chargerClasseMois(acteur: Profil, idBrut: unknown, moisBrut: unknown) {
-  exigerVue(acteur);
+export async function chargerClasseMois(idBrut: unknown, moisBrut: unknown) {
   const id = schemaId.safeParse(idBrut);
   if (!id.success) return null;
   const classe = await lireClasse(id.data);
@@ -171,14 +201,12 @@ export async function chargerClasseMois(acteur: Profil, idBrut: unknown, moisBru
     lignes,
     taux: tauxPresence(tous),
     aSurveiller: lignes.filter((l) => l.absencesDAffilee >= SEUIL_ABSENCES),
-    peutAppel: peutFaireAppel(acteur),
   };
 }
 
 // ---------- L'appel --------------------------------------------------------
 
-export async function chargerAppel(acteur: Profil, idBrut: unknown, dateBrute: unknown) {
-  exigerVue(acteur);
+export async function chargerAppel(idBrut: unknown, dateBrute: unknown) {
   const id = schemaId.safeParse(idBrut);
   if (!id.success) return null;
   const classe = await lireClasse(id.data);
@@ -200,7 +228,6 @@ export async function chargerAppel(acteur: Profil, idBrut: unknown, dateBrute: u
         )
       : null,
     faitLe: appel?.faitLe ?? null,
-    peutAppel: peutFaireAppel(acteur),
   };
 }
 
@@ -211,7 +238,7 @@ const schemaAppel = z.object({
     .array(
       z.object({
         membre: schemaId,
-        statut: z.enum(["present", "absent", "retard", "excuse"]),
+        statut: z.enum(STATUTS),
         note: z.string().trim().max(200).nullable().catch(null),
       }),
     )
@@ -219,7 +246,7 @@ const schemaAppel = z.object({
 });
 
 export async function enregistrerUnAppel(acteur: Profil, brut: unknown): Promise<ResultatSaisie> {
-  const refus = exigerAppel(acteur);
+  const refus = refuser(acteur, "appel");
   if (refus) return refus;
   const p = schemaAppel.safeParse(brut);
   if (!p.success) return { ok: false, erreur: "Appel incomplet : recharge la page." };
@@ -245,8 +272,7 @@ const schemaClasse = z.object({
   cheikhs: z.array(schemaId).max(10),
 });
 
-export async function chargerFormulaireClasse(acteur: Profil, idBrut?: unknown, etablissementBrut?: unknown) {
-  if (!peutFaireAppel(acteur)) throw new Error("Seul le Cheikh de la classe gère la classe.");
+export async function chargerFormulaireClasse(idBrut?: unknown, etablissementBrut?: unknown) {
   const etablissements = (await listerEtablissements()).filter((e) => e.actif);
   const classe = idBrut ? await lireClasse(schemaId.parse(idBrut)) : null;
   const etab =
@@ -263,7 +289,7 @@ export async function creerUneClasse(
   acteur: Profil,
   form: FormData,
 ): Promise<ResultatSaisie & { id?: string }> {
-  const refus = exigerAppel(acteur);
+  const refus = refuser(acteur, "organiser");
   if (refus) return refus;
   const etab = schemaId.safeParse(form.get("etablissement"));
   const p = schemaClasse.safeParse({
@@ -282,7 +308,7 @@ export async function creerUneClasse(
 }
 
 export async function modifierUneClasse(acteur: Profil, form: FormData): Promise<ResultatSaisie> {
-  const refus = exigerAppel(acteur);
+  const refus = refuser(acteur, "organiser");
   if (refus) return refus;
   const id = schemaId.safeParse(form.get("id"));
   const p = schemaClasse.safeParse({
@@ -306,7 +332,7 @@ export async function modifierUneClasse(acteur: Profil, form: FormData): Promise
 }
 
 export async function ajouterUnMembre(acteur: Profil, form: FormData): Promise<ResultatSaisie> {
-  const refus = exigerAppel(acteur);
+  const refus = refuser(acteur, "eleves");
   if (refus) return refus;
   const classe = schemaId.safeParse(form.get("classe"));
   if (!classe.success) return { ok: false, erreur: "Classe introuvable." };
@@ -329,7 +355,7 @@ export async function ajouterUnMembre(acteur: Profil, form: FormData): Promise<R
 }
 
 export async function changerUnMembre(acteur: Profil, form: FormData): Promise<ResultatSaisie> {
-  const refus = exigerAppel(acteur);
+  const refus = refuser(acteur, "eleves");
   if (refus) return refus;
   const id = schemaId.safeParse(form.get("membre"));
   if (!id.success) return { ok: false, erreur: "Élève introuvable." };
@@ -339,4 +365,102 @@ export async function changerUnMembre(acteur: Profil, form: FormData): Promise<R
   } catch {
     return { ok: false, erreur: "Modification impossible." };
   }
+}
+
+// ---------- Rapport du responsable -----------------------------------------
+
+export interface LigneRapport {
+  membre: MembreClasse;
+  /** Statut à chaque date de la période (null : pas d'appel ce jour-là). */
+  statuts: (StatutPresence | null)[];
+  presences: number;
+  absences: number;
+  taux: number | null;
+}
+
+export interface ClasseRapport {
+  classe: Classe;
+  dates: DateISO[];
+  appelsFaits: Set<DateISO>;
+  lignes: LigneRapport[];
+  taux: number | null;
+}
+
+/**
+ * Présences d'une période pour une classe ou toutes : de quoi imprimer le PDF
+ * sans passer par le Cheikh.
+ */
+export async function chargerRapport(brut: { du?: unknown; au?: unknown; classe?: unknown }) {
+  const aujourdhui = aujourdhuiParis();
+  const periode: Periode = lirePeriode(brut.du, brut.au, aujourdhui);
+  const toutes = (await listerClasses()).filter((c) => !c.archivee);
+  const choix = schemaId.safeParse(brut.classe);
+  const retenues = choix.success ? toutes.filter((c) => c.id === choix.data) : toutes;
+  // Pas de jour à venir dans le rapport : l'appel n'a pas encore pu être fait.
+  const fin = periode.au < aujourdhui ? periode.au : aujourdhui;
+
+  const classes: ClasseRapport[] = await Promise.all(
+    retenues.map(async (classe) => {
+      const [membres, appels] = await Promise.all([
+        membresClasse(classe.id),
+        periode.du <= fin ? appelsEntre(classe.id, periode.du, fin) : Promise.resolve([]),
+      ]);
+      const dates = [
+        ...new Set([
+          ...(periode.du <= fin ? joursDeCoursEntre(classe.jours, periode.du, fin) : []),
+          ...appels.map((a) => a.date),
+        ]),
+      ].sort();
+      const parDate = new Map(appels.map((a) => [a.date, a]));
+      const lignes = membres
+        .filter((m) => m.actif || appels.some((a) => a.presences.has(m.id)))
+        .map((membre): LigneRapport => {
+          const statuts = dates.map((d) => parDate.get(d)?.presences.get(membre.id)?.statut ?? null);
+          const faits = statuts.filter((s): s is StatutPresence => s !== null);
+          return {
+            membre,
+            statuts,
+            presences: faits.filter((s) => s === "present").length,
+            absences: faits.filter((s) => s === "absent").length,
+            taux: tauxPresence(faits),
+          };
+        });
+      return {
+        classe,
+        dates,
+        appelsFaits: new Set(appels.map((a) => a.date)),
+        lignes,
+        taux: tauxPresence(lignes.flatMap((l) => l.statuts.filter((s): s is StatutPresence => s !== null))),
+      };
+    }),
+  );
+
+  return {
+    aujourdhui,
+    periode,
+    classeChoisie: choix.success && retenues.length ? choix.data : null,
+    toutes: toutes.map((c) => ({ id: c.id, nom: c.nom })),
+    classes,
+  };
+}
+
+// ---------- Appel du jour (page « Ma classe ») ------------------------------
+
+/** Classes ayant cours aujourd'hui, pour la carte « Appel du jour » ; vide sans droit d'appel. */
+export async function chargerAppelDuJour(profil: Profil) {
+  const vue = vueDuCompte(profil);
+  if (!vue || !capacites(vue).appel) return [];
+  const aujourdhui = aujourdhuiParis();
+  const [classes, appels] = await Promise.all([listerClasses(), derniersAppels(aujourdhui)]);
+  return classes
+    .filter((c) => !c.archivee && aCoursLe(c.jours, aujourdhui))
+    .map((c) => {
+      const appel = appels.find((a) => a.classeId === c.id && a.date === aujourdhui);
+      return {
+        id: c.id,
+        nom: c.nom,
+        nbMembres: c.nbMembres,
+        resume: appel ? resumeAppel(appel.statuts) : null,
+      };
+    });
 }

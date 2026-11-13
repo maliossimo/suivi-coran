@@ -1,7 +1,9 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireClasse } from "@/components/presences/FormulaireClasse";
+import { avecVue } from "@/domain/presences";
 import { chargerFormulaireClasse, exigerPresences } from "@/services/presences";
 
 export const metadata = { title: "Nouvelle classe" };
@@ -9,15 +11,17 @@ export const metadata = { title: "Nouvelle classe" };
 export default async function PageNouvelleClasse({
   searchParams,
 }: {
-  searchParams: Promise<{ etablissement?: string }>;
+  searchParams: Promise<{ etablissement?: string; vue?: string }>;
 }) {
-  const profil = await exigerPresences();
-  const f = await chargerFormulaireClasse(profil, undefined, (await searchParams).etablissement);
+  const q = await searchParams;
+  const { profil, apercu, peut } = await exigerPresences(q.vue);
+  if (!peut.organiser) redirect(avecVue("/presences", apercu));
+  const f = await chargerFormulaireClasse(undefined, q.etablissement);
   return (
     <>
       <EnteteEspace titre="Présences" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace espace-etroit">
-        <Link href="/presences" className="lien-retour">
+        <Link href={avecVue("/presences", apercu)} className="lien-retour">
           <ChevronLeft size={18} aria-hidden="true" />
           Présences
         </Link>
