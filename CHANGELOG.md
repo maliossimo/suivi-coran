@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.17.0] — 2026-11-13
+
+### Amélioré
+
+- Écran de séance épuré : en-tête sur une ligne, un seul bouton principal « Enregistrer », suppression rangée dans le menu « ⋯ ».
+- Élève : durée en un toucher (10, 15, 20, 30 min ou « Autre »), un passage par ligne qu'on touche pour le modifier, avec son état ; note ajoutée seulement si besoin ; le mot du Cheikh apparaît sous les passages.
+- Cheikh : la récitation et le commentaire en premier, avec des phrases toutes prêtes ; la saisie de l'élève est résumée en une ligne, avec un bouton « Modifier ».
+
 ## [1.16.0] — 2026-11-13
 
 ### Nouveautés
