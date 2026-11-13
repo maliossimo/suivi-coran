@@ -3,7 +3,7 @@
  *
  * - Fichiers de l'appli (/_next/static, icônes, polices) : gardés après le premier
  *   chargement (leur nom change à chaque version, ils ne sont jamais périmés).
- * - Pages de l'élève, du Cheikh et de l'administration : toujours demandées au serveur ;
+ * - Pages de l'élève, du Cheikh, de l'administration et des présences : toujours demandées au serveur ;
  *   la dernière version reçue est gardée pour être réaffichée sans réseau.
  *   Une séance saisie hors ligne part toute seule au retour du réseau, et la base refuse
  *   d'écraser une séance modifiée entre-temps : une page un peu ancienne ne fait rien perdre.
@@ -42,7 +42,7 @@ self.addEventListener("activate", (event) => {
 
 /** Pages privées que l'on garde pour le hors-ligne. */
 function pageGardee(url) {
-  return /^\/(eleve|maitre|admin|compte)(\/|$)/.test(url.pathname);
+  return /^\/(eleve|maitre|admin|compte|presences)(\/|$)/.test(url.pathname);
 }
 
 /** Pages d'accueil de chaque rôle : réaffichées quand l'appli s'ouvre sans réseau. */
@@ -91,12 +91,13 @@ async function pageSansReseau(requete, url) {
   // le formulaire d'un autre jour serait trompeur.
   const exacte = await cache.match(requete, { ignoreVary: true });
   if (exacte) return exacte;
-  if (!url.pathname.endsWith("/seance")) {
+  const formulaireDuJour = url.pathname.endsWith("/seance") || url.pathname.endsWith("/appel");
+  if (!formulaireDuJour) {
     const proche = await cache.match(requete, { ignoreSearch: true, ignoreVary: true });
     if (proche) return proche;
   }
   // Ouverture de l'appli (ou raccourci de l'icône) : la dernière page d'accueil.
-  if (!url.pathname.endsWith("/seance")) {
+  if (!formulaireDuJour) {
     const accueil = await cache.match(ACCUEIL);
     if (accueil) return accueil;
   }

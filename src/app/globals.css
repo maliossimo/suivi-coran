@@ -5624,3 +5624,414 @@ html[data-ouverture] .ouverture-version {
   width: 100%;
   accent-color: var(--vert);
 }
+
+/* ---------- Présences --------------------------------------------------- */
+.presences-entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  color: var(--texte-doux);
+  font-size: 14px;
+}
+.presences-entete p {
+  margin: 0;
+  font-weight: 600;
+  color: var(--texte);
+}
+.presences-entete a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.liste-classes {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carte-classe {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 18px;
+  background: var(--carte);
+  box-shadow: var(--ombre);
+}
+.carte-classe.aujourdhui {
+  border-color: var(--bord-or);
+  box-shadow:
+    inset 4px 0 0 var(--or),
+    var(--ombre);
+}
+.carte-classe-lien {
+  display: grid;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+.carte-classe-titre {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.carte-classe-titre strong {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 20px;
+}
+.carte-classe-titre small,
+.carte-classe-sous,
+.carte-classe-prochain {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.carte-classe .bouton,
+.carte-classe .bouton-secondaire {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.bandeau-appels {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--or-clair);
+  color: var(--or-texte);
+  font-size: 14px;
+}
+.titre-carte {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+.choix-jours > div,
+.choix-cheikhs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.choix-jours,
+.choix-cheikhs {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.choix-jours legend,
+.choix-cheikhs legend {
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.choix-jours label,
+.choix-cheikhs label {
+  position: relative;
+  display: inline-flex;
+}
+.choix-jours input,
+.choix-cheikhs input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+}
+.choix-jours span,
+.choix-cheikhs span {
+  display: grid;
+  place-items: center;
+  min-width: 52px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--champ);
+  border-radius: 10px;
+  background: var(--carte);
+  font-weight: 600;
+  cursor: pointer;
+}
+.choix-jours input:checked + span,
+.choix-cheikhs input:checked + span {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.choix-jours input:focus-visible + span,
+.choix-cheikhs input:focus-visible + span {
+  outline: 2px solid var(--vert);
+  outline-offset: 2px;
+}
+.case-a-cocher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ajout-membre {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ligne);
+}
+.ajout-membre-noms {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.liste-membres li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.liste-membres small {
+  color: var(--texte-doux);
+}
+
+/* L'appel */
+.entete-appel {
+  display: grid;
+  gap: 8px;
+}
+.entete-appel h1 {
+  margin: 0;
+  font-size: 22px;
+}
+.choix-date-appel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.choix-date-appel input {
+  min-height: 38px;
+  padding: 0 8px;
+  border: 1px solid var(--champ);
+  border-radius: 10px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+}
+.feuille-appel {
+  display: grid;
+  gap: 12px;
+}
+.feuille-appel-resume {
+  position: sticky;
+  top: 8px;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--carte) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 14px;
+}
+.liste-appel {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ligne-appel {
+  display: grid;
+  gap: 8px;
+  padding: 8px 8px 8px 12px;
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+  background: var(--carte);
+}
+.ligne-appel.statut-absent {
+  border-color: color-mix(in srgb, var(--rouge) 45%, transparent);
+  background: color-mix(in srgb, var(--rouge) 7%, var(--carte));
+}
+.ligne-appel.statut-retard {
+  border-color: var(--bord-or);
+}
+.ligne-appel-tete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ligne-appel-nom {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.ligne-appel-nom small {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+.choix-statut {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+.choix-statut button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--champ);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--texte-doux);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.choix-statut button[aria-checked="true"].statut-present {
+  border-color: var(--vert);
+  background: var(--vert);
+  color: #fff;
+}
+.choix-statut button[aria-checked="true"].statut-absent {
+  border-color: var(--rouge);
+  background: var(--rouge);
+  color: #fff;
+}
+.choix-statut button[aria-checked="true"].statut-retard {
+  border-color: var(--or);
+  background: var(--or);
+  color: #1b1405;
+}
+.choix-statut button[aria-checked="true"].statut-excuse {
+  border-color: var(--texte-doux);
+  background: var(--texte-doux);
+  color: var(--carte);
+}
+.ligne-appel-note {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--champ);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--texte);
+  font: inherit;
+}
+.legende-statuts {
+  margin: 0;
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+.barre-enregistrer {
+  position: sticky;
+  bottom: calc(80px + env(safe-area-inset-bottom));
+  z-index: 10;
+}
+.barre-enregistrer .bouton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+@media (min-width: 761px) {
+  .barre-enregistrer {
+    bottom: 12px;
+  }
+}
+
+/* Tableau du mois */
+.entete-classe h1 {
+  font-size: 24px;
+}
+.entete-tableau-presences {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.entete-tableau-presences h2 {
+  margin: 0;
+}
+.boutons-partage {
+  display: flex;
+  gap: 6px;
+}
+.boutons-partage button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tableau-presences th,
+.tableau-presences td {
+  text-align: center;
+  white-space: nowrap;
+}
+.tableau-presences th:first-child,
+.tableau-presences td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--carte);
+  text-align: left;
+}
+.tableau-presences td:first-child svg {
+  margin-left: 4px;
+  color: var(--or-texte);
+  vertical-align: -2px;
+}
+.tableau-presences th.sans-appel {
+  color: var(--texte-doux);
+  opacity: 0.6;
+}
+.case-statut {
+  font-weight: 700;
+  color: var(--texte-doux);
+}
+.case-statut.statut-present {
+  color: var(--vert-texte);
+}
+.case-statut.statut-absent {
+  color: var(--rouge);
+  background: color-mix(in srgb, var(--rouge) 10%, transparent);
+}
+.case-statut.statut-retard {
+  color: var(--or-texte);
+}
+.case-taux {
+  font-weight: 700;
+}
+.membre-parti td {
+  opacity: 0.55;
+}
+.a-surveiller p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+@media print {
+  .barre,
+  .nav-espace,
+  .lien-retour,
+  .boutons-partage,
+  .entete-classe .mois-fleche,
+  .entete-classe .carte-eleve-progression,
+  nav.mois .mois-fleche {
+    display: none !important;
+  }
+  .tableau-defilant {
+    overflow: visible !important;
+  }
+}

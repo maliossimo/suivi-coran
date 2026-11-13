@@ -464,6 +464,50 @@ select pg_temp.attendu(
   'erreurs et sauvegardes : l''admin les lit');
 select pg_temp.console();
 
+-- ---------- Présences (classes et appel) -----------------------------
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+insert into public.classes (id, etablissement_id, nom, jours) values
+  ('c1a55e00-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000000', 'Coran', '{1,2,4}');
+insert into public.classes_cheikhs (classe_id, maitre_id) values
+  ('c1a55e00-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-00000000000a');
+insert into public.membres_classe (id, classe_id, eleve_id) values
+  ('3e3b0000-0000-0000-0000-000000000001', 'c1a55e00-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001');
+insert into public.membres_classe (id, classe_id, prenom, nom) values
+  ('3e3b0000-0000-0000-0000-000000000002', 'c1a55e00-0000-0000-0000-000000000001', 'Sara', 'M.');
+select pg_temp.doit_echouer(
+  $q$insert into public.membres_classe (classe_id, eleve_id)
+     values ('c1a55e00-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001')$q$,
+  'présences : un élève d''une autre école ne rejoint pas la classe');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.attendu((select count(*) from public.membres_classe) = 2, 'présences : le Cheikh voit les élèves de sa classe');
+select public.enregistrer_appel('c1a55e00-0000-0000-0000-000000000001', current_date,
+  '[{"membre":"3e3b0000-0000-0000-0000-000000000002","statut":"absent","note":"malade"}]'::jsonb);
+select pg_temp.attendu(
+  (select statut from public.presences where membre_id = '3e3b0000-0000-0000-0000-000000000002') = 'absent'
+  and (select statut from public.presences where membre_id = '3e3b0000-0000-0000-0000-000000000001') = 'present',
+  'présences : l''appel enregistre les absents, les autres sont présents');
+select public.enregistrer_appel('c1a55e00-0000-0000-0000-000000000001', current_date, '[]'::jsonb);
+select pg_temp.attendu(
+  (select count(*) from public.presences) = 2
+  and (select statut from public.presences where membre_id = '3e3b0000-0000-0000-0000-000000000002') = 'present',
+  'présences : refaire l''appel du jour le remplace (rejouable hors ligne)');
+select pg_temp.doit_echouer(
+  $q$select public.enregistrer_appel('c1a55e00-0000-0000-0000-000000000001', current_date + 10, '[]'::jsonb)$q$,
+  'présences : pas d''appel pour un cours à venir');
+
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.attendu((select count(*) from public.classes) = 0 and (select count(*) from public.presences) = 0,
+  'présences : un Cheikh d''une autre école ne voit rien');
+select pg_temp.doit_echouer(
+  $q$select public.enregistrer_appel('c1a55e00-0000-0000-0000-000000000001', current_date, '[]'::jsonb)$q$,
+  'présences : un Cheikh d''une autre école ne fait pas l''appel');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu((select count(*) from public.classes) = 0 and (select count(*) from public.presences) = 0,
+  'présences : un élève ne voit pas les présences');
+select pg_temp.console();
+
 -- ---------- Ouvertures de l'appli -------------------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 insert into public.ouvertures default values;
