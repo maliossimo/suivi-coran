@@ -45,7 +45,7 @@ test.describe("Coran (admin)", () => {
       .getByRole("button", { name: /Al-Kahf/ })
       .first()
       .click();
-    // Première ouverture d’'une grande sourate après le démarrage du serveur : on laisse le temps.
+    // Première ouverture d’une grande sourate après le démarrage du serveur : on laisse le temps.
     await expect(page).toHaveURL(/sourate=18/, { timeout: 15_000 });
   });
 
