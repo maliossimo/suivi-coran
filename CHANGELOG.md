@@ -9,6 +9,19 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.9.1] — 2026-11-13
+
+### Amélioré
+
+- Appel : bouton « Tous présents » plus lisible ; boutons P/A/R/E adaptés aux petits téléphones.
+- Tableau du mois : jour de la semaine au-dessus de chaque date, noms raccourcis pour voir plus de cours, lien vers la fiche des élèves qui ont un compte.
+- Un appel gardé hors ligne n'est plus perdu si le serveur le refuse une fois : il est renvoyé (jusqu'à 5 fois).
+- Journal : les classes, élèves de classe et appels apparaissent avec un nom lisible.
+
+### Interne
+
+- Tests des droits : Cheikh non rattaché à une classe, Cheikh désactivé, élève retiré de la classe.
+
 ## [1.9.0] — 2026-11-13
 
 ### Nouveautés

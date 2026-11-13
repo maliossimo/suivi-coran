@@ -6,10 +6,15 @@ import { BoutonPartager } from "@/components/presences/BoutonPartager";
 import { EnvoiAppels } from "@/components/presences/EnvoiAppels";
 import { lireDate } from "@/domain/calendrier";
 import { decalerMois, libelleMois } from "@/domain/fiche";
-import { LETTRE_STATUT, LIBELLE_STATUT, libelleJours } from "@/domain/presences";
+import { JOURS, LETTRE_STATUT, LIBELLE_STATUT, jourIso, libelleJours } from "@/domain/presences";
 import { chargerClasseMois, exigerPresences } from "@/services/presences";
 
 export const metadata = { title: "Présences de la classe" };
+
+/** « Inès M. » : la première colonne du tableau reste étroite sur téléphone. */
+function nomCourt(m: { prenom: string; nom: string }): string {
+  return `${m.prenom}${m.nom ? ` ${m.nom.charAt(0)}.` : ""}`;
+}
 
 export default async function PageClasse({
   params,
@@ -129,10 +134,11 @@ export default async function PageClasse({
                     <th>Élève</th>
                     {c.dates.map((d) => (
                       <th key={d} className={c.appelsFaits.has(d) ? undefined : "sans-appel"}>
+                        <small>{JOURS[jourIso(d) - 1]?.court.slice(0, 2)}</small>
                         {modifiable ? (
                           <Link href={`/presences/${c.classe.id}/appel?date=${d}`}>{lireDate(d).jour}</Link>
                         ) : (
-                          lireDate(d).jour
+                          <span>{lireDate(d).jour}</span>
                         )}
                       </th>
                     ))}

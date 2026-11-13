@@ -507,6 +507,23 @@ select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 select pg_temp.attendu((select count(*) from public.classes) = 0 and (select count(*) from public.presences) = 0,
   'présences : un élève ne voit pas les présences');
 select pg_temp.console();
+-- Classe sans ce Cheikh : il ne la voit pas ; élève retiré : absent du prochain appel.
+insert into public.classes (id, etablissement_id, nom, jours) values
+  ('c1a55e00-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000000', 'Fiqh', '{6,7}');
+update public.membres_classe set actif = false where id = '3e3b0000-0000-0000-0000-000000000002';
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.attendu((select count(*) from public.classes) = 1,
+  'présences : un Cheikh ne voit que les classes dont il est Cheikh');
+select public.enregistrer_appel('c1a55e00-0000-0000-0000-000000000001', current_date - 1, '[]'::jsonb);
+select pg_temp.attendu(
+  (select count(*) from public.presences p join public.appels a on a.id = p.appel_id where a.date = current_date - 1) = 1,
+  'présences : un élève retiré de la classe n''est plus à l''appel');
+select pg_temp.console();
+update public.profils set actif = false where id = 'a0000000-0000-0000-0000-00000000000a';
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.attendu((select count(*) from public.classes) = 0, 'présences : un Cheikh désactivé ne voit plus ses classes');
+select pg_temp.console();
+update public.profils set actif = true where id = 'a0000000-0000-0000-0000-00000000000a';
 
 -- ---------- Ouvertures de l'appli -------------------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
