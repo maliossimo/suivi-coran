@@ -3,19 +3,26 @@
  *
  * - Fichiers de l'appli (/_next/static, icônes, polices) : gardés après le premier
  *   chargement (leur nom change à chaque version, ils ne sont jamais périmés).
- * - Pages de l'élève et du Cheikh : toujours demandées au serveur ; la dernière version
- *   reçue est gardée pour être réaffichée sans réseau (en salle de cours qui capte mal).
+ * - Pages de l'élève, du Cheikh et de l'administration : toujours demandées au serveur ;
+ *   la dernière version reçue est gardée pour être réaffichée sans réseau.
  *   Une séance saisie hors ligne part toute seule au retour du réseau, et la base refuse
  *   d'écraser une séance modifiée entre-temps : une page un peu ancienne ne fait rien perdre.
+ * - Ouverture de l'appli sans réseau (« / ») : la dernière page d'accueil reçue
+ *   (fiche de l'élève, classe du Cheikh, administration).
+ * - Coran : les sourates préparées pour le hors-ligne sont gardées à part (pas de limite),
+ *   et les récitations téléchargées sont servies depuis le téléphone (/coran-hors-ligne/…).
  * - Déconnexion (retour sur /connexion) : les pages gardées sont effacées.
  * - Page jamais ouverte et pas de réseau : page « Pas de connexion ».
  */
 const STATIQUE = "suivi-coran-statique-v1";
 const PAGES = "suivi-coran-pages-v1";
+const CORAN = "suivi-coran-texte-v1";
+const AUDIO = "suivi-coran-audio-v1";
 const HORS_LIGNE = "suivi-coran-hors-ligne-v1";
 const PAGE_HORS_LIGNE = "/hors-ligne.html";
+const ACCUEIL = "/__accueil";
 const MAX_PAGES = 40;
-const CACHES_CONNUS = [STATIQUE, PAGES, HORS_LIGNE];
+const CACHES_CONNUS = [STATIQUE, PAGES, CORAN, AUDIO, HORS_LIGNE];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(HORS_LIGNE).then((cache) => cache.add(PAGE_HORS_LIGNE)));
@@ -35,8 +42,15 @@ self.addEventListener("activate", (event) => {
 
 /** Pages privées que l'on garde pour le hors-ligne. */
 function pageGardee(url) {
-  return /^\/(eleve|maitre)(\/|$)/.test(url.pathname);
+  return /^\/(eleve|maitre|admin|compte)(\/|$)/.test(url.pathname);
 }
+
+/** Pages d'accueil de chaque rôle : réaffichées quand l'appli s'ouvre sans réseau. */
+function estAccueil(url) {
+  return ["/eleve", "/maitre", "/admin"].includes(url.pathname) && !url.search.includes("classe=");
+}
+
+const estCoran = (url) => url.pathname === "/admin/coran";
 
 function estConnexion(url) {
   return url.pathname === "/connexion" || url.pathname.startsWith("/connexion/");
@@ -47,14 +61,30 @@ async function limiterPages(cache) {
   await Promise.all(cles.slice(0, Math.max(0, cles.length - MAX_PAGES)).map((c) => cache.delete(c)));
 }
 
-async function garderPage(requete, reponse) {
+async function garderPage(requete, recue, url) {
+  // Une réponse « redirigée » ne peut pas resservir une navigation : on la recopie.
+  const reponse = recue.redirected
+    ? new Response(await recue.blob(), { status: recue.status, headers: recue.headers })
+    : recue;
+  if (estCoran(url)) {
+    const cache = await caches.open(CORAN);
+    await cache.put(requete, reponse);
+    return;
+  }
   const cache = await caches.open(PAGES);
   await cache.delete(requete, { ignoreVary: true });
+  if (estAccueil(url)) await cache.put(new Request(ACCUEIL), reponse.clone());
   await cache.put(requete, reponse);
   await limiterPages(cache);
 }
 
 async function pageSansReseau(requete, url) {
+  if (estCoran(url)) {
+    const sourate = await caches.match(requete, { ignoreVary: true, cacheName: CORAN });
+    if (sourate) return sourate;
+    const visitee = await caches.match(requete, { ignoreVary: true, cacheName: PAGES });
+    return visitee || (await caches.match(PAGE_HORS_LIGNE)) || Response.error();
+  }
   const cache = await caches.open(PAGES);
   // La même page (même jour, même mois) ; à défaut, pour la fiche et l'accueil, la dernière
   // version de cette page (un autre mois affiché vaut mieux que rien). Jamais pour une séance :
@@ -65,7 +95,37 @@ async function pageSansReseau(requete, url) {
     const proche = await cache.match(requete, { ignoreSearch: true, ignoreVary: true });
     if (proche) return proche;
   }
+  // Ouverture de l'appli (ou raccourci de l'icône) : la dernière page d'accueil.
+  if (!url.pathname.endsWith("/seance")) {
+    const accueil = await cache.match(ACCUEIL);
+    if (accueil) return accueil;
+  }
   return (await caches.match(PAGE_HORS_LIGNE)) || Response.error();
+}
+
+/** Récitation téléchargée : servie depuis le téléphone, par morceaux si le lecteur le demande. */
+async function fichierTelecharge(requete) {
+  const garde = await caches.match(new URL(requete.url).pathname, { cacheName: AUDIO });
+  if (!garde) return new Response("Pas téléchargé", { status: 404 });
+  const plage = requete.headers.get("range");
+  if (!plage) return garde;
+  const octets = await garde.arrayBuffer();
+  const m = /bytes=(\d*)-(\d*)/.exec(plage);
+  const total = octets.byteLength;
+  const debut = m && m[1] ? Number(m[1]) : 0;
+  const fin = m && m[2] ? Math.min(Number(m[2]), total - 1) : total - 1;
+  if (debut >= total || debut > fin) {
+    return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${total}` } });
+  }
+  return new Response(octets.slice(debut, fin + 1), {
+    status: 206,
+    headers: {
+      "Content-Type": garde.headers.get("Content-Type") || "audio/mpeg",
+      "Content-Range": `bytes ${debut}-${fin}/${total}`,
+      "Content-Length": String(fin - debut + 1),
+      "Accept-Ranges": "bytes",
+    },
+  });
 }
 
 self.addEventListener("fetch", (event) => {
@@ -74,8 +134,17 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(requete.url);
   if (url.origin !== self.location.origin) return;
 
+  if (url.pathname.startsWith("/coran-hors-ligne/")) {
+    event.respondWith(fichierTelecharge(requete));
+    return;
+  }
+
   // Fichiers de l'appli : nom unique par version, on les garde.
-  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icones/")) {
+  if (
+    url.pathname.startsWith("/_next/static/") ||
+    url.pathname.startsWith("/icones/") ||
+    url.pathname.startsWith("/polices/")
+  ) {
     event.respondWith(
       caches.open(STATIQUE).then(async (cache) => {
         const garde = await cache.match(requete);
@@ -100,8 +169,10 @@ self.addEventListener("fetch", (event) => {
         if (estConnexion(url) || estConnexion(finale)) {
           // Déconnecté (ou session expirée) : plus rien de privé dans le téléphone.
           caches.delete(PAGES);
-        } else if (reponse.ok && !reponse.redirected && pageGardee(url)) {
-          event.waitUntil(garderPage(new Request(url.href), reponse.clone()));
+          caches.delete(CORAN);
+        } else if (reponse.ok && pageGardee(finale)) {
+          // « / » redirige vers l'accueil du rôle : on garde la page d'arrivée.
+          event.waitUntil(garderPage(new Request(finale.href), reponse.clone(), finale));
         }
         return reponse;
       })

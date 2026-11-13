@@ -5,6 +5,8 @@ import { lireLecture, type Lecture } from "@/domain/lectures";
 import type { Sourate } from "@/domain/versets";
 import {
   correspondanceWarsh,
+  dossierConnu,
+  fichierEveryAyah,
   pagesMushaf,
   recitateurs,
   recitationsVersets,
@@ -118,6 +120,8 @@ export async function chargerPageCoran(
       suivi: false,
       source: r.serveur,
       mots: null,
+      dossier: null,
+      alignement: null,
     }));
 
   return {
@@ -141,4 +145,34 @@ export async function chargerPageCoran(
     recitations: [...recitationsVersets(lecture), ...sourateEntiere],
     bibliothequeDisponible: bibliotheque !== null,
   };
+}
+
+const schemaFichier = z.object({
+  dossier: z
+    .string()
+    .max(80)
+    .regex(/^[\w./-]+$/),
+  fichier: z.string().regex(/^\d{6}\.mp3$/),
+});
+
+/**
+ * Téléchargement hors ligne d'un verset récité (admin) : le serveur va le chercher chez
+ * EveryAyah (le navigateur ne peut pas le garder directement). Seuls les dossiers connus
+ * sont acceptés : ce n'est pas un relais ouvert.
+ */
+export async function versetPourHorsLigne(
+  acteur: Profil | null,
+  parametres: Record<string, string | null>,
+): Promise<Response> {
+  if (!acteur || acteur.role !== "admin" || !acteur.actif) return new Response(null, { status: 403 });
+  const p = schemaFichier.safeParse(parametres);
+  if (!p.success || !dossierConnu(p.data.dossier)) return new Response(null, { status: 400 });
+  const reponse = await fichierEveryAyah(p.data.dossier, p.data.fichier).catch(() => null);
+  if (!reponse?.ok || !reponse.body) return new Response(null, { status: 502 });
+  return new Response(reponse.body, {
+    headers: {
+      "Content-Type": "audio/mpeg",
+      "Cache-Control": "private, max-age=86400",
+    },
+  });
 }
