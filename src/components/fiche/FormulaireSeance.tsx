@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { EtatCheikh, Seance, TypeSeance } from "@/domain/fiche";
+import { dateCourte } from "@/domain/format";
 import { premierChevauchement, type Passage } from "@/domain/versets";
 import { actionEnregistrerSeanceFond } from "@/app/actions/fiche";
 import { ChoixSourate } from "./ChoixSourate";
@@ -20,12 +21,6 @@ export interface SourateOption {
 }
 
 const PAS = 5;
-
-/** « 12 nov. » */
-const dateCourte = (iso: string) =>
-  new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", timeZone: "Europe/Paris" }).format(
-    new Date(iso),
-  );
 
 /** Garde uniquement les chiffres : « 069 » devient 69, un champ vidé vaut 0 (affiché vide). */
 function lireNombre(texte: string): number {

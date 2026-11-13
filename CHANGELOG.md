@@ -9,6 +9,19 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.20.0] — 2026-11-14
+
+### Nouveautés
+
+- Coran : « Vérifier ma récitation » dans la fiche d'un verset. Le téléphone transcrit ta voix et l'appli la compare au texte, mot à mot : juste en vert, différent en doré, oublié barré, avec le nombre de mots justes. La transcription passe par le service vocal du téléphone (expliqué la première fois) ; rien n'est gardé dans l'appli.
+- Séance : sous chaque passage validé par le Cheikh, l'élève voit la date (« validé le 12 nov. »).
+
+### Amélioré
+
+- Base : index pour les lectures fréquentes (statistiques d'une période, journal filtré par personne, suppression d'un Cheikh).
+- Code : formats de date et noms des rôles regroupés en un seul endroit, avertissements corrigés.
+- Tests : création d'une classe depuis l'administration, vérification de la récitation, mesure de la navigation entre onglets corrigée.
+
 ## [1.19.0] — 2026-11-14
 
 ### Nouveautés
