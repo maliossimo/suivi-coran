@@ -5,6 +5,9 @@ test.describe("Administration", () => {
     await seConnecter(page, COMPTES.admin, /\/admin/);
     await expect(page.getByRole("heading", { name: "Établissements" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Comptes" })).toBeVisible();
+    // Chaque mosquée montre ses classes.
+    await expect(page.getByRole("link", { name: /Coran du soir \(test\)/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: "+ Nouvelle classe" }).first()).toBeVisible();
     await capture(page, "40-admin");
 
     // Les actions d'un compte sont rangées dans son menu « ⋯ ».
