@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.2.0] — 2026-11-13
+
+### Nouveautés
+
+- Navigation au doigt : glisser sur la fiche pour changer de mois, tirer vers le bas pour actualiser.
+- Transitions douces entre les pages.
+- Raccourcis sur l'icône de l'appli installée (séance du jour, progression).
+- Écran d'accueil pour un nouvel élève qui n'a encore aucune séance.
+- Petite vibration (Android) quand une séance est enregistrée.
+- Double vérification pour l'administrateur : code d'une appli d'authentification demandé après le mot de passe, appareils gérés dans « Double vérification ».
+
 ## [1.1.3] — 2026-11-13
 
 ### Interne
