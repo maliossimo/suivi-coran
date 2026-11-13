@@ -6,7 +6,7 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await capture(page, "10-eleve-fiche");
     const seance = `/eleve/seance?date=${jourParis()}&type=apprentissage`;
     await page.goto(seance);
-    const enregistrer = page.getByRole("button", { name: "Enregistrer la séance" });
+    const enregistrer = page.getByRole("button", { name: "Enregistrer", exact: true });
     await expect(enregistrer).toBeEnabled();
     await page.getByRole("button", { name: "15 min", exact: true }).click();
     await capture(page, "11-eleve-seance");
@@ -42,6 +42,8 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     // Vue du Cheikh épurée : pas de lien vers le Coran.
     await expect(page.getByText("Écouter dans le Coran")).toHaveCount(0);
     await capture(page, "22-cheikh-correction");
+    // La saisie de l'élève est résumée : on la déplie pour la corriger.
+    await page.getByRole("button", { name: "Modifier", exact: true }).click();
     const corriger = page.getByRole("button", { name: "Enregistrer la correction" });
     await expect(corriger).toBeEnabled();
     await corriger.click();

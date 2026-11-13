@@ -11,7 +11,7 @@ type Etat = "aucun" | "ecoute" | "valide";
 const etatDe = (p: Passage): Etat => (p.valide ? "valide" : p.corrige ? "ecoute" : "aucun");
 
 const CHOIX: { etat: Etat; libelle: string }[] = [
-  { etat: "aucun", libelle: "Pas écouté" },
+  { etat: "aucun", libelle: "À écouter" },
   { etat: "ecoute", libelle: "Écouté" },
   { etat: "valide", libelle: "Validé" },
 ];
@@ -60,21 +60,9 @@ export function EcouteCheikh({
     <section className="ecoute-cheikh" aria-label="Écoute du Cheikh">
       <div className="ecoute-cheikh-entete">
         <h2>Récitation</h2>
-        <div className="ecoute-cheikh-tout">
-          <button type="button" onClick={() => void marquer("ecoute")} aria-pressed={tous("ecoute")}>
-            <Headphones size={16} strokeWidth={1.6} aria-hidden="true" />
-            Tout écouté
-          </button>
-          <button
-            type="button"
-            className="valide"
-            onClick={() => void marquer("valide")}
-            aria-pressed={tous("valide")}
-          >
-            <Check size={16} aria-hidden="true" />
-            Tout validé
-          </button>
-        </div>
+        <span className="ecoute-compte">
+          {etats.filter((e) => e !== "aucun").length} / {etats.length} écouté{etats.length > 1 ? "s" : ""}
+        </span>
       </div>
       <ul>
         {passages.map((p, i) => {
@@ -109,12 +97,26 @@ export function EcouteCheikh({
           );
         })}
       </ul>
+      <div className="ecoute-cheikh-tout">
+        <button type="button" onClick={() => void marquer("ecoute")} aria-pressed={tous("ecoute")}>
+          <Headphones size={16} strokeWidth={1.6} aria-hidden="true" />
+          Tout écouté
+        </button>
+        <button
+          type="button"
+          className="valide"
+          onClick={() => void marquer("valide")}
+          aria-pressed={tous("valide")}
+        >
+          <Check size={16} aria-hidden="true" />
+          Tout validé
+        </button>
+      </div>
       {erreur ? (
         <p className="message-erreur" role="alert">
           {erreur}
         </p>
       ) : null}
-      <p className="ecoute-aide">Écouté : à retravailler. Validé : acquis.</p>
     </section>
   );
 }

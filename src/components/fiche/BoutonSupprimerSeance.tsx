@@ -23,26 +23,25 @@ export function BoutonSupprimerSeance({
 }) {
   const router = useRouter();
   return (
-    <div className="zone-suppression">
-      <button
-        type="button"
-        className="bouton-danger"
-        onClick={() => {
-          const cle = cleSeance(eleveId, date, type);
-          const form = new FormData();
-          form.set("eleveId", eleveId);
-          form.set("date", date);
-          form.set("type", type);
-          effacerBrouillon(cle);
-          retirer(cle); // plus d'envoi en attente ni d'échec affiché pour une séance supprimée
-          programmerSuppression(cle, `Séance du ${libelleJour} supprimée`, () =>
-            actionSupprimerSeanceFond(form),
-          );
-          router.push(retour);
-        }}
-      >
-        Supprimer cette séance
-      </button>
-    </div>
+    <button
+      type="button"
+      className="menu-plus-item menu-plus-danger"
+      onClick={() => {
+        const cle = cleSeance(eleveId, date, type);
+        const form = new FormData();
+        form.set("eleveId", eleveId);
+        form.set("date", date);
+        form.set("type", type);
+        effacerBrouillon(cle);
+        retirer(cle); // plus d'envoi en attente ni d'échec affiché pour une séance supprimée
+        programmerSuppression(cle, `Séance du ${libelleJour} supprimée`, () =>
+          actionSupprimerSeanceFond(form),
+        );
+        router.push(retour);
+      }}
+    >
+      Supprimer cette séance
+      <small>Tu pourras annuler pendant quelques secondes.</small>
+    </button>
   );
 }
