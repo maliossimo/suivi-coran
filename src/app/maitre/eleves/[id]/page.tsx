@@ -1,4 +1,4 @@
-import { ChevronLeft, Ellipsis } from "lucide-react";
+import { ChartNoAxesColumn, ChevronLeft, Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { actionArchiverEleve } from "@/app/actions/classe";
@@ -37,7 +37,7 @@ export default async function PageEleveMaitre({
             <ChevronLeft size={18} aria-hidden="true" />
             Toute la classe
           </Link>
-          <div className="entete-page">
+          <div className="entete-page entete-eleve-carte">
             <div className="entete-eleve">
               <Avatar prenom={eleve.prenom} nom={eleve.nom} cle={eleve.id} taille="grand" />
               <div>
@@ -54,8 +54,13 @@ export default async function PageEleveMaitre({
               </div>
             </div>
             <div className="actions-entete">
-              <Link href={`${base}/progression`} className="bouton-secondaire bouton-lien">
-                Progression
+              <Link
+                href={`${base}/progression`}
+                className="bouton-secondaire bouton-lien bouton-progression"
+                aria-label="Progression"
+              >
+                <ChartNoAxesColumn size={18} aria-hidden="true" />
+                <span>Progression</span>
               </Link>
               {eleve.actif ? (
                 <details className="menu-plus">

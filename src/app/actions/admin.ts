@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { profilConnecte } from "@/repositories/profils";
+import { choisirModeVueAdmin } from "@/services/vueAdmin";
 import {
   ajouterEtablissement,
   basculerUtilisateur,
@@ -78,4 +79,11 @@ export async function actionRenvoyerInvitation(form: FormData): Promise<void> {
   const resultat = await renvoyerUneInvitation(profil, form.get("id"));
   await notifier(resultat.ok ? "Invitation renvoyée" : resultat.erreur, resultat.ok ? "succes" : "erreur");
   revalidatePath("/admin");
+}
+
+/** Vue du Cheikh : lecture seule ou modification. */
+export async function actionModeVueAdmin(form: FormData): Promise<void> {
+  const profil = await admin();
+  await choisirModeVueAdmin(profil, form.get("mode"));
+  revalidatePath("/maitre", "layout");
 }
