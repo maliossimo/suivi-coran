@@ -9,6 +9,16 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.9.0] — 2026-11-13
+
+### Nouveautés
+
+- Présences (version de test, visible par l'administrateur seulement) : classes d'une mosquée (ex. Coran lundi, mardi, jeudi ; Fiqh samedi, dimanche), avec leurs Cheikhs et leurs élèves, avec ou sans compte.
+- L'appel en salle : tout le monde présent par défaut, un toucher pour absent, en retard ou excusé, une note si besoin. Sans réseau, l'appel est gardé sur le téléphone et part au retour de la connexion.
+- Tableau du mois par classe : présences jour par jour, taux de présence, élèves à surveiller (absences de suite), partage du récapitulatif (WhatsApp, e-mail) et PDF.
+- « Voir comme le responsable » : ce que verra le responsable de la mosquée (présences et absences seulement, lecture seule).
+- Les droits sont déjà en place dans la base pour ouvrir plus tard l'appel aux Cheikhs de chaque classe.
+
 ## [1.8.0] — 2026-11-13
 
 ### Nouveautés
