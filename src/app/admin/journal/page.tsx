@@ -18,6 +18,9 @@ const TABLES: Record<string, string> = {
   profils: "Profil",
   etablissements: "Établissement",
   invitations_classe: "QR code de classe",
+  classes: "Classe (présences)",
+  membres_classe: "Élève d’une classe",
+  appels: "Appel",
 };
 
 const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
