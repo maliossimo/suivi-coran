@@ -288,22 +288,6 @@ export async function enregistrerErreur(
   await supabase.from("erreurs").insert({ page, message, version });
 }
 
-/**
- * Note que cette session de l'admin a saisi le bon code (clé « service role » :
- * une session ne peut pas se déclarer vérifiée elle-même).
- */
-export async function marquerSessionVerifiee(sessionId: string, userId: string): Promise<boolean> {
-  const admin = clientAdmin();
-  if (!admin) return false;
-  const { error } = await admin
-    .from("sessions_verifiees")
-    .upsert({ session_id: sessionId, user_id: userId, verifiee_le: new Date().toISOString() });
-  if (error) return false;
-  const ilYA90Jours = new Date(Date.now() - 90 * 86_400_000).toISOString();
-  await admin.from("sessions_verifiees").delete().eq("user_id", userId).lt("verifiee_le", ilYA90Jours);
-  return true;
-}
-
 export interface UtilisationAppli {
   derniere: string;
   ouvertures7j: number;

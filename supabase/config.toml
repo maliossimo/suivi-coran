@@ -36,7 +36,3 @@ content_path = "./supabase/templates/invite.html"
 [auth.email.template.recovery]
 subject = "Mot de passe oublié — Suivi cours Coran"
 content_path = "./supabase/templates/recovery.html"
-
-[auth.email.template.magic_link]
-subject = "Code de vérification — Suivi cours Coran"
-content_path = "./supabase/templates/magic_link.html"

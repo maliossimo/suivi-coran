@@ -9,17 +9,7 @@ begin;
 -- ---------- Outils de test -------------------------------------------
 create function pg_temp.en_tant_que(p uuid) returns void language plpgsql as $$
 begin
-  -- Session habituelle de la personne (identifiant de session = son id).
-  perform set_config('request.jwt.claims',
-    json_build_object('sub', p, 'role', 'authenticated', 'session_id', p)::text, true);
-  execute 'set local role authenticated';
-end $$;
-
-create function pg_temp.en_tant_que_nouvelle_session(p uuid) returns void language plpgsql as $$
-begin
-  -- Nouvelle connexion (autre appareil) : le code n'a pas encore été saisi.
-  perform set_config('request.jwt.claims',
-    json_build_object('sub', p, 'role', 'authenticated', 'session_id', gen_random_uuid())::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', p, 'role', 'authenticated')::text, true);
   execute 'set local role authenticated';
 end $$;
 
@@ -47,7 +37,7 @@ begin
   raise exception 'ÉCHEC : % (accepté alors qu''il devait être refusé)', msg;
 end $$;
 
-grant execute on function pg_temp.en_tant_que(uuid), pg_temp.en_tant_que_nouvelle_session(uuid), pg_temp.console(), pg_temp.attendu(boolean, text),
+grant execute on function pg_temp.en_tant_que(uuid), pg_temp.console(), pg_temp.attendu(boolean, text),
   pg_temp.doit_echouer(text, text) to authenticated;
 
 -- ---------- Jeu de données -------------------------------------------
@@ -68,9 +58,6 @@ select pg_temp.attendu(
   (select role from public.profils where id = 'ad000000-0000-0000-0000-0000000000ad') = 'eleve',
   'les métadonnées d''invitation ne peuvent pas créer un admin');
 update public.profils set role = 'admin' where id = 'ad000000-0000-0000-0000-0000000000ad';  -- console SQL
--- Session de l'admin qui a saisi son code (écrit par le serveur avec la clé « service role »).
-insert into public.sessions_verifiees (session_id, user_id)
-values ('ad000000-0000-0000-0000-0000000000ad', 'ad000000-0000-0000-0000-0000000000ad');
 
 insert into public.seances (id, eleve_id, date, type, duree_min, tajwid) values
   ('5e000000-0000-0000-0000-0000000000a1', 'a0000000-0000-0000-0000-000000000001', '2026-11-09', 'revision', 30, 'Noun sakin'),
@@ -476,25 +463,6 @@ select pg_temp.attendu(
   and (select count(*) from public.sauvegardes) = 1,
   'erreurs et sauvegardes : l''admin les lit');
 select pg_temp.console();
-
--- ---------- Code de l'admin ------------------------------------------
-select pg_temp.en_tant_que_nouvelle_session('ad000000-0000-0000-0000-0000000000ad');
-select pg_temp.attendu((select count(*) from public.journal_audit) = 0,
-  'code admin : nouvelle session sans code → aucun droit d''admin');
-update public.etablissements set nom = 'Sans code' where id = 'aaaaaaaa-0000-0000-0000-000000000000';
-select pg_temp.doit_echouer(
-  $q$insert into public.sessions_verifiees (session_id, user_id)
-     values (gen_random_uuid(), 'ad000000-0000-0000-0000-0000000000ad')$q$,
-  'code admin : la session ne peut pas se déclarer vérifiée elle-même');
-select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
-select pg_temp.attendu(
-  (select nom from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') <> 'Sans code',
-  'code admin : sans le code, l''admin ne modifie rien');
-select pg_temp.attendu((select count(*) from public.journal_audit) > 0,
-  'code admin : session vérifiée → droits d''admin');
-select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
-select pg_temp.attendu((select count(*) from public.sessions_verifiees) = 0,
-  'code admin : un maître ne voit pas les sessions de l''admin');
 
 -- ---------- Ouvertures de l'appli -------------------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');

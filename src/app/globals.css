@@ -4794,13 +4794,6 @@ html[data-ouverture] .ouverture-version {
   background: var(--surface-2);
 }
 
-/* ---------- Code de vérification (admin) -------------------------- */
-.champ-code {
-  font-size: 22px;
-  letter-spacing: 0.3em;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
 .details-ouvertures {
   margin-top: 12px;
 }
