@@ -2,9 +2,12 @@ name: Publication de la version
 
 # À chaque mise en production : étiquette vX.Y.Z sur le commit déployé et « Release » GitHub
 # avec les notes de CHANGELOG.md. Rien n'est fait si la version est déjà publiée.
+# Relance manuelle possible (« Run workflow ») : publie la version actuellement en production
+# si elle ne l'a pas été (ex. robot indisponible au moment de la mise en production).
 on:
   push:
     branches: [prod]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: prod
       - name: Publier
         env:
           GH_TOKEN: ${{ github.token }}
@@ -31,4 +36,4 @@ jobs:
             dedans { print }
           ' CHANGELOG.md > notes.md
           [ -s notes.md ] || echo "Mise en production de la version $version." > notes.md
-          gh release create "v$version" --target "$GITHUB_SHA" --title "Version $version" --notes-file notes.md
+          gh release create "v$version" --target "$(git rev-parse HEAD)" --title "Version $version" --notes-file notes.md
