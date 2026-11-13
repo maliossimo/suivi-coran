@@ -4697,6 +4697,9 @@ html[data-ouverture] .ouverture-version {
 
 /* ---------- Gestes de la fiche : glisser, tirer pour rafraîchir ---------- */
 .fiche-gestes {
+  /* Pas d'« apparition » générale des pages (.espace > *) : à la fin du glissement,
+     le retrait de la classe d'arrivée la relançait et la fiche semblait se recharger. */
+  animation: none;
   /* Même disposition que la page : rien ne bouge quand l'animation commence. */
   display: flex;
   flex-direction: column;
