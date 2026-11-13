@@ -135,8 +135,12 @@ function correspond(nom: string, lecture: Lecture): boolean {
   return /hafs/i.test(nom);
 }
 
+/**
+ * mp3quran.net : la liste n'est qu'un complément (écoute seule). Si le site est lent ou
+ * injoignable, on n'attend pas plus de quelques secondes : la page s'affiche sans elle.
+ */
 async function lireJson(url: string): Promise<unknown> {
-  const reponse = await fetch(url, { next: { revalidate: UN_JOUR } });
+  const reponse = await fetch(url, { next: { revalidate: UN_JOUR }, signal: AbortSignal.timeout(3_000) });
   if (!reponse.ok) throw new Error(`mp3quran : ${reponse.status}`);
   return reponse.json();
 }
