@@ -31,6 +31,8 @@ test.describe("Coran (admin)", () => {
 
   test("appui long sur un verset : son explication directement", async ({ page }) => {
     await page.goto("/admin/coran?lecture=hafs&sourate=18");
+    // L'appli doit être prête (scripts chargés) avant le geste.
+    await page.waitForLoadState("networkidle");
     const verset = page.locator('.coran-verset[data-cle="18:10"]');
     await verset.scrollIntoViewIfNeeded();
     // Au milieu d'un mot du verset (un verset peut s'étaler sur plusieurs lignes).

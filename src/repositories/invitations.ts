@@ -7,8 +7,7 @@ import { clientAdmin } from "@/lib/supabase/admin";
 import { creerClientServeur } from "@/lib/supabase/server";
 
 export type ResultatInvitation =
-  | { ok: true }
-  | { ok: false; raison: "non_configure" | "deja_inscrit" | "echec"; detail?: string };
+  { ok: true } | { ok: false; raison: "non_configure" | "deja_inscrit" | "echec"; detail?: string };
 
 /**
  * Envoie l'e-mail d'invitation Supabase. Les métadonnées créent le profil
@@ -189,8 +188,7 @@ export async function compterUtilisation(id: string, utilisations: number): Prom
 }
 
 export type ResultatCreationCompte =
-  | { ok: true }
-  | { ok: false; raison: "non_configure" | "deja_inscrit" | "echec" };
+  { ok: true } | { ok: false; raison: "non_configure" | "deja_inscrit" | "echec" };
 
 /**
  * Crée directement un compte élève confirmé (inscription par QR code).

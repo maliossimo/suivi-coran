@@ -20,7 +20,7 @@ Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z
 
 ### Amélioré
 
-- Réactivité : vérification de la connexion sans aller-retour réseau quand c'est possible ; plus aucun appel à la base pour les polices, icônes et fichiers fixes ; écran d'attente immédiat dans les présences et le Coran.
+- Réactivité : vérification de la connexion sans aller-retour réseau quand c'est possible ; plus aucun appel à la base pour les polices, icônes et fichiers fixes ; écran d’attente immédiat dans les présences.
 
 ### Interne
 
