@@ -7748,12 +7748,15 @@ html.defilement-bloque {
   min-height: 36px;
   display: inline-flex;
   align-items: center;
+}
 .passage-resume-nom small {
   display: block;
   margin-top: 2px;
   font-size: 12px;
   font-weight: 500;
   color: var(--or-texte);
+}
+
 /* Vérifier ma récitation */
 .verifier-recitation {
   display: grid;
