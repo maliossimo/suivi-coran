@@ -50,12 +50,14 @@ export function GestesFiche({
   /** Décalage du contenu pendant que le doigt glisse horizontalement. */
   const [glisse, setGlisse] = useState(0);
   /** Départ en cours : le contenu s'efface dans le sens du geste jusqu'à l'arrivée du nouveau mois. */
-  const [sortie, setSortie] = useState<{ sens: Sens; cle: string } | null>(null);
+  const [sortie, setSortie] = useState<{ sens: Sens; cle: string; hauteur: number } | null>(null);
+  const contenu = useRef<HTMLDivElement>(null);
   const cleRef = useRef(cleFiche);
   cleRef.current = cleFiche;
 
   const partir = useCallback((sens: Sens) => {
-    setSortie({ sens, cle: cleRef.current });
+    // La hauteur est gardée pendant le changement : la page ne remonte pas d'un coup.
+    setSortie({ sens, cle: cleRef.current, hauteur: contenu.current?.offsetHeight ?? 0 });
     setGlisse(0);
   }, []);
 
@@ -172,11 +174,14 @@ export function GestesFiche({
       </div>
       <div
         key={cleFiche}
+        ref={contenu}
         className={classe}
         style={
           glisse
             ? { transform: `translateX(${glisse}px)`, opacity: 1 - Math.min(Math.abs(glisse) / 400, 0.3) }
-            : undefined
+            : sortie && sortie.cle !== cleFiche
+              ? { minHeight: sortie.hauteur }
+              : undefined
         }
         onAnimationEnd={(e) => {
           if (e.target === e.currentTarget && sortie && sortie.cle !== cleFiche) setSortie(null);
