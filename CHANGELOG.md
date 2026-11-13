@@ -9,6 +9,16 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.6.0] — 2026-11-13
+
+### Nouveautés
+
+- Coran (administration) : page entièrement revue, sans débordement sur téléphone (cartouche de la sourate, page encadrée façon mushaf).
+- Récitation qui suit le texte : avec les récitateurs « verset par verset » (EveryAyah, Hafs et Warsh), le verset récité s'allume et reste au centre de l'écran ; toucher un verset lance la récitation à partir de lui. Basmala récitée en Hafs.
+- Barre de récitation toujours visible : lecture / pause, verset précédent / suivant, vitesse, répétition du verset, suivi à l'écran, taille du texte. Titre et commandes sur l'écran verrouillé.
+- Tajwid en couleur (Hafs) avec sa légende.
+- Les autres récitateurs (sourate entière) restent disponibles en « écoute seule ».
+
 ## [1.5.0] — 2026-11-13
 
 ### Nouveautés

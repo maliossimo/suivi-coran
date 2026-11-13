@@ -1,9 +1,8 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
-import { LecteurRecitation } from "@/components/coran/LecteurRecitation";
 import { ChoixSourate } from "@/components/coran/ChoixSourate";
-import { TailleTexteCoran } from "@/components/coran/TailleTexteCoran";
+import { LectureCoran } from "@/components/coran/LectureCoran";
 import { LIBELLE_LECTURE } from "@/domain/lectures";
 import { exigerEspace } from "@/services/acces";
 import { chargerPageCoran } from "@/services/coran";
@@ -43,7 +42,7 @@ export default async function PageCoran({
           ))}
         </nav>
 
-        <div className="mois coran-navigation">
+        <div className="coran-navigation">
           {n > 1 ? (
             <Link className="mois-fleche" href={lien(p.lecture, n - 1)} aria-label="Sourate précédente">
               <ChevronLeft size={22} aria-hidden="true" />
@@ -65,36 +64,30 @@ export default async function PageCoran({
           )}
         </div>
 
-        <LecteurRecitation
+        <header className={`coran-cartouche coran-${p.lecture}`}>
+          <p lang="ar" dir="rtl">
+            سورة {p.sourate.nomAr}
+          </p>
+          <span>
+            {n}. {p.sourate.nomLatin} · {p.sourate.nbVersets} versets · {LIBELLE_LECTURE[p.lecture]}
+          </span>
+        </header>
+
+        <LectureCoran
+          key={`${p.lecture}-${n}`}
           lecture={p.lecture}
           sourate={n}
-          recitateurs={
-            p.recitateurs?.map((r) => ({ id: r.id, nom: r.nom, style: r.style, serveur: r.serveur })) ?? null
-          }
+          nomSourate={`${n}. ${p.sourate.nomLatin}`}
+          basmala={n !== 1 && n !== 9 ? BASMALA[p.lecture] : null}
+          versets={p.versets}
+          tajwid={p.tajwid}
+          recitations={p.recitations}
+          bibliothequeDisponible={p.bibliothequeDisponible}
         />
 
-        <article className={`coran-texte coran-${p.lecture}`} lang="ar" dir="rtl">
-          <header className="coran-entete">
-            <h1>
-              <span lang="ar">سورة {p.sourate.nomAr}</span>
-              <small lang="fr" dir="ltr">
-                {n}. {p.sourate.nomLatin} · {p.sourate.nbVersets} versets · {LIBELLE_LECTURE[p.lecture]}
-              </small>
-            </h1>
-            <TailleTexteCoran />
-          </header>
-          {n !== 1 && n !== 9 ? <p className="coran-basmala">{BASMALA[p.lecture]}</p> : null}
-          <p className="coran-versets">
-            {p.versets.map((v, i) => (
-              <span key={i} className="coran-verset" id={`v${i + 1}`}>
-                {v}{" "}
-              </span>
-            ))}
-          </p>
-        </article>
-
         <p className="coran-source">
-          Texte : Complexe du Roi Fahd pour l’impression du Saint Coran (KFGQPC). Récitations : mp3quran.net.
+          Texte : Complexe du Roi Fahd (KFGQPC). Tajwid : texte Tanzil.net, règles cpfair/quran-tajweed (CC BY
+          4.0). Récitations : EveryAyah et mp3quran.net.
         </p>
       </main>
     </>
