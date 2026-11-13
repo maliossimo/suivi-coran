@@ -4950,3 +4950,138 @@ html[data-ouverture] .ouverture-version {
     font-size: 20px;
   }
 }
+
+/* ---------- Coran (lecture et récitations) ---------------------------- */
+/* Polices du Complexe du Roi Fahd (KFGQPC) : dessinent aussi la rosace du numéro de verset. */
+@font-face {
+  font-family: "KFGQPC Hafs";
+  src: url("/polices/hafs.18.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "KFGQPC Warsh";
+  src: url("/polices/warsh.10.woff2") format("woff2");
+  font-display: swap;
+}
+.coran-navigation {
+  gap: 10px;
+}
+.mois-fleche.inactif {
+  visibility: hidden;
+}
+.coran-choix {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+}
+.coran-lecteur {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 18px;
+  background: var(--carte);
+}
+.coran-lecteur .champ {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.coran-lecteur .champ span {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.coran-audio {
+  width: 100%;
+}
+.coran-texte {
+  padding: 18px 16px 24px;
+  border: 1px solid var(--bord-or);
+  border-radius: 18px;
+  background: var(--carte);
+  box-shadow: var(--ombre);
+}
+.coran-entete {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ligne);
+}
+.coran-entete h1 {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 24px;
+}
+.coran-hafs .coran-entete h1 > span {
+  font-family: "KFGQPC Hafs", serif;
+}
+.coran-warsh .coran-entete h1 > span {
+  font-family: "KFGQPC Warsh", serif;
+}
+.coran-entete small {
+  font-family: var(--font-texte), system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--texte-doux);
+}
+.coran-taille {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.coran-taille button {
+  width: 40px;
+  height: 36px;
+  border: 1px solid var(--ligne);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.coran-basmala,
+.coran-versets {
+  margin: 0;
+  font-size: var(--taille-coran, 30px);
+  line-height: 2.1;
+  color: var(--texte);
+}
+.coran-hafs .coran-basmala,
+.coran-hafs .coran-versets {
+  font-family: "KFGQPC Hafs", serif;
+}
+.coran-warsh .coran-basmala,
+.coran-warsh .coran-versets {
+  font-family: "KFGQPC Warsh", serif;
+}
+.coran-basmala {
+  margin-bottom: 8px;
+  text-align: center;
+}
+.coran-versets {
+  text-align: justify;
+  text-align-last: right;
+}
+.coran-verset:target {
+  border-radius: 8px;
+  background: var(--or-clair);
+}
+.coran-source {
+  margin: 0;
+  font-size: 12px;
+  text-align: center;
+  color: var(--texte-doux);
+}

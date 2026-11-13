@@ -6,6 +6,7 @@
  * - scripts : jeton + 'strict-dynamic' (les scripts chargés par un script de confiance,
  *   comme Next ou Cloudflare Turnstile, sont admis) ;
  * - connexions : l'appli, Sentry (erreurs) et Cloudflare Turnstile (anti-robots) ;
+ * - sons : l'appli et les récitations de mp3quran.net ;
  * - cadres : seulement Turnstile ; l'appli elle-même ne peut pas être affichée dans un cadre.
  */
 export function politiqueContenu(nonce: string, developpement = false): string {
@@ -19,7 +20,8 @@ export function politiqueContenu(nonce: string, developpement = false): string {
     "frame-src https://challenges.cloudflare.com",
     "worker-src 'self'",
     "manifest-src 'self'",
-    "media-src 'self'",
+    // Récitations du Coran (bibliothèque mp3quran.net), lues directement depuis leurs serveurs.
+    "media-src 'self' https://*.mp3quran.net",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
