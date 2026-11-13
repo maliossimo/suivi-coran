@@ -35,8 +35,11 @@ test.describe("Connexion et droits", () => {
   test("un Cheikh ne voit pas l'élève d'une autre mosquée", async ({ page }) => {
     await seConnecter(page, COMPTES.cheikhB, /\/maitre/);
     await expect(page.getByText("Inès")).toHaveCount(0);
-    const reponse = await page.goto(`/maitre/eleves/${IDS.eleveA}`);
-    expect(reponse?.status()).toBe(404);
+    // Page en streaming (loading.tsx) : le statut reste 200, c'est le contenu qui compte.
+    await page.goto(`/maitre/eleves/${IDS.eleveA}`);
+    await expect(page.getByText(/404|introuvable|could not be found/i).first()).toBeVisible();
+    await expect(page.getByText("Inès")).toHaveCount(0);
+    await capture(page, "02-cheikh-autre-mosquee");
   });
 
   test("le Cheikh n'a pas encore les présences (réservées à l'admin)", async ({ page }) => {
