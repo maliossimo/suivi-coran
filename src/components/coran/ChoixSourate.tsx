@@ -10,7 +10,7 @@ export function ChoixSourate({
 }: {
   lecture: string;
   sourate: number;
-  sourates: { numero: number; nomLatin: string; nomAr: string }[];
+  sourates: readonly { numero: number; nomLatin: string; nomAr: string }[];
 }) {
   const router = useRouter();
   return (

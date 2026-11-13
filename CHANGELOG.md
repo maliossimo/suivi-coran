@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.7.0] — 2026-11-13
+
+### Nouveautés
+
+- Coran : surlignage mot par mot pendant la récitation (Hafs, récitateurs « le texte suit »), en texte normal comme avec le tajwid.
+- Mémoriser un passage : du verset… au verset…, chaque verset répété 1 à 10 fois, le passage 1 à 5 fois ou sans fin ; les autres versets s'estompent.
+- Vue « Mushaf » : le Coran page par page (604 pages), titre des sourates dans la page, numéro de page et juz, choix du juz et de la page, glisser pour tourner les pages.
+- Séance d'un élève (vue de l'administrateur) : « Écouter dans le Coran » ouvre chaque passage dans la lecture de l'élève, prêt à répéter.
+- Warsh : la récitation suit les bons versets (fichiers audio numérotés comme en Hafs, correspondance appliquée).
+- Barre de récitation revue (récitateur et style, passage en cours, répétitions), 49 récitateurs qui suivent le texte.
+
 ## [1.6.0] — 2026-11-13
 
 ### Nouveautés

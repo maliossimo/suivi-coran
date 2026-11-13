@@ -39,7 +39,12 @@ export interface Recitation {
   suivi: boolean;
   /** Dossier des fichiers MP3. */
   source: string;
+  /** Dossier des repères mot par mot (Hafs uniquement) ; null sinon. */
+  mots: string | null;
 }
+
+const REPERES_MOTS =
+  "https://cdn.jsdelivr.net/gh/Mohamedd-Ashraf/quran-surah-reciter-audio@main/word-alignment/";
 
 /** Récitations verset par verset (EveryAyah) de la lecture. */
 export function recitationsVersets(lecture: Lecture): Recitation[] {
@@ -49,7 +54,31 @@ export function recitationsVersets(lecture: Lecture): Recitation[] {
     style: r.style,
     suivi: true,
     source: `https://everyayah.com/data/${r.dossier}/`,
+    // Les repères sont alignés sur le texte Hafs : en Warsh, le suivi reste verset par verset.
+    mots: lecture === "hafs" ? `${REPERES_MOTS}${r.alignement}/` : null,
   }));
+}
+
+const schemaCorrespondance = z.record(z.string(), z.array(z.array(z.number().int())));
+
+/** Warsh : pour chaque sourate, les versets Warsh contenus dans chaque verset Hafs (fichiers audio). */
+export async function correspondanceWarsh(): Promise<Record<string, number[][]>> {
+  const donnees: { default: unknown } = await import("@/donnees/coran/warsh-hafs.json");
+  return schemaCorrespondance.parse(donnees.default);
+}
+
+const schemaPages = z.object({
+  pages: z.array(z.array(z.tuple([z.number().int(), z.number().int(), z.number().int()]))).length(604),
+  juz: z.array(z.number().int()).length(30),
+});
+
+/** Mushaf (604 pages) : pour chaque page, les tranches [sourate, premier verset, dernier verset]. */
+export async function pagesMushaf(lecture: Lecture): Promise<z.infer<typeof schemaPages>> {
+  const donnees: { default: unknown } =
+    lecture === "warsh"
+      ? await import("@/donnees/coran/pages-warsh.json")
+      : await import("@/donnees/coran/pages-hafs.json");
+  return schemaPages.parse(donnees.default);
 }
 
 export interface Recitateur {
