@@ -122,10 +122,10 @@ export function EcranProgression({
 
       <section className="carte-graphique">
         <h2>Sourates</h2>
-        {p.sourates.some((s) => s.versetsVus < s.versetsAppris) ? (
+        {p.sourates.length ? (
           <p className="carte-graphique-sous">
-            <span className="puce puce-vert" /> écouté ou validé par le Cheikh{" "}
-            <span className="puce puce-declare" /> saisi, pas encore écouté
+            <span className="puce puce-declare" /> saisi <span className="puce puce-ecoute" /> écouté{" "}
+            <span className="puce puce-valide" /> validé
           </p>
         ) : null}
         {p.sourates.length === 0 ? (
@@ -168,7 +168,13 @@ export function EcranProgression({
                     title={`${s.versetsValides} validé${s.versetsValides > 1 ? "s" : ""}, ${s.versetsVus} écouté${s.versetsVus > 1 ? "s" : ""} par le Cheikh sur ${s.versetsAppris} saisis`}
                   >
                     <span style={{ width: `${s.pourcentage}%` }}>
-                      <span style={{ width: `${(s.versetsVus / s.versetsAppris) * 100}%` }} />
+                      <span style={{ width: `${(s.versetsVus / s.versetsAppris) * 100}%` }}>
+                        <span
+                          style={{
+                            width: `${s.versetsVus ? (s.versetsValides / s.versetsVus) * 100 : 0}%`,
+                          }}
+                        />
+                      </span>
                     </span>
                   </span>
                   <small className="liste-sourates-revision">
