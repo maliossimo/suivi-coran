@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.8.0] — 2026-11-13
+
+### Nouveautés
+
+- L'appli s'ouvre sans réseau : la dernière page d'accueil reçue (fiche, classe, administration) s'affiche au lieu de « Pas de connexion ».
+- Coran hors ligne : garder le texte des 114 sourates sur le téléphone, et télécharger la récitation d'une sourate (avec le suivi mot par mot) pour l'écouter sans connexion. Place utilisée affichée.
+
+### Corrigé
+
+- Tajwid en couleur : certaines lettres et voyelles s'affichaient mal (police inadaptée, signes séparés de leur lettre). Le tajwid utilise désormais la police du Complexe du Roi Fahd, avec la même rosace pour les numéros de versets.
+
 ## [1.7.0] — 2026-11-13
 
 ### Nouveautés

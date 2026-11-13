@@ -9,7 +9,8 @@ import { RECITATEURS_VERSETS } from "@/donnees/recitateurs";
  * - Texte : données du Complexe du Roi Fahd (KFGQPC), Hafs v18 et Warsh v10, un fichier par sourate
  *   (src/donnees/coran). Chaque verset se termine par son numéro, dessiné en rosace par la police du Complexe.
  * - Tajwid (Hafs) : texte Uthmani de Tanzil.net découpé selon les règles de cpfair/quran-tajweed
- *   (CC BY 4.0), un fichier par sourate (src/donnees/coran/tajwid).
+ *   (CC BY 4.0), un fichier par sourate (src/donnees/coran/tajwid). Découpage par lettre entière
+ *   (lettre + signes) et sukun / lettre muette écrits comme dans la police du Complexe du Roi Fahd.
  * - Récitations : EveryAyah (un fichier par verset : le texte suit la récitation) et mp3quran.net
  *   (un fichier par sourate), lues directement depuis leurs serveurs : rien n'est stocké chez nous.
  */
@@ -41,6 +42,9 @@ export interface Recitation {
   source: string;
   /** Dossier des repères mot par mot (Hafs uniquement) ; null sinon. */
   mots: string | null;
+  /** EveryAyah : dossier et identifiant des repères, pour le téléchargement hors ligne. */
+  dossier: string | null;
+  alignement: string | null;
 }
 
 const REPERES_MOTS =
@@ -56,7 +60,19 @@ export function recitationsVersets(lecture: Lecture): Recitation[] {
     source: `https://everyayah.com/data/${r.dossier}/`,
     // Les repères sont alignés sur le texte Hafs : en Warsh, le suivi reste verset par verset.
     mots: lecture === "hafs" ? `${REPERES_MOTS}${r.alignement}/` : null,
+    dossier: r.dossier,
+    alignement: lecture === "hafs" ? r.alignement : null,
   }));
+}
+
+/** Un fichier EveryAyah, demandé par le serveur (téléchargement hors ligne de l'appli). */
+export async function fichierEveryAyah(dossier: string, fichier: string): Promise<Response> {
+  return fetch(`https://everyayah.com/data/${dossier}/${fichier}`, { cache: "no-store" });
+}
+
+/** Le dossier fait partie des récitateurs connus. */
+export function dossierConnu(dossier: string): boolean {
+  return RECITATEURS_VERSETS.some((r) => r.dossier === dossier);
 }
 
 const schemaCorrespondance = z.record(z.string(), z.array(z.array(z.number().int())));
