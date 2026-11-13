@@ -21,6 +21,12 @@ export interface SourateOption {
 
 const PAS = 5;
 
+/** « 12 nov. » */
+const dateCourte = (iso: string) =>
+  new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", timeZone: "Europe/Paris" }).format(
+    new Date(iso),
+  );
+
 /** Garde uniquement les chiffres : « 069 » devient 69, un champ vidé vaut 0 (affiché vide). */
 function lireNombre(texte: string): number {
   const chiffres = texte.replace(/\D/g, "").slice(0, 4);
@@ -468,6 +474,7 @@ export function FormulaireSeance({
                   <span lang="ar" dir="rtl">
                     {nomSourate(p.sourateDebut)?.nomAr}
                   </span>
+                  {p.valide && p.valideLe ? <small>validé le {dateCourte(p.valideLe)}</small> : null}
                 </span>
                 {/* L'élève voit où en est chaque passage ; le Cheikh a ses boutons au-dessus. */}
                 {initiale?.corrigee && !vueMaitre ? <PastilleCheikh etat={etatPassage(p)} /> : null}

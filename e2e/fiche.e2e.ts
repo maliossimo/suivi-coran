@@ -78,6 +78,7 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await seConnecter(page2, COMPTES.eleveA, /\/eleve/);
     await page2.goto(`/eleve/seance?date=${jourParis(-1)}&type=revision`);
     await expect(page2.getByText("✓ Validé", { exact: true }).first()).toBeVisible();
+    await expect(page2.getByText(/^validé le /).first()).toBeVisible();
     await capture(page2, "12-eleve-valide");
     await eleve.close();
   });

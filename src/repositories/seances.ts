@@ -50,6 +50,7 @@ function versSeance(ligne: z.infer<typeof schemaLigne>): Seance {
         versetFin: p.verset_fin,
         corrige: p.corrige_par !== null,
         valide: p.valide_le !== null,
+        ...(p.valide_le ? { valideLe: p.valide_le } : {}),
       })),
   };
 }
