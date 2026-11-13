@@ -80,8 +80,9 @@ export function FeuilleAppel({
     setEnvoi(r);
     retourSensoriel();
     if (r === "envoye") {
+      // La page de la classe est relue au serveur à l'arrivée : pas de refresh en plus
+      // (il interromprait la navigation).
       router.push(retour);
-      router.refresh();
     }
   };
 
