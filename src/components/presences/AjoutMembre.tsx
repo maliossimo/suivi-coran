@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { actionAjouterMembre } from "@/app/actions/presences";
 import type { EtatSaisie } from "@/app/actions/fiche";
+import { Selecteur } from "@/components/Selecteur";
 
 /** Ajouter un élève : un élève de l'appli, ou seulement un nom (élève sans compte). */
 export function AjoutMembre({
@@ -36,13 +37,16 @@ export function AjoutMembre({
       {mode === "compte" ? (
         <div className="champ">
           <label htmlFor="eleve">Élève</label>
-          <select id="eleve" name="eleve" required>
-            {eleves.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.nom}
-              </option>
-            ))}
-          </select>
+          <Selecteur
+            // Remonté quand la liste change : l'élève ajouté n'y est plus.
+            key={eleves.map((e) => e.id).join()}
+            id="eleve"
+            titre="Élève"
+            name="eleve"
+            defaultValue={eleves[0]?.id ?? ""}
+            options={eleves.map((e) => ({ valeur: e.id, libelle: e.nom }))}
+            placeholderRecherche="Prénom ou nom"
+          />
         </div>
       ) : (
         <div className="ajout-membre-noms">

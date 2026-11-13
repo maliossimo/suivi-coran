@@ -3,6 +3,7 @@
 import { CloudDownload, CloudOff, Minus, Palette, Plus, ScanEye, TextCursor, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Feuille } from "@/components/Feuille";
+import { Selecteur } from "@/components/Selecteur";
 import { LIBELLE_LECTURE } from "@/domain/lectures";
 import { Choix, Interrupteur } from "./Controles";
 import { taille, useHorsLigne } from "./horsLigne";
@@ -15,6 +16,8 @@ export interface Reglages {
   tajwid: boolean;
   motParMot: boolean;
   taille: number;
+  /** Récitateurs mis en favori (étoile) : en tête de liste, choisis d'office. */
+  favoris: string[];
 }
 
 export const TAILLES = [22, 26, 30, 34, 40, 46];
@@ -46,10 +49,7 @@ export function ReglagesCoran({
   bibliothequeDisponible: boolean;
   horsLigne: ReturnType<typeof useHorsLigne>;
 }) {
-  const groupes = [
-    { libelle: "Le texte suit la récitation", liste: recitations.filter((r) => r.suivi) },
-    { libelle: "Écoute seule (sourate entière)", liste: recitations.filter((r) => !r.suivi) },
-  ];
+  const favoris = new Set(reglages.favoris);
 
   return (
     <Feuille ouverte={ouverte} onFermer={onFermer} titre="Réglages">
@@ -72,32 +72,38 @@ export function ReglagesCoran({
 
       <section className="feuille-section">
         <h3>Récitation</h3>
-        <label className="coran-reglage">
+        <div className="coran-reglage">
           <span>Récitateur</span>
-          <select
-            value={recitation?.id ?? ""}
-            onChange={(e) => modifier({ recitation: { ...reglages.recitation, [lecture]: e.target.value } })}
-          >
-            {groupes.map((g) =>
-              g.liste.length ? (
-                <optgroup key={g.libelle} label={g.libelle}>
-                  {g.liste.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.nom}
-                      {r.style ? ` · ${r.style}` : ""}
-                    </option>
-                  ))}
-                </optgroup>
-              ) : null,
-            )}
-          </select>
+          <Selecteur
+            titre="Récitateur"
+            valeur={recitation?.id ?? ""}
+            onChange={(id) => modifier({ recitation: { ...reglages.recitation, [lecture]: id } })}
+            options={[...recitations]
+              .sort((a, b) => Number(b.suivi) - Number(a.suivi))
+              .map((r) => ({
+                valeur: r.id,
+                libelle: r.nom,
+                detail: r.style || undefined,
+                groupe: r.suivi ? "Le texte suit la récitation" : "Écoute seule (sourate entière)",
+              }))}
+            favoris={{
+              valeurs: favoris,
+              basculer: (id) =>
+                modifier({
+                  favoris: favoris.has(id)
+                    ? reglages.favoris.filter((f) => f !== id)
+                    : [...reglages.favoris, id],
+                }),
+            }}
+            placeholderRecherche="Nom du récitateur"
+          />
           {recitation && !recitation.suivi ? (
             <small>Écoute seule : le texte ne suit pas cette récitation.</small>
           ) : null}
           {!bibliothequeDisponible ? (
             <small>Les récitations « sourate entière » sont momentanément indisponibles.</small>
           ) : null}
-        </label>
+        </div>
         <Choix
           libelle="Vitesse"
           valeurs={VITESSES}

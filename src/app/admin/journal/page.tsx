@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
+import { Selecteur } from "@/components/Selecteur";
 import { exigerEspace } from "@/services/acces";
 import { chargerJournal } from "@/services/admin";
 
@@ -102,30 +103,40 @@ export default async function PageJournal({
             la base elle-même et ne peut pas être modifié.
           </p>
           <form className="filtres-admin" method="get">
-            <select name="personne" defaultValue={filtres.personne ?? ""} aria-label="Personne">
-              <option value="">Tout le monde</option>
-              {personnes.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nom}
-                </option>
-              ))}
-            </select>
-            <select name="action" defaultValue={filtres.action ?? ""} aria-label="Action">
-              <option value="">Toutes les actions</option>
-              {Object.entries(ACTIONS).map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l}
-                </option>
-              ))}
-            </select>
-            <select name="table" defaultValue={filtres.table ?? ""} aria-label="Élément">
-              <option value="">Tous les éléments</option>
-              {Object.entries(TABLES).map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l}
-                </option>
-              ))}
-            </select>
+            <Selecteur
+              titre="Personne"
+              name="personne"
+              defaultValue={filtres.personne ?? ""}
+              options={[
+                { valeur: "", libelle: "Tout le monde" },
+                ...personnes.map((p) => ({ valeur: p.id, libelle: p.nom })),
+              ]}
+              placeholderRecherche="Nom"
+              soumettre
+              compact
+            />
+            <Selecteur
+              titre="Action"
+              name="action"
+              defaultValue={filtres.action ?? ""}
+              options={[
+                { valeur: "", libelle: "Toutes les actions" },
+                ...Object.entries(ACTIONS).map(([v, l]) => ({ valeur: v, libelle: l })),
+              ]}
+              soumettre
+              compact
+            />
+            <Selecteur
+              titre="Élément"
+              name="table"
+              defaultValue={filtres.table ?? ""}
+              options={[
+                { valeur: "", libelle: "Tous les éléments" },
+                ...Object.entries(TABLES).map(([v, l]) => ({ valeur: v, libelle: l })),
+              ]}
+              soumettre
+              compact
+            />
             <label className="filtre-date">
               Du
               <input type="date" name="du" defaultValue={filtres.du ?? ""} />

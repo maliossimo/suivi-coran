@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.11.0] — 2026-11-13
+
+### Nouveautés
+
+- Récitateurs favoris : une étoile garde tes récitateurs préférés en haut de la liste. S'il n'y a pas de dernier choix pour cette lecture, ou s'il ne récite pas cette sourate, c'est le premier favori qui est pris. On peut toujours en choisir un autre.
+
+### Amélioré
+
+- Toutes les listes déroulantes deviennent des choix clairs qui montent du bas de l'écran : grandes lignes faciles à toucher, recherche pour les longues listes, numéros de versets en grille.
+- Vue du Cheikh épurée : « Écouter dans le Coran » n'apparaît plus dans la correction d'une séance (réservé aux élèves).
+
 ## [1.10.0] — 2026-11-13
 
 ### Nouveautés

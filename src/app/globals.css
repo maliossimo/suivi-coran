@@ -918,7 +918,7 @@ a.jour:hover {
   font-size: 12px;
   color: var(--texte-doux);
 }
-.passage select,
+.passage .selecteur,
 .passage input {
   height: 44px;
   border: 1px solid var(--champ);
@@ -3174,7 +3174,7 @@ button:active:not(:disabled),
   font-weight: 700;
   color: var(--texte-doux);
 }
-.choix-classe select {
+.choix-classe .selecteur {
   flex: 1 1 200px;
 }
 .qr-classe {
@@ -3345,91 +3345,96 @@ button:active:not(:disabled),
   }
 }
 
-/* ---------- Choix de sourate avec recherche ----------------------------- */
+/* ---------- Sélecteur (remplace les listes déroulantes) ----------------- */
 .choix-sourate {
   min-width: 0;
 }
-.choix-sourate-bouton {
+.selecteur {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
   width: 100%;
   min-width: 0;
-  height: 44px;
-  padding: 0 10px;
+  min-height: 48px;
+  padding: 0 12px 0 14px;
   border: 1px solid var(--champ);
-  border-radius: 10px;
-  background: var(--carte);
+  border-radius: 12px;
+  background: var(--surface-2);
   color: var(--texte);
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
-.choix-sourate-bouton:focus-visible {
+.selecteur:hover {
+  border-color: var(--vert);
+}
+.selecteur:focus-visible {
   outline: none;
   border-color: var(--vert);
   box-shadow: 0 0 0 4px var(--vert-clair);
 }
-.choix-sourate-texte {
+.selecteur > svg:last-child {
+  flex-shrink: 0;
+  color: var(--texte-doux);
+}
+.selecteur-texte {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 600;
 }
-.choix-sourate-panneau {
-  width: min(520px, 100vw);
-  max-width: 100vw;
-  height: min(640px, 100dvh);
-  max-height: 100dvh;
-  margin: auto;
-  padding: 0;
-  border: 0;
-  border-radius: 18px;
-  background: var(--carte);
-  color: var(--texte);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+.selecteur-vide .selecteur-texte {
+  color: var(--texte-doux);
+  font-weight: 400;
 }
-.choix-sourate-panneau[open] {
-  display: flex;
-  flex-direction: column;
+.selecteur-manque {
+  border-color: var(--rouge);
 }
-.choix-sourate-panneau::backdrop {
-  background: rgba(10, 20, 16, 0.55);
+.selecteur-compact {
+  width: auto;
+  max-width: 100%;
+  min-height: 40px;
+  padding: 0 10px 0 12px;
+  border-radius: 10px;
+  font-size: 14px;
 }
-@media (max-width: 600px) {
-  .choix-sourate-panneau {
-    width: 100vw;
-    height: 100dvh;
-    border-radius: 0;
-  }
+.selecteur-etoile-champ {
+  flex-shrink: 0;
+  color: var(--or);
+  fill: var(--or);
 }
-.choix-sourate-entete {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  border-bottom: 1px solid var(--surface-3);
+.selecteur-arabe {
+  font-family: "KFGQPC Hafs", var(--font-arabe), serif;
+  font-size: 1.15em;
+  font-weight: 400;
+  color: var(--vert-texte);
 }
-.choix-sourate-recherche {
-  flex: 1;
+.selecteur-recherche {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 48px;
   padding: 0 12px;
   border: 1px solid var(--champ);
   border-radius: 12px;
   background: var(--surface-2);
   color: var(--texte-doux);
+  box-shadow: 0 6px 10px -8px rgba(0, 0, 0, 0.25);
 }
-.choix-sourate-recherche:focus-within {
+.selecteur-recherche:focus-within {
   border-color: var(--vert);
-  box-shadow: 0 0 0 4px var(--vert-clair);
 }
-.choix-sourate-recherche input {
+.selecteur-recherche input {
   flex: 1;
   min-width: 0;
-  height: 100%;
+  min-height: 46px;
   border: 0;
   background: transparent;
   color: var(--texte);
@@ -3437,63 +3442,143 @@ button:active:not(:disabled),
   font-size: 16px; /* pas de zoom automatique sur iPhone */
   outline: none;
 }
-.choix-sourate-fermer {
-  width: 44px;
-  height: 44px;
+.selecteur-astuce {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.selecteur-sections {
   display: grid;
-  place-items: center;
+  gap: 14px;
+}
+.selecteur-section h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+}
+.selecteur-liste,
+.selecteur-grille {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.selecteur-liste {
+  display: grid;
+  gap: 2px;
+}
+.selecteur-ligne {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+.selecteur-option {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 6px 12px;
   border: 0;
   border-radius: 12px;
-  background: transparent;
-  color: var(--texte-doux);
-  cursor: pointer;
-}
-.choix-sourate-liste {
-  flex: 1;
-  overflow-y: auto;
-  list-style: none;
-  margin: 0;
-  padding: 6px 8px 16px;
-  overscroll-behavior: contain;
-}
-.choix-sourate-option {
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  min-height: 48px;
-  padding: 6px 10px;
-  border: 0;
-  border-radius: 10px;
   background: transparent;
   color: var(--texte);
   font: inherit;
   text-align: left;
   cursor: pointer;
 }
-.choix-sourate-option:hover,
-.choix-sourate-option:focus-visible {
+.selecteur-option:hover:not(:disabled),
+.selecteur-option:focus-visible {
   background: var(--surface-2);
   outline: none;
 }
-.choix-sourate-option.actuelle {
+.selecteur-option[aria-selected="true"] {
   background: var(--vert-clair);
   color: var(--vert-texte);
   font-weight: 700;
 }
-.choix-sourate-numero {
+.selecteur-option:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.selecteur-option-texte {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+.selecteur-option-texte > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.selecteur-option-texte small {
+  font-size: 12.5px;
+  font-weight: 400;
   color: var(--texte-doux);
+}
+.selecteur-prefixe {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 4px;
+  border: 1px solid var(--bord-or);
+  border-radius: 10px;
+  color: var(--or-texte);
+  font-size: 13px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  text-align: right;
 }
-.choix-sourate-option .arabe {
-  font-size: 19px;
+.selecteur-coche {
+  flex-shrink: 0;
 }
-.choix-sourate-vide {
-  padding: 24px 12px;
-  color: var(--texte-doux);
+.selecteur-favori {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--champ);
+  cursor: pointer;
+}
+.selecteur-favori:hover {
+  color: var(--or);
+}
+.selecteur-favori.actif {
+  color: var(--or);
+}
+.selecteur-favori.actif svg {
+  fill: var(--or);
+}
+.selecteur-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 6px;
+}
+.selecteur-grille .selecteur-option {
+  justify-content: center;
+  min-height: 46px;
+  padding: 0;
+  border: 1px solid var(--ligne);
+  background: var(--surface-2);
+  font-variant-numeric: tabular-nums;
+}
+.selecteur-grille .selecteur-option-texte {
+  flex: none;
   text-align: center;
+}
+.selecteur-grille .selecteur-option[aria-selected="true"] {
+  border-color: var(--vert);
+  background: var(--vert);
+  color: #fff;
 }
 
 /* ---------- Brouillon et suppression annulable -------------------------- */
@@ -4469,9 +4554,7 @@ html[data-ouverture] .ouverture {
   flex: 1 1 220px;
   margin: 0;
 }
-.filtres-admin select,
 .filtres-admin input[type="date"],
-.deplacer select,
 .formulaire-ligne input {
   height: 40px;
   padding: 0 10px;
@@ -4489,9 +4572,9 @@ html[data-ouverture] .ouverture {
   font-size: 14px;
   color: var(--texte-doux);
 }
-.deplacer select {
-  height: 34px;
-  max-width: 180px;
+.deplacer .selecteur {
+  min-height: 34px;
+  max-width: 200px;
 }
 .cellule-alerte {
   color: #9a4a0c;
@@ -5204,7 +5287,7 @@ html[data-ouverture] .ouverture-version {
   font-weight: 600;
   color: var(--texte-doux);
 }
-.coran-reglage select,
+.coran-reglage .selecteur,
 .coran-reglage input {
   width: 100%;
   min-width: 0;
@@ -6361,15 +6444,15 @@ html[data-ouverture] .ouverture-version {
   gap: 8px;
   align-items: end;
 }
-.formulaire-rapport label {
+.formulaire-rapport label,
+.formulaire-rapport-classe {
   display: grid;
   gap: 4px;
   min-width: 0;
   font-size: 13px;
   color: var(--texte-doux);
 }
-.formulaire-rapport input,
-.formulaire-rapport select {
+.formulaire-rapport input {
   min-height: 42px;
   min-width: 0;
   width: 100%;

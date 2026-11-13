@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { actionCreerClasse, actionModifierClasse } from "@/app/actions/presences";
 import type { EtatSaisie } from "@/app/actions/fiche";
+import { Selecteur } from "@/components/Selecteur";
 import { JOURS } from "@/domain/presences";
 
 /** Créer ou modifier une classe : nom, jours de cours, Cheikh(s). */
@@ -35,18 +36,14 @@ export function FormulaireClasse({
       {!classe ? (
         <div className="champ">
           <label htmlFor="etablissement">Établissement</label>
-          <select
+          <Selecteur
             id="etablissement"
+            titre="Établissement"
             name="etablissement"
-            defaultValue={etablissementId ?? ""}
-            onChange={(e) => router.replace(`/presences/nouvelle?etablissement=${e.target.value}`)}
-          >
-            {etablissements.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.nom}
-              </option>
-            ))}
-          </select>
+            valeur={etablissementId ?? ""}
+            onChange={(v) => router.replace(`/presences/nouvelle?etablissement=${v}`)}
+            options={etablissements.map((e) => ({ valeur: e.id, libelle: e.nom }))}
+          />
         </div>
       ) : null}
       <div className="champ">
