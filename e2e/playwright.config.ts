@@ -15,6 +15,7 @@ export default defineConfig({
   reporter: [["list"], ["html", { outputFolder: "resultats/rapport", open: "never" }]],
   use: {
     ...devices["Pixel 7"],
+    channel: "chrome",
     baseURL: process.env.E2E_URL ?? "http://localhost:3000",
     locale: "fr-FR",
     timezoneId: "Europe/Paris",

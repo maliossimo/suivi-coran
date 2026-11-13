@@ -57,10 +57,11 @@ jobs:
           exit 1
 
       # Playwright n'est pas une dépendance du projet : installé ici seulement.
-      - name: Navigateur de test
+      # Navigateur : le Google Chrome déjà présent sur la machine du CI.
+      - name: Outil de test
         run: |
-          npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
-          npx playwright install --with-deps chromium
+          npm install --no-save --no-audit --no-fund @playwright/test@latest
+          google-chrome --version
       - name: Parcours
         run: npx playwright test -c e2e/playwright.config.ts
 
