@@ -1,5 +1,5 @@
 import "server-only";
-import { listerClasses, type Classe } from "@/repositories/presences";
+import { listerClasses as listerClassesPresences, type Classe } from "@/repositories/presences";
 import { z } from "zod";
 import { ajouterJours } from "@/domain/calendrier";
 import { confirmationValide, fileAVoir, JOURS_A_VOIR } from "@/domain/classe";
@@ -74,7 +74,7 @@ export async function chargerTableauAdmin(acteur: Profil): Promise<TableauAdmin>
     comptesConnexion().catch(() => new Map<string, CompteConnexion>()),
     seancesSuiviDepuis(ajouterJours(aujourdhui, -JOURS_A_VOIR)),
     dernieresOuvertures().catch(() => new Map<string, UtilisationAppli>()),
-    listerClasses(),
+    listerClassesPresences(),
   ]);
   const aVoir = new Map([...fileAVoir(suivi)].map(([id, f]) => [id, f.nombre]));
   return {
