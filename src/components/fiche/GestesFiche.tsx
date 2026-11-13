@@ -2,12 +2,14 @@
 
 import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { relancerEnAttente } from "./enregistrementsEnAttente";
 
 /** Distance minimale (px) d'un glissement, et rapport horizontal / vertical exigé. */
 const SEUIL_GLISSER = 70;
 const SEUIL_TIRER = 90;
+
+type Sens = "gauche" | "droite";
 
 /** Zones où un glissement ne doit pas changer de page (champs, tableaux qui défilent). */
 function zoneIgnoree(el: EventTarget | null): boolean {
@@ -45,7 +47,24 @@ export function GestesFiche({
   const depart = useRef<{ x: number; y: number; t: number; onglets: boolean; haut: boolean } | null>(null);
   const [tire, setTire] = useState(0);
   const [rafraichit, demarrer] = useTransition();
-  const [sens, setSens] = useState<"gauche" | "droite" | null>(null);
+  /** Décalage du contenu pendant que le doigt glisse horizontalement. */
+  const [glisse, setGlisse] = useState(0);
+  /** Départ en cours : le contenu s'efface dans le sens du geste jusqu'à l'arrivée du nouveau mois. */
+  const [depart, setDepart] = useState<{ sens: Sens; cle: string } | null>(null);
+  const cleRef = useRef(cleFiche);
+  cleRef.current = cleFiche;
+
+  const partir = useCallback((sens: Sens) => {
+    setDepart({ sens, cle: cleRef.current });
+    setGlisse(0);
+  }, []);
+
+  // Navigation annulée ou très lente : on ne laisse pas la fiche effacée.
+  useEffect(() => {
+    if (!depart) return;
+    const minuteur = window.setTimeout(() => setDepart(null), 6000);
+    return () => window.clearTimeout(minuteur);
+  }, [depart]);
 
   useEffect(() => {
     const installee = window.matchMedia("(display-mode: standalone)").matches;
@@ -66,16 +85,28 @@ export function GestesFiche({
     };
     const mouvement = (e: TouchEvent) => {
       const d = depart.current;
-      if (!d?.haut) return;
+      if (!d) return;
       const t = e.touches[0]!;
       const dy = t.clientY - d.y;
-      const dx = Math.abs(t.clientX - d.x);
-      setTire(dy > 0 && dy > dx ? Math.min(dy, 140) : 0);
+      const dx = t.clientX - d.x;
+      if (d.haut) setTire(dy > 0 && dy > Math.abs(dx) ? Math.min(dy, 140) : 0);
+      // Le contenu suit le doigt (avec résistance) quand le geste est horizontal.
+      if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+        const possible = d.onglets
+          ? dx < 0
+            ? ongletDroite
+            : ongletGauche
+          : dx < 0
+            ? moisSuivant
+            : moisPrecedent;
+        setGlisse(possible ? dx * 0.35 : dx * 0.08);
+      } else setGlisse(0);
     };
     const fin = (e: TouchEvent) => {
       const d = depart.current;
       depart.current = null;
       setTire(0);
+      setGlisse(0);
       if (!d) return;
       const t = e.changedTouches[0]!;
       const dx = t.clientX - d.x;
@@ -92,7 +123,7 @@ export function GestesFiche({
       // Doigt vers la gauche : on avance (mois suivant, onglet de droite).
       const cible = d.onglets ? (dx < 0 ? ongletDroite : ongletGauche) : dx < 0 ? moisSuivant : moisPrecedent;
       if (!cible) return;
-      setSens(dx < 0 ? "gauche" : "droite");
+      partir(dx < 0 ? "gauche" : "droite");
       navigator.vibrate?.(8);
       router.push(cible, { scroll: false });
     };
@@ -103,6 +134,7 @@ export function GestesFiche({
     const annule = () => {
       depart.current = null;
       setTire(0);
+      setGlisse(0);
     };
     window.addEventListener("touchcancel", annule);
     return () => {
@@ -111,9 +143,17 @@ export function GestesFiche({
       window.removeEventListener("touchend", fin);
       window.removeEventListener("touchcancel", annule);
     };
-  }, [router, moisPrecedent, moisSuivant, ongletGauche, ongletDroite]);
+  }, [router, partir, moisPrecedent, moisSuivant, ongletGauche, ongletDroite]);
 
   const visible = tire > 10 || rafraichit;
+  // Nouveau contenu arrivé après un départ : il entre par le côté opposé.
+  const classe = depart
+    ? depart.cle === cleFiche
+      ? `fiche-gestes depart-${depart.sens}`
+      : `fiche-gestes arrivee-${depart.sens}`
+    : glisse
+      ? "fiche-gestes glisse"
+      : "fiche-gestes";
   return (
     <>
       <div
@@ -132,9 +172,22 @@ export function GestesFiche({
       </div>
       <div
         key={cleFiche}
-        className={sens ? `fiche-gestes arrivee-${sens}` : "fiche-gestes"}
+        className={classe}
+        style={
+          glisse
+            ? { transform: `translateX(${glisse}px)`, opacity: 1 - Math.min(Math.abs(glisse) / 400, 0.3) }
+            : undefined
+        }
         onAnimationEnd={(e) => {
-          if (e.target === e.currentTarget) setSens(null);
+          if (e.target === e.currentTarget && depart && depart.cle !== cleFiche) setDepart(null);
+        }}
+        onClickCapture={(e) => {
+          // Flèches des mois et onglets : même effet que le glissement.
+          if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+            return;
+          const lien = e.target instanceof Element ? e.target.closest<HTMLElement>("a[data-sens]") : null;
+          const sens = lien?.dataset.sens;
+          if (sens === "gauche" || sens === "droite") partir(sens);
         }}
       >
         {children}

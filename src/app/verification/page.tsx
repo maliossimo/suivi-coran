@@ -1,20 +1,20 @@
 import { redirect } from "next/navigation";
 import { CadreAuth } from "@/components/CadreAuth";
-import { destinationVerification } from "@/services/securite";
+import { etatVerification } from "@/services/codeAdmin";
 import { FormulaireCode } from "./FormulaireCode";
 
 export const metadata = { title: "Code de vérification" };
 
 export default async function PageVerification() {
-  const destination = await destinationVerification();
-  if (destination) redirect(destination);
+  const etat = await etatVerification();
+  if ("aller" in etat) redirect(etat.aller);
 
   return (
     <CadreAuth
-      titre="Code de vérification"
-      sousTitre="Ouvre ton appli d’authentification et saisis le code à 6 chiffres."
+      titre="Vérification"
+      sousTitre="Pour protéger l’administration, un code est demandé une fois sur chaque appareil."
     >
-      <FormulaireCode />
+      <FormulaireCode email={etat.email} />
     </CadreAuth>
   );
 }

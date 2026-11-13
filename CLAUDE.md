@@ -38,13 +38,15 @@ ESLint bloque les imports qui violent ces frontières.
 - Branches : `main` = version de test (prévisualisation Vercel), `prod` = production (vrais élèves).
   Seules ces deux branches sont mises en ligne par Vercel (`vercel.json`) : les branches de travail ne le sont pas
   (quota de déploiements de l'offre gratuite). Tester une branche : la fusionner dans `main`.
-- Une branche et une PR par fonctionnalité, vers `main`. Pas de push direct sur `main` ni sur `prod`.
+- Une branche et une PR par demande, vers `main` : les fonctionnalités demandées ensemble sont regroupées
+  dans la même PR, qui contient aussi le changement de version (limite les déploiements Vercel).
+  Pas de push direct sur `main` ni sur `prod`.
 - Noms de branche : `feat/…` (fonctionnalité), `fix/…` (correction), `chore/…`, `docs/…`, `refactor/…`, `perf/…`, `test/…`
   (vérifié par le workflow « Garde-fou branches », qui signale aussi tout commit arrivé sur `main`/`prod` sans PR).
 - Mise en production : une PR `main` → `prod` (le workflow « Garde-fou prod » refuse toute autre source).
   La fusion déploie le site (Vercel) et applique les migrations à la base de production.
-- Versions (`MAJEUR.MINEUR.CORRECTIF`, voir CHANGELOG.md) : avant chaque mise en production, une PR `chore/version-x.y.z`
-  vers `main` augmente la version (`npm run version:correctif | version:mineure | version:majeure`) et ajoute sa
+- Versions (`MAJEUR.MINEUR.CORRECTIF`, voir CHANGELOG.md) : avant chaque mise en production, la PR du lot
+  (ou une PR `chore/version-x.y.z` vers `main`) augmente la version (`npm run version:correctif | version:mineure | version:majeure`) et ajoute sa
   section `## [x.y.z] — date` dans CHANGELOG.md. « Garde-fou prod » refuse une mise en production sans nouvelle version.
   La fusion dans `prod` crée l'étiquette `vX.Y.Z` et la « Release » GitHub ; l'appli affiche la version
   (ouverture de l'appli installée, écran de connexion, « Mon compte », administration).

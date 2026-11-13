@@ -39,7 +39,7 @@ export default async function PageJournal({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const profil = await exigerEspace("admin");
-  const { evenements, noms, personnes, filtres, connexions } = await chargerJournal(
+  const { evenements, noms, personnes, filtres, utilisation, ouvertures } = await chargerJournal(
     profil,
     await searchParams,
   );
@@ -50,33 +50,46 @@ export default async function PageJournal({
       <EnteteEspace titre="Administration" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
         <section className="carte-graphique">
-          <h2>Dernières connexions</h2>
-          {connexions.length === 0 ? (
-            <p className="carte-graphique-sous">
-              Indisponible : la clé « service role » n’est pas configurée.
-            </p>
-          ) : (
-            <div className="tableau-defilant">
-              <table className="tableau">
-                <thead>
-                  <tr>
-                    <th>Qui</th>
-                    <th>Rôle</th>
-                    <th>Dernière connexion</th>
+          <h2>Utilisation de l’appli</h2>
+          <p className="carte-graphique-sous">
+            Dernière fois que chacun a ouvert l’appli (ou y est revenu), même sans se reconnecter.
+          </p>
+          <div className="tableau-defilant">
+            <table className="tableau">
+              <thead>
+                <tr>
+                  <th>Qui</th>
+                  <th>Rôle</th>
+                  <th>Dernière utilisation</th>
+                  <th>Ouvertures 7 j</th>
+                </tr>
+              </thead>
+              <tbody>
+                {utilisation.map((c) => (
+                  <tr key={c.id}>
+                    <td>{c.nom}</td>
+                    <td>{ROLES[c.role]}</td>
+                    <td>{c.derniereUtilisation ? dateHeure(c.derniereUtilisation) : "Jamais"}</td>
+                    <td>{c.ouvertures7j}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {connexions.map((c) => (
-                    <tr key={c.id}>
-                      <td>{c.nom}</td>
-                      <td>{ROLES[c.role]}</td>
-                      <td>{c.derniereConnexion ? dateHeure(c.derniereConnexion) : "Jamais"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <details className="details-ouvertures">
+            <summary>
+              {ouvertures.length ? `Les ${ouvertures.length} dernières ouvertures` : "Aucune ouverture notée"}
+              {filtres.personne ? " de cette personne" : ""}
+            </summary>
+            <ul className="liste-simple">
+              {ouvertures.map((o) => (
+                <li key={o.id}>
+                  <span>{dateHeure(o.quand)}</span>
+                  <strong>{noms.get(o.personneId) ?? "Compte supprimé"}</strong>
+                </li>
+              ))}
+            </ul>
+          </details>
         </section>
 
         <section className="carte-graphique">

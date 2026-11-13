@@ -1,5 +1,6 @@
 import "server-only";
-import type { AuthenticatorAssuranceLevels, EmailOtpType } from "@supabase/supabase-js";
+import { createClient, type EmailOtpType } from "@supabase/supabase-js";
+import { envPublic } from "@/lib/env";
 import { creerClientServeur } from "@/lib/supabase/server";
 
 export type TypeLienEmail = EmailOtpType;
@@ -60,76 +61,52 @@ export async function emailConnecte(): Promise<string | null> {
   return user?.email ?? null;
 }
 
-// ---------- Double vérification (appli d'authentification, TOTP) ----------
+// ---------- Code de l'administrateur (reçu par e-mail) ----------
 
-export interface NiveauVerification {
-  /** aal1 : mot de passe seul ; aal2 : code de l'appli saisi pendant cette session. */
-  actuel: AuthenticatorAssuranceLevels | null;
-  /** aal2 si un appareil est enregistré (le code est alors exigé). */
-  suivant: AuthenticatorAssuranceLevels | null;
-}
-
-export async function niveauVerification(): Promise<NiveauVerification> {
-  const supabase = await creerClientServeur();
-  const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  if (error || !data) return { actuel: null, suivant: null };
-  return { actuel: data.currentLevel, suivant: data.nextLevel };
-}
-
-export interface Appareil {
-  id: string;
-  nom: string;
-  creeLe: string;
-}
-
-/** Appareils (applis d'authentification) enregistrés et vérifiés. */
-export async function appareilsVerification(): Promise<Appareil[]> {
-  const supabase = await creerClientServeur();
-  const { data, error } = await supabase.auth.mfa.listFactors();
-  if (error || !data) return [];
-  return data.totp
-    .filter((f) => f.status === "verified")
-    .map((f) => ({ id: f.id, nom: f.friendly_name ?? "Appareil", creeLe: f.created_at }));
-}
-
-/**
- * Prépare un nouvel appareil : QR code à scanner et clé à saisir à la main.
- * Les tentatives précédentes non terminées sont d'abord retirées.
- */
-export async function preparerAppareil(
-  nom: string,
-): Promise<{ ok: true; id: string; qr: string; cle: string } | { ok: false; message: string }> {
-  const supabase = await creerClientServeur();
-  const { data: liste } = await supabase.auth.mfa.listFactors();
-  for (const f of liste?.all ?? []) {
-    if (f.status !== "verified") await supabase.auth.mfa.unenroll({ factorId: f.id });
-  }
-  const { data, error } = await supabase.auth.mfa.enroll({
-    factorType: "totp",
-    friendlyName: `${nom} · ${new Date().toISOString().slice(0, 16)}`,
-    issuer: "Suivi cours Coran",
+/** Client sans session enregistrée : vérifier un code ne doit pas toucher à la session en cours. */
+function clientSansSession() {
+  return createClient(envPublic.NEXT_PUBLIC_SUPABASE_URL, envPublic.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
-  if (error || !data) return { ok: false, message: error?.message ?? "Préparation impossible" };
-  return { ok: true, id: data.id, qr: data.totp.qr_code, cle: data.totp.secret };
 }
 
-/** Vérifie un code à 6 chiffres pour un appareil (confirme l'appareil et passe la session en aal2). */
-export async function verifierCodeAppareil(appareilId: string, code: string): Promise<{ ok: boolean }> {
+/** Session en cours : identifiant (un par appareil connecté), personne et e-mail. */
+export async function sessionEnCours(): Promise<{
+  sessionId: string;
+  userId: string;
+  email: string | null;
+} | null> {
   const supabase = await creerClientServeur();
-  const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: appareilId, code });
-  return { ok: !error };
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (error || !claims?.session_id || !claims.sub) return null;
+  return { sessionId: String(claims.session_id), userId: claims.sub, email: claims.email ?? null };
 }
 
-/** Code saisi à la connexion : essayé sur chacun des appareils enregistrés. */
-export async function verifierCode(code: string): Promise<{ ok: boolean }> {
-  for (const a of await appareilsVerification()) {
-    if ((await verifierCodeAppareil(a.id, code)).ok) return { ok: true };
-  }
-  return { ok: false };
-}
-
-export async function retirerAppareil(appareilId: string): Promise<{ ok: boolean }> {
+/** Cette session (cet appareil) a déjà saisi le code de l'admin. */
+export async function sessionVerifiee(): Promise<boolean> {
   const supabase = await creerClientServeur();
-  const { error } = await supabase.auth.mfa.unenroll({ factorId: appareilId });
-  return { ok: !error };
+  const { data, error } = await supabase.rpc("session_verifiee");
+  return !error && data === true;
+}
+
+/** Envoie un code à usage unique à l'adresse du compte (aucun compte n'est créé). */
+export async function envoyerCodeEmail(
+  email: string,
+  jetonAntiRobot?: string,
+): Promise<{ ok: boolean; trop: boolean }> {
+  const { error } = await clientSansSession().auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: false, captchaToken: jetonAntiRobot },
+  });
+  return { ok: !error, trop: error?.status === 429 };
+}
+
+/** Vérifie le code reçu par e-mail. La session créée au passage est aussitôt fermée. */
+export async function verifierCodeEmail(email: string, code: string): Promise<boolean> {
+  const client = clientSansSession();
+  const { data, error } = await client.auth.verifyOtp({ email, token: code, type: "email" });
+  if (error || !data.session) return false;
+  await client.auth.signOut({ scope: "local" });
+  return true;
 }

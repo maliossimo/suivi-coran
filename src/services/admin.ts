@@ -5,6 +5,9 @@ import { confirmationValide, fileAVoir, JOURS_A_VOIR } from "@/domain/classe";
 import { calculerStatsUsage, type StatsUsage } from "@/domain/usage";
 import {
   comptesConnexion,
+  dernieresOuvertures,
+  ouverturesRecentes,
+  type UtilisationAppli,
   creerEtablissement,
   definirActifUtilisateur,
   deplacerUtilisateur,
@@ -36,9 +39,19 @@ function exigerAdmin(acteur: Profil) {
   if (acteur.role !== "admin" || !acteur.actif) throw new Error("Réservé à l'administrateur.");
 }
 
+function horodatage(iso: string | null): number {
+  return iso ? new Date(iso).getTime() : 0;
+}
+
+function plusRecente(a: string | null, b: string | null): string | null {
+  if (!a || !b) return a ?? b;
+  return new Date(a) > new Date(b) ? a : b;
+}
+
 export interface TableauAdmin {
   etablissements: (Etablissement & { maitres: number; eleves: number; comptes: number })[];
-  utilisateurs: (Utilisateur & { derniereConnexion: string | null })[];
+  /** derniereConnexion : mot de passe saisi ; derniereUtilisation : dernière ouverture de l'appli (ou connexion). */
+  utilisateurs: (Utilisateur & { derniereConnexion: string | null; derniereUtilisation: string | null })[];
   /** Comptes invités qui ne se sont jamais connectés. */
   invitationsEnAttente: (Utilisateur & { email: string | null; inviteLe: string | null })[];
   /** La clé « service role » est configurée (dernières connexions, invitations). */
@@ -51,12 +64,13 @@ export async function chargerTableauAdmin(acteur: Profil): Promise<TableauAdmin>
   const aujourdhui = aujourdhuiParis();
   const d = new Date(`${aujourdhui}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() - 7 * 12);
-  const [etablissements, utilisateurs, seances, connexions, suivi] = await Promise.all([
+  const [etablissements, utilisateurs, seances, connexions, suivi, ouvertures] = await Promise.all([
     listerEtablissements(),
     listerUtilisateurs(),
     seancesPourStats(d.toISOString().slice(0, 10)),
     comptesConnexion().catch(() => new Map<string, CompteConnexion>()),
     seancesSuiviDepuis(ajouterJours(aujourdhui, -JOURS_A_VOIR)),
+    dernieresOuvertures().catch(() => new Map<string, UtilisationAppli>()),
   ]);
   const aVoir = new Map([...fileAVoir(suivi)].map(([id, f]) => [id, f.nombre]));
   return {
@@ -71,10 +85,14 @@ export async function chargerTableauAdmin(acteur: Profil): Promise<TableauAdmin>
       eleves: utilisateurs.filter((u) => u.etablissementId === e.id && u.role === "eleve" && u.actif).length,
       comptes: utilisateurs.filter((u) => u.etablissementId === e.id).length,
     })),
-    utilisateurs: utilisateurs.map((u) => ({
-      ...u,
-      derniereConnexion: connexions.get(u.id)?.derniereConnexion ?? null,
-    })),
+    utilisateurs: utilisateurs.map((u) => {
+      const derniereConnexion = connexions.get(u.id)?.derniereConnexion ?? null;
+      return {
+        ...u,
+        derniereConnexion,
+        derniereUtilisation: plusRecente(derniereConnexion, ouvertures.get(u.id)?.derniere ?? null),
+      };
+    }),
     stats: calculerStatsUsage(utilisateurs, etablissements, seances, aujourdhui, 12, aVoir),
   };
 }
@@ -158,8 +176,17 @@ export async function chargerJournal(
   noms: Map<string, string>;
   personnes: { id: string; nom: string }[];
   filtres: z.infer<typeof schemaFiltres>;
-  /** Dernière connexion de chaque compte, la plus récente d'abord (vide sans clé « service role »). */
-  connexions: { id: string; nom: string; role: Utilisateur["role"]; derniereConnexion: string | null }[];
+  /** Utilisation de l'appli par personne, la plus récente d'abord. */
+  utilisation: {
+    id: string;
+    nom: string;
+    role: Utilisateur["role"];
+    derniereUtilisation: string | null;
+    derniereConnexion: string | null;
+    ouvertures7j: number;
+  }[];
+  /** Ouvertures de l'appli les plus récentes (date et heure). */
+  ouvertures: { id: number; personneId: string; quand: string }[];
 }> {
   exigerAdmin(acteur);
   const filtres = schemaFiltres.parse(filtresBruts);
@@ -170,25 +197,32 @@ export async function chargerJournal(
     du: filtres.du,
     au: filtres.au,
   };
-  const [evenements, utilisateurs, comptes] = await Promise.all([
+  const [evenements, utilisateurs, comptes, dernieres, ouvertures] = await Promise.all([
     journalRecent(150, f),
     listerUtilisateurs(),
     comptesConnexion().catch(() => new Map<string, CompteConnexion>()),
+    dernieresOuvertures().catch(() => new Map<string, UtilisationAppli>()),
+    ouverturesRecentes(100, filtres.personne).catch(() => []),
   ]);
   const noms = new Map(utilisateurs.map((u) => [u.id, `${u.prenom} ${u.nom}`.trim() || "Sans nom"]));
   const personnes = [...noms]
     .map(([id, nom]) => ({ id, nom }))
     .sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
-  const connexions = utilisateurs
-    .filter((u) => comptes.has(u.id) && (!filtres.personne || u.id === filtres.personne))
-    .map((u) => ({
-      id: u.id,
-      nom: noms.get(u.id) ?? "Sans nom",
-      role: u.role,
-      derniereConnexion: comptes.get(u.id)?.derniereConnexion ?? null,
-    }))
-    .sort((a, b) => (b.derniereConnexion ?? "").localeCompare(a.derniereConnexion ?? ""));
-  return { evenements, noms, personnes, filtres, connexions };
+  const utilisation = utilisateurs
+    .filter((u) => !filtres.personne || u.id === filtres.personne)
+    .map((u) => {
+      const derniereConnexion = comptes.get(u.id)?.derniereConnexion ?? null;
+      return {
+        id: u.id,
+        nom: noms.get(u.id) ?? "Sans nom",
+        role: u.role,
+        derniereConnexion,
+        derniereUtilisation: plusRecente(derniereConnexion, dernieres.get(u.id)?.derniere ?? null),
+        ouvertures7j: dernieres.get(u.id)?.ouvertures7j ?? 0,
+      };
+    })
+    .sort((a, b) => horodatage(b.derniereUtilisation) - horodatage(a.derniereUtilisation));
+  return { evenements, noms, personnes, filtres, utilisation, ouvertures };
 }
 
 // ---------- Établissements ------------------------------------------------

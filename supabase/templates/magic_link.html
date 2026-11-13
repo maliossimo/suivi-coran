@@ -1,0 +1,41 @@
+<div
+  style="background: #f6f1e7; padding: 32px 16px; font-family: Arial, Helvetica, sans-serif; color: #1f2a24"
+>
+  <div
+    style="
+      max-width: 480px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #e6dcc6;
+    "
+  >
+    <div style="background: #1d5c47; padding: 28px 24px; text-align: center">
+      <div style="color: #d9b45a; font-size: 28px; line-height: 1">&#10022;</div>
+      <div style="color: #ffffff; font-size: 20px; font-weight: bold; margin-top: 8px">Suivi cours Coran</div>
+    </div>
+    <div style="padding: 28px 24px">
+      <h1 style="font-size: 20px; margin: 0 0 12px">Ton code de vérification</h1>
+      <p style="font-size: 15px; line-height: 1.6; margin: 0 0 20px">
+        Saisis ce code dans l'appli pour ouvrir l'administration sur cet appareil :
+      </p>
+      <p
+        style="
+          text-align: center;
+          margin: 0 0 24px;
+          font-size: 32px;
+          font-weight: bold;
+          letter-spacing: 8px;
+          color: #1d5c47;
+        "
+      >
+        {{ .Token }}
+      </p>
+      <p style="font-size: 13px; line-height: 1.5; color: #6b7a72; margin: 0">
+        Ce code ne sert qu'une fois et expire rapidement. Si tu n'as rien demandé, quelqu'un connaît peut-être
+        ton mot de passe : change-le.
+      </p>
+    </div>
+  </div>
+</div>
