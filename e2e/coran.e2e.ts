@@ -45,7 +45,8 @@ test.describe("Coran (admin)", () => {
       .getByRole("button", { name: /Al-Kahf/ })
       .first()
       .click();
-    await expect(page).toHaveURL(/sourate=18/);
+    // Première ouverture d’'une grande sourate après le démarrage du serveur : on laisse le temps.
+    await expect(page).toHaveURL(/sourate=18/, { timeout: 15_000 });
   });
 
   test("récitateur favori : l'étoile le met en tête de liste", async ({ page }) => {
