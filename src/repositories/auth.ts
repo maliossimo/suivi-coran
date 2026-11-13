@@ -1,5 +1,5 @@
 import "server-only";
-import type { EmailOtpType } from "@supabase/supabase-js";
+import type { AuthenticatorAssuranceLevels, EmailOtpType } from "@supabase/supabase-js";
 import { creerClientServeur } from "@/lib/supabase/server";
 
 export type TypeLienEmail = EmailOtpType;
@@ -64,9 +64,9 @@ export async function emailConnecte(): Promise<string | null> {
 
 export interface NiveauVerification {
   /** aal1 : mot de passe seul ; aal2 : code de l'appli saisi pendant cette session. */
-  actuel: "aal1" | "aal2" | null;
+  actuel: AuthenticatorAssuranceLevels | null;
   /** aal2 si un appareil est enregistré (le code est alors exigé). */
-  suivant: "aal1" | "aal2" | null;
+  suivant: AuthenticatorAssuranceLevels | null;
 }
 
 export async function niveauVerification(): Promise<NiveauVerification> {
