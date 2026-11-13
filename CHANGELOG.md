@@ -13,7 +13,7 @@ Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z
 
 ### Nouveautés
 
-- Suivi du Coran : chaque Cheikh ne voit et ne corrige que les élèves de **ses** classes. Un élève qui n'est dans aucune classe reste visible par les Cheikhs de sa mosquée, le temps de le placer.
+- Suivi du Coran : chaque Cheikh ne voit et ne corrige que les élèves de **ses** classes. Un élève qui n'est dans aucune classe (ou seulement dans une classe sans Cheikh) reste visible par les Cheikhs de sa mosquée, le temps de le placer.
 - Un Cheikh qui a plusieurs classes passe de l'une à l'autre par des onglets dans « Ma classe ».
 - Un élève invité par un Cheikh (e-mail ou QR code) rejoint directement sa classe ; avec plusieurs classes, le Cheikh choisit laquelle. Chaque Cheikh a son propre QR code.
 - Mise à jour automatique : après une mise en ligne, l'appli se met à jour toute seule (au retour sur l'appli, au prochain lien touché, ou après 20 s sans geste), jamais pendant une saisie, une écoute ou une fenêtre ouverte.

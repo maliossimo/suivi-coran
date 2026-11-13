@@ -615,6 +615,19 @@ select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000
 select pg_temp.console();
 update public.classes set archivee = false where id = 'c1a55e00-0000-0000-0000-000000000001';
 
+-- Une classe sans Cheikh désigné ne retire l'élève à personne.
+insert into public.classes (id, etablissement_id, nom) values
+  ('c1a55e00-0000-0000-0000-000000000005', 'aaaaaaaa-0000-0000-0000-000000000000', 'Sans Cheikh');
+update public.membres_classe set actif = false where classe_id = 'c1a55e00-0000-0000-0000-000000000004';
+insert into public.membres_classe (classe_id, eleve_id)
+  values ('c1a55e00-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000002');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000002'),
+  'classes : un élève d''une classe sans Cheikh reste visible par la mosquée');
+select pg_temp.console();
+delete from public.membres_classe where classe_id = 'c1a55e00-0000-0000-0000-000000000005';
+update public.membres_classe set actif = true where classe_id = 'c1a55e00-0000-0000-0000-000000000004';
+
 -- Invitation avec une classe : l'élève y entre dès la création de son compte.
 insert into auth.users (id, email, raw_user_meta_data) values
   ('a0000000-0000-0000-0000-000000000003', 'eleve3.a@test.local',

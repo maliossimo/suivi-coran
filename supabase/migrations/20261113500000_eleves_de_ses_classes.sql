@@ -4,8 +4,8 @@
 --  Avant : un maître voyait tous les élèves de son établissement.
 --  Maintenant : un maître voit un élève de son établissement si
 --    - l'élève est membre (actif) d'une classe non terminée dont il est Cheikh ;
---    - ou l'élève n'est dans aucune classe (cas transitoire : il reste visible
---      par les Cheikhs de sa mosquée jusqu'à ce qu'on le place dans une classe).
+--    - ou l'élève n'est dans aucune classe en cours ayant un Cheikh (cas transitoire :
+--      il reste visible par les Cheikhs de sa mosquée jusqu'à ce qu'on le place).
 --
 --  est_maitre_de() est la règle unique utilisée par peut_acceder() / encadre()
 --  et par les politiques des profils : séances, passages, commentaires,
@@ -28,11 +28,14 @@ language sql stable security definer set search_path = public as $$
           join classes_cheikhs cc on cc.classe_id = c.id and cc.maitre_id = m.id
           where mc.eleve_id = e.id and mc.actif
         )
+        -- « Sans classe » : dans aucune classe en cours ayant un Cheikh (une classe sans
+        -- Cheikh désigné ne retire l'élève à personne).
         or not exists (
           select 1
           from membres_classe mc
           join classes c on c.id = mc.classe_id and not c.archivee
           where mc.eleve_id = e.id and mc.actif
+            and exists (select 1 from classes_cheikhs cc2 where cc2.classe_id = c.id)
         )
       )
   );
