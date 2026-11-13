@@ -7181,3 +7181,240 @@ html.defilement-bloque {
   color: var(--texte-doux);
   font-size: 12.5px;
 }
+
+/* ---------- Séance simplifiée (1.17) --------------------------------- */
+.seance-barre {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: -4px 0 2px -10px;
+}
+.seance-retour {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: var(--texte);
+}
+.seance-barre h1 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+.seance-barre h1 span {
+  font-weight: 400;
+  color: var(--texte-doux);
+}
+.seance-menu {
+  flex: none;
+}
+.menu-plus-danger {
+  color: var(--rouge);
+}
+.seance-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.seance-section-titre {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+.seance-formulaire {
+  gap: 22px;
+}
+.seance-section .durees-rapides {
+  margin-top: 0;
+}
+.seance-section .duree-rapide {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 15px;
+}
+.duree-autre:not([aria-pressed="true"]) {
+  border-style: dashed;
+  border-color: var(--champ);
+  background: transparent;
+  color: var(--texte-doux);
+}
+.liste-passages {
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  background: var(--carte);
+  box-shadow: var(--ombre);
+  overflow: hidden;
+}
+.liste-passages > * + * {
+  border-top: 1px solid var(--ligne);
+}
+.liste-passages .passage {
+  border: 0;
+  border-radius: 0;
+}
+.liste-passages > .passage + *,
+.liste-passages > * + .passage {
+  border-top: 1px solid var(--ligne);
+}
+.passage-resume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 10px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--texte);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.passage-resume-nom {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.passage-resume-nom [lang="ar"] {
+  margin-left: 4px;
+  font-family: var(--font-arabe), serif;
+  color: var(--vert-texte);
+}
+.passage-resume .pastille-etat {
+  margin-left: 0;
+}
+.passage-resume-fleche {
+  flex: none;
+  color: var(--texte-doux);
+}
+.passage-fermer {
+  align-self: flex-end;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--vert);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.passage-ajout {
+  min-height: 52px;
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  color: var(--vert-texte);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.passage-ajout:disabled {
+  color: var(--texte-doux);
+  cursor: default;
+}
+.note-ajout {
+  align-self: flex-start;
+  min-height: 44px;
+  font-size: 15px;
+}
+.seance-resume {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--carte);
+}
+.seance-resume-texte {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.seance-resume-texte small {
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+.seance-resume-texte strong {
+  font-weight: 500;
+}
+.seance-resume-texte p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.bouton-doux {
+  flex: none;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ecoute-cheikh {
+  border-color: transparent;
+  border-radius: 18px;
+  padding: 16px;
+  gap: 12px;
+}
+.ecoute-cheikh-entete h2 {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 20px;
+}
+.ecoute-compte {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.ecoute-cheikh-tout button {
+  flex: 1;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 12px;
+}
+.ecoute-cheikh-tout button:not(.valide) {
+  border-color: var(--vert);
+}
+.ecoute-cheikh-tout button.valide {
+  border-color: var(--or);
+  background: var(--or-clair);
+}
+.bloc-commentaire {
+  border: 0;
+  border-radius: 18px;
+  box-shadow: var(--ombre);
+}
+.phrases-rapides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.phrase-rapide {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--ligne);
+  border-radius: 999px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.phrase-rapide:active {
+  background: var(--vert-clair);
+}

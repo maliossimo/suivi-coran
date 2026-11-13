@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import type { Seance, TypeSeance } from "@/domain/fiche";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import type { EtatCheikh, Seance, TypeSeance } from "@/domain/fiche";
 import { premierChevauchement, type Passage } from "@/domain/versets";
 import { actionEnregistrerSeanceFond } from "@/app/actions/fiche";
 import { ChoixSourate } from "./ChoixSourate";
@@ -26,7 +26,7 @@ function lireNombre(texte: string): number {
   const chiffres = texte.replace(/\D/g, "").slice(0, 4);
   return chiffres ? Number(chiffres) : 0;
 }
-const DUREES_RAPIDES = [10, 15, 20, 30, 45, 60];
+const DUREES_RAPIDES = [10, 15, 20, 30];
 
 export function FormulaireSeance({
   eleveId,
@@ -38,7 +38,9 @@ export function FormulaireSeance({
   propose = null,
   vueMaitre = false,
   sourates,
-  libelleBouton = "Enregistrer la séance",
+  libelleBouton = "Enregistrer",
+  replie = false,
+  apresPassages = null,
 }: {
   eleveId: string;
   retour: string;
@@ -51,6 +53,10 @@ export function FormulaireSeance({
   vueMaitre?: boolean;
   sourates: SourateOption[];
   libelleBouton?: string;
+  /** Saisie résumée en une ligne, avec un bouton « Modifier » (vue du Cheikh). */
+  replie?: boolean;
+  /** Affiché entre les passages et la note (le mot du Cheikh, côté élève). */
+  apresPassages?: ReactNode;
 }) {
   const router = useRouter();
   const cle = cleSeance(eleveId, date, type);
@@ -86,6 +92,17 @@ export function FormulaireSeance({
     return propose && !dejaLa ? [...existants, propose] : existants;
   });
   const [note, setNote] = useState<string>(reprise?.saisie.noteLibre ?? initiale?.noteLibre ?? "");
+  // Saisie dépliée d'office s'il reste quelque chose à renvoyer.
+  const [deplie, setDeplie] = useState(!replie || reprise !== undefined);
+  // Durée hors des choix rapides : le compteur s'affiche (« Autre »).
+  const [autre, setAutre] = useState(() => duree > 0 && !DUREES_RAPIDES.includes(duree));
+  const [noteOuverte, setNoteOuverte] = useState(false);
+  const champNote = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (noteOuverte) champNote.current?.focus();
+  }, [noteOuverte]);
+  // Un seul passage ouvert à la fois ; les autres tiennent sur une ligne.
+  const [ouvert, setOuvert] = useState<number | null>(null);
 
   // Brouillon : ce qui était tapé avant de quitter la page est retrouvé.
   const depart = useRef<Brouillon>({ dureeMin: duree, passages, noteLibre: note });
@@ -98,7 +115,9 @@ export function FormulaireSeance({
         setDuree(b.dureeMin);
         setPassages(b.passages);
         setNote(b.noteLibre);
+        setAutre(b.dureeMin > 0 && !DUREES_RAPIDES.includes(b.dureeMin));
         setBrouillonRetrouve(true);
+        setDeplie(true);
       }
     }
     setBrouillonCharge(true);
@@ -116,6 +135,7 @@ export function FormulaireSeance({
     setDuree(depart.current.dureeMin);
     setPassages(depart.current.passages);
     setNote(depart.current.noteLibre);
+    setOuvert(null);
     setBrouillonRetrouve(false);
   }
 
@@ -153,23 +173,52 @@ export function FormulaireSeance({
       ...l,
       { sourateDebut: numero, versetDebut: 1, sourateFin: numero, versetFin: nbVersets(numero) },
     ]);
+    setOuvert(passages.length);
   }
 
-  /** Vérifie les passages avant l'envoi : rien n'est perdu, l'élève corrige sur place. */
-  function verifier(): string | null {
+  function retirer(index: number) {
+    setPassages((l) => l.filter((_, j) => j !== index));
+    setOuvert(null);
+  }
+
+  /** « Al-Mulk 1 → 10 » : le passage sur une ligne. */
+  function libelleCourt(p: Passage): string {
+    const debut = nomSourate(p.sourateDebut)?.nomLatin ?? `Sourate ${p.sourateDebut}`;
+    if (p.sourateFin === p.sourateDebut) return `${debut} ${p.versetDebut || "?"} → ${p.versetFin || "?"}`;
+    const fin = nomSourate(p.sourateFin)?.nomLatin ?? `Sourate ${p.sourateFin}`;
+    return `${debut} ${p.versetDebut || "?"} → ${fin} ${p.versetFin || "?"}`;
+  }
+
+  /**
+   * Vérifie les passages avant l'envoi : rien n'est perdu, l'élève corrige sur place.
+   * Renvoie le message et le passage à rouvrir.
+   */
+  function verifier(): [string, number | null] | null {
     for (const [i, p] of passages.entries()) {
       const n = `Passage ${i + 1}`;
-      if (!p.versetDebut || !p.versetFin) return `${n} : indique le verset de début et de fin.`;
+      if (!p.versetDebut || !p.versetFin) return [`${n} : indique le verset de début et de fin.`, i];
       if (p.versetDebut > nbVersets(p.sourateDebut))
-        return `${n} : la sourate ${nomSourate(p.sourateDebut)?.nomLatin ?? ""} n’a que ${nbVersets(p.sourateDebut)} versets.`;
+        return [
+          `${n} : la sourate ${nomSourate(p.sourateDebut)?.nomLatin ?? ""} n’a que ${nbVersets(p.sourateDebut)} versets.`,
+          i,
+        ];
       if (p.versetFin > nbVersets(p.sourateFin))
-        return `${n} : la sourate ${nomSourate(p.sourateFin)?.nomLatin ?? ""} n’a que ${nbVersets(p.sourateFin)} versets.`;
+        return [
+          `${n} : la sourate ${nomSourate(p.sourateFin)?.nomLatin ?? ""} n’a que ${nbVersets(p.sourateFin)} versets.`,
+          i,
+        ];
       if (p.sourateFin < p.sourateDebut || (p.sourateFin === p.sourateDebut && p.versetFin < p.versetDebut))
-        return `${n} : la fin est avant le début (verset ${p.versetFin} avant le verset ${p.versetDebut}).`;
+        return [
+          `${n} : la fin est avant le début (verset ${p.versetFin} avant le verset ${p.versetDebut}).`,
+          i,
+        ];
     }
     const doublon = premierChevauchement(passages);
     if (doublon) {
-      return `Les passages ${doublon[0] + 1} et ${doublon[1] + 1} se répètent ou se chevauchent : garde-en un seul.`;
+      return [
+        `Les passages ${doublon[0] + 1} et ${doublon[1] + 1} se répètent ou se chevauchent : garde-en un seul.`,
+        null,
+      ];
     }
     return null;
   }
@@ -179,8 +228,9 @@ export function FormulaireSeance({
   function envoyer(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const probleme = verifier();
-    setErreurLocale(probleme);
+    setErreurLocale(probleme?.[0] ?? null);
     if (probleme) {
+      if (probleme[1] !== null) setOuvert(probleme[1]);
       const formulaire = e.currentTarget;
       requestAnimationFrame(() =>
         formulaire.querySelector(".message-erreur")?.scrollIntoView({ block: "center", behavior: "smooth" }),
@@ -200,6 +250,26 @@ export function FormulaireSeance({
     // Sans réseau, la page précédente (déjà chargée) se réaffiche sans rien demander au serveur.
     if (!navigator.onLine && window.history.length > 1) router.back();
     else router.push(retour);
+  }
+
+  const etatPassage = (p: Passage): EtatCheikh => (p.valide ? "valide" : p.corrige ? "ecoute" : "partielle");
+
+  if (!deplie) {
+    return (
+      <section className="seance-resume" aria-label="Saisie de l’élève">
+        <div className="seance-resume-texte">
+          <small>Saisi par l’élève</small>
+          <strong>
+            {[duree ? `${duree} min` : null, ...passages.map(libelleCourt)].filter(Boolean).join(" · ") ||
+              "Rien de saisi"}
+          </strong>
+          {note ? <p>« {note} »</p> : null}
+        </div>
+        <button type="button" className="bouton-doux" onClick={() => setDeplie(true)}>
+          Modifier
+        </button>
+      </section>
+    );
   }
 
   return (
@@ -225,61 +295,75 @@ export function FormulaireSeance({
         </p>
       ) : null}
 
-      <section className="bloc">
-        <label htmlFor="dureeMin" className="bloc-titre">
-          Durée
-        </label>
-        <div className="compteur">
-          <button
-            type="button"
-            className="compteur-bouton"
-            aria-label={`Moins ${PAS} minutes`}
-            onClick={() => setDuree((d) => Math.max(0, d - PAS))}
-          >
-            −
-          </button>
-          <div className="compteur-valeur">
-            <input
-              id="dureeMin"
-              name="dureeMin"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              autoComplete="off"
-              value={duree ? String(duree) : ""}
-              placeholder="0"
-              onChange={(e) => setDuree(Math.min(600, lireNombre(e.target.value)))}
-            />
-            <span>min</span>
-          </div>
-          <button
-            type="button"
-            className="compteur-bouton"
-            aria-label={`Plus ${PAS} minutes`}
-            onClick={() => setDuree((d) => Math.min(600, d + PAS))}
-          >
-            +
-          </button>
-        </div>
-        <div className="durees-rapides" role="group" aria-label="Durées rapides">
+      <section className="seance-section">
+        <h2 className="seance-section-titre">Durée</h2>
+        <div className="durees-rapides" role="group" aria-label="Durée">
           {DUREES_RAPIDES.map((m) => (
             <button
               key={m}
               type="button"
               className="duree-rapide"
-              aria-pressed={duree === m}
-              onClick={() => setDuree(m)}
+              aria-pressed={!autre && duree === m}
+              onClick={() => {
+                setAutre(false);
+                setDuree(m);
+              }}
             >
               {m} min
             </button>
           ))}
+          <button
+            type="button"
+            className="duree-rapide duree-autre"
+            aria-pressed={autre}
+            onClick={() => setAutre(true)}
+          >
+            Autre
+          </button>
         </div>
+        {autre ? (
+          <div className="compteur">
+            <button
+              type="button"
+              className="compteur-bouton"
+              aria-label={`Moins ${PAS} minutes`}
+              onClick={() => setDuree((d) => Math.max(0, d - PAS))}
+            >
+              −
+            </button>
+            <label className="compteur-valeur">
+              <span className="visuellement-cache">Durée en minutes</span>
+              <input
+                id="dureeMin"
+                name="dureeMin"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="off"
+                value={duree ? String(duree) : ""}
+                placeholder="0"
+                onChange={(e) => setDuree(Math.min(600, lireNombre(e.target.value)))}
+              />
+              <span aria-hidden="true">min</span>
+            </label>
+            <button
+              type="button"
+              className="compteur-bouton"
+              aria-label={`Plus ${PAS} minutes`}
+              onClick={() => setDuree((d) => Math.min(600, d + PAS))}
+            >
+              +
+            </button>
+          </div>
+        ) : (
+          <input type="hidden" id="dureeMin" name="dureeMin" value={duree ? String(duree) : ""} />
+        )}
       </section>
 
-      <section className="bloc">
-        <div className="bloc-entete">
-          <h2 className="bloc-titre">{type === "revision" ? "Passages révisés" : "Passages appris"}</h2>
-        </div>
+      <section className="seance-section">
+        <h2 className="seance-section-titre">
+          {type === "revision" ? "Passages révisés" : "Passages appris"}
+        </h2>
         {passages.length === 0 && suggestion ? (
           <button type="button" className="suggestion" onClick={() => setPassages([suggestion])}>
             <span className="suggestion-titre">
@@ -300,109 +384,133 @@ export function FormulaireSeance({
             </span>
           </button>
         ) : null}
-        {passages.length === 0 && !suggestion ? (
-          <p className="bloc-vide">Aucun passage pour l’instant.</p>
-        ) : null}
-        {passages.map((p, i) => (
-          <fieldset key={i} className="passage">
-            <legend className="visuellement-cache">Passage {i + 1}</legend>
-            {/* L'élève voit où en est chaque passage ; le Cheikh a ses boutons au-dessus. */}
-            {initiale?.corrigee && !vueMaitre ? (
-              <p className="passage-vu">
-                <PastilleCheikh etat={p.valide ? "valide" : p.corrige ? "ecoute" : "partielle"} />
-              </p>
-            ) : null}
-            <div className="passage-ligne">
-              <div className="passage-sourate">
-                <ChoixSourate
-                  libelle="Sourate"
-                  valeur={p.sourateDebut}
-                  sourates={sourates}
-                  onChoix={(n) => modifier(i, "sourateDebut", n)}
-                />
-              </div>
+        <div className="liste-passages">
+          {passages.map((p, i) =>
+            ouvert === i ? (
+              <fieldset key={i} className="passage">
+                <legend className="visuellement-cache">Passage {i + 1}</legend>
+                <div className="passage-ligne">
+                  <div className="passage-sourate">
+                    <ChoixSourate
+                      libelle="Sourate"
+                      valeur={p.sourateDebut}
+                      sourates={sourates}
+                      onChoix={(n) => modifier(i, "sourateDebut", n)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="passage-retirer"
+                    aria-label={`Retirer le passage ${i + 1}`}
+                    onClick={() => retirer(i)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="passage-versets">
+                  <label className="champ">
+                    <span>Du verset</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      autoComplete="off"
+                      value={p.versetDebut ? String(p.versetDebut) : ""}
+                      onChange={(e) => modifier(i, "versetDebut", lireNombre(e.target.value))}
+                    />
+                  </label>
+                  <label className="champ">
+                    <span>Au verset</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      autoComplete="off"
+                      value={p.versetFin ? String(p.versetFin) : ""}
+                      onChange={(e) => modifier(i, "versetFin", lireNombre(e.target.value))}
+                    />
+                  </label>
+                </div>
+                {/* Cas rare : le passage déborde sur la sourate suivante. Masqué tant qu'il ne sert pas. */}
+                {p.sourateFin !== p.sourateDebut ? (
+                  <ChoixSourate
+                    libelle="Jusqu’à la sourate"
+                    valeur={p.sourateFin}
+                    sourates={sourates}
+                    onChoix={(n) => modifier(i, "sourateFin", n)}
+                  />
+                ) : p.sourateDebut < 114 ? (
+                  <button
+                    type="button"
+                    className="bouton-lien passage-plusieurs"
+                    onClick={() => {
+                      modifier(i, "sourateFin", p.sourateDebut + 1);
+                      modifier(i, "versetFin", 1);
+                    }}
+                  >
+                    Le passage continue sur la sourate suivante ?
+                  </button>
+                ) : null}
+                <button type="button" className="passage-fermer" onClick={() => setOuvert(null)}>
+                  OK
+                </button>
+              </fieldset>
+            ) : (
               <button
+                key={i}
                 type="button"
-                className="passage-retirer"
-                aria-label={`Retirer le passage ${i + 1}`}
-                onClick={() => setPassages((l) => l.filter((_, j) => j !== i))}
+                className="passage-resume"
+                aria-label={`Modifier le passage ${i + 1} : ${libelleCourt(p)}`}
+                onClick={() => setOuvert(i)}
               >
-                ✕
+                <span className="passage-resume-nom">
+                  {libelleCourt(p)}{" "}
+                  <span lang="ar" dir="rtl">
+                    {nomSourate(p.sourateDebut)?.nomAr}
+                  </span>
+                </span>
+                {/* L'élève voit où en est chaque passage ; le Cheikh a ses boutons au-dessus. */}
+                {initiale?.corrigee && !vueMaitre ? <PastilleCheikh etat={etatPassage(p)} /> : null}
+                <ChevronDown size={18} aria-hidden="true" className="passage-resume-fleche" />
               </button>
-            </div>
-            <div className="passage-versets">
-              <label className="champ">
-                <span>Du verset</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  autoComplete="off"
-                  value={p.versetDebut ? String(p.versetDebut) : ""}
-                  onChange={(e) => modifier(i, "versetDebut", lireNombre(e.target.value))}
-                />
-              </label>
-              <label className="champ">
-                <span>Au verset</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  autoComplete="off"
-                  value={p.versetFin ? String(p.versetFin) : ""}
-                  onChange={(e) => modifier(i, "versetFin", lireNombre(e.target.value))}
-                />
-              </label>
-            </div>
-            {/* Cas rare : le passage déborde sur la sourate suivante. Masqué tant qu'il ne sert pas. */}
-            {p.sourateFin !== p.sourateDebut ? (
-              <ChoixSourate
-                libelle="Jusqu’à la sourate"
-                valeur={p.sourateFin}
-                sourates={sourates}
-                onChoix={(n) => modifier(i, "sourateFin", n)}
-              />
-            ) : p.sourateDebut < 114 ? (
-              <button
-                type="button"
-                className="bouton-lien passage-plusieurs"
-                onClick={() => {
-                  modifier(i, "sourateFin", p.sourateDebut + 1);
-                  modifier(i, "versetFin", 1);
-                }}
-              >
-                Le passage continue sur la sourate suivante ?
-              </button>
-            ) : null}
-          </fieldset>
-        ))}
-        <button type="button" className="bouton-ajout" onClick={ajouter} disabled={passages.length >= 20}>
-          + Ajouter un passage
-        </button>
+            ),
+          )}
+          <button type="button" className="passage-ajout" onClick={ajouter} disabled={passages.length >= 20}>
+            + Ajouter un passage
+          </button>
+        </div>
       </section>
+
+      {apresPassages}
 
       {/* Le tajwid n'est plus saisi ; une ancienne valeur est conservée telle quelle. */}
       <input type="hidden" name="tajwid" value={initiale?.tajwid ?? ""} />
 
-      <section className="bloc">
-        <label htmlFor="noteLibre" className="bloc-titre">
-          Note libre <small>(facultatif)</small>
-        </label>
-        <textarea
-          id="noteLibre"
-          name="noteLibre"
-          className="champ-texte"
-          rows={3}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder={
-            vueMaitre
-              ? "Remarque sur la séance : difficulté, point à reprendre…"
-              : "Ce que tu veux noter : une difficulté, une question…"
-          }
-          maxLength={2000}
-        />
-      </section>
+      {noteOuverte || note ? (
+        <section className="seance-section">
+          <label htmlFor="noteLibre" className="seance-section-titre">
+            Note
+          </label>
+          <textarea
+            id="noteLibre"
+            name="noteLibre"
+            className="champ-texte"
+            rows={2}
+            value={note}
+            ref={champNote}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder={vueMaitre ? "Difficulté, point à reprendre…" : "Une difficulté, une question…"}
+            maxLength={2000}
+          />
+        </section>
+      ) : (
+        <>
+          <input type="hidden" name="noteLibre" value="" />
+          <button type="button" className="bouton-lien note-ajout" onClick={() => setNoteOuverte(true)}>
+            + Ajouter une note
+          </button>
+        </>
+      )}
 
       <div className="barre-enregistrer">
         <button className="bouton" type="submit" disabled={!pret || envoiEnCours}>
