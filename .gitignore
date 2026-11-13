@@ -23,3 +23,6 @@ test-results/
 # Système
 .DS_Store
 *.log
+e2e/resultats/
+.env.supabase
+e2e-serveur.log

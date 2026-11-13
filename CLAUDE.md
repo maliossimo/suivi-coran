@@ -54,6 +54,8 @@ ESLint bloque les imports qui violent ces frontières.
   l'historique ou les artifacts (les sauvegardes sont toujours chiffrées). Ces conventions sont à
   respecter scrupuleusement, même si GitHub ne les impose pas toutes.
 - Vérifications (CI) : une seule fois par PR ; les tests de la base ne tournent que si `supabase/` change.
+  Les tests de bout en bout (`e2e/`, workflow « Tests de bout en bout ») tournent sur une base jetable
+  avec des comptes fictifs ; leurs captures d'écran sont jointes au passage.
 - Avant de proposer une PR : `npm run check` (format, lint, types, tests) et, si la base change, `npm run db:test`.
 - Messages de commit en français, à l'impératif : « Ajoute la saisie des séances ».
 - Auteur des commits : `maliossimo <55502349+maliossimo@users.noreply.github.com>` (adresse « noreply » de GitHub,

@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.12.0] — 2026-11-13
+
+### Nouveautés
+
+- Coran : toucher un verset affiche son explication en français (« Résumé dans l'exégèse du noble Coran », Al-Mukhtasar, traduction française de QuranEnc.com), avec ses notes et la source. En Warsh, l'explication suit la bonne numérotation. Une explication lue reste disponible hors ligne, et « Garder tout le texte » garde aussi les explications.
+- Le verset touché propose ses actions en un coup d'œil : « Écouter d'ici », « En boucle », « Mémoriser… ».
+
+### Interne
+
+- Tests de bout en bout à chaque PR : l'appli complète dans un navigateur de téléphone, sur une base Supabase jetable avec des comptes fictifs (admin, deux Cheikhs de deux mosquées, deux élèves). Parcours : connexion, droits entre rôles et mosquées, séance de l'élève, correction du Cheikh, appel, tableau et rapport des présences, Coran (explication, défilement bloqué, « Aller à », favoris). Captures d'écran jointes au passage.
+
 ## [1.11.0] — 2026-11-13
 
 ### Nouveautés

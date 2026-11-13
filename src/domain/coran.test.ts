@@ -14,6 +14,7 @@ import {
   texteDesSegments,
   versetSuivant,
   resumeCourtMemoriser,
+  versetsHafsDuVerset,
   resumeMemoriser,
 } from "./coran";
 
@@ -149,5 +150,17 @@ describe("résumé de la mémorisation", () => {
       "Versets 3 → 7 · 3× chacun · en boucle",
     );
     expect(resumeCourtMemoriser({ du: 5, au: 5 }, { verset: 1, passage: 1 })).toBe("Verset 5");
+  });
+});
+
+describe("Warsh vers Hafs", () => {
+  // Al-Fatiha : Hafs 1 = basmala (pas de verset Warsh), Hafs 7 = Warsh 6 et 7.
+  const fatiha = [[], [1], [2], [3], [4], [5], [6, 7]];
+  it("retrouve le verset Hafs d'un verset Warsh", () => {
+    expect(versetsHafsDuVerset(fatiha, 1)).toEqual([2]);
+    expect(versetsHafsDuVerset(fatiha, 7)).toEqual([7]);
+  });
+  it("rassemble plusieurs versets Hafs", () => {
+    expect(versetsHafsDuVerset([[1], [1], [2]], 1)).toEqual([1, 2]);
   });
 });
