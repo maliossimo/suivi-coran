@@ -1,4 +1,4 @@
-import { ChartNoAxesColumn, ChevronLeft, Ellipsis } from "lucide-react";
+import { ChartNoAxesColumn, ChevronLeft, ChevronRight, Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { actionArchiverEleve } from "@/app/actions/classe";
@@ -37,57 +37,50 @@ export default async function PageEleveMaitre({
             <ChevronLeft size={18} aria-hidden="true" />
             Toute la classe
           </Link>
-          <div className="entete-page entete-eleve-carte">
-            <div className="entete-eleve">
-              <Avatar prenom={eleve.prenom} nom={eleve.nom} cle={eleve.id} taille="grand" />
-              <div>
-                <h1>
-                  {eleve.prenom} {eleve.nom}
-                </h1>
-                <p className="entete-eleve-lecture">
-                  <EtiquetteLecture lecture={eleve.lecture} />
-                  <Link href={`${base}/lecture`} className="lien-discret">
-                    {eleve.lecture ? "Changer" : "Choisir"}
-                  </Link>
-                </p>
+          <div className="carte-eleve">
+            <Avatar prenom={eleve.prenom} nom={eleve.nom} cle={eleve.id} taille="grand" />
+            <div className="carte-eleve-identite">
+              <h1>
+                {eleve.prenom} {eleve.nom}
+              </h1>
+              <p className="entete-eleve-lecture">
+                <EtiquetteLecture lecture={eleve.lecture} />
+                <Link href={`${base}/lecture`} className="lien-discret">
+                  {eleve.lecture ? "Changer" : "Choisir"}
+                </Link>
                 {!eleve.actif ? <span className="pastille-or">Archivé</span> : null}
-              </div>
+              </p>
             </div>
-            <div className="actions-entete">
-              <Link
-                href={`${base}/progression`}
-                className="bouton-secondaire bouton-lien bouton-progression"
-                aria-label="Progression"
-              >
-                <ChartNoAxesColumn size={18} aria-hidden="true" />
-                <span>Progression</span>
-              </Link>
-              {eleve.actif ? (
-                <details className="menu-plus">
-                  <summary aria-label="Plus d’actions">
-                    <Ellipsis size={20} aria-hidden="true" />
-                  </summary>
-                  <div className="menu-plus-liste">
-                    <form action={actionArchiverEleve}>
-                      <input type="hidden" name="eleveId" value={eleve.id} />
-                      <input type="hidden" name="actif" value="false" />
-                      <button type="submit" className="menu-plus-item">
-                        Archiver l’élève
-                        <small>Il ne pourra plus se connecter ; son historique est conservé.</small>
-                      </button>
-                    </form>
-                  </div>
-                </details>
-              ) : (
-                <form action={actionArchiverEleve}>
-                  <input type="hidden" name="eleveId" value={eleve.id} />
-                  <input type="hidden" name="actif" value="true" />
-                  <button type="submit" className="bouton-secondaire">
-                    Réactiver
-                  </button>
-                </form>
-              )}
-            </div>
+            {eleve.actif ? (
+              <details className="menu-plus carte-eleve-menu">
+                <summary aria-label="Plus d’actions">
+                  <Ellipsis size={20} aria-hidden="true" />
+                </summary>
+                <div className="menu-plus-liste">
+                  <form action={actionArchiverEleve}>
+                    <input type="hidden" name="eleveId" value={eleve.id} />
+                    <input type="hidden" name="actif" value="false" />
+                    <button type="submit" className="menu-plus-item">
+                      Archiver l’élève
+                      <small>Il ne pourra plus se connecter ; son historique est conservé.</small>
+                    </button>
+                  </form>
+                </div>
+              </details>
+            ) : (
+              <form action={actionArchiverEleve} className="carte-eleve-menu">
+                <input type="hidden" name="eleveId" value={eleve.id} />
+                <input type="hidden" name="actif" value="true" />
+                <button type="submit" className="bouton-secondaire">
+                  Réactiver
+                </button>
+              </form>
+            )}
+            <Link href={`${base}/progression`} className="carte-eleve-progression">
+              <ChartNoAxesColumn size={18} aria-hidden="true" />
+              <span>Voir la progression</span>
+              <ChevronRight size={18} aria-hidden="true" />
+            </Link>
           </div>
           {!eleve.actif ? (
             <section className="bandeau-archive">

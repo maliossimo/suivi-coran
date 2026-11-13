@@ -2405,6 +2405,10 @@ input.champ-texte {
   flex-wrap: nowrap;
   align-items: center;
 }
+.semaine-entete h2,
+.semaine-entete h3 {
+  white-space: nowrap;
+}
 .semaine-pliable > summary > span {
   min-width: 0;
   margin-left: auto;
@@ -4855,41 +4859,91 @@ html[data-ouverture] .ouverture-version {
   gap: 12px;
 }
 
-/* ---------- En-tête de l'élève (vue du Cheikh) ---------------------- */
-.entete-page.entete-eleve-carte {
-  flex-wrap: nowrap;
-  padding: 14px;
+/* ---------- Carte de l'élève (haut de sa fiche, vue du Cheikh) -------- */
+.carte-eleve {
+  /* Au-dessus de la navigation des mois quand le menu ⋯ est ouvert. */
+  position: relative;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 14px;
+  padding: 14px 14px 6px;
   border: 1px solid var(--ligne);
   border-radius: 18px;
   background: var(--carte);
   box-shadow: var(--ombre);
 }
-.entete-eleve-carte .entete-eleve {
+.carte-eleve-identite h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  /* Un long nom passe à la ligne au lieu d'être coupé. */
+  overflow-wrap: anywhere;
+}
+.carte-eleve-identite .entete-eleve-lecture {
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.carte-eleve-menu {
+  align-self: start;
+}
+/* Le bouton ⋯ est à droite : le menu s'ouvre vers la gauche et reste dans l'écran. */
+.carte-eleve-menu .menu-plus-liste {
+  left: auto;
+  right: 0;
+  min-width: min(280px, calc(100vw - 48px));
+}
+.carte-eleve-progression {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 0 4px;
+  border-top: 1px solid var(--ligne);
+  color: var(--vert-texte);
+  font-weight: 600;
+  text-decoration: none;
+}
+.carte-eleve-progression span {
   flex: 1;
-  min-width: 0;
 }
-.entete-eleve-carte .entete-eleve > div {
-  min-width: 0;
-}
-.entete-eleve-carte h1 {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.entete-eleve-carte .actions-entete {
-  flex-wrap: nowrap;
-  flex-shrink: 0;
-}
-@media (max-width: 480px) {
-  .entete-eleve-carte .bouton-progression {
-    width: 44px;
-    padding: 0;
+
+/* ---------- Téléphone : haut d'écran plus compact ------------------- */
+@media (max-width: 520px) {
+  .barre-contenu {
+    padding: 8px 16px;
   }
-  .entete-eleve-carte .bouton-progression span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
+  .barre-logo {
+    width: 42px;
+    height: 42px;
+  }
+  .barre-titre {
+    font-size: 18px;
+  }
+  .espace {
+    padding-top: 16px;
+    gap: 14px;
+  }
+  .fiche-gestes {
+    gap: 14px;
+  }
+  .lien-retour {
+    min-height: 36px;
+  }
+  .bandeau-vue-admin {
+    padding: 8px 10px 8px 12px;
+    font-size: 13px;
+  }
+  .choix-mode-admin button {
+    min-height: 34px;
+  }
+  .carte-eleve-identite h1 {
+    font-size: 20px;
+  }
+  .mois-titre {
+    font-size: 20px;
   }
 }
