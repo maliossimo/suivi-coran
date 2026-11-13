@@ -39,6 +39,7 @@ import {
   seancesEntre,
   supprimerSeance,
   validerSeance,
+  aDejaUneSeance,
 } from "@/repositories/seances";
 import { lectureEleve } from "@/repositories/profils";
 import { listerSourates } from "@/repositories/sourates";
@@ -68,6 +69,8 @@ export interface Fiche {
   sourates: Sourate[];
   /** Lecture de l'élève : la numérotation des versets en dépend. */
   lecture: Lecture;
+  /** Aucune séance encore, tous mois et types confondus : on accueille l'élève. */
+  premiereFois: boolean;
 }
 
 export async function chargerFiche(eleveId: string, moisParam?: string, typeParam?: string): Promise<Fiche> {
@@ -75,10 +78,11 @@ export async function chargerFiche(eleveId: string, moisParam?: string, typePara
   const mois = lireMois(moisParam, aujourdhui);
   const position = positionDuMois(mois, aujourdhui);
   const type = lireType(typeParam);
-  const [seances, objectifs, lecture] = await Promise.all([
+  const [seances, objectifs, lecture, dejaCommence] = await Promise.all([
     position === "futur" ? [] : seancesEntre(eleveId, type, premierJour(mois), dernierJour(mois)),
     objectifsDuMois(eleveId, type, premierJour(mois)),
     lectureEleve(eleveId),
+    aDejaUneSeance(eleveId),
   ]);
   // Les passages sont dans la numérotation de la lecture de l'élève (Hafs ou Warsh).
   const sourates = await listerSourates(lecture);
@@ -98,6 +102,7 @@ export async function chargerFiche(eleveId: string, moisParam?: string, typePara
     ),
     sourates,
     lecture,
+    premiereFois: !dejaCommence,
   };
 }
 

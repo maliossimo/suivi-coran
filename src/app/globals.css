@@ -4643,3 +4643,120 @@ html[data-ouverture] .ouverture-version {
   justify-content: center;
   min-height: 0;
 }
+
+/* ---------- Gestes de la fiche : glisser, tirer pour rafraîchir ---------- */
+.fiche-gestes {
+  display: contents;
+}
+.fiche-gestes.arrivee-gauche,
+.fiche-gestes.arrivee-droite {
+  display: block;
+}
+.fiche-gestes.arrivee-gauche {
+  animation: arrivee-gauche 0.24s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.fiche-gestes.arrivee-droite {
+  animation: arrivee-droite 0.24s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes arrivee-gauche {
+  from {
+    opacity: 0.2;
+    transform: translateX(36px);
+  }
+}
+@keyframes arrivee-droite {
+  from {
+    opacity: 0.2;
+    transform: translateX(-36px);
+  }
+}
+.tirer-rafraichir {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 64px);
+  left: 50%;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--carte);
+  color: var(--vert-texte);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  transform: translate(-50%, -80px);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.tirer-rafraichir.visible {
+  opacity: 1;
+  transform: translate(-50%, 20px);
+}
+.tirer-rafraichir .tourne {
+  animation: tourner 0.8s linear infinite;
+}
+@keyframes tourner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (display-mode: standalone) {
+  /* Le geste « tirer » est celui de l'appli : pas de rebond du navigateur. */
+  html,
+  body {
+    overscroll-behavior-y: contain;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fiche-gestes.arrivee-gauche,
+  .fiche-gestes.arrivee-droite,
+  .tirer-rafraichir .tourne {
+    animation: none;
+  }
+}
+
+/* ---------- Accueil d'un nouvel élève ---------- */
+.accueil-premiere-fois {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 16px;
+  padding: 22px 18px;
+  border-radius: 18px;
+  text-align: center;
+  background: linear-gradient(160deg, var(--vert-clair), var(--carte));
+  border: 1px solid var(--ligne);
+}
+.accueil-premiere-fois h3 {
+  margin: 0;
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 21px;
+  color: var(--vert-texte);
+}
+.accueil-premiere-fois p {
+  margin: 0;
+  max-width: 34em;
+  line-height: 1.5;
+}
+.accueil-premiere-fois .bouton {
+  width: auto;
+  padding: 0 22px;
+  margin-top: 4px;
+}
+.accueil-icone {
+  font-size: 26px;
+  color: var(--or);
+}
+.accueil-astuce {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.accueil-cheikh {
+  display: block;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 14px;
+  color: var(--texte-doux);
+  background: var(--surface-2);
+}
