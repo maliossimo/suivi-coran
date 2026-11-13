@@ -11,6 +11,7 @@ import {
   enregistrerBilanEleve,
   enregistrerObjectifEleve,
   enregistrerSeanceEleve,
+  marquerPassagesSeance,
   supprimerSeanceEleve,
   validerSeanceEleve,
   type ResultatSaisie,
@@ -97,6 +98,20 @@ export async function actionValiderSeance(form: FormData): Promise<ResultatSaisi
   await notifier(resultat.ok ? "Séance validée" : resultat.erreur, resultat.ok ? "succes" : "erreur");
   if (resultat.ok) revaliderEleve(eleveId);
   return resultat;
+}
+
+/** Le Cheikh marque des passages « écoutés » / « validés » (réponse JSON, sans redirection). */
+export async function actionMarquerPassages(
+  eleveIdBrut: unknown,
+  donnees: unknown,
+): Promise<{ ok: boolean; erreur?: string }> {
+  const acteur = await profilConnecte();
+  if (!acteur || !acteur.actif) redirect("/connexion");
+  const eleveId = uuid.safeParse(eleveIdBrut);
+  if (!eleveId.success) return { ok: false, erreur: "Élève introuvable." };
+  const r = await marquerPassagesSeance(acteur, donnees);
+  if (r.ok) revaliderEleve(eleveId.data);
+  return r.ok ? { ok: true } : { ok: false, erreur: r.erreur };
 }
 
 /** Suppression différée (annulable) : appelée par le navigateur une fois le délai passé. */

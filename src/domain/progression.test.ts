@@ -63,6 +63,21 @@ describe("calculerProgression", () => {
     expect(p.pourcentageCoranVu).toBeLessThan(p.pourcentageCoran);
   });
 
+  it("compte à part les versets validés (acquis)", () => {
+    const avecValidation = calculerProgression(
+      ref,
+      [
+        seance("2026-11-01", "apprentissage", 20, [{ ...mulk(1, 5), corrige: true, valide: true }]),
+        seance("2026-11-02", "apprentissage", 20, [{ ...mulk(6, 10), corrige: true }]),
+      ],
+      [],
+      "2026-11-10",
+    );
+    expect(avecValidation.versetsVus).toBe(10);
+    expect(avecValidation.versetsValides).toBe(5);
+    expect(avecValidation.sourates.find((s) => s.sourate.numero === 67)!.versetsValides).toBe(5);
+  });
+
   it("cumule les versets mois par mois", () => {
     expect(p.cumulParMois.map((m) => [m.cle, m.valeur])).toEqual([
       ["2026-09", 10],

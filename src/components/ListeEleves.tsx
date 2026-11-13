@@ -72,7 +72,7 @@ export function ListeEleves({
                     className="pastille-or pastille-a-voir"
                     title={`Séances des ${JOURS_A_VOIR} derniers jours pas encore vues`}
                   >
-                    {r.aVoir} séance{r.aVoir > 1 ? "s" : ""} à voir
+                    {r.aVoir} séance{r.aVoir > 1 ? "s" : ""} à écouter
                   </span>
                 ) : null}
                 <small

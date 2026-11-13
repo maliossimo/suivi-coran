@@ -4,7 +4,7 @@ import {
   construireFiche,
   decalerMois,
   dernierJour,
-  etatCorrection,
+  etatCheikh,
   formaterDuree,
   conflitDeSaisie,
   libelleDateLongue,
@@ -132,20 +132,34 @@ describe("libelleMoisCourt", () => {
   });
 });
 
-describe("etatCorrection", () => {
-  const p = (corrige: boolean) => ({ sourateDebut: 1, versetDebut: 1, sourateFin: 1, versetFin: 7, corrige });
-
-  it("pas encore vue par le Cheikh", () => {
-    expect(etatCorrection({ corrigee: false, passages: [p(false)] })).toBeNull();
+describe("etatCheikh", () => {
+  const p = (corrige: boolean, valide = false) => ({
+    sourateDebut: 1,
+    versetDebut: 1,
+    sourateFin: 1,
+    versetFin: 7,
+    corrige,
+    valide,
   });
 
-  it("entièrement corrigée quand tous les passages ont été vus", () => {
-    expect(etatCorrection({ corrigee: true, passages: [p(true), p(true)] })).toBe("complete");
-    expect(etatCorrection({ corrigee: true, passages: [] })).toBe("complete");
+  it("pas encore passé chez le Cheikh", () => {
+    expect(etatCheikh({ corrigee: false, passages: [p(false)] })).toBeNull();
+    expect(etatCheikh({ corrigee: false, passages: [] })).toBeNull();
   });
 
-  it("corrigée en partie quand un passage a été ajouté après", () => {
-    expect(etatCorrection({ corrigee: true, passages: [p(true), p(false)] })).toBe("partielle");
+  it("écoutée quand tous les passages ont été écoutés", () => {
+    expect(etatCheikh({ corrigee: true, passages: [p(true), p(true)] })).toBe("ecoute");
+    expect(etatCheikh({ corrigee: true, passages: [p(true, true), p(true)] })).toBe("ecoute");
+    expect(etatCheikh({ corrigee: true, passages: [] })).toBe("ecoute");
+  });
+
+  it("validée quand tous les passages sont validés", () => {
+    expect(etatCheikh({ corrigee: true, passages: [p(true, true), p(true, true)] })).toBe("valide");
+  });
+
+  it("en partie quand un passage n'a pas encore été écouté", () => {
+    expect(etatCheikh({ corrigee: true, passages: [p(true, true), p(false)] })).toBe("partielle");
+    expect(etatCheikh({ corrigee: true, passages: [p(false)] })).toBe("partielle");
   });
 });
 

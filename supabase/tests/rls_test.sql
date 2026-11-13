@@ -573,6 +573,64 @@ select pg_temp.doit_echouer(
   'responsable : ne désigne pas un Cheikh d''une autre mosquée');
 select pg_temp.console();
 
+-- ---------- Écouté puis validé par le Cheikh (par passage) -------------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'ecoute');
+select pg_temp.attendu(
+  (select bool_and(corrige_le is not null and valide_le is null) from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
+  'Cheikh : marque les passages « écoutés »');
+select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'valide');
+select pg_temp.attendu(
+  (select bool_and(valide_le is not null and valide_par = 'a0000000-0000-0000-0000-00000000000a' and corrige_le is not null)
+     from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
+  'Cheikh : valide les passages (validé suppose écouté)');
+select pg_temp.console();
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select pg_temp.doit_echouer(
+  $q$select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'valide')$q$,
+  'élève : ne marque pas lui-même ses passages');
+update public.passages set valide_par = null, valide_le = null, corrige_le = null where seance_id = '5e000000-0000-0000-0000-0000000000a1';
+-- Réenregistrer la séance telle quelle (mêmes passages).
+select public.enregistrer_seance(s.date, s.type, s.duree_min, null, s.note_libre,
+  (select jsonb_agg(jsonb_build_object('sourateDebut', sourate_debut, 'versetDebut', verset_debut,
+                                       'sourateFin', sourate_fin, 'versetFin', verset_fin) order by ordre)
+     from public.passages where seance_id = s.id))
+  from public.seances s where s.id = '5e000000-0000-0000-0000-0000000000a1';
+select pg_temp.console();
+select pg_temp.attendu(
+  (select bool_and(valide_le is not null) from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
+  'élève : ne peut pas retirer la validation, et réenregistrer sans changement la garde');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+-- Un seul passage, modifié (un verset de plus que le premier passage).
+select public.enregistrer_seance(s.date, s.type, s.duree_min, null, s.note_libre,
+  (select jsonb_build_array(jsonb_build_object('sourateDebut', 67, 'versetDebut', 1, 'sourateFin', 67, 'versetFin', 3))))
+  from public.seances s where s.id = '5e000000-0000-0000-0000-0000000000a1';
+select pg_temp.console();
+select pg_temp.attendu(
+  (select bool_and(corrige_le is null and valide_le is null) from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
+  'élève : un passage modifié redevient « pas encore écouté »');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'valide');
+select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'aucun', array[1]::smallint[]);
+select pg_temp.attendu(
+  (select bool_and(corrige_le is null and valide_le is null) from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
+  'Cheikh : peut revenir en arrière');
+select public.valider_seance('5e000000-0000-0000-0000-0000000000a1');
+select pg_temp.attendu(
+  (select bool_and(valide_le is not null) from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
+  'Cheikh : « valider en un geste » valide tous les passages');
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.doit_echouer(
+  $q$select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'aucun')$q$,
+  'Cheikh d''une autre mosquée : ne marque pas');
+select pg_temp.doit_echouer(
+  $q$select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'n_importe_quoi')$q$,
+  'état inconnu refusé');
+select pg_temp.console();
+
 -- ---------- Suivi du Coran : chaque Cheikh voit les élèves de SES classes ----
 -- État : classe « Coran » (Cheikh A) avec l'élève 1 ; l'élève 2 n'est dans aucune classe.
 insert into auth.users (id, email, raw_user_meta_data) values

@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, Download, MessageCircle } from "lucide-react
 import Link from "next/link";
 import { Suspense } from "react";
 import {
-  etatCorrection,
+  etatCheikh,
   cleMois,
   decalerMois,
   formaterDuree,
@@ -23,6 +23,7 @@ import { BoutonValider, EtatEnregistrement } from "./EtatsLigneJour";
 import { GestesFiche } from "./GestesFiche";
 import { PreparerHorsLigne } from "./PreparerHorsLigne";
 import { IndicateurLien } from "../IndicateurLien";
+import { PastilleCheikh } from "./PastilleCheikh";
 
 /**
  * Fiche du mois d'un élève (semaines 1 à 5). Utilisée par l'élève (/eleve)
@@ -193,7 +194,7 @@ export function FicheMois({
                 <ul className="jours">
                   {semaine.jours.map((jour) => {
                     const aValider =
-                      vueMaitre && jour.seance && !jour.futur && etatCorrection(jour.seance) !== "complete";
+                      vueMaitre && jour.seance && !jour.futur && etatCheikh(jour.seance) !== "valide";
                     return (
                       <li key={jour.date} className={aValider ? "jour-avec-action" : undefined}>
                         <LigneJour
@@ -330,12 +331,7 @@ function LigneJour({
       <span className={s ? "jour-contenu" : "jour-contenu jour-vide"}>
         {contenu ?? (jour.futur ? "" : "+ Saisir")}
         <EtatEnregistrement cle={cle} enBase={s} />
-        {s && etatCorrection(s) === "complete" ? (
-          <span className="pastille-or">✓ Vu par le Cheikh</span>
-        ) : null}
-        {s && etatCorrection(s) === "partielle" ? (
-          <span className="pastille-or pastille-partielle">Ajout à voir</span>
-        ) : null}
+        <PastilleCheikh etat={s ? etatCheikh(s) : null} court />
         {s?.noteLibre ? <span className="pastille-note">Note</span> : null}
         {s?.nbCommentaires ? (
           <span className="pastille-commentaire">
@@ -369,14 +365,20 @@ function LegendePastilles({ vueMaitre }: { vueMaitre: boolean }) {
       <summary>Que veulent dire les pastilles ?</summary>
       <ul>
         <li>
-          <span className="pastille-or">✓ Vu par le Cheikh</span>
-          {vueMaitre ? "tu as validé la séance." : "ton Cheikh a validé la séance."}
+          <span className="pastille-ecoute">🎧 Écouté</span>
+          {vueMaitre
+            ? "tu as écouté la récitation : à retravailler."
+            : "ton Cheikh a écouté ta récitation : à retravailler."}
         </li>
         <li>
-          <span className="pastille-or pastille-partielle">Ajout à voir</span>
+          <span className="pastille-or">✓ Validé</span>
+          {vueMaitre ? "tu as validé : c’est acquis." : "ton Cheikh a validé : c’est acquis."}
+        </li>
+        <li>
+          <span className="pastille-or pastille-partielle">Ajout à écouter</span>
           {vueMaitre
-            ? "l’élève a ajouté ou modifié un passage après ta correction."
-            : "tu as ajouté un passage après la correction : ton Cheikh ne l’a pas encore vu."}
+            ? "l’élève a ajouté ou modifié un passage depuis ton écoute."
+            : "tu as ajouté un passage depuis : ton Cheikh ne l’a pas encore écouté."}
         </li>
         <li>
           <span className="pastille-commentaire">

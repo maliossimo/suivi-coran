@@ -7017,3 +7017,132 @@ html.defilement-bloque {
 .mise-a-jour svg {
   animation: tourner 1s linear infinite;
 }
+
+/* ---------- Écouté / validé par le Cheikh -------------------------------- */
+.pastille-ecoute {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.passage-vu.passage-ecoute {
+  color: var(--vert-texte);
+}
+.pdf-vu-ecoute {
+  color: #1d5c47;
+}
+.ecoute-cheikh {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--bord-or);
+  border-radius: 16px;
+  background: var(--carte);
+  box-shadow: var(--ombre);
+}
+.ecoute-cheikh-entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ecoute-cheikh-entete h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.ecoute-cheikh-tout {
+  display: flex;
+  gap: 6px;
+}
+.ecoute-cheikh-tout button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--champ);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--vert-texte);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ecoute-cheikh-tout button.valide {
+  border-color: var(--bord-or);
+  color: var(--or-texte);
+}
+.ecoute-cheikh-tout button[aria-pressed="true"] {
+  background: var(--vert-clair);
+}
+.ecoute-cheikh-tout button.valide[aria-pressed="true"] {
+  background: var(--or-clair);
+}
+.ecoute-cheikh ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ecoute-passage {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.ecoute-passage.etat-valide {
+  background: color-mix(in srgb, var(--or-clair) 70%, var(--carte));
+}
+.ecoute-passage-nom {
+  font-weight: 600;
+}
+.ecoute-choix {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface-3);
+}
+.ecoute-choix button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--texte-doux);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ecoute-choix button[aria-checked="true"].choix-aucun {
+  background: var(--carte);
+  color: var(--texte);
+}
+.ecoute-choix button[aria-checked="true"].choix-ecoute {
+  background: var(--vert);
+  color: #fff;
+}
+.ecoute-choix button[aria-checked="true"].choix-valide {
+  background: var(--or);
+  color: #1b1405;
+}
+.ecoute-aide {
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 12.5px;
+}
