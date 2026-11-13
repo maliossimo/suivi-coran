@@ -703,6 +703,24 @@ select pg_temp.doit_echouer(
      values ('bbbbbbbb-0000-0000-0000-000000000000', repeat('x', 30), now() + interval '1 day', 'c1a55e00-0000-0000-0000-000000000004')$q$,
   'QR code : la classe doit être de la mosquée du code');
 
+-- Invitation d'un Cheikh avec une classe : il en devient Cheikh dès la création de son compte.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('a0000000-0000-0000-0000-0000000000a5', 'cheikh5.a@test.local',
+   '{"role":"maitre","etablissement_id":"aaaaaaaa-0000-0000-0000-000000000000","prenom":"Cheikh","nom":"Cinq","classe_id":"c1a55e00-0000-0000-0000-000000000004"}'),
+  ('a0000000-0000-0000-0000-0000000000a6', 'cheikh6.a@test.local',
+   '{"role":"maitre","etablissement_id":"bbbbbbbb-0000-0000-0000-000000000000","prenom":"Cheikh","nom":"Six","classe_id":"c1a55e00-0000-0000-0000-000000000004"}');
+select pg_temp.attendu(
+  exists (select 1 from public.classes_cheikhs where maitre_id = 'a0000000-0000-0000-0000-0000000000a5' and classe_id = 'c1a55e00-0000-0000-0000-000000000004')
+  and not exists (select 1 from public.membres_classe where eleve_id = 'a0000000-0000-0000-0000-0000000000a5'),
+  'invitation : le Cheikh invité devient Cheikh de la classe choisie');
+select pg_temp.attendu(
+  not exists (select 1 from public.classes_cheikhs where maitre_id = 'a0000000-0000-0000-0000-0000000000a6'),
+  'invitation : un Cheikh n''entre pas dans la classe d''une autre mosquée');
+select pg_temp.attendu(
+  (select role from public.profils where id = 'a0000000-0000-0000-0000-0000000000a5') = 'maitre',
+  'invitation : le Cheikh invité garde son rôle');
+delete from auth.users where id in ('a0000000-0000-0000-0000-0000000000a5', 'a0000000-0000-0000-0000-0000000000a6');
+
 -- Retour à l'état attendu par la suite : l'élève 2 sans classe (Cheikh A).
 update public.membres_classe set actif = false where classe_id = 'c1a55e00-0000-0000-0000-000000000004' and eleve_id = 'a0000000-0000-0000-0000-000000000002';
 delete from auth.users where id in ('a0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000004');

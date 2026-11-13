@@ -7,6 +7,8 @@ import type { EtatSaisie } from "@/app/actions/fiche";
 import { confirmationValide } from "@/domain/classe";
 import type { EtablissementUsage } from "@/domain/usage";
 
+const JOURS = ["", "lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
+
 /** Un établissement : voir la classe, renommer, supprimer (vide seulement, en retapant son nom). */
 export function LigneEtablissement({
   id,
@@ -15,6 +17,7 @@ export function LigneEtablissement({
   eleves,
   comptes,
   activite,
+  classes = [],
 }: {
   id: string;
   nom: string;
@@ -24,6 +27,8 @@ export function LigneEtablissement({
   comptes: number;
   /** Activité récente (élèves actifs, séances à voir…). */
   activite?: EtablissementUsage;
+  /** Classes en cours de l'établissement. */
+  classes?: { id: string; nom: string; jours: number[]; cheikhs: { nom: string }[]; nbMembres: number }[];
 }) {
   const [etatNom, renommer, renommage] = useActionState<EtatSaisie, FormData>(
     actionRenommerEtablissement,
@@ -66,9 +71,33 @@ export function LigneEtablissement({
           ) : null}
         </div>
       ) : null}
+      <div className="classes-etablissement">
+        <span className="classes-etablissement-titre">
+          {classes.length ? `Classes (${classes.length})` : "Aucune classe pour l’instant"}
+        </span>
+        {classes.length ? (
+          <ul>
+            {classes.map((c) => (
+              <li key={c.id}>
+                <Link href={`/presences/${c.id}`} className="classe-carte">
+                  <b>{c.nom}</b>
+                  <span>
+                    {c.cheikhs.length ? c.cheikhs.map((m) => m.nom).join(", ") : "Sans Cheikh"} ·{" "}
+                    {c.nbMembres} élève{c.nbMembres > 1 ? "s" : ""}
+                    {c.jours.length ? ` · ${c.jours.map((j) => JOURS[j]).join(", ")}` : ""}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <Link href={`/presences/nouvelle?etablissement=${id}`} className="lien-discret">
+          + Nouvelle classe
+        </Link>
+      </div>
       <div className="ligne-etablissement-actions">
         <Link href={`/maitre?classe=${id}`} className="lien-discret">
-          Voir la classe
+          Voir les élèves
         </Link>
         <details>
           <summary className="lien-discret">Renommer</summary>

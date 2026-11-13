@@ -142,19 +142,33 @@ export async function inviterEleve(
 /** L'admin invite un maître dans un établissement donné. */
 export async function inviterMaitre(
   acteur: Profil,
-  brut: { prenom: unknown; nom: unknown; email: unknown; etablissementId: unknown },
+  brut: { prenom: unknown; nom: unknown; email: unknown; etablissementId: unknown; classe?: unknown },
 ): Promise<ResultatSaisie> {
   if (acteur.role !== "admin" || !acteur.actif) return { ok: false, erreur: "Réservé à l'administrateur." };
   const saisie = schemaInvitation
-    .extend({ etablissementId: z.string().uuid("Choisis un établissement.") })
+    .extend({
+      etablissementId: z.string().uuid("Choisis un établissement."),
+      classe: z
+        .union([z.literal(""), z.string().uuid()])
+        .nullish()
+        .transform((v) => v || null),
+    })
     .safeParse(brut);
   if (!saisie.success) return { ok: false, erreur: saisie.error.issues[0]?.message ?? "Saisie invalide." };
+  // La classe doit être en cours, dans l'établissement choisi (la base le revérifie).
+  if (saisie.data.classe) {
+    const classe = (await listerClassesPresences()).find((c) => c.id === saisie.data.classe);
+    if (!classe || classe.archivee || classe.etablissementId !== saisie.data.etablissementId) {
+      return { ok: false, erreur: "Cette classe n’est pas dans l’établissement choisi." };
+    }
+  }
 
   const resultat = await inviter(saisie.data.email, {
     prenom: saisie.data.prenom,
     nom: saisie.data.nom,
     role: "maitre",
     etablissementId: saisie.data.etablissementId,
+    classeId: saisie.data.classe,
   });
   return resultat.ok ? { ok: true } : { ok: false, erreur: MESSAGES_INVITATION[resultat.raison] };
 }

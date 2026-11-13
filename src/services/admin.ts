@@ -1,4 +1,5 @@
 import "server-only";
+import { listerClasses as listerClassesPresences, type Classe } from "@/repositories/presences";
 import { z } from "zod";
 import { ajouterJours } from "@/domain/calendrier";
 import { confirmationValide, fileAVoir, JOURS_A_VOIR } from "@/domain/classe";
@@ -57,6 +58,8 @@ export interface TableauAdmin {
   /** La clé « service role » est configurée (dernières connexions, invitations). */
   comptesLisibles: boolean;
   stats: StatsUsage;
+  /** Classes en cours de chaque établissement (Cheikhs, nombre d'élèves). */
+  classes: Classe[];
 }
 
 export async function chargerTableauAdmin(acteur: Profil): Promise<TableauAdmin> {
@@ -64,13 +67,14 @@ export async function chargerTableauAdmin(acteur: Profil): Promise<TableauAdmin>
   const aujourdhui = aujourdhuiParis();
   const d = new Date(`${aujourdhui}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() - 7 * 12);
-  const [etablissements, utilisateurs, seances, connexions, suivi, ouvertures] = await Promise.all([
+  const [etablissements, utilisateurs, seances, connexions, suivi, ouvertures, classes] = await Promise.all([
     listerEtablissements(),
     listerUtilisateurs(),
     seancesPourStats(d.toISOString().slice(0, 10)),
     comptesConnexion().catch(() => new Map<string, CompteConnexion>()),
     seancesSuiviDepuis(ajouterJours(aujourdhui, -JOURS_A_VOIR)),
     dernieresOuvertures().catch(() => new Map<string, UtilisationAppli>()),
+    listerClassesPresences(),
   ]);
   const aVoir = new Map([...fileAVoir(suivi)].map(([id, f]) => [id, f.nombre]));
   return {
@@ -94,6 +98,7 @@ export async function chargerTableauAdmin(acteur: Profil): Promise<TableauAdmin>
       };
     }),
     stats: calculerStatsUsage(utilisateurs, etablissements, seances, aujourdhui, 12, aVoir),
+    classes: classes.filter((c) => !c.archivee),
   };
 }
 
