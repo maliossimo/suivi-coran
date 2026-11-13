@@ -24,6 +24,8 @@ test.describe("Coran (admin)", () => {
       feuille.locator(".explication-texte, .explication-verset .carte-graphique-sous").first(),
     ).toBeVisible({ timeout: 20_000 });
     await capture(page, "41-verset-explication");
+    // Visible dans le journal du CI : explication réellement reçue de la source ?
+    console.log(`Explication : ${(await feuille.locator(".explication-verset").innerText()).slice(0, 400)}`);
 
     // La page derrière est figée ; la molette sur la feuille ne la fait pas défiler.
     expect(await page.evaluate(() => document.body.style.position)).toBe("fixed");
