@@ -1,8 +1,10 @@
 name: Sauvegarde de la base
 
 # Chaque nuit, copie complète de la base de production (structure, rôles, données
-# — y compris les comptes de connexion), conservée 30 jours dans les « artifacts »
-# de ce dépôt privé. Chiffrée si le secret SAUVEGARDE_PHRASE est défini.
+# — y compris les comptes de connexion), conservée 30 jours dans les « artifacts » du dépôt.
+# Le dépôt est public : les artifacts sont téléchargeables par tout compte GitHub.
+# La sauvegarde est donc TOUJOURS chiffrée (secret SAUVEGARDE_PHRASE) ; sans phrase, elle échoue
+# au lieu de publier les données en clair.
 # Restauration : voir README, section « Sauvegardes ».
 on:
   schedule:
@@ -33,7 +35,7 @@ jobs:
           version: latest
       - name: Vérifier la configuration
         run: |
-          for v in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD SUPABASE_PROJECT_REF; do
+          for v in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD SUPABASE_PROJECT_REF SAUVEGARDE_PHRASE; do
             if [ -z "${!v}" ]; then echo "::error::Secret $v manquant (voir README)"; exit 1; fi
           done
       - run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
@@ -44,20 +46,14 @@ jobs:
           supabase db dump --linked -f sauvegarde/schema.sql
           supabase db dump --linked --data-only --use-copy --schema public,auth -f sauvegarde/donnees.sql
           ls -la sauvegarde
-      - name: Archiver (et chiffrer si possible)
+      - name: Archiver et chiffrer
         run: |
           nom="sauvegarde-$(date -u +%Y-%m-%d)"
           tar czf "$nom.tar.gz" -C sauvegarde .
-          if [ -n "$SAUVEGARDE_PHRASE" ]; then
-            printf '%s' "$SAUVEGARDE_PHRASE" | gpg --batch --yes --pinentry-mode loopback \
-              --passphrase-fd 0 --symmetric --cipher-algo AES256 -o "$nom.tar.gz.gpg" "$nom.tar.gz"
-            rm "$nom.tar.gz"
-            echo "FICHIER=$nom.tar.gz.gpg" >> "$GITHUB_ENV"
-          else
-            echo "::warning::Sauvegarde NON chiffrée : ajoute le secret SAUVEGARDE_PHRASE (voir README)."
-            echo "FICHIER=$nom.tar.gz" >> "$GITHUB_ENV"
-          fi
-          rm -rf sauvegarde
+          printf '%s' "$SAUVEGARDE_PHRASE" | gpg --batch --yes --pinentry-mode loopback \
+            --passphrase-fd 0 --symmetric --cipher-algo AES256 -o "$nom.tar.gz.gpg" "$nom.tar.gz"
+          rm -rf sauvegarde "$nom.tar.gz"
+          echo "FICHIER=$nom.tar.gz.gpg" >> "$GITHUB_ENV"
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ env.FICHIER }}
@@ -70,7 +66,7 @@ jobs:
         continue-on-error: true
         run: |
           taille=$(stat -c %s "$FICHIER")
-          if [ -n "$SAUVEGARDE_PHRASE" ]; then chiffree=true; else chiffree=false; fi
+          chiffree=true
           curl -sfS -X POST "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" \
             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
             -H "Content-Type: application/json" \
