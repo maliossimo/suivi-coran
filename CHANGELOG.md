@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.4.1] — 2026-11-13
+
+### Corrigé
+
+- Fiche d'un élève (vue du Cheikh) : nouvelle carte de l'élève, le nom n'est plus coupé, le menu ⋯ s'ouvre vers la gauche sans déborder de l'écran, « Voir la progression » sur toute la largeur.
+- « Semaine 1 » ne se coupe plus sur deux lignes avec un grand texte.
+- Haut d'écran plus compact sur téléphone (barre, bandeau de l'administration, marges).
+
 ## [1.4.0] — 2026-11-13
 
 ### Nouveautés
