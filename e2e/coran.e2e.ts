@@ -154,7 +154,9 @@ test.describe("Vérifier ma récitation", () => {
         stop() {
           setTimeout(() => this.onend?.(), 50);
         }
-        abort() {}
+        abort() {
+          this.onresult = null;
+        }
       }
       Object.assign(window, { webkitSpeechRecognition: FausseReconnaissance });
     });
