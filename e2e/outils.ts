@@ -12,6 +12,13 @@ export const test = base.extend<{ journal: void }>({
         if (m.type() === "error" || m.type() === "warning") lignes.push(`[console.${m.type()}] ${m.text()}`);
       });
       page.on("pageerror", (e) => lignes.push(`[exception] ${e.message}`));
+      page.on("request", (r) => {
+        if (r.url().includes("_rsc") || r.isNavigationRequest())
+          lignes.push(`[requête] ${r.method()} ${r.url()} ${r.isNavigationRequest() ? "(navigation)" : ""}`);
+      });
+      page.on("response", (r) => {
+        if (r.url().includes("_rsc")) lignes.push(`[réponse] ${r.status()} ${r.url()}`);
+      });
       page.on("requestfailed", (r) =>
         lignes.push(`[requête échouée] ${r.method()} ${r.url()} ${r.failure()?.errorText}`),
       );
