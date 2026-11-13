@@ -19,10 +19,12 @@ const PAGES = "suivi-coran-pages-v1";
 const CORAN = "suivi-coran-texte-v1";
 const AUDIO = "suivi-coran-audio-v1";
 const HORS_LIGNE = "suivi-coran-hors-ligne-v1";
+// « Me réciter » : enregistrements de l'élève, seulement sur le téléphone.
+const VOIX = "suivi-coran-voix-v1";
 const PAGE_HORS_LIGNE = "/hors-ligne.html";
 const ACCUEIL = "/__accueil";
 const MAX_PAGES = 40;
-const CACHES_CONNUS = [STATIQUE, PAGES, CORAN, AUDIO, HORS_LIGNE];
+const CACHES_CONNUS = [STATIQUE, PAGES, CORAN, AUDIO, HORS_LIGNE, VOIX];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(HORS_LIGNE).then((cache) => cache.add(PAGE_HORS_LIGNE)));
@@ -188,6 +190,7 @@ self.addEventListener("fetch", (event) => {
           // Déconnecté (ou session expirée) : plus rien de privé dans le téléphone.
           caches.delete(PAGES);
           caches.delete(CORAN);
+          caches.delete(VOIX);
         } else if (reponse.ok && pageGardee(finale)) {
           // « / » redirige vers l'accueil du rôle : on garde la page d'arrivée.
           event.waitUntil(garderPage(new Request(finale.href), reponse.clone(), finale));

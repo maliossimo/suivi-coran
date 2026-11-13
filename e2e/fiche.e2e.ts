@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test";
-import { COMPTES, IDS, capture, jourParis, seConnecter } from "./outils";
+import { capture, COMPTES, expect, IDS, jourParis, seConnecter, test } from "./outils";
 
 test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
   test("l'élève enregistre sa séance du jour", async ({ page }) => {
@@ -11,8 +10,12 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await expect(enregistrer).toBeEnabled();
     await page.getByRole("button", { name: "15 min", exact: true }).click();
     await capture(page, "11-eleve-seance");
+    // L'envoi part en arrière-plan : on attend la réponse du serveur avant de recharger
+    // (un rechargement couperait l'envoi ; dans l'appli, il reprendrait au retour).
+    const envoi = page.waitForResponse((r) => r.request().method() === "POST", { timeout: 20_000 });
     await enregistrer.click();
     await expect(page).toHaveURL(/\/eleve(\?|$)/);
+    await envoi;
 
     // La séance est bien en base : rouverte, elle affiche 15 minutes.
     await expect

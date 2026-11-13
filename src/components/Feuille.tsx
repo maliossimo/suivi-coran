@@ -58,12 +58,15 @@ export function Feuille({
 }) {
   const dialogue = useRef<HTMLDialogElement>(null);
   const contenu = useRef<HTMLDivElement>(null);
+  /** Ouverture : le doigt d'un appui long se relève juste après, sur le voile. */
+  const ouverteA = useRef(0);
   const idTitre = useId();
 
   useEffect(() => {
     const d = dialogue.current;
     if (!d || !ouverte) return;
     if (!d.open) d.showModal();
+    ouverteA.current = Date.now();
     // Le focus va sur la feuille elle-même : pas de clavier qui surgit, pas de bouton surligné.
     contenu.current?.focus({ preventScroll: true });
     const debloquer = bloquerDefilement();
@@ -85,7 +88,7 @@ export function Feuille({
       }}
       // Toucher le voile (en dehors du contenu) ferme la feuille.
       onClick={(e) => {
-        if (e.target === e.currentTarget) onFermer();
+        if (e.target === e.currentTarget && Date.now() - ouverteA.current > 400) onFermer();
       }}
     >
       <div className="feuille-contenu" ref={contenu} tabIndex={-1}>
