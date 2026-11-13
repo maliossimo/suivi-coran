@@ -10,6 +10,7 @@ import { ChoixSourate } from "./ChoixSourate";
 import { ecrireBrouillon, effacerBrouillon, lireBrouillon, memeSaisie, type Brouillon } from "./brouillon";
 import { cleSeance, lireEnAttente, preparerEnvoi } from "./enregistrementsEnAttente";
 import { retourSensoriel } from "@/components/retourSensoriel";
+import { PastilleCheikh } from "./PastilleCheikh";
 
 export interface SourateOption {
   numero: number;
@@ -307,13 +308,9 @@ export function FormulaireSeance({
             <legend className="visuellement-cache">Passage {i + 1}</legend>
             {/* L'élève voit où en est chaque passage ; le Cheikh a ses boutons au-dessus. */}
             {initiale?.corrigee && !vueMaitre ? (
-              p.valide ? (
-                <p className="passage-vu">✓ Validé par le Cheikh</p>
-              ) : p.corrige ? (
-                <p className="passage-vu passage-ecoute">🎧 Écouté par le Cheikh</p>
-              ) : (
-                <p className="passage-vu passage-pas-vu">Pas encore écouté par le Cheikh</p>
-              )
+              <p className="passage-vu">
+                <PastilleCheikh etat={p.valide ? "valide" : p.corrige ? "ecoute" : "partielle"} />
+              </p>
             ) : null}
             <div className="passage-ligne">
               <div className="passage-sourate">

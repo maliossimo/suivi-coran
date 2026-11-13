@@ -9,6 +9,18 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.16.0] — 2026-11-13
+
+### Nouveautés
+
+- Progression : chaque sourate a une jauge en trois couleurs, saisi (gris), écouté (vert) et validé (or), avec sa légende.
+
+### Amélioré
+
+- Mêmes couleurs partout pour l'écoute du Cheikh : gris = à écouter, vert = écouté, or = validé (fiche du mois, passages, progression, PDF) ; le mot ou le ✓ reste toujours écrit.
+- Pastilles plus courtes (« ✓ Validé », « Écouté », « À écouter ») ; le détail est dans la légende et en bulle d'aide.
+- Plus aucun emoji dans l'appli ; casque au trait fin dans les boutons du Cheikh.
+
 ## [1.15.0] — 2026-11-13
 
 ### Nouveautés

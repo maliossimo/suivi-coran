@@ -243,10 +243,18 @@ export function etatCheikh(seance: Pick<Seance, "corrigee" | "passages">): EtatC
   return passages.every((p) => p.valide) ? "valide" : "ecoute";
 }
 
+/** Pastilles courtes : la couleur et le mot suffisent (le détail est dans la légende). */
 export const LIBELLE_ETAT_CHEIKH: Record<EtatCheikh, string> = {
-  valide: "✓ Validé par le Cheikh",
-  ecoute: "🎧 Écouté par le Cheikh",
-  partielle: "Ajout à écouter",
+  valide: "✓ Validé",
+  ecoute: "Écouté",
+  partielle: "À écouter",
+};
+
+/** Explication complète (bulle d'aide, lecteurs d'écran). */
+export const DETAIL_ETAT_CHEIKH: Record<EtatCheikh, string> = {
+  valide: "Validé par le Cheikh : acquis",
+  ecoute: "Écouté par le Cheikh : à retravailler",
+  partielle: "Un passage ajouté ou modifié n'a pas encore été écouté par le Cheikh",
 };
 
 /** Ce que l'élève saisit pour une séance (sans l'état de correction). */
