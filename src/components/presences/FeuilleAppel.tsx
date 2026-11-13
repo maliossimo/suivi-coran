@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { LIBELLE_STATUT, STATUTS, libelleResume, resumeAppel, type StatutPresence } from "@/domain/presences";
 import { envoyerAppel } from "./appelsEnAttente";
+import { retourSensoriel } from "@/components/retourSensoriel";
 
 interface Membre {
   id: string;
@@ -77,7 +78,7 @@ export function FeuilleAppel({
       return;
     }
     setEnvoi(r);
-    navigator.vibrate?.(30);
+    retourSensoriel();
     if (r === "envoye") {
       router.push(retour);
       router.refresh();

@@ -15,6 +15,11 @@ import {
   versetSuivant,
   resumeCourtMemoriser,
   versetsHafsDuVerset,
+  basculerMarquePage,
+  estMarque,
+  libelleMinuterie,
+  lireMarquePages,
+  volumeMinuterie,
   resumeMemoriser,
 } from "./coran";
 
@@ -162,5 +167,41 @@ describe("Warsh vers Hafs", () => {
   });
   it("rassemble plusieurs versets Hafs", () => {
     expect(versetsHafsDuVerset([[1], [1], [2]], 1)).toEqual([1, 2]);
+  });
+});
+
+describe("marque-pages", () => {
+  const v = { lecture: "hafs" as const, sourate: 18, verset: 10 };
+  it("ajoute puis retire un verset", () => {
+    const une = basculerMarquePage([], v, "2026-11-13T10:00:00Z");
+    expect(estMarque(une, v)).toBe(true);
+    expect(basculerMarquePage(une, v, "x")).toEqual([]);
+  });
+  it("met le plus récent en tête", () => {
+    const a = basculerMarquePage([], v, "1");
+    const b = basculerMarquePage(a, { ...v, verset: 11 }, "2");
+    expect(b.map((m) => m.verset)).toEqual([11, 10]);
+  });
+  it("ignore les données abîmées", () => {
+    expect(lireMarquePages("x")).toEqual([]);
+    expect(
+      lireMarquePages([
+        { lecture: "hafs", sourate: 200, verset: 1, ajouteLe: "" },
+        { ...v, ajouteLe: "1" },
+      ]),
+    ).toEqual([{ ...v, ajouteLe: "1" }]);
+  });
+});
+
+describe("minuterie", () => {
+  it("affiche le temps restant", () => {
+    expect(libelleMinuterie(65_000)).toBe("1:05");
+    expect(libelleMinuterie(3_720_000)).toBe("1 h 02");
+    expect(libelleMinuterie(-5)).toBe("0:00");
+  });
+  it("baisse le volume à la fin", () => {
+    expect(volumeMinuterie(60_000)).toBe(1);
+    expect(volumeMinuterie(5_000)).toBe(0.5);
+    expect(volumeMinuterie(0)).toBe(0);
   });
 });

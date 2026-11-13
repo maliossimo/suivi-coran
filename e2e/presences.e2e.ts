@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test";
-import { COMPTES, IDS, capture, seConnecter } from "./outils";
+import { capture, COMPTES, expect, IDS, seConnecter, test } from "./outils";
 
 test.describe("Présences (admin)", () => {
   test.beforeEach(async ({ page }) => {

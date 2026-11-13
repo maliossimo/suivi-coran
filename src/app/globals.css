@@ -6765,3 +6765,233 @@ html.defilement-bloque {
 .explication-attente span:last-child {
   width: 60%;
 }
+
+/* ---------- Couleurs de la page du Coran (Réglages → Couleurs) ---------- */
+.coran-page.theme-clair,
+.coran-page.theme-sepia,
+.coran-page.theme-sombre {
+  color: var(--texte);
+}
+.coran-page.theme-clair {
+  --carte: #ffffff;
+  --texte: #17231e;
+  --texte-doux: #5b6660;
+  --bord-or: #e8d6b0;
+  --or-clair: #f5ebd8;
+  --vert-clair: #e2eee8;
+  --vert-texte: #1d5c47;
+  --tj-madd-2: #3d6ff0;
+  --tj-madd-246: #4050ff;
+  --tj-madd-45: #2144c1;
+  --tj-madd-6: #000eb0;
+  --tj-ghunna: #e8700f;
+  --tj-ikhfa: #9400a8;
+  --tj-idgham: #128a6c;
+  --tj-idgham-sans: #2f8f00;
+  --tj-iqlab: #1597d4;
+  --tj-qalqala: #d4000b;
+  --tj-muette: #9a9a9a;
+}
+.coran-page.theme-sepia {
+  --carte: #f5ecd6;
+  --texte: #3b2d17;
+  --texte-doux: #76664a;
+  --bord-or: #d9c08d;
+  --or-clair: #ead9b0;
+  --vert-clair: #e3dcc0;
+  --vert-texte: #285c45;
+  --tj-madd-2: #3d6ff0;
+  --tj-madd-246: #4050ff;
+  --tj-madd-45: #2144c1;
+  --tj-madd-6: #000eb0;
+  --tj-ghunna: #e8700f;
+  --tj-ikhfa: #9400a8;
+  --tj-idgham: #128a6c;
+  --tj-idgham-sans: #2f8f00;
+  --tj-iqlab: #1597d4;
+  --tj-qalqala: #d4000b;
+  --tj-muette: #9a9a9a;
+}
+.coran-page.theme-sombre {
+  --carte: #141b18;
+  --texte: #ece7da;
+  --texte-doux: #a3aba6;
+  --bord-or: #4a3f27;
+  --or-clair: #3a2f18;
+  --vert-clair: #1e3229;
+  --vert-texte: #7cc7a6;
+  --tj-madd-2: #7ea1ff;
+  --tj-madd-246: #9aa2ff;
+  --tj-madd-45: #6f8cff;
+  --tj-madd-6: #b4b9ff;
+  --tj-ghunna: #ff9d4d;
+  --tj-ikhfa: #d977ec;
+  --tj-idgham: #3cc59e;
+  --tj-idgham-sans: #7fd65a;
+  --tj-iqlab: #5fd3ff;
+  --tj-qalqala: #ff6268;
+  --tj-muette: #7f8a85;
+}
+.theme-pastille.theme-sepia[aria-pressed="true"] {
+  background: #f5ecd6;
+  color: #3b2d17;
+}
+.theme-pastille.theme-sombre[aria-pressed="true"] {
+  background: #141b18;
+  color: #ece7da;
+}
+
+/* ---------- Astuce, marque-pages, verset repéré -------------------------- */
+.coran-astuce {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 8px 10px 14px;
+  border: 1px solid var(--bord-or);
+  border-radius: 14px;
+  background: var(--or-clair);
+  color: var(--or-texte);
+  font-size: 13.5px;
+}
+.coran-astuce span {
+  flex: 1;
+}
+.coran-astuce button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+/* Pas de sélection ni de menu « copier » pendant un appui long sur un verset. */
+.coran-page .coran-verset,
+.coran-page .coran-basmala {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.coran-verset.marque {
+  text-decoration: underline;
+  text-decoration-color: var(--or);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.45em;
+}
+.coran-verset.repere {
+  animation: repere-verset 2.4s ease-out;
+}
+@keyframes repere-verset {
+  0%,
+  40% {
+    background: color-mix(in srgb, var(--or) 35%, transparent);
+  }
+}
+.actions-verset-rapides button[aria-pressed="true"] {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.actions-verset-rapides button.marque svg {
+  color: var(--or);
+  fill: var(--or);
+}
+.coran-marque {
+  display: flex;
+  align-items: stretch;
+}
+.coran-marque > button:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.coran-marque-retirer {
+  width: 44px;
+  border: 0;
+  border-bottom: 1px solid var(--ligne);
+  background: transparent;
+  color: var(--texte-doux);
+  font-size: 22px;
+  cursor: pointer;
+}
+.coran-lecteur-minuterie {
+  background: var(--surface-3);
+  color: var(--texte);
+}
+.coran-lecteur-minuterie > span {
+  flex: 1;
+  padding: 4px 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Me réciter ---------------------------------------------------- */
+.reciter-verset {
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ligne);
+}
+.reciter-verset h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+}
+.reciter-ligne {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.reciter-bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--champ);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.reciter-bouton.principal {
+  border-color: var(--vert);
+  background: var(--vert);
+  color: #fff;
+}
+.reciter-bouton.discret {
+  width: 46px;
+  padding: 0;
+  color: var(--texte-doux);
+}
+.reciter-bouton.enregistre {
+  width: 100%;
+  border-color: var(--rouge);
+  background: var(--rouge);
+  color: #fff;
+  animation: pulsation 1.4s ease-in-out infinite;
+}
+.reciter-bouton:disabled {
+  opacity: 0.5;
+}
+.reciter-erreur {
+  margin: 0;
+  color: var(--rouge);
+  font-size: 13px;
+}
+.reciter-aide {
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 12.5px;
+}

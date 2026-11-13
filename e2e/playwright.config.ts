@@ -16,6 +16,9 @@ export default defineConfig({
   use: {
     ...devices["Pixel 7"],
     channel: "chrome",
+    // Micro simulé pour « Me réciter » (aucune vraie voix).
+    permissions: ["microphone"],
+    launchOptions: { args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] },
     baseURL: process.env.E2E_URL ?? "http://localhost:3000",
     locale: "fr-FR",
     timezoneId: "Europe/Paris",

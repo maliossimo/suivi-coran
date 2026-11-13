@@ -6,6 +6,7 @@ import { EtiquetteLecture } from "@/components/ChoixLecture";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireMotDePasse } from "@/components/FormulaireMotDePasse";
 import { InstallerAppli } from "@/components/InstallerAppli";
+import { ReglageRetours } from "@/components/ReglageRetours";
 import { chargerCompte } from "@/services/acces";
 
 const LIBELLE_ROLE = { eleve: "Élève", maitre: "Cheikh", admin: "Administrateur" } as const;
@@ -48,6 +49,12 @@ export default async function PageCompte() {
             </Link>
           </section>
         ) : null}
+
+        <section className="carte-compte-section">
+          <h2>Sons et vibrations</h2>
+          <ReglageRetours />
+          <p className="carte-graphique-sous">Réglage propre à ce téléphone.</p>
+        </section>
 
         <section className="carte-compte-section">
           <h2>Mot de passe</h2>

@@ -1,11 +1,12 @@
 "use client";
 
-import { BookOpen, ChevronDown, ChevronLeft, ChevronRight, ScrollText, Search } from "lucide-react";
+import { Bookmark, BookOpen, ChevronDown, ChevronLeft, ChevronRight, ScrollText, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Feuille } from "@/components/Feuille";
 import { rechercherSourates } from "@/domain/recherche";
+import { useMarquePages } from "./marquePages";
 
 interface SourateListe {
   numero: number;
@@ -14,7 +15,7 @@ interface SourateListe {
   nbVersets: number;
 }
 
-type Onglet = "sourates" | "juz" | "page";
+type Onglet = "sourates" | "juz" | "page" | "marques";
 
 /**
  * En-tête du lecteur : sourate ou page précédente / suivante, et un titre qui ouvre
@@ -51,11 +52,21 @@ export function NavigationCoran({
   const lienPage = (n: number) => `/admin/coran?lecture=${lecture}&vue=page&page=${n}`;
   const actuelle = sourates.find((s) => s.numero === sourate);
 
+  const marquePages = useMarquePages();
+  const marques = marquePages.liste.filter((m) => m.lecture === lecture);
+  const nomSourate = useMemo(() => new Map(sourates.map((s) => [s.numero, s])), [sourates]);
+
   const trouvees = useMemo(() => rechercherSourates(sourates, recherche), [recherche, sourates]);
 
   const aller = (href: string) => {
     setOuvert(false);
-    router.push(href);
+    const [chemin, ancre] = href.split("#");
+    // Même page : seulement l'ancre (le lecteur va au verset) ; sinon, navigation.
+    if (ancre && chemin === `${window.location.pathname}${window.location.search}`) {
+      window.location.hash = ancre;
+    } else {
+      router.push(href);
+    }
   };
 
   return (
@@ -134,6 +145,7 @@ export function NavigationCoran({
               ["sourates", "Sourate"],
               ["juz", "Juz"],
               ["page", "Page"],
+              ["marques", "Marques"],
             ] as const
           ).map(([cle, libelle]) => (
             <button
@@ -185,6 +197,53 @@ export function NavigationCoran({
               ) : null}
             </ul>
           </>
+        ) : onglet === "marques" ? (
+          marques.length ? (
+            <ul className="coran-liste-sourates">
+              {marques.map((m) => {
+                const s = nomSourate.get(m.sourate);
+                return (
+                  <li key={`${m.sourate}-${m.verset}`} className="coran-marque">
+                    <button
+                      type="button"
+                      onClick={() => aller(`${lienSourate(m.sourate)}#verset-${m.sourate}-${m.verset}`)}
+                    >
+                      <span className="coran-liste-numero">
+                        <Bookmark size={15} aria-hidden="true" />
+                      </span>
+                      <span className="coran-liste-nom">
+                        <b>
+                          {s?.nomLatin ?? `Sourate ${m.sourate}`} · verset {m.verset}
+                        </b>
+                        <small>
+                          Ajouté le{" "}
+                          {new Date(m.ajouteLe).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "long",
+                          })}
+                        </small>
+                      </span>
+                      <span lang="ar" dir="rtl" className="coran-liste-arabe">
+                        {s?.nomAr}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="coran-marque-retirer"
+                      onClick={() => marquePages.basculer(m)}
+                      aria-label={`Retirer le marque-page ${s?.nomLatin ?? m.sourate} ${m.verset}`}
+                    >
+                      ×
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="carte-graphique-sous">
+              Pas encore de marque-page. Touche un verset, puis « Marque-page » pour le retrouver ici.
+            </p>
+          )
         ) : onglet === "juz" ? (
           <div className="coran-grille-juz">
             {debutsJuz.map((debut, i) => (

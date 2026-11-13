@@ -10,7 +10,7 @@
  * - sons : l'appli et les récitations (EveryAyah, mp3quran.net) ;
  * - cadres : seulement Turnstile ; l'appli elle-même ne peut pas être affichée dans un cadre.
  */
-export function politiqueContenu(nonce: string, developpement = false): string {
+export function politiqueContenu(nonce: string, developpement = false, httpsSeulement = true): string {
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${developpement ? " 'unsafe-eval'" : ""}`,
@@ -21,13 +21,16 @@ export function politiqueContenu(nonce: string, developpement = false): string {
     "frame-src https://challenges.cloudflare.com",
     "worker-src 'self'",
     "manifest-src 'self'",
-    // Récitations du Coran (EveryAyah et mp3quran.net), lues directement depuis leurs serveurs.
-    "media-src 'self' https://everyayah.com https://*.mp3quran.net",
+    // Récitations du Coran (EveryAyah et mp3quran.net), lues directement depuis leurs serveurs ;
+    // blob: : sa propre récitation enregistrée sur le téléphone (« Me réciter »).
+    "media-src 'self' blob: https://everyayah.com https://*.mp3quran.net",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
+    // En HTTPS (production), tout passe en HTTPS ; en HTTP local (tests de bout en bout),
+    // cette règle enverrait les requêtes vers un HTTPS qui n'existe pas.
+    ...(httpsSeulement ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
 }
 
