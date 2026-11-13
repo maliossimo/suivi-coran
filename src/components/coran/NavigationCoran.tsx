@@ -64,9 +64,15 @@ export function NavigationCoran({
     // Même page : seulement l'ancre (le lecteur va au verset) ; sinon, navigation.
     if (ancre && chemin === `${window.location.pathname}${window.location.search}`) {
       window.location.hash = ancre;
-    } else {
-      router.push(href);
+      return;
     }
+    router.push(href);
+    // Filet de sécurité : si la navigation dans l'appli n'a pas abouti (interrompue par une
+    // autre requête), on ouvre la page normalement plutôt que de laisser l'élève attendre.
+    const avant = window.location.href;
+    setTimeout(() => {
+      if (window.location.href === avant) window.location.assign(href);
+    }, 3_000);
   };
 
   return (

@@ -41,6 +41,23 @@ test.describe("Connexion et droits", () => {
     await capture(page, "02-cheikh-autre-mosquee");
   });
 
+  test("deux Cheikhs de la même mosquée : chacun ne voit que les élèves de sa classe", async ({ page }) => {
+    await seConnecter(page, COMPTES.cheikhA, /\/maitre/);
+    await expect(page.getByText("Inès").first()).toBeVisible();
+    await expect(page.getByText("Sami")).toHaveCount(0);
+    await page.goto(`/maitre/eleves/${IDS.eleveSoir}`);
+    await expect(page.getByText(/404|introuvable|could not be found/i).first()).toBeVisible();
+
+    // Le second Cheikh, dans une autre session (contexte de navigateur séparé).
+    const autre = await page.context().browser()!.newContext();
+    const page2 = await autre.newPage();
+    await seConnecter(page2, COMPTES.cheikhA2, /\/maitre/);
+    await expect(page2.getByText("Sami").first()).toBeVisible();
+    await expect(page2.getByText("Inès")).toHaveCount(0);
+    await capture(page2, "03-cheikh-autre-classe");
+    await autre.close();
+  });
+
   test("le Cheikh n'a pas encore les présences (réservées à l'admin)", async ({ page }) => {
     await seConnecter(page, COMPTES.cheikhA, /\/maitre/);
     await page.goto("/presences");

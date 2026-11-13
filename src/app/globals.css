@@ -6995,3 +6995,25 @@ html.defilement-bloque {
   color: var(--texte-doux);
   font-size: 12.5px;
 }
+
+/* ---------- Mise à jour automatique ------------------------------------- */
+.mise-a-jour {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  left: 50%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--vert);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--ombre);
+  transform: translateX(-50%);
+}
+.mise-a-jour svg {
+  animation: tourner 1s linear infinite;
+}

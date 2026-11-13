@@ -48,12 +48,13 @@ export async function mettreAJourSession(
     },
   );
 
-  // getUser() vérifie le jeton auprès de Supabase (ne pas se fier au seul cookie).
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() rafraîchit la session si besoin et vérifie la signature du jeton : sur place
+  // avec les clés asymétriques de Supabase (sans aller-retour réseau), sinon auprès de Supabase.
+  // Jamais le seul cookie sans vérification.
+  const { data } = await supabase.auth.getClaims();
+  const connecte = Boolean(data?.claims?.sub);
 
-  if (!user && !estPublique(request.nextUrl.pathname)) {
+  if (!connecte && !estPublique(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/connexion";
     url.search = "";

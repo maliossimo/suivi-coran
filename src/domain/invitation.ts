@@ -9,6 +9,8 @@ export interface InvitationClasse {
   id: string;
   code: string;
   etablissementId: string;
+  /** Classe que rejoint l'élève inscrit avec ce code (null : seulement la mosquée). */
+  classeId: string | null;
   /** Horodatage ISO. */
   expireLe: string;
   actif: boolean;

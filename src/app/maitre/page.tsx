@@ -10,13 +10,30 @@ import { VueAdmin } from "@/components/admin/VueAdmin";
 import { AppelDuJour } from "@/components/presences/AppelDuJour";
 import { exigerEspace } from "@/services/acces";
 import { listerClasses } from "@/services/admin";
-import { chargerClasse } from "@/services/classe";
+import { chargerClasse, classesDuCheikh } from "@/services/classe";
 import { aujourdhuiParis } from "@/services/fiche";
 import { chargerAppelDuJour } from "@/services/presences";
 
 /** Chiffres de la classe et liste des élèves, chargés après l'en-tête. */
-async function ContenuClasse({ moisParam, classeId }: { moisParam?: string; classeId?: string }) {
-  const classe = await chargerClasse(moisParam, classeId);
+async function ContenuClasse({
+  moisParam,
+  classeId,
+  eleveIds,
+}: {
+  moisParam?: string;
+  classeId?: string;
+  /** Cheikh avec plusieurs classes : seulement les élèves de la classe choisie. */
+  eleveIds?: string[];
+}) {
+  const complete = await chargerClasse(moisParam, classeId);
+  const garder = eleveIds ? new Set(eleveIds) : null;
+  const classe = garder
+    ? {
+        ...complete,
+        actifs: complete.actifs.filter((r) => garder.has(r.eleve.id)),
+        archives: complete.archives.filter((r) => garder.has(r.eleve.id)),
+      }
+    : complete;
   const cle = cleMois(classe.mois);
   const minutes = classe.actifs.reduce((t, r) => t + r.minutesApprentissage + r.minutesRevision, 0);
   const atteints = classe.actifs.reduce((t, r) => t + r.objectifsAtteints, 0);
@@ -62,19 +79,22 @@ async function ContenuClasse({ moisParam, classeId }: { moisParam?: string; clas
 export default async function PageClasse({
   searchParams,
 }: {
-  searchParams: Promise<{ mois?: string; classe?: string }>;
+  searchParams: Promise<{ mois?: string; classe?: string; groupe?: string }>;
 }) {
   const profil = await exigerEspace("maitre");
-  const { mois: moisParam, classe: classeParam } = await searchParams;
+  const { mois: moisParam, classe: classeParam, groupe: groupeParam } = await searchParams;
   const mois = lireMois(moisParam, aujourdhuiParis());
   // L'admin regarde une classe précise (lien « Voir la classe » de l'administration).
   const admin = profil.role === "admin";
-  const [classes, appelDuJour] = await Promise.all([
+  const [classes, appelDuJour, sesClasses] = await Promise.all([
     admin ? listerClasses(profil) : Promise.resolve([]),
     chargerAppelDuJour(profil),
+    classesDuCheikh(profil),
   ]);
   const classe = admin ? classes.find((c) => c.id === classeParam) : undefined;
-  const suffixe = classe ? `&classe=${classe.id}` : "";
+  // Plusieurs classes : un onglet par classe (« Toutes » par défaut).
+  const groupe = sesClasses.length > 1 ? sesClasses.find((c) => c.id === groupeParam) : undefined;
+  const suffixe = classe ? `&classe=${classe.id}` : groupe ? `&groupe=${groupe.id}` : "";
   return (
     <>
       <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
@@ -108,9 +128,34 @@ export default async function PageClasse({
           ) : null}
         </div>
 
+        {sesClasses.length > 1 ? (
+          <nav className="puces-periode" aria-label="Classe">
+            <Link
+              href={`/maitre?mois=${cleMois(mois)}`}
+              className={groupe ? "puce-periode" : "puce-periode actif"}
+              aria-current={groupe ? undefined : "true"}
+              replace
+              scroll={false}
+            >
+              Toutes
+            </Link>
+            {sesClasses.map((c) => (
+              <Link
+                key={c.id}
+                href={`/maitre?mois=${cleMois(mois)}&groupe=${c.id}`}
+                className={c.id === groupe?.id ? "puce-periode actif" : "puce-periode"}
+                aria-current={c.id === groupe?.id ? "true" : undefined}
+                replace
+                scroll={false}
+              >
+                {c.nom}
+              </Link>
+            ))}
+          </nav>
+        ) : null}
         <VueAdmin actif={Boolean(classe)} classe={classe?.nom}>
-          <Suspense key={cleMois(mois)} fallback={<Squelettes cartes={1} />}>
-            <ContenuClasse moisParam={moisParam} classeId={classe?.id} />
+          <Suspense key={`${cleMois(mois)}-${groupe?.id ?? ""}`} fallback={<Squelettes cartes={1} />}>
+            <ContenuClasse moisParam={moisParam} classeId={classe?.id} eleveIds={groupe?.eleveIds} />
           </Suspense>
         </VueAdmin>
       </main>

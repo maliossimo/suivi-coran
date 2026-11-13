@@ -50,6 +50,7 @@ export const MOT_DE_PASSE = "Essai-bout-en-bout-2026";
 export const COMPTES = {
   admin: "admin@bout-en-bout.test",
   cheikhA: "cheikh.a@bout-en-bout.test",
+  cheikhA2: "cheikh.a2@bout-en-bout.test",
   cheikhB: "cheikh.b@bout-en-bout.test",
   eleveA: "eleve.a@bout-en-bout.test",
   eleveB: "eleve.b@bout-en-bout.test",
@@ -57,6 +58,7 @@ export const COMPTES = {
 
 export const IDS = {
   eleveA: "e2e00000-0000-0000-0000-0000000000e1",
+  eleveSoir: "e2e00000-0000-0000-0000-0000000000e3",
   classe: "e2e00000-0000-0000-0000-0000000c1a55",
 } as const;
 

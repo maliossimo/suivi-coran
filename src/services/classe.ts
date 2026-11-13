@@ -17,6 +17,7 @@ import {
   desactiverInvitations,
   invitationActive,
   inviter,
+  type PorteeInvitation,
 } from "@/repositories/invitations";
 import { statutsObjectifsDuMois } from "@/repositories/objectifs";
 import {
@@ -27,6 +28,7 @@ import {
   type Profil,
 } from "@/repositories/profils";
 import { dernieresSaisies, seancesSuiviDepuis, statsSeancesEntre } from "@/repositories/seances";
+import { listerClasses as listerClassesPresences, membresClasse } from "@/repositories/presences";
 import { aujourdhuiParis, type ResultatSaisie } from "./fiche";
 
 export interface Classe {
@@ -111,7 +113,7 @@ const MESSAGES_INVITATION = {
 /** Un maître invite un élève dans SON établissement. */
 export async function inviterEleve(
   acteur: Profil,
-  brut: { prenom: unknown; nom: unknown; email: unknown; etablissementId?: unknown },
+  brut: { prenom: unknown; nom: unknown; email: unknown; etablissementId?: unknown; classe?: unknown },
 ): Promise<ResultatSaisie> {
   // Le maître invite dans sa classe ; l'admin dans la classe qu'il a choisie.
   const etablissementId = classeCible(acteur, brut.etablissementId);
@@ -132,6 +134,7 @@ export async function inviterEleve(
     nom: saisie.data.nom,
     role: "eleve",
     etablissementId,
+    classeId: await classeInvitation(acteur, brut.classe),
   });
   return resultat.ok ? { ok: true } : { ok: false, erreur: MESSAGES_INVITATION[resultat.raison] };
 }
@@ -197,6 +200,38 @@ export async function supprimerEleve(
   return { ok: true };
 }
 
+// ---------- Classes du Cheikh ----------------------------------------------
+
+export interface ClasseDuCheikh {
+  id: string;
+  nom: string;
+  /** Élèves avec un compte, membres actifs de la classe. */
+  eleveIds: string[];
+}
+
+/** Classes (en cours) dont l'acteur est Cheikh, avec leurs élèves ; vide pour les autres rôles. */
+export async function classesDuCheikh(acteur: Profil): Promise<ClasseDuCheikh[]> {
+  if (!acteur.actif || acteur.role !== "maitre") return [];
+  const classes = (await listerClassesPresences()).filter(
+    (c) => !c.archivee && c.cheikhs.some((ch) => ch.id === acteur.id),
+  );
+  return Promise.all(
+    classes.map(async (c) => ({
+      id: c.id,
+      nom: c.nom,
+      eleveIds: (await membresClasse(c.id)).filter((m) => m.actif && m.eleveId).map((m) => m.eleveId!),
+    })),
+  );
+}
+
+/** Classe où entre un élève invité par ce Cheikh : celle choisie, ou la seule qu'il a. */
+async function classeInvitation(acteur: Profil, choixBrut?: unknown): Promise<string | null> {
+  const classes = await classesDuCheikh(acteur);
+  const choix = z.string().uuid().safeParse(choixBrut);
+  if (choix.success && classes.some((c) => c.id === choix.data)) return choix.data;
+  return classes.length === 1 ? classes[0]!.id : null;
+}
+
 // ---------- Invitation par QR code ----------------------------------------
 
 /**
@@ -217,15 +252,26 @@ function classeCible(acteur: Profil, etablissementBrut?: unknown): string | null
 export async function chargerQrClasse(
   acteur: Profil,
   etablissementBrut?: unknown,
+  classeBrut?: unknown,
 ): Promise<InvitationClasse | null> {
   const etablissementId = classeCible(acteur, etablissementBrut);
   if (!etablissementId) return null;
-  const invitation = await invitationActive(etablissementId);
+  const invitation = await invitationActive(etablissementId, await porteeQr(acteur, classeBrut));
   return invitation && etatInvitation(invitation, new Date()) === "valide" ? invitation : null;
 }
 
 /** Crée un nouveau QR code (l'ancien est désactivé). */
-export async function genererQrClasse(acteur: Profil, etablissementBrut?: unknown): Promise<ResultatSaisie> {
+/** Un Cheikh gère SES codes (un par classe) ; l'admin, ceux de tout l'établissement. */
+async function porteeQr(acteur: Profil, classeBrut?: unknown): Promise<PorteeInvitation> {
+  if (acteur.role !== "maitre") return {};
+  return { creePar: acteur.id, classeId: await classeInvitation(acteur, classeBrut) };
+}
+
+export async function genererQrClasse(
+  acteur: Profil,
+  etablissementBrut?: unknown,
+  classeBrut?: unknown,
+): Promise<ResultatSaisie> {
   const etablissementId = classeCible(acteur, etablissementBrut);
   if (!etablissementId) {
     return {
@@ -237,10 +283,12 @@ export async function genererQrClasse(acteur: Profil, etablissementBrut?: unknow
     };
   }
   try {
-    await desactiverInvitations(etablissementId);
+    const portee = await porteeQr(acteur, classeBrut);
+    await desactiverInvitations(etablissementId, portee);
     await creerInvitation({
       etablissementId,
       creePar: acteur.id,
+      classeId: portee.classeId ?? null,
       code: randomBytes(18).toString("base64url"),
       expireLe: expirationDepuis(new Date()),
     });
@@ -253,11 +301,12 @@ export async function genererQrClasse(acteur: Profil, etablissementBrut?: unknow
 export async function desactiverQrClasse(
   acteur: Profil,
   etablissementBrut?: unknown,
+  classeBrut?: unknown,
 ): Promise<ResultatSaisie> {
   const etablissementId = classeCible(acteur, etablissementBrut);
   if (!etablissementId) return { ok: false, erreur: "Action réservée au Cheikh de la classe ou à l'admin." };
   try {
-    await desactiverInvitations(etablissementId);
+    await desactiverInvitations(etablissementId, await porteeQr(acteur, classeBrut));
   } catch {
     return { ok: false, erreur: "Le QR code n'a pas pu être désactivé." };
   }
