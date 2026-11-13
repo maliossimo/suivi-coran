@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BookOpen,
   CalendarDays,
   ChartNoAxesColumn,
   ScrollText,
@@ -14,7 +15,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/domain/roles";
 
-type Icone = "fiche" | "progression" | "compte" | "classe" | "inviter" | "admin" | "journal";
+type Icone = "fiche" | "progression" | "compte" | "classe" | "inviter" | "admin" | "journal" | "coran";
 
 interface Onglet {
   href: string;
@@ -64,6 +65,7 @@ const ONGLETS: Record<Role, Onglet[]> = {
     { href: "/admin", libelle: "Admin", icone: "admin", actif: (c) => c === "/admin" },
     { href: "/admin/journal", libelle: "Journal", icone: "journal", actif: commence("/admin/journal") },
     { href: "/maitre", libelle: "Classes", icone: "classe", actif: commence("/maitre") },
+    { href: "/admin/coran", libelle: "Coran", icone: "coran", actif: commence("/admin/coran") },
     { ...COMPTE, libelle: "Compte" },
   ],
 };
@@ -76,6 +78,7 @@ const ICONES: Record<Icone, LucideIcon> = {
   inviter: UserPlus,
   admin: ShieldCheck,
   journal: ScrollText,
+  coran: BookOpen,
 };
 
 /**
