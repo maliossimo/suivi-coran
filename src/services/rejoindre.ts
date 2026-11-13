@@ -51,6 +51,7 @@ export async function rejoindreClasse(code: string, brut: Record<string, unknown
     prenom,
     nom,
     etablissementId: invitation.etablissementId,
+    classeId: invitation.classeId,
   });
   if (!compte.ok) {
     return {

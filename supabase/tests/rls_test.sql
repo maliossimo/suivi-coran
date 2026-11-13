@@ -573,6 +573,69 @@ select pg_temp.doit_echouer(
   'responsable : ne désigne pas un Cheikh d''une autre mosquée');
 select pg_temp.console();
 
+-- ---------- Suivi du Coran : chaque Cheikh voit les élèves de SES classes ----
+-- État : classe « Coran » (Cheikh A) avec l'élève 1 ; l'élève 2 n'est dans aucune classe.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('a0000000-0000-0000-0000-0000000000a2', 'maitre.a2@test.local', '{"role":"maitre","etablissement_id":"aaaaaaaa-0000-0000-0000-000000000000","prenom":"Maître","nom":"A2"}');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-0000000000a2');
+select pg_temp.attendu(not exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000001'),
+  'classes : un Cheikh ne voit pas l''élève de la classe d''un autre Cheikh');
+select pg_temp.attendu((select count(*) from public.seances where eleve_id = 'a0000000-0000-0000-0000-000000000001') = 0,
+  'classes : ni ses séances');
+select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000002'),
+  'classes : un élève sans classe reste visible par les Cheikhs de sa mosquée');
+select pg_temp.doit_echouer(
+  $q$insert into public.commentaires (eleve_id, auteur_id, texte)
+     values ('a0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-0000000000a2', 'Intrus')$q$,
+  'classes : un Cheikh ne commente pas l''élève d''une autre classe');
+select pg_temp.console();
+
+-- L'élève 2 rejoint la classe du Cheikh A2.
+insert into public.classes (id, etablissement_id, nom, jours) values ('c1a55e00-0000-0000-0000-000000000004', 'aaaaaaaa-0000-0000-0000-000000000000', 'Coran du soir', '{1,3}');
+insert into public.classes_cheikhs (classe_id, maitre_id) values ('c1a55e00-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-0000000000a2');
+insert into public.membres_classe (classe_id, eleve_id) values ('c1a55e00-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000002');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000001'),
+  'classes : le Cheikh voit l''élève de sa classe');
+select pg_temp.attendu(not exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000002'),
+  'classes : l''élève placé dans la classe d''un autre Cheikh n''est plus visible');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-0000000000a2');
+select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000002')
+  and (select count(*) from public.seances where eleve_id = 'a0000000-0000-0000-0000-000000000002') > 0,
+  'classes : le nouveau Cheikh voit son élève et ses séances');
+select pg_temp.console();
+
+-- Classe terminée : ses élèves redeviennent « sans classe ».
+update public.classes set archivee = true where id = 'c1a55e00-0000-0000-0000-000000000001';
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-0000000000a2');
+select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000001'),
+  'classes : l''élève d''une classe terminée redevient visible par la mosquée');
+select pg_temp.console();
+update public.classes set archivee = false where id = 'c1a55e00-0000-0000-0000-000000000001';
+
+-- Invitation avec une classe : l'élève y entre dès la création de son compte.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('a0000000-0000-0000-0000-000000000003', 'eleve3.a@test.local',
+   '{"etablissement_id":"aaaaaaaa-0000-0000-0000-000000000000","prenom":"Élève","nom":"Trois","classe_id":"c1a55e00-0000-0000-0000-000000000004"}'),
+  ('a0000000-0000-0000-0000-000000000004', 'eleve4.a@test.local',
+   '{"etablissement_id":"bbbbbbbb-0000-0000-0000-000000000000","prenom":"Élève","nom":"Quatre","classe_id":"c1a55e00-0000-0000-0000-000000000004"}');
+select pg_temp.attendu(
+  exists (select 1 from public.membres_classe where eleve_id = 'a0000000-0000-0000-0000-000000000003' and classe_id = 'c1a55e00-0000-0000-0000-000000000004'),
+  'invitation : l''élève invité rejoint la classe du Cheikh');
+select pg_temp.attendu(
+  not exists (select 1 from public.membres_classe where eleve_id = 'a0000000-0000-0000-0000-000000000004'),
+  'invitation : une classe d''une autre mosquée est ignorée');
+select pg_temp.doit_echouer(
+  $q$insert into public.invitations_classe (etablissement_id, code, expire_le, classe_id)
+     values ('bbbbbbbb-0000-0000-0000-000000000000', repeat('x', 30), now() + interval '1 day', 'c1a55e00-0000-0000-0000-000000000004')$q$,
+  'QR code : la classe doit être de la mosquée du code');
+
+-- Retour à l'état attendu par la suite : l'élève 2 sans classe (Cheikh A).
+update public.membres_classe set actif = false where classe_id = 'c1a55e00-0000-0000-0000-000000000004' and eleve_id = 'a0000000-0000-0000-0000-000000000002';
+delete from auth.users where id in ('a0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000004');
+
 -- ---------- Ouvertures de l'appli -------------------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 insert into public.ouvertures default values;

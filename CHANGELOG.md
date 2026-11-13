@@ -9,6 +9,23 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.14.0] — 2026-11-13
+
+### Nouveautés
+
+- Suivi du Coran : chaque Cheikh ne voit et ne corrige que les élèves de **ses** classes. Un élève qui n'est dans aucune classe reste visible par les Cheikhs de sa mosquée, le temps de le placer.
+- Un Cheikh qui a plusieurs classes passe de l'une à l'autre par des onglets dans « Ma classe ».
+- Un élève invité par un Cheikh (e-mail ou QR code) rejoint directement sa classe ; avec plusieurs classes, le Cheikh choisit laquelle. Chaque Cheikh a son propre QR code.
+- Mise à jour automatique : après une mise en ligne, l'appli se met à jour toute seule (au retour sur l'appli, au prochain lien touché, ou après 20 s sans geste), jamais pendant une saisie, une écoute ou une fenêtre ouverte.
+
+### Amélioré
+
+- Réactivité : vérification de la connexion sans aller-retour réseau quand c'est possible ; plus aucun appel à la base pour les polices, icônes et fichiers fixes ; écran d'attente immédiat dans les présences et le Coran.
+
+### Interne
+
+- Tests des droits : deux Cheikhs d'une même mosquée, classe terminée, invitation avec classe, QR code d'une autre mosquée. Tests de bout en bout du cloisonnement et mesure des temps d'affichage.
+
 ## [1.13.0] — 2026-11-13
 
 ### Nouveautés

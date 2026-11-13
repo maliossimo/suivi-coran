@@ -7,7 +7,8 @@ import { clientAdmin } from "@/lib/supabase/admin";
 import { creerClientServeur } from "@/lib/supabase/server";
 
 export type ResultatInvitation =
-  { ok: true } | { ok: false; raison: "non_configure" | "deja_inscrit" | "echec"; detail?: string };
+  | { ok: true }
+  | { ok: false; raison: "non_configure" | "deja_inscrit" | "echec"; detail?: string };
 
 /**
  * Envoie l'e-mail d'invitation Supabase. Les métadonnées créent le profil
@@ -16,7 +17,14 @@ export type ResultatInvitation =
  */
 export async function inviter(
   email: string,
-  donnees: { prenom: string; nom: string; role: Exclude<Role, "admin">; etablissementId: string },
+  donnees: {
+    prenom: string;
+    nom: string;
+    role: Exclude<Role, "admin">;
+    etablissementId: string;
+    /** Élève : classe qu'il rejoint à la création de son compte (vérifiée par la base). */
+    classeId?: string | null;
+  },
 ): Promise<ResultatInvitation> {
   const admin = clientAdmin();
   if (!admin) return { ok: false, raison: "non_configure" };
@@ -27,6 +35,7 @@ export async function inviter(
       nom: donnees.nom,
       role: donnees.role,
       etablissement_id: donnees.etablissementId,
+      ...(donnees.classeId ? { classe_id: donnees.classeId } : {}),
     },
     redirectTo: `${envPublic.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/definir-mot-de-passe`,
   });
@@ -64,6 +73,7 @@ const schemaInvitation = z.object({
   id: z.string().uuid(),
   code: z.string(),
   etablissement_id: z.string().uuid(),
+  classe_id: z.string().uuid().nullable(),
   expire_le: z.string(),
   actif: z.boolean(),
   utilisations: z.number(),
@@ -74,37 +84,53 @@ function versInvitation(l: z.infer<typeof schemaInvitation>): InvitationClasse {
     id: l.id,
     code: l.code,
     etablissementId: l.etablissement_id,
+    classeId: l.classe_id,
     expireLe: l.expire_le,
     actif: l.actif,
     utilisations: l.utilisations,
   };
 }
 
-const COLONNES = "id, code, etablissement_id, expire_le, actif, utilisations";
+const COLONNES = "id, code, etablissement_id, classe_id, expire_le, actif, utilisations";
+
+/** Codes d'un Cheikh pour une classe ; sans précision (admin) : tout l'établissement. */
+export interface PorteeInvitation {
+  creePar?: string;
+  classeId?: string | null;
+}
 
 /** Dernier code actif de l'établissement (lu avec les droits du maître). */
-export async function invitationActive(etablissementId: string): Promise<InvitationClasse | null> {
+export async function invitationActive(
+  etablissementId: string,
+  portee: PorteeInvitation = {},
+): Promise<InvitationClasse | null> {
   const supabase = await creerClientServeur();
-  const { data, error } = await supabase
+  let requete = supabase
     .from("invitations_classe")
     .select(COLONNES)
     .eq("etablissement_id", etablissementId)
-    .eq("actif", true)
-    .order("cree_le", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .eq("actif", true);
+  if (portee.creePar) requete = requete.eq("cree_par", portee.creePar);
+  if (portee.classeId) requete = requete.eq("classe_id", portee.classeId);
+  const { data, error } = await requete.order("cree_le", { ascending: false }).limit(1).maybeSingle();
   if (error) throw new Error(`Lecture du QR code impossible : ${error.message}`);
   return data ? versInvitation(schemaInvitation.parse(data)) : null;
 }
 
 /** Désactive les codes de l'établissement (avec les droits du maître). */
-export async function desactiverInvitations(etablissementId: string): Promise<void> {
+export async function desactiverInvitations(
+  etablissementId: string,
+  portee: PorteeInvitation = {},
+): Promise<void> {
   const supabase = await creerClientServeur();
-  const { error } = await supabase
+  let requete = supabase
     .from("invitations_classe")
     .update({ actif: false })
     .eq("etablissement_id", etablissementId)
     .eq("actif", true);
+  if (portee.creePar) requete = requete.eq("cree_par", portee.creePar);
+  if (portee.classeId) requete = requete.eq("classe_id", portee.classeId);
+  const { error } = await requete;
   if (error) throw new Error(`Désactivation impossible : ${error.message}`);
 }
 
@@ -112,6 +138,7 @@ export async function desactiverInvitations(etablissementId: string): Promise<vo
 export async function creerInvitation(donnees: {
   etablissementId: string;
   creePar: string;
+  classeId?: string | null;
   code: string;
   expireLe: string;
 }): Promise<InvitationClasse> {
@@ -121,6 +148,7 @@ export async function creerInvitation(donnees: {
     .insert({
       etablissement_id: donnees.etablissementId,
       cree_par: donnees.creePar,
+      classe_id: donnees.classeId ?? null,
       code: donnees.code,
       expire_le: donnees.expireLe,
     })
@@ -161,7 +189,8 @@ export async function compterUtilisation(id: string, utilisations: number): Prom
 }
 
 export type ResultatCreationCompte =
-  { ok: true } | { ok: false; raison: "non_configure" | "deja_inscrit" | "echec" };
+  | { ok: true }
+  | { ok: false; raison: "non_configure" | "deja_inscrit" | "echec" };
 
 /**
  * Crée directement un compte élève confirmé (inscription par QR code).
@@ -173,6 +202,7 @@ export async function creerCompteEleve(donnees: {
   prenom: string;
   nom: string;
   etablissementId: string;
+  classeId?: string | null;
 }): Promise<ResultatCreationCompte> {
   const admin = clientAdmin();
   if (!admin) return { ok: false, raison: "non_configure" };
@@ -185,6 +215,7 @@ export async function creerCompteEleve(donnees: {
       nom: donnees.nom,
       role: "eleve",
       etablissement_id: donnees.etablissementId,
+      ...(donnees.classeId ? { classe_id: donnees.classeId } : {}),
     },
   });
   if (!error) return { ok: true };
