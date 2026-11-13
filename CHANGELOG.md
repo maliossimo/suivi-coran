@@ -9,6 +9,13 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.4.2] — 2026-11-13
+
+### Corrigé
+
+- Changer de mois ou passer d'apprentissage à révision ne fait plus remonter la page tout en haut.
+- Plus de petit temps d'arrêt : les mois voisins et l'autre onglet sont chargés d'avance, et l'animation est plus courte et plus légère.
+
 ## [1.4.1] — 2026-11-13
 
 ### Corrigé
