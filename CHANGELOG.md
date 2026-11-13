@@ -9,6 +9,15 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.1.3] — 2026-11-13
+
+### Interne
+
+- Mises à jour des dépendances proposées par Dependabot : outils de vérification automatique, Supabase SSR 0.12, Prettier 3.9, types de Node.
+- Les vérifications affichent la mise en forme attendue quand elle échoue.
+- Garde-fous : délai avant de signaler un envoi direct (fausse alerte corrigée), y compris pour le déploiement de la base.
+- Nettoyage automatique des branches de travail terminées.
+
 ## [1.1.2] — 2026-11-12
 
 ### Correctif
