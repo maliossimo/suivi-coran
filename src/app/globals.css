@@ -7754,4 +7754,75 @@ html.defilement-bloque {
   font-size: 12px;
   font-weight: 500;
   color: var(--or-texte);
+/* Vérifier ma récitation */
+.verifier-recitation {
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ligne);
+}
+.verifier-recitation h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+}
+.verifier-accord {
+  display: grid;
+  gap: 10px;
+}
+.verifier-accord p,
+.verifier-legende {
+  margin: 0;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.verifier-entendu {
+  margin: 0;
+  min-height: 1.8em;
+  font-family: var(--font-arabe), serif;
+  font-size: 20px;
+  color: var(--texte-doux);
+}
+.verifier-resultat {
+  display: grid;
+  gap: 8px;
+}
+.verifier-score {
+  margin: 0;
+  font-size: 15px;
+}
+.verifier-score strong {
+  font-size: 20px;
+  color: var(--vert-texte);
+}
+.verifier-mots {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--fond);
+  font-family: var(--font-arabe), serif;
+  font-size: 26px;
+  line-height: 2;
+}
+.verif-juste {
+  color: var(--vert-texte);
+}
+.verif-different {
+  color: var(--or-texte);
+  background: var(--or-clair);
+  border-radius: 6px;
+}
+.verif-oublie {
+  color: var(--texte-doux);
+  text-decoration: line-through;
+  text-decoration-color: var(--rouge);
+}
+.verifier-legende .verif-different {
+  padding: 0 4px;
 }

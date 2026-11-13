@@ -511,6 +511,12 @@ export function LectureCoran({
     const p = pistesCompletes.find((x) => x.cles.includes(versetChoisi));
     return p ? adresse(fichierVerset(p.sourate, p.ayah)) : null;
   }, [adresse, pistesCompletes, recitation?.suivi, versetChoisi]);
+  /** Texte du verset choisi (vérifier sa récitation). */
+  const texteVerset = useMemo(() => {
+    if (!versetChoisi) return null;
+    const [sourate, n] = versetChoisi.split(":").map(Number);
+    return blocs.find((b) => b.sourate === sourate)?.versets.find((v) => v.n === n)?.texte ?? null;
+  }, [blocs, versetChoisi]);
   const ouvrirMemoriser = (depart: Passage) => {
     setChoix(null);
     setBrouillon(depart);
@@ -701,6 +707,7 @@ export function LectureCoran({
         explication={explication}
         marque={versetChoisi !== null && marques.has(versetChoisi)}
         adresseRecitateur={adresseRecitateur}
+        texteVerset={texteVerset}
         onMarque={(cle) => {
           const [sourate, verset] = cle.split(":").map(Number) as [number, number];
           marquePages.basculer({ lecture, sourate, verset });
