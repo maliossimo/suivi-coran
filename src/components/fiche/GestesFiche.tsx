@@ -50,21 +50,21 @@ export function GestesFiche({
   /** Décalage du contenu pendant que le doigt glisse horizontalement. */
   const [glisse, setGlisse] = useState(0);
   /** Départ en cours : le contenu s'efface dans le sens du geste jusqu'à l'arrivée du nouveau mois. */
-  const [depart, setDepart] = useState<{ sens: Sens; cle: string } | null>(null);
+  const [sortie, setSortie] = useState<{ sens: Sens; cle: string } | null>(null);
   const cleRef = useRef(cleFiche);
   cleRef.current = cleFiche;
 
   const partir = useCallback((sens: Sens) => {
-    setDepart({ sens, cle: cleRef.current });
+    setSortie({ sens, cle: cleRef.current });
     setGlisse(0);
   }, []);
 
   // Navigation annulée ou très lente : on ne laisse pas la fiche effacée.
   useEffect(() => {
-    if (!depart) return;
-    const minuteur = window.setTimeout(() => setDepart(null), 6000);
+    if (!sortie) return;
+    const minuteur = window.setTimeout(() => setSortie(null), 6000);
     return () => window.clearTimeout(minuteur);
-  }, [depart]);
+  }, [sortie]);
 
   useEffect(() => {
     const installee = window.matchMedia("(display-mode: standalone)").matches;
@@ -147,10 +147,10 @@ export function GestesFiche({
 
   const visible = tire > 10 || rafraichit;
   // Nouveau contenu arrivé après un départ : il entre par le côté opposé.
-  const classe = depart
-    ? depart.cle === cleFiche
-      ? `fiche-gestes depart-${depart.sens}`
-      : `fiche-gestes arrivee-${depart.sens}`
+  const classe = sortie
+    ? sortie.cle === cleFiche
+      ? `fiche-gestes depart-${sortie.sens}`
+      : `fiche-gestes arrivee-${sortie.sens}`
     : glisse
       ? "fiche-gestes glisse"
       : "fiche-gestes";
@@ -179,7 +179,7 @@ export function GestesFiche({
             : undefined
         }
         onAnimationEnd={(e) => {
-          if (e.target === e.currentTarget && depart && depart.cle !== cleFiche) setDepart(null);
+          if (e.target === e.currentTarget && sortie && sortie.cle !== cleFiche) setSortie(null);
         }}
         onClickCapture={(e) => {
           // Flèches des mois et onglets : même effet que le glissement.
