@@ -120,6 +120,8 @@ export async function chargerPageCoran(
       suivi: false,
       source: r.serveur,
       mots: null,
+      dossier: null,
+      alignement: null,
     }));
 
   return {
