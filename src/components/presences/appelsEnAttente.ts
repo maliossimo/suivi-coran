@@ -12,6 +12,8 @@ export interface AppelLocal {
   date: string;
   presences: { membre: string; statut: StatutPresence; note: string | null }[];
   garde: string;
+  /** Envois refusés par le serveur (au-delà de 5, l'appel est abandonné). */
+  essais?: number;
 }
 
 const CLE = "appels-en-attente";
@@ -71,9 +73,15 @@ export async function relancerAppels(): Promise<number> {
   for (const a of appelsEnAttente()) {
     try {
       const r = await actionEnregistrerAppel({ classe: a.classe, date: a.date, presences: a.presences });
-      // Refusé par le serveur (droits, date) : inutile de le renvoyer indéfiniment.
-      oublier(a);
-      if (r.ok) envoyes++;
+      if (r.ok) {
+        oublier(a);
+        envoyes++;
+      } else if ((a.essais ?? 0) >= 4) {
+        // Refusé à chaque fois (droits, date…) : inutile de le renvoyer indéfiniment.
+        oublier(a);
+      } else {
+        garder({ ...a, essais: (a.essais ?? 0) + 1 });
+      }
     } catch {
       break;
     }

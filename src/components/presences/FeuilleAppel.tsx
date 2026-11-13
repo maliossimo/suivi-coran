@@ -106,10 +106,10 @@ export function FeuilleAppel({
         <strong>{resume}</strong>
         <button
           type="button"
-          className="lien-discret bouton-lien"
+          className="puce-action"
           onClick={() => setStatuts(Object.fromEntries(membres.map((m) => [m.id, "present"])))}
         >
-          Tout le monde présent
+          Tous présents
         </button>
       </div>
 

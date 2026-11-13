@@ -5991,6 +5991,31 @@ html[data-ouverture] .ouverture-version {
   color: var(--or-texte);
   vertical-align: -2px;
 }
+.tableau-presences th {
+  vertical-align: bottom;
+}
+.tableau-presences th small {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--texte-doux);
+}
+.tableau-presences th a,
+.tableau-presences td a {
+  color: inherit;
+}
+.tableau-presences td:first-child {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tableau-presences th,
+.tableau-presences td {
+  padding-left: 6px;
+  padding-right: 6px;
+}
 .tableau-presences th.sans-appel {
   color: var(--texte-doux);
   opacity: 0.6;
@@ -6033,5 +6058,24 @@ html[data-ouverture] .ouverture-version {
   }
   .tableau-defilant {
     overflow: visible !important;
+  }
+}
+
+.puce-action {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--champ);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--vert-texte);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+@media (max-width: 380px) {
+  .choix-statut button {
+    width: 36px;
+    height: 38px;
   }
 }
