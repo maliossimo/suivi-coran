@@ -50,8 +50,10 @@ ESLint bloque les imports qui violent ces frontières.
   section `## [x.y.z] — date` dans CHANGELOG.md. « Garde-fou prod » refuse une mise en production sans nouvelle version.
   La fusion dans `prod` crée l'étiquette `vX.Y.Z` et la « Release » GitHub ; l'appli affiche la version
   (ouverture de l'appli installée, écran de connexion, « Mon compte », administration).
-- Le dépôt est privé sur un compte GitHub gratuit : les règles de branche ne sont pas appliquées
-  par GitHub, ces conventions sont donc à respecter scrupuleusement.
+- Le dépôt est public (minutes GitHub Actions illimitées) : aucun secret ni donnée réelle dans le code,
+  l'historique ou les artifacts (les sauvegardes sont toujours chiffrées). Ces conventions sont à
+  respecter scrupuleusement, même si GitHub ne les impose pas toutes.
+- Vérifications (CI) : une seule fois par PR ; les tests de la base ne tournent que si `supabase/` change.
 - Avant de proposer une PR : `npm run check` (format, lint, types, tests) et, si la base change, `npm run db:test`.
 - Messages de commit en français, à l'impératif : « Ajoute la saisie des séances ».
 - Auteur des commits : `maliossimo <55502349+maliossimo@users.noreply.github.com>` (adresse « noreply » de GitHub,

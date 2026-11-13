@@ -1,9 +1,10 @@
 name: CI
 
+# Une seule vérification par PR (vers main ou vers prod) : le contenu qui arrive ensuite
+# sur main ou prod est exactement celui qui a été vérifié. Relance manuelle possible.
 on:
   pull_request:
-  push:
-    branches: [main, prod]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -49,12 +50,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # La base (plusieurs minutes à démarrer) n'est testée que si la PR touche supabase/.
+      - name: La PR touche-t-elle la base ?
+        id: changements
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ] || \
+             git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -q '^supabase/'; then
+            echo "base=oui" >> "$GITHUB_OUTPUT"
+          else
+            echo "Aucun changement dans supabase/ : tests de la base inutiles."
+          fi
       - uses: supabase/setup-cli@v3
+        if: steps.changements.outputs.base == 'oui'
         with:
           version: latest
       - name: Démarrer PostgreSQL Supabase et appliquer les migrations
+        if: steps.changements.outputs.base == 'oui'
         run: supabase db start
       - name: Tests des règles d'accès
+        if: steps.changements.outputs.base == 'oui'
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/tests/rls_test.sql
 
   build:
