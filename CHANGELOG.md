@@ -9,6 +9,15 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.18.0] — 2026-11-13
+
+### Amélioré
+
+- Administration épurée : l'état du site en trois voyants, chaque établissement en une carte avec sa jauge d'activité et ses alertes, la création d'établissement et les invitations en attente repliées.
+- Comptes : une ligne par personne (rôle, établissement, dernière visite « il y a 2 h »), les actions rangées dans le menu « ⋯ ».
+- Journal : « Qui utilise l'appli » avec un voyant d'activité, et les actions en phrases simples (« Inès a modifié une séance »), regroupées par jour ; les filtres sont repliés.
+- Séance : les phrases toutes prêtes du commentaire sont retirées ; le menu « ⋯ » s'ouvre vers la gauche pour rester dans l'écran.
+
 ## [1.17.0] — 2026-11-13
 
 ### Amélioré

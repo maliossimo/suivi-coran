@@ -1,40 +1,44 @@
 import Link from "next/link";
+import { Avatar } from "@/components/Avatar";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { Selecteur } from "@/components/Selecteur";
+import { depuisQuand, ELEMENTS, grouperParJour, phraseAudit } from "@/domain/journal";
 import { exigerEspace } from "@/services/acces";
 import { chargerJournal } from "@/services/admin";
 
 const ACTIONS: Record<string, string> = {
-  INSERT: "Création",
-  UPDATE: "Modification",
-  DELETE: "Suppression",
-  SUPPRESSION_UTILISATEUR: "Suppression d’un compte",
-};
-const TABLES: Record<string, string> = {
-  seances: "Séance",
-  passages: "Passage",
-  objectifs: "Objectif",
-  bilans_mensuels: "Bilan",
-  commentaires: "Commentaire",
-  profils: "Profil",
-  etablissements: "Établissement",
-  invitations_classe: "QR code de classe",
-  classes: "Classe (présences)",
-  membres_classe: "Élève d’une classe",
-  appels: "Appel",
+  INSERT: "Créations",
+  UPDATE: "Modifications",
+  DELETE: "Suppressions",
+  SUPPRESSION_UTILISATEUR: "Comptes supprimés",
 };
 
 const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
+
+const MAJUSCULE = (texte: string) => texte.charAt(0).toUpperCase() + texte.slice(1);
+
+function heure(iso: string): string {
+  return new Intl.DateTimeFormat("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Paris",
+  }).format(new Date(iso));
+}
 
 function dateHeure(iso: string): string {
   return new Intl.DateTimeFormat("fr-FR", {
     day: "numeric",
     month: "short",
-    year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "Europe/Paris",
   }).format(new Date(iso));
+}
+
+/** « Inès Kaci » → prénom et nom pour l'avatar. */
+function decouper(nom: string): { prenom: string; nom: string } {
+  const [prenom = "", ...reste] = nom.split(" ");
+  return { prenom, nom: reste.join(" ") };
 }
 
 export default async function PageJournal({
@@ -48,48 +52,46 @@ export default async function PageJournal({
     await searchParams,
   );
   const filtre = Object.values(filtres).some(Boolean);
+  const maintenant = new Date();
+  const jours = grouperParJour(evenements, maintenant);
+  const actifs7j = utilisation.filter((c) => c.ouvertures7j > 0).length;
 
   return (
     <>
-      <EnteteEspace titre="Administration" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
-      <main className="espace">
+      <EnteteEspace titre="Journal" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
+      <main className="espace espace-admin">
         <section className="carte-graphique">
-          <h2>Utilisation de l’appli</h2>
-          <p className="carte-graphique-sous">
-            Dernière fois que chacun a ouvert l’appli (ou y est revenu), même sans se reconnecter.
-          </p>
-          <div className="tableau-defilant">
-            <table className="tableau">
-              <thead>
-                <tr>
-                  <th>Qui</th>
-                  <th>Rôle</th>
-                  <th>Dernière utilisation</th>
-                  <th>Ouvertures 7 j</th>
-                </tr>
-              </thead>
-              <tbody>
-                {utilisation.map((c) => (
-                  <tr key={c.id}>
-                    <td>{c.nom}</td>
-                    <td>{ROLES[c.role]}</td>
-                    <td>{c.derniereUtilisation ? dateHeure(c.derniereUtilisation) : "Jamais"}</td>
-                    <td>{c.ouvertures7j}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="admin-titre">
+            <h2>Qui utilise l’appli</h2>
+            <span className="admin-compte">{actifs7j} actifs sur 7 jours</span>
           </div>
-          <details className="details-ouvertures">
+          <ul className="liste-personnes">
+            {utilisation.map((c) => (
+              <li key={c.id}>
+                <Avatar {...decouper(c.nom)} cle={c.id} role={c.role} taille="petit" />
+                <span className="liste-personnes-nom">
+                  <b>{c.nom}</b>
+                  <small>{ROLES[c.role]}</small>
+                </span>
+                <span className="liste-personnes-quand">
+                  <span className={c.ouvertures7j ? "point-actif" : "point-inactif"} aria-hidden="true" />
+                  {depuisQuand(c.derniereUtilisation, maintenant)}
+                  {c.ouvertures7j ? <small>{c.ouvertures7j}× sur 7 j</small> : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <details className="admin-repli">
             <summary>
-              {ouvertures.length ? `Les ${ouvertures.length} dernières ouvertures` : "Aucune ouverture notée"}
-              {filtres.personne ? " de cette personne" : ""}
+              {ouvertures.length ? `Dernières ouvertures (${ouvertures.length})` : "Aucune ouverture notée"}
             </summary>
-            <ul className="liste-simple">
+            <ul className="fil-journal">
               {ouvertures.map((o) => (
                 <li key={o.id}>
-                  <span>{dateHeure(o.quand)}</span>
-                  <strong>{noms.get(o.personneId) ?? "Compte supprimé"}</strong>
+                  <time dateTime={o.quand}>{dateHeure(o.quand)}</time>
+                  <span>
+                    <b>{noms.get(o.personneId) ?? "Compte supprimé"}</b> a ouvert l’appli
+                  </span>
                 </li>
               ))}
             </ul>
@@ -97,87 +99,94 @@ export default async function PageJournal({
         </section>
 
         <section className="carte-graphique">
-          <h2>Journal d’audit</h2>
-          <p className="carte-graphique-sous">
-            Les 150 dernières actions{filtre ? " correspondant aux filtres" : ""}. Ce journal est rempli par
-            la base elle-même et ne peut pas être modifié.
-          </p>
-          <form className="filtres-admin" method="get">
-            <Selecteur
-              titre="Personne"
-              name="personne"
-              defaultValue={filtres.personne ?? ""}
-              options={[
-                { valeur: "", libelle: "Tout le monde" },
-                ...personnes.map((p) => ({ valeur: p.id, libelle: p.nom })),
-              ]}
-              placeholderRecherche="Nom"
-              soumettre
-              compact
-            />
-            <Selecteur
-              titre="Action"
-              name="action"
-              defaultValue={filtres.action ?? ""}
-              options={[
-                { valeur: "", libelle: "Toutes les actions" },
-                ...Object.entries(ACTIONS).map(([v, l]) => ({ valeur: v, libelle: l })),
-              ]}
-              soumettre
-              compact
-            />
-            <Selecteur
-              titre="Élément"
-              name="table"
-              defaultValue={filtres.table ?? ""}
-              options={[
-                { valeur: "", libelle: "Tous les éléments" },
-                ...Object.entries(TABLES).map(([v, l]) => ({ valeur: v, libelle: l })),
-              ]}
-              soumettre
-              compact
-            />
-            <label className="filtre-date">
-              Du
-              <input type="date" name="du" defaultValue={filtres.du ?? ""} />
-            </label>
-            <label className="filtre-date">
-              au
-              <input type="date" name="au" defaultValue={filtres.au ?? ""} />
-            </label>
-            <button type="submit" className="bouton bouton-auto">
-              Filtrer
-            </button>
-            {filtre ? (
-              <Link href="/admin/journal" className="lien-discret">
-                Effacer les filtres
-              </Link>
-            ) : null}
-          </form>
-          <div className="tableau-defilant">
-            <table className="tableau">
-              <thead>
-                <tr>
-                  <th>Quand</th>
-                  <th>Qui</th>
-                  <th>Action</th>
-                  <th>Élément</th>
-                  <th>Élève concerné</th>
-                </tr>
-              </thead>
-              <tbody>
-                {evenements.map((e) => (
-                  <tr key={e.id}>
-                    <td>{dateHeure(e.quand)}</td>
-                    <td>{e.acteurId ? (noms.get(e.acteurId) ?? "Inconnu") : "Système"}</td>
-                    <td>{ACTIONS[e.action] ?? e.action}</td>
-                    <td>{TABLES[e.table] ?? e.table}</td>
-                    <td>{e.eleveId ? (noms.get(e.eleveId) ?? "—") : "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="admin-titre">
+            <h2>Journal des actions</h2>
+            <span className="admin-compte">{evenements.length} dernières</span>
           </div>
+
+          <details className="admin-repli filtres-journal" open={filtre}>
+            <summary>{filtre ? "Filtres actifs" : "Filtrer"}</summary>
+            <form className="filtres-admin" method="get">
+              <Selecteur
+                titre="Personne"
+                name="personne"
+                defaultValue={filtres.personne ?? ""}
+                options={[
+                  { valeur: "", libelle: "Tout le monde" },
+                  ...personnes.map((p) => ({ valeur: p.id, libelle: p.nom })),
+                ]}
+                placeholderRecherche="Nom"
+                soumettre
+                compact
+              />
+              <Selecteur
+                titre="Action"
+                name="action"
+                defaultValue={filtres.action ?? ""}
+                options={[
+                  { valeur: "", libelle: "Toutes les actions" },
+                  ...Object.entries(ACTIONS).map(([v, l]) => ({ valeur: v, libelle: l })),
+                ]}
+                soumettre
+                compact
+              />
+              <Selecteur
+                titre="Élément"
+                name="table"
+                defaultValue={filtres.table ?? ""}
+                options={[
+                  { valeur: "", libelle: "Tous les éléments" },
+                  ...Object.entries(ELEMENTS).map(([v, l]) => ({
+                    valeur: v,
+                    libelle: MAJUSCULE(l.replace(/^une? /, "")),
+                  })),
+                ]}
+                soumettre
+                compact
+              />
+              <label className="filtre-date">
+                Du
+                <input type="date" name="du" defaultValue={filtres.du ?? ""} />
+              </label>
+              <label className="filtre-date">
+                au
+                <input type="date" name="au" defaultValue={filtres.au ?? ""} />
+              </label>
+              <button type="submit" className="bouton bouton-auto">
+                Filtrer
+              </button>
+              {filtre ? (
+                <Link href="/admin/journal" className="lien-discret">
+                  Tout afficher
+                </Link>
+              ) : null}
+            </form>
+          </details>
+
+          {jours.length === 0 ? (
+            <p className="carte-graphique-sous">Aucune action{filtre ? " pour ces filtres" : ""}.</p>
+          ) : (
+            jours.map((j) => (
+              <div key={j.cle} className="jour-journal">
+                <h3>{MAJUSCULE(j.titre)}</h3>
+                <ul className="fil-journal">
+                  {j.evenements.map((e) => (
+                    <li key={e.id} className={`action-${e.action.toLowerCase()}`}>
+                      <time dateTime={e.quand}>{heure(e.quand)}</time>
+                      <span>
+                        <b>{e.acteurId ? (noms.get(e.acteurId) ?? "Inconnu") : "Système"}</b>{" "}
+                        {phraseAudit(e.action, e.table)}
+                        {e.eleveId && e.eleveId !== e.acteurId ? (
+                          <small> · {noms.get(e.eleveId) ?? "élève supprimé"}</small>
+                        ) : null}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          )}
+          <p className="admin-note">Rempli par la base elle-même, ce journal ne peut pas être modifié.</p>
         </section>
       </main>
     </>

@@ -7399,22 +7399,310 @@ html.defilement-bloque {
   border-radius: 18px;
   box-shadow: var(--ombre);
 }
-.phrases-rapides {
+.seance-menu .menu-plus-liste,
+.compte-menu .menu-plus-liste {
+  left: auto;
+  right: 0;
+}
+
+/* ---------- Administration épurée (1.18) ------------------------------ */
+.espace-admin {
+  max-width: 880px;
+  gap: 16px;
+}
+.admin-titre {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.admin-titre h2 {
+  margin: 0;
+}
+.carte-graphique h2 {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 19px;
+  font-weight: 600;
+}
+.admin-compte {
+  font-size: 13px;
+  color: var(--texte-doux);
+  white-space: nowrap;
+}
+.admin-note {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+.carte-graphique {
+  border-color: transparent;
+}
+.tuile {
+  border-color: transparent;
+  box-shadow: var(--ombre);
+}
+.admin-repli > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--vert-texte);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.admin-repli > summary::-webkit-details-marker {
+  display: none;
+}
+.admin-repli[open] > summary {
+  margin-bottom: 6px;
+}
+
+/* État du site : trois voyants */
+.etat-site-liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+}
+.etat-site-liste li {
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px 12px 30px;
+  position: relative;
+  background: var(--fond);
+}
+.etat-site-liste li::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 18px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vert);
+}
+.etat-site-liste li.etat-site-alerte::before {
+  background: var(--or);
+}
+.etat-site-titre {
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+.etat-site-alerte .etat-site-titre {
+  color: var(--or-texte);
+}
+
+/* Établissements */
+.liste-etablissements {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.liste-etablissements li.ligne-etablissement {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--fond);
+  gap: 8px;
+}
+.ligne-etablissement-tete b {
+  font-size: 16px;
+}
+.ligne-etablissement-tete span {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.ligne-etablissement-activite {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-}
-.phrase-rapide {
-  min-height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--ligne);
-  border-radius: 999px;
-  background: var(--carte);
-  color: var(--texte);
-  font: inherit;
+  align-items: center;
+  gap: 6px 8px;
   font-size: 13px;
-  cursor: pointer;
+  color: var(--texte-doux);
 }
-.phrase-rapide:active {
-  background: var(--vert-clair);
+.ligne-etablissement-activite .pastille-etat {
+  margin-left: 0;
+}
+.jauge-activite {
+  flex: 0 0 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--ligne);
+  overflow: hidden;
+}
+.jauge-activite > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--vert);
+}
+
+/* Comptes */
+.liste-comptes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.liste-comptes > li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+.liste-comptes > li + li {
+  border-top: 1px solid var(--ligne);
+}
+.liste-comptes > li.compte-desactive {
+  opacity: 0.6;
+}
+.compte-identite {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.compte-nom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.compte-identite small {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.compte-moi {
+  font-size: 13px;
+  color: var(--texte-doux);
+  padding: 0 10px;
+}
+.compte-menu .menu-plus-item {
+  color: var(--texte);
+}
+.compte-menu .menu-plus-item:hover {
+  background: var(--fond);
+}
+.menu-plus-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.menu-plus-champ .selecteur {
+  max-width: none;
+}
+.menu-plus-item-danger {
+  padding: 4px 12px 8px;
+}
+
+/* Journal */
+.liste-personnes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.liste-personnes > li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+}
+.liste-personnes > li + li {
+  border-top: 1px solid var(--ligne);
+}
+.liste-personnes-nom {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.liste-personnes-nom small,
+.liste-personnes-quand small {
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+.liste-personnes-quand {
+  display: grid;
+  grid-template-columns: 8px auto;
+  align-items: center;
+  column-gap: 8px;
+  justify-items: end;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.liste-personnes-quand small {
+  grid-column: 2;
+}
+.point-actif,
+.point-inactif {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vert);
+}
+.point-inactif {
+  background: var(--champ);
+}
+.jour-journal h3 {
+  margin: 10px 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+.fil-journal {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.fil-journal > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  padding: 8px 0 8px 14px;
+  border-left: 2px solid var(--ligne);
+  position: relative;
+  font-size: 14px;
+}
+.fil-journal > li::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--champ);
+}
+.fil-journal > li.action-insert::before {
+  background: var(--vert);
+}
+.fil-journal > li.action-delete::before,
+.fil-journal > li.action-suppression_utilisateur::before {
+  background: var(--rouge);
+}
+.fil-journal > li.action-update::before {
+  background: var(--or);
+}
+.fil-journal time {
+  font-variant-numeric: tabular-nums;
+  color: var(--texte-doux);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.fil-journal small {
+  color: var(--texte-doux);
 }

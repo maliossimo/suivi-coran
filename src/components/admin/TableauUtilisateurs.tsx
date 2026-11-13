@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Ellipsis, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { actionBasculerUtilisateur, actionDeplacerUtilisateur } from "@/app/actions/admin";
 import { Avatar } from "@/components/Avatar";
@@ -8,6 +8,7 @@ import { Selecteur } from "@/components/Selecteur";
 import { EtiquetteLecture } from "@/components/ChoixLecture";
 import { SuppressionUtilisateur } from "@/components/SuppressionUtilisateur";
 import { correspondARecherche } from "@/domain/classe";
+import { depuisQuand } from "@/domain/journal";
 import type { Lecture } from "@/domain/lectures";
 import type { Role } from "@/domain/roles";
 
@@ -24,17 +25,6 @@ export interface LigneUtilisateur {
   derniereConnexion: string | null;
   derniereUtilisation: string | null;
   lecture: Lecture | null;
-}
-
-function dateHeure(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Paris",
-  }).format(new Date(iso));
 }
 
 function dateCourte(iso: string): string {
@@ -142,86 +132,77 @@ export function TableauUtilisateurs({
           </button>
         </p>
       ) : null}
-      <div className="tableau-defilant">
-        <table className="tableau">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Rôle</th>
-              <th>Établissement</th>
-              <th>Inscrit le</th>
-              <th>Dernière utilisation</th>
-              <th>Statut</th>
-              <th>Suppression</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibles.map((u) => (
-              <tr key={u.id}>
-                <td>
-                  <span className="nom-avec-avatar">
-                    <Avatar prenom={u.prenom} nom={u.nom} cle={u.id} role={u.role} taille="petit" />
-                    {`${u.prenom} ${u.nom}`.trim() || "—"}
-                    {u.role === "eleve" ? <EtiquetteLecture lecture={u.lecture} /> : null}
-                  </span>
-                </td>
-                <td>
+      <ul className="liste-comptes">
+        {visibles.map((u) => {
+          const nomComplet = `${u.prenom} ${u.nom}`.trim() || "Sans nom";
+          return (
+            <li key={u.id} className={u.actif ? undefined : "compte-desactive"}>
+              <Avatar prenom={u.prenom} nom={u.nom} cle={u.id} role={u.role} taille="petit" />
+              <span className="compte-identite">
+                <span className="compte-nom">
+                  <b>{nomComplet}</b>
                   <span className={`pastille-role pastille-${u.role}`}>{ROLES[u.role]}</span>
-                </td>
-                <td>
-                  {u.role === "admin" ? (
-                    "—"
-                  ) : (
-                    <form action={actionDeplacerUtilisateur} className="deplacer">
-                      <input type="hidden" name="id" value={u.id} />
-                      <Selecteur
-                        titre={`Établissement de ${`${u.prenom} ${u.nom}`.trim()}`}
-                        name="etablissementId"
-                        defaultValue={u.etablissementId ?? ""}
-                        vide="—"
-                        options={etablissements.map((e) => ({ valeur: e.id, libelle: e.nom }))}
-                        avantChoix={(v) =>
-                          v === (u.etablissementId ?? "") ||
-                          window.confirm(
-                            `Déplacer ${`${u.prenom} ${u.nom}`.trim()} vers « ${nomEtab.get(v) ?? ""} » ?`,
-                          )
-                        }
-                        soumettre
-                        compact
-                      />
-                    </form>
-                  )}
-                </td>
-                <td>{dateCourte(u.creeLe)}</td>
-                <td>{u.derniereUtilisation ? dateHeure(u.derniereUtilisation) : "Jamais"}</td>
-                <td>
-                  {u.id === moi ? (
-                    "Vous"
-                  ) : (
+                  {u.role === "eleve" ? <EtiquetteLecture lecture={u.lecture} /> : null}
+                </span>
+                <small suppressHydrationWarning>
+                  {u.etablissementId ? `${nomEtab.get(u.etablissementId) ?? ""} · ` : ""}
+                  {u.actif ? "" : "désactivé · "}
+                  {u.derniereUtilisation
+                    ? `vu ${depuisQuand(u.derniereUtilisation, new Date())}`
+                    : `jamais connecté · inscrit le ${dateCourte(u.creeLe)}`}
+                </small>
+              </span>
+              {u.id === moi ? (
+                <span className="compte-moi">Toi</span>
+              ) : (
+                <details className="menu-plus compte-menu">
+                  <summary aria-label={`Actions pour ${nomComplet}`}>
+                    <Ellipsis size={20} aria-hidden="true" />
+                  </summary>
+                  <div className="menu-plus-liste">
+                    {u.role !== "admin" ? (
+                      <form action={actionDeplacerUtilisateur} className="deplacer menu-plus-champ">
+                        <input type="hidden" name="id" value={u.id} />
+                        <span>Établissement</span>
+                        <Selecteur
+                          titre={`Établissement de ${nomComplet}`}
+                          name="etablissementId"
+                          defaultValue={u.etablissementId ?? ""}
+                          vide="—"
+                          options={etablissements.map((e) => ({ valeur: e.id, libelle: e.nom }))}
+                          avantChoix={(v) =>
+                            v === (u.etablissementId ?? "") ||
+                            window.confirm(`Déplacer ${nomComplet} vers « ${nomEtab.get(v) ?? ""} » ?`)
+                          }
+                          soumettre
+                          compact
+                        />
+                      </form>
+                    ) : null}
                     <form action={actionBasculerUtilisateur}>
                       <input type="hidden" name="id" value={u.id} />
                       <input type="hidden" name="actif" value={u.actif ? "false" : "true"} />
-                      <button
-                        type="submit"
-                        className={u.actif ? "lien-action" : "lien-action lien-action-off"}
-                      >
-                        {u.actif ? "Actif · désactiver" : "Désactivé · réactiver"}
+                      <button type="submit" className="menu-plus-item">
+                        {u.actif ? "Désactiver le compte" : "Réactiver le compte"}
+                        <small>
+                          {u.actif
+                            ? "Il ne pourra plus se connecter ; rien n’est effacé."
+                            : "Il pourra se reconnecter."}
+                        </small>
                       </button>
                     </form>
-                  )}
-                </td>
-                <td>
-                  {u.id === moi || u.role === "admin" ? (
-                    "—"
-                  ) : (
-                    <SuppressionUtilisateur id={u.id} prenom={u.prenom} nom={u.nom} role={u.role} />
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    {u.role !== "admin" ? (
+                      <div className="menu-plus-item-danger">
+                        <SuppressionUtilisateur id={u.id} prenom={u.prenom} nom={u.nom} role={u.role} />
+                      </div>
+                    ) : null}
+                  </div>
+                </details>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
 }
