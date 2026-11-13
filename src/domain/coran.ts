@@ -2,6 +2,24 @@
  * Règles pures de la lecture du Coran : tajwid en couleur et récitation verset par verset.
  */
 
+/** Basmala affichée en tête des sourates (sauf Al-Fatiha, où elle est le verset 1 en Hafs, et At-Tawba). */
+export const BASMALA = {
+  hafs: "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ",
+  warsh: "بِسْمِ اِ۬للَّهِ اِ۬لرَّحْمَٰنِ اِ۬لرَّحِيمِ",
+} as const;
+
+/** La sourate commence par une basmala non numérotée. */
+export const aBasmala = (sourate: number): boolean => sourate !== 1 && sourate !== 9;
+
+/** Juz d'une page du mushaf (débuts de juz en pages). */
+export function juzDePage(page: number, debutsJuz: readonly number[]): number {
+  let juz = 1;
+  debutsJuz.forEach((debut, i) => {
+    if (debut <= page) juz = i + 1;
+  });
+  return juz;
+}
+
 /** Codes des règles de tajwid dans les données (src/donnees/coran/tajwid). */
 export const CODES_TAJWID = [
   "h",
@@ -78,4 +96,147 @@ export function chiffresArabes(n: number): string {
 export function versetSuivant(actuel: number, total: number, repeter: boolean): number | null {
   if (repeter) return actuel;
   return actuel < total ? actuel + 1 : null;
+}
+
+// ---------- Récitation verset par verset ----------------------------------
+
+/** Clé d'un verset affiché : « sourate:verset » (verset 0 : basmala). */
+export const cleVerset = (sourate: number, verset: number): string => `${sourate}:${verset}`;
+
+/** Un fichier à réciter et les versets affichés qu'il couvre. */
+export interface Piste {
+  /** Sourate et verset du fichier (numérotation Hafs, celle des fichiers EveryAyah). */
+  sourate: number;
+  ayah: number;
+  /** Versets affichés couverts par ce fichier (clés « s:v »), dans l'ordre. */
+  cles: string[];
+}
+
+/** Une sourate (ou une partie de sourate) affichée à l'écran. */
+export interface BlocLecture {
+  sourate: number;
+  /** Versets affichés, dans la numérotation de la lecture. */
+  versets: readonly number[];
+  /** La basmala est affichée en tête du bloc. */
+  basmala: boolean;
+}
+
+/**
+ * Fichiers à réciter pour les blocs affichés.
+ * - Hafs : un fichier par verset ; la basmala d'une sourate est le fichier 1:1.
+ * - Warsh : les fichiers suivent la numérotation Hafs. `correspondance(s)` donne, pour chaque
+ *   verset Hafs de la sourate, les versets Warsh qu'il contient (ex. Al-Fatiha : 1:1 = basmala, 1:7 = Warsh 6 et 7).
+ */
+export function pistesLecture(
+  blocs: readonly BlocLecture[],
+  correspondance?: (sourate: number) => readonly (readonly number[])[] | undefined,
+): Piste[] {
+  const pistes: Piste[] = [];
+  for (const bloc of blocs) {
+    const affiches = new Set(bloc.versets);
+    if (bloc.basmala) pistes.push({ sourate: 1, ayah: 1, cles: [cleVerset(bloc.sourate, 0)] });
+    const table = correspondance?.(bloc.sourate);
+    if (!table) {
+      for (const v of bloc.versets)
+        pistes.push({ sourate: bloc.sourate, ayah: v, cles: [cleVerset(bloc.sourate, v)] });
+      continue;
+    }
+    table.forEach((versets, i) => {
+      const ayah = i + 1;
+      const couverts = versets.filter((v) => affiches.has(v));
+      // Al-Fatiha en Warsh : la basmala (fichier 1:1) est récitée mais pas numérotée.
+      const basmalaFatiha = bloc.sourate === 1 && ayah === 1 && affiches.has(1);
+      if (couverts.length || basmalaFatiha) {
+        pistes.push({ sourate: bloc.sourate, ayah, cles: couverts.map((v) => cleVerset(bloc.sourate, v)) });
+      }
+    });
+  }
+  return pistes;
+}
+
+/** Répétitions pour mémoriser : chaque fichier `verset` fois, tout le passage `passage` fois (0 : sans fin). */
+export interface Repetition {
+  verset: number;
+  passage: number;
+}
+
+export interface Position {
+  piste: number;
+  /** Écoutes déjà faites du fichier en cours / du passage. */
+  foisVerset: number;
+  foisPassage: number;
+}
+
+/** Ce qu'on récite après la fin d'un fichier ; null quand tout est fini. */
+export function etapeSuivante(position: Position, nbPistes: number, rep: Repetition): Position | null {
+  const foisVerset = position.foisVerset + 1;
+  if (foisVerset < Math.max(1, rep.verset)) return { ...position, foisVerset };
+  if (position.piste + 1 < nbPistes)
+    return { piste: position.piste + 1, foisVerset: 0, foisPassage: position.foisPassage };
+  const foisPassage = position.foisPassage + 1;
+  if (rep.passage === 0 || foisPassage < rep.passage) return { piste: 0, foisVerset: 0, foisPassage };
+  return null;
+}
+
+// ---------- Mot par mot ----------------------------------------------------
+
+/** Un « mot » compte s'il contient au moins une lettre arabe (ni numéro, ni signe seul). */
+function estMot(texte: string): boolean {
+  return /[ء-يٱ-ۓ]/.test(texte);
+}
+
+/** Découpe un verset en mots (le numéro final et les signes isolés restent à part). */
+export function decouperMots(texte: string): { texte: string; mot: number | null }[] {
+  const morceaux = texte.split(/(\s+)/).filter((m) => m.length > 0);
+  let n = 0;
+  return morceaux.map((m) => (estMot(m) ? { texte: m, mot: ++n } : { texte: m, mot: null }));
+}
+
+/** Même découpage pour un verset coloré (tajwid) : chaque mot garde ses couleurs. */
+export function decouperMotsTajwid(
+  segments: readonly SegmentTajwid[],
+): { segments: SegmentTajwid[]; mot: number | null }[] {
+  // Lettre par lettre (avec sa règle), puis regroupement en mots et espaces.
+  const lettres = segments.flatMap((s) =>
+    typeof s === "string"
+      ? [...s].map((c) => ({ c, regle: null as CodeTajwid | null }))
+      : [...s[1]].map((c) => ({ c, regle: s[0] as CodeTajwid | null })),
+  );
+  const groupes: (typeof lettres)[] = [];
+  for (const l of lettres) {
+    const dernier = groupes.at(-1);
+    const espace = /\s/.test(l.c);
+    if (dernier && /\s/.test(dernier[0]!.c) === espace) dernier.push(l);
+    else groupes.push([l]);
+  }
+  let n = 0;
+  return groupes.map((g) => {
+    const morceaux: SegmentTajwid[] = [];
+    for (const l of g) {
+      const dernier = morceaux.at(-1);
+      const regleDernier =
+        dernier === undefined ? undefined : typeof dernier === "string" ? null : dernier[0];
+      if (dernier !== undefined && regleDernier === l.regle) {
+        morceaux[morceaux.length - 1] =
+          typeof dernier === "string" ? dernier + l.c : [dernier[0], dernier[1] + l.c];
+      } else {
+        morceaux.push(l.regle ? [l.regle, l.c] : l.c);
+      }
+    }
+    const texte = g.map((l) => l.c).join("");
+    return { segments: morceaux, mot: estMot(texte) ? ++n : null };
+  });
+}
+
+/** Repère d'un mot dans l'enregistrement d'un verset (millisecondes). */
+export interface RepereMot {
+  mot: number;
+  debut: number;
+  fin: number;
+}
+
+/** Mot récité à l'instant `ms` ; null entre deux mots ou hors du verset. */
+export function motA(reperes: readonly RepereMot[], ms: number): number | null {
+  for (const r of reperes) if (ms >= r.debut && ms < r.fin) return r.mot;
+  return null;
 }
