@@ -13,6 +13,14 @@ begin
   execute 'set local role authenticated';
 end $$;
 
+create function pg_temp.en_tant_que_verifie(p uuid) returns void language plpgsql as $$
+begin
+  -- session qui a passé la double vérification (niveau aal2)
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', p, 'role', 'authenticated', 'aal', 'aal2')::text, true);
+  execute 'set local role authenticated';
+end $$;
+
 create function pg_temp.console() returns void language plpgsql as $$
 begin
   execute 'reset role';
@@ -37,7 +45,7 @@ begin
   raise exception 'ÉCHEC : % (accepté alors qu''il devait être refusé)', msg;
 end $$;
 
-grant execute on function pg_temp.en_tant_que(uuid), pg_temp.console(), pg_temp.attendu(boolean, text),
+grant execute on function pg_temp.en_tant_que(uuid), pg_temp.en_tant_que_verifie(uuid), pg_temp.console(), pg_temp.attendu(boolean, text),
   pg_temp.doit_echouer(text, text) to authenticated;
 
 -- ---------- Jeu de données -------------------------------------------
@@ -463,6 +471,26 @@ select pg_temp.attendu(
   and (select count(*) from public.sauvegardes) = 1,
   'erreurs et sauvegardes : l''admin les lit');
 select pg_temp.console();
+
+-- ---------- Double vérification de l'admin ------------------------------
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu((select count(*) from public.journal_audit) > 0,
+  'double vérification : sans appareil enregistré, l''admin garde ses droits');
+select pg_temp.console();
+insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
+values (gen_random_uuid(), 'ad000000-0000-0000-0000-0000000000ad', 'Téléphone', 'totp', 'verified', now(), now());
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu((select count(*) from public.journal_audit) = 0,
+  'double vérification : appareil enregistré, mot de passe seul → aucun droit d''admin');
+update public.etablissements set nom = 'Sans code' where id = 'aaaaaaaa-0000-0000-0000-000000000000';
+select pg_temp.en_tant_que_verifie('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu(
+  (select nom from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') <> 'Sans code',
+  'double vérification : sans le code, l''admin ne modifie rien');
+select pg_temp.attendu((select count(*) from public.journal_audit) > 0,
+  'double vérification : avec le code, l''admin retrouve ses droits');
+select pg_temp.console();
+delete from auth.mfa_factors where user_id = 'ad000000-0000-0000-0000-0000000000ad';
 
 -- ---------- Suppression définitive d'un élève -------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
