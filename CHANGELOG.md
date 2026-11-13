@@ -9,6 +9,18 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.15.0] — 2026-11-13
+
+### Nouveautés
+
+- Deux étapes du Cheikh pour chaque passage : **« Écouté »** (récité devant lui, à retravailler) puis **« Validé »** (acquis). Dans la séance, le Cheikh choisit l'état de chaque passage d'un toucher, ou « Tout écouté » / « Tout validé ». Il peut revenir en arrière.
+- L'élève voit l'état de chaque passage ; sur la fiche du mois : 🎧 Écouté, ✓ Validé ou « Ajout à écouter ». Le bouton ✓ de la fiche valide toute la séance.
+- Progression : les versets validés sont comptés à part (« dont X validés, Y écoutés ») ; une sourate entièrement validée porte « ✓ Validée ». Fiche PDF : séances validées et signes 🎧 / ✓.
+
+### Changé
+
+- Les anciennes marques « Vu par le Cheikh » deviennent « Écouté » : rien n'est validé d'office.
+
 ## [1.14.0] — 2026-11-13
 
 ### Nouveautés

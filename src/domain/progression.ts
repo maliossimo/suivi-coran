@@ -38,8 +38,10 @@ export interface CaseRegularite {
 export interface ProgressionSourate {
   sourate: Sourate;
   versetsAppris: number;
-  /** Parmi les versets appris, ceux que le Cheikh a vus. */
+  /** Parmi les versets appris, ceux que le Cheikh a écoutés (ou validés). */
   versetsVus: number;
+  /** Parmi les versets appris, ceux que le Cheikh a validés : acquis. */
+  versetsValides: number;
   pourcentage: number;
   derniereRevision: DateISO | null;
 }
@@ -48,6 +50,8 @@ export interface Progression {
   versetsAppris: number;
   /** Versets appris que le Cheikh a vus (passages corrigés) : le reste est seulement déclaré. */
   versetsVus: number;
+  /** Versets appris validés par le Cheikh : mémorisés. */
+  versetsValides: number;
   pourcentageCoran: number;
   /** Part du Coran apprise ET vue par le Cheikh. */
   pourcentageCoranVu: number;
@@ -123,12 +127,17 @@ export function calculerProgression(
   const valides = seances.filter((s) => s.date <= aujourdhui);
 
   // Versets appris (séances d'apprentissage), datés, pour le cumul.
-  const intervallesDates: { date: DateISO; intervalle: Intervalle; vu: boolean }[] = [];
+  const intervallesDates: { date: DateISO; intervalle: Intervalle; vu: boolean; valide: boolean }[] = [];
   for (const s of valides) {
     if (s.type !== "apprentissage") continue;
     for (const p of s.passages) {
       try {
-        intervallesDates.push({ date: s.date, intervalle: versIntervalle(ref, p), vu: p.corrige === true });
+        intervallesDates.push({
+          date: s.date,
+          intervalle: versIntervalle(ref, p),
+          vu: p.corrige === true || p.valide === true,
+          valide: p.valide === true,
+        });
       } catch {
         // passage incohérent : ignoré dans les statistiques
       }
@@ -140,6 +149,8 @@ export function calculerProgression(
   const versetsAppris = compter(tousIntervalles);
   const intervallesVus = intervallesDates.filter((i) => i.vu).map((i) => i.intervalle);
   const versetsVus = compter(intervallesVus);
+  const intervallesValides = intervallesDates.filter((i) => i.valide).map((i) => i.intervalle);
+  const versetsValides = compter(intervallesValides);
 
   const mois = moisPrecedents(aujourdhui, nbMois);
   const cumulParMois = mois.map((m) => ({
@@ -206,11 +217,14 @@ export function calculerProgression(
       .map(([a, b]) => [Math.max(a, debut), Math.min(b, fin)] as const);
     const appris = compter(coupes);
     if (!appris) continue;
-    const vus = compter(
-      intervallesVus
-        .filter(([a, b]) => b >= debut && a <= fin)
-        .map(([a, b]) => [Math.max(a, debut), Math.min(b, fin)] as const),
-    );
+    const dansSourate = (liste: readonly Intervalle[]) =>
+      compter(
+        liste
+          .filter(([a, b]) => b >= debut && a <= fin)
+          .map(([a, b]) => [Math.max(a, debut), Math.min(b, fin)] as const),
+      );
+    const vus = dansSourate(intervallesVus);
+    const validesSourate = dansSourate(intervallesValides);
     const revisions = valides
       .filter((s) => s.type === "revision")
       .filter((s) =>
@@ -229,6 +243,7 @@ export function calculerProgression(
       sourate,
       versetsAppris: appris,
       versetsVus: vus,
+      versetsValides: validesSourate,
       pourcentage: Math.round((appris / sourate.nbVersets) * 100),
       derniereRevision: revisions.at(-1) ?? null,
     });
@@ -238,6 +253,7 @@ export function calculerProgression(
   return {
     versetsAppris,
     versetsVus,
+    versetsValides,
     pourcentageCoran: pourcentageDuCoran(versetsAppris, options.lecture),
     pourcentageCoranVu: pourcentageDuCoran(versetsVus, options.lecture),
     souratesCompletes: sourates.filter((s) => s.pourcentage === 100).length,

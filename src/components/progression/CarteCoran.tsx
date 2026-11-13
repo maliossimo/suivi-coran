@@ -31,7 +31,7 @@ export function CarteCoran({
         {carte.aFaireVoir > 0 ? (
           <li>
             <span className="carte-pastille carte-pastille-a-voir" aria-hidden="true" />
-            Pas encore vu par le Cheikh <b>{carte.aFaireVoir}</b>
+            Pas encore écouté par le Cheikh <b>{carte.aFaireVoir}</b>
           </li>
         ) : null}
       </ul>
@@ -40,7 +40,7 @@ export function CarteCoran({
         {carte.cases.map((c) => {
           const description = `${c.sourate.numero}. ${c.sourate.nomLatin} (${c.sourate.nomAr}) — ${LIBELLE_ETAT[c.etat]}${
             c.etat === "en_cours" ? `, ${c.pourcentage} %` : ""
-          }${c.aFaireVoir ? ", pas encore vu en entier par le Cheikh" : ""}`;
+          }${c.aFaireVoir ? ", pas encore écouté en entier par le Cheikh" : ""}`;
           return (
             <li
               key={c.sourate.numero}
