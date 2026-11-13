@@ -323,6 +323,7 @@ export function LectureCoran({
   const finMinuterie = minuterie !== null && minuterie !== "fin" ? minuterie.fin : null;
   useEffect(() => {
     if (finMinuterie === null) return;
+    const element = audio.current;
     const tic = () => {
       const reste = finMinuterie - Date.now();
       setMaintenant(Date.now());
@@ -338,7 +339,7 @@ export function LectureCoran({
     const id = setInterval(tic, 1000);
     return () => {
       clearInterval(id);
-      if (audio.current) audio.current.volume = 1;
+      if (element) element.volume = 1;
     };
   }, [finMinuterie]);
 
