@@ -61,6 +61,13 @@ export function GestesFiche({
     setGlisse(0);
   }, []);
 
+  // Mois voisins et autre onglet chargés d'avance : le changement est immédiat.
+  useEffect(() => {
+    for (const cible of [moisPrecedent, moisSuivant, ongletGauche, ongletDroite]) {
+      if (cible) router.prefetch(cible);
+    }
+  }, [router, moisPrecedent, moisSuivant, ongletGauche, ongletDroite]);
+
   // Navigation annulée ou très lente : on ne laisse pas la fiche effacée.
   useEffect(() => {
     if (!sortie) return;

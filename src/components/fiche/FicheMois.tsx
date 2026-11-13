@@ -83,6 +83,7 @@ export function FicheMois({
           href={lien(cleMois(decalerMois(fiche.mois, -1)), fiche.type)}
           aria-label="Mois précédent"
           data-sens="droite"
+          scroll={false}
         >
           <ChevronLeft size={22} aria-hidden="true" />
           <IndicateurLien />
@@ -94,6 +95,7 @@ export function FicheMois({
           href={lien(cleMois(decalerMois(fiche.mois, 1)), fiche.type)}
           aria-label="Mois suivant"
           data-sens="gauche"
+          scroll={false}
         >
           <ChevronRight size={22} aria-hidden="true" />
           <IndicateurLien />
@@ -105,6 +107,7 @@ export function FicheMois({
           <Link
             href={lien(cleMois(fiche.moisCourant), fiche.type)}
             data-sens={cle < cleMois(fiche.moisCourant) ? "gauche" : "droite"}
+            scroll={false}
           >
             Revenir à ce mois-ci
             <IndicateurLien />
@@ -122,6 +125,7 @@ export function FicheMois({
             prefetch={t === fiche.type ? null : true}
             aria-current={t === fiche.type ? "page" : undefined}
             data-sens={t === fiche.type ? undefined : t === "revision" ? "gauche" : "droite"}
+            scroll={false}
           >
             {LIBELLE_TYPE[t]}
             <IndicateurLien />
