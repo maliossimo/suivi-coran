@@ -5,6 +5,7 @@ import { EnteteEspace } from "@/components/EnteteEspace";
 import { EnvoiAppels } from "@/components/presences/EnvoiAppels";
 import { FeuilleAppel } from "@/components/presences/FeuilleAppel";
 import { libelleDateLongue, libelleJourSemaine } from "@/domain/fiche";
+import { avecVue } from "@/domain/presences";
 import { chargerAppel, exigerPresences } from "@/services/presences";
 
 export const metadata = { title: "Appel" };
@@ -14,13 +15,14 @@ export default async function PageAppel({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; vue?: string }>;
 }) {
-  const profil = await exigerPresences();
-  const dateDemandee = (await searchParams).date;
-  const a = await chargerAppel(profil, (await params).id, dateDemandee);
+  const q = await searchParams;
+  const { profil, apercu, peut } = await exigerPresences(q.vue);
+  const dateDemandee = q.date;
+  const a = await chargerAppel((await params).id, dateDemandee);
   if (!a) notFound();
-  const retour = `/presences/${a.classe.id}`;
+  const retour = avecVue(`/presences/${a.classe.id}`, apercu);
 
   return (
     <>
@@ -38,6 +40,7 @@ export default async function PageAppel({
           <form method="get" className="choix-date-appel">
             <label htmlFor="date">Autre jour</label>
             <input id="date" name="date" type="date" defaultValue={a.date} max={a.aujourdhui} />
+            {apercu ? <input type="hidden" name="vue" value={apercu} /> : null}
             <button type="submit" className="bouton-secondaire">
               Ouvrir
             </button>
@@ -47,7 +50,7 @@ export default async function PageAppel({
           ) : null}
           {a.faitLe ? <p className="carte-graphique-sous">Appel déjà fait : tu peux le corriger.</p> : null}
         </header>
-        {a.peutAppel ? (
+        {peut.appel ? (
           <FeuilleAppel
             classeId={a.classe.id}
             date={a.date}

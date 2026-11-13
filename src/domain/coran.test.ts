@@ -13,6 +13,8 @@ import {
   fichierVerset,
   texteDesSegments,
   versetSuivant,
+  resumeCourtMemoriser,
+  resumeMemoriser,
 } from "./coran";
 
 describe("tajwid", () => {
@@ -127,5 +129,25 @@ describe("mot par mot", () => {
     ];
     expect(motA(r, 450)).toBe(2);
     expect(motA(r, 1200)).toBeNull();
+  });
+});
+
+describe("résumé de la mémorisation", () => {
+  it("décrit le passage et les répétitions", () => {
+    expect(resumeMemoriser({ du: 3, au: 7 }, { verset: 3, passage: 0 })).toBe(
+      "Versets 3 à 7 : chaque verset 3 fois, puis le tout en boucle.",
+    );
+    expect(resumeMemoriser({ du: 5, au: 5 }, { verset: 1, passage: 0 })).toBe("Verset 5 : en boucle.");
+    expect(resumeMemoriser({ du: 5, au: 5 }, { verset: 1, passage: 3 })).toBe("Verset 5 : 3 fois.");
+    expect(resumeMemoriser({ du: 1, au: 4 }, { verset: 1, passage: 1 })).toBe("Versets 1 à 4, une fois.");
+    expect(resumeMemoriser({ du: 1, au: 4 }, { verset: 2, passage: 2 })).toBe(
+      "Versets 1 à 4 : chaque verset 2 fois, puis le tout 2 fois.",
+    );
+  });
+  it("a une version courte pour le lecteur", () => {
+    expect(resumeCourtMemoriser({ du: 3, au: 7 }, { verset: 3, passage: 0 })).toBe(
+      "Versets 3 → 7 · 3× chacun · en boucle",
+    );
+    expect(resumeCourtMemoriser({ du: 5, au: 5 }, { verset: 1, passage: 1 })).toBe("Verset 5");
   });
 });

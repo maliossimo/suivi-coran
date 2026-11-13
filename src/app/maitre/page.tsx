@@ -7,10 +7,12 @@ import { EnteteEspace } from "@/components/EnteteEspace";
 import { EtatVide } from "@/components/EtatVide";
 import { ListeEleves } from "@/components/ListeEleves";
 import { VueAdmin } from "@/components/admin/VueAdmin";
+import { AppelDuJour } from "@/components/presences/AppelDuJour";
 import { exigerEspace } from "@/services/acces";
 import { listerClasses } from "@/services/admin";
 import { chargerClasse } from "@/services/classe";
 import { aujourdhuiParis } from "@/services/fiche";
+import { chargerAppelDuJour } from "@/services/presences";
 
 /** Chiffres de la classe et liste des élèves, chargés après l'en-tête. */
 async function ContenuClasse({ moisParam, classeId }: { moisParam?: string; classeId?: string }) {
@@ -67,13 +69,17 @@ export default async function PageClasse({
   const mois = lireMois(moisParam, aujourdhuiParis());
   // L'admin regarde une classe précise (lien « Voir la classe » de l'administration).
   const admin = profil.role === "admin";
-  const classes = admin ? await listerClasses(profil) : [];
+  const [classes, appelDuJour] = await Promise.all([
+    admin ? listerClasses(profil) : Promise.resolve([]),
+    chargerAppelDuJour(profil),
+  ]);
   const classe = admin ? classes.find((c) => c.id === classeParam) : undefined;
   const suffixe = classe ? `&classe=${classe.id}` : "";
   return (
     <>
       <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
+        {classe ? null : <AppelDuJour classes={appelDuJour} />}
         <div className="entete-page">
           <nav className="mois mois-compact" aria-label="Changer de mois">
             <Link

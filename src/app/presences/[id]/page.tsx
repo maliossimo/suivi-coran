@@ -1,12 +1,21 @@
-import { AlertTriangle, CalendarCheck, ChevronLeft, ChevronRight, Settings } from "lucide-react";
+import { AlertTriangle, CalendarCheck, ChevronLeft, ChevronRight, Settings, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { BoutonPartager } from "@/components/presences/BoutonPartager";
+import { ChoixVue } from "@/components/presences/ChoixVue";
 import { EnvoiAppels } from "@/components/presences/EnvoiAppels";
 import { lireDate } from "@/domain/calendrier";
 import { decalerMois, libelleMois } from "@/domain/fiche";
-import { JOURS, LETTRE_STATUT, LIBELLE_STATUT, jourIso, libelleJours } from "@/domain/presences";
+import {
+  JOURS,
+  LETTRE_STATUT,
+  LIBELLE_STATUT,
+  SEUIL_ABSENCES,
+  avecVue,
+  jourIso,
+  libelleJours,
+} from "@/domain/presences";
 import { chargerClasseMois, exigerPresences } from "@/services/presences";
 
 export const metadata = { title: "Présences de la classe" };
@@ -23,17 +32,16 @@ export default async function PageClasse({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ mois?: string; vue?: string }>;
 }) {
-  const profil = await exigerPresences();
   const q = await searchParams;
-  const c = await chargerClasseMois(profil, (await params).id, q.mois);
+  const { profil, apercu, peut } = await exigerPresences(q.vue);
+  const c = await chargerClasseMois((await params).id, q.mois);
   if (!c) notFound();
-  const responsable = q.vue === "responsable";
-  const modifiable = c.peutAppel && !responsable;
   const [annee, mois] = c.mois.split("-").map(Number) as [number, number];
   const lien = (delta: number) => {
     const m = decalerMois({ annee, mois }, delta);
-    return `/presences/${c.classe.id}?mois=${m.annee}-${String(m.mois).padStart(2, "0")}${responsable ? "&vue=responsable" : ""}`;
+    return avecVue(`/presences/${c.classe.id}?mois=${m.annee}-${String(m.mois).padStart(2, "0")}`, apercu);
   };
+  const reglages = peut.organiser || peut.eleves;
   const titreMois = libelleMois({ annee, mois });
   const texte = [
     `Présences · ${c.classe.nom} · ${titreMois}`,
@@ -52,7 +60,10 @@ export default async function PageClasse({
       <EnteteEspace titre="Présences" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace">
         <EnvoiAppels />
-        <Link href={`/presences${responsable ? "?vue=responsable" : ""}`} className="lien-retour">
+        {profil.role === "admin" ? (
+          <ChoixVue chemin={`/presences/${c.classe.id}?mois=${c.mois}`} apercu={apercu} />
+        ) : null}
+        <Link href={avecVue("/presences", apercu)} className="lien-retour">
           <ChevronLeft size={18} aria-hidden="true" />
           Présences
         </Link>
@@ -65,17 +76,24 @@ export default async function PageClasse({
               {c.classe.archivee ? " · terminée" : ""}
             </p>
           </div>
-          {modifiable ? (
+          {reglages ? (
             <Link
-              href={`/presences/${c.classe.id}/modifier`}
+              href={avecVue(`/presences/${c.classe.id}/modifier`, apercu)}
               className="mois-fleche"
-              aria-label="Modifier la classe"
+              aria-label={peut.organiser ? "Modifier la classe" : "Élèves de la classe"}
             >
-              <Settings size={20} aria-hidden="true" />
+              {peut.organiser ? (
+                <Settings size={20} aria-hidden="true" />
+              ) : (
+                <UserPlus size={20} aria-hidden="true" />
+              )}
             </Link>
           ) : null}
-          {modifiable ? (
-            <Link href={`/presences/${c.classe.id}/appel`} className="carte-eleve-progression">
+          {peut.appel && !c.classe.archivee ? (
+            <Link
+              href={avecVue(`/presences/${c.classe.id}/appel`, apercu)}
+              className="carte-eleve-progression"
+            >
               <CalendarCheck size={18} aria-hidden="true" />
               <span>Faire l’appel</span>
               <ChevronRight size={18} aria-hidden="true" />
@@ -135,8 +153,10 @@ export default async function PageClasse({
                     {c.dates.map((d) => (
                       <th key={d} className={c.appelsFaits.has(d) ? undefined : "sans-appel"}>
                         <small>{JOURS[jourIso(d) - 1]?.court.slice(0, 2)}</small>
-                        {modifiable ? (
-                          <Link href={`/presences/${c.classe.id}/appel?date=${d}`}>{lireDate(d).jour}</Link>
+                        {peut.appel ? (
+                          <Link href={avecVue(`/presences/${c.classe.id}/appel?date=${d}`, apercu)}>
+                            {lireDate(d).jour}
+                          </Link>
                         ) : (
                           <span>{lireDate(d).jour}</span>
                         )}
@@ -150,7 +170,7 @@ export default async function PageClasse({
                     <tr key={l.membre.id} className={l.membre.actif ? undefined : "membre-parti"}>
                       <td>
                         {l.membre.prenom} {l.membre.nom}
-                        {l.absencesDAffilee >= 2 ? (
+                        {l.absencesDAffilee >= SEUIL_ABSENCES ? (
                           <AlertTriangle size={13} aria-label="À surveiller" />
                         ) : null}
                       </td>
@@ -170,9 +190,7 @@ export default async function PageClasse({
               </table>
             </div>
           )}
-          <p className="legende-statuts">
-            P présent · A absent · R en retard · E excusé · « · » pas d’appel ce jour-là
-          </p>
+          <p className="legende-statuts">P présent · A absent · « · » pas d’appel ce jour-là</p>
         </section>
       </main>
     </>
