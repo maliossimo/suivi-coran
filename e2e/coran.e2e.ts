@@ -33,7 +33,37 @@ test.describe("Coran (admin)", () => {
     await page.goto("/admin/coran?lecture=hafs&sourate=18");
     const verset = page.locator('.coran-verset[data-cle="18:10"]');
     await verset.scrollIntoViewIfNeeded();
+    await page.evaluate(() => {
+      const w = window as unknown as { traces: string[] };
+      w.traces = [];
+      const t0 = performance.now();
+      for (const type of [
+        "pointerdown",
+        "pointerup",
+        "pointercancel",
+        "pointerleave",
+        "contextmenu",
+        "click",
+        "touchstart",
+        "touchend",
+      ]) {
+        document.addEventListener(
+          type,
+          (e) =>
+            w.traces.push(
+              `${Math.round(performance.now() - t0)} ${type} ${(e as PointerEvent).pointerType ?? ""}`,
+            ),
+          true,
+        );
+      }
+    });
     await appuiLong(page, verset);
+    console.log(
+      `Évènements : ${await page.evaluate(() => (window as unknown as { traces: string[] }).traces.join(" | "))}`,
+    );
+    console.log(
+      `Dialogues ouverts : ${await page.evaluate(() => document.querySelectorAll("dialog[open]").length)}`,
+    );
 
     const feuille = page.getByRole("dialog", { name: "Verset 10" });
     await expect(feuille).toBeVisible();
