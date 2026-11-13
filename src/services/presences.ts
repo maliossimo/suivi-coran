@@ -246,8 +246,7 @@ const schemaClasse = z.object({
 });
 
 export async function chargerFormulaireClasse(acteur: Profil, idBrut?: unknown, etablissementBrut?: unknown) {
-  const refus = exigerAppel(acteur);
-  if (refus) throw new Error(refus.erreur);
+  if (!peutFaireAppel(acteur)) throw new Error("Seul le Cheikh de la classe gère la classe.");
   const etablissements = (await listerEtablissements()).filter((e) => e.actif);
   const classe = idBrut ? await lireClasse(schemaId.parse(idBrut)) : null;
   const etab =

@@ -220,14 +220,17 @@ export async function ajouterMembre(
   membre: { eleveId: string } | { prenom: string; nom: string },
 ): Promise<void> {
   const supabase = await creerClientServeur();
-  const ligne =
-    "eleveId" in membre
-      ? { classe_id: classeId, eleve_id: membre.eleveId, actif: true }
-      : { classe_id: classeId, prenom: membre.prenom, nom: membre.nom || null };
   const { error } =
     "eleveId" in membre
-      ? await supabase.from("membres_classe").upsert(ligne, { onConflict: "classe_id,eleve_id" })
-      : await supabase.from("membres_classe").insert(ligne);
+      ? await supabase
+          .from("membres_classe")
+          .upsert(
+            { classe_id: classeId, eleve_id: membre.eleveId, actif: true },
+            { onConflict: "classe_id,eleve_id" },
+          )
+      : await supabase
+          .from("membres_classe")
+          .insert({ classe_id: classeId, prenom: membre.prenom, nom: membre.nom || null });
   if (error) throw new Error(`Ajout de l'élève impossible : ${error.message}`);
 }
 
