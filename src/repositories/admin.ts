@@ -287,3 +287,58 @@ export async function enregistrerErreur(
   const supabase = await creerClientServeur();
   await supabase.from("erreurs").insert({ page, message, version });
 }
+
+/**
+ * Note que cette session de l'admin a saisi le bon code (clé « service role » :
+ * une session ne peut pas se déclarer vérifiée elle-même).
+ */
+export async function marquerSessionVerifiee(sessionId: string, userId: string): Promise<boolean> {
+  const admin = clientAdmin();
+  if (!admin) return false;
+  const { error } = await admin
+    .from("sessions_verifiees")
+    .upsert({ session_id: sessionId, user_id: userId, verifiee_le: new Date().toISOString() });
+  if (error) return false;
+  const ilYA90Jours = new Date(Date.now() - 90 * 86_400_000).toISOString();
+  await admin.from("sessions_verifiees").delete().eq("user_id", userId).lt("verifiee_le", ilYA90Jours);
+  return true;
+}
+
+export interface UtilisationAppli {
+  derniere: string;
+  ouvertures7j: number;
+}
+
+/** Dernière ouverture de l'appli de chaque personne. */
+export async function dernieresOuvertures(): Promise<Map<string, UtilisationAppli>> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("dernieres_ouvertures");
+  if (error) throw new Error(`Lecture des ouvertures impossible : ${error.message}`);
+  const lignes = z
+    .array(z.object({ user_id: z.string().uuid(), derniere: z.string(), ouvertures_7j: z.coerce.number() }))
+    .parse(data ?? []);
+  return new Map(lignes.map((l) => [l.user_id, { derniere: l.derniere, ouvertures7j: l.ouvertures_7j }]));
+}
+
+export interface Ouverture {
+  id: number;
+  personneId: string;
+  quand: string;
+}
+
+/** Ouvertures les plus récentes (toutes, ou celles d'une personne). */
+export async function ouverturesRecentes(limite: number, personneId?: string): Promise<Ouverture[]> {
+  const supabase = await creerClientServeur();
+  let requete = supabase
+    .from("ouvertures")
+    .select("id, user_id, ouverte_le")
+    .order("ouverte_le", { ascending: false })
+    .limit(limite);
+  if (personneId) requete = requete.eq("user_id", personneId);
+  const { data, error } = await requete;
+  if (error) throw new Error(`Lecture des ouvertures impossible : ${error.message}`);
+  return z
+    .array(z.object({ id: z.number(), user_id: z.string().uuid(), ouverte_le: z.string() }))
+    .parse(data ?? [])
+    .map((o) => ({ id: o.id, personneId: o.user_id, quand: o.ouverte_le }));
+}

@@ -9,15 +9,17 @@ begin;
 -- ---------- Outils de test -------------------------------------------
 create function pg_temp.en_tant_que(p uuid) returns void language plpgsql as $$
 begin
-  perform set_config('request.jwt.claims', json_build_object('sub', p, 'role', 'authenticated')::text, true);
+  -- Session habituelle de la personne (identifiant de session = son id).
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', p, 'role', 'authenticated', 'session_id', p)::text, true);
   execute 'set local role authenticated';
 end $$;
 
-create function pg_temp.en_tant_que_verifie(p uuid) returns void language plpgsql as $$
+create function pg_temp.en_tant_que_nouvelle_session(p uuid) returns void language plpgsql as $$
 begin
-  -- session qui a passé la double vérification (niveau aal2)
+  -- Nouvelle connexion (autre appareil) : le code n'a pas encore été saisi.
   perform set_config('request.jwt.claims',
-    json_build_object('sub', p, 'role', 'authenticated', 'aal', 'aal2')::text, true);
+    json_build_object('sub', p, 'role', 'authenticated', 'session_id', gen_random_uuid())::text, true);
   execute 'set local role authenticated';
 end $$;
 
@@ -45,7 +47,7 @@ begin
   raise exception 'ÉCHEC : % (accepté alors qu''il devait être refusé)', msg;
 end $$;
 
-grant execute on function pg_temp.en_tant_que(uuid), pg_temp.en_tant_que_verifie(uuid), pg_temp.console(), pg_temp.attendu(boolean, text),
+grant execute on function pg_temp.en_tant_que(uuid), pg_temp.en_tant_que_nouvelle_session(uuid), pg_temp.console(), pg_temp.attendu(boolean, text),
   pg_temp.doit_echouer(text, text) to authenticated;
 
 -- ---------- Jeu de données -------------------------------------------
@@ -66,6 +68,9 @@ select pg_temp.attendu(
   (select role from public.profils where id = 'ad000000-0000-0000-0000-0000000000ad') = 'eleve',
   'les métadonnées d''invitation ne peuvent pas créer un admin');
 update public.profils set role = 'admin' where id = 'ad000000-0000-0000-0000-0000000000ad';  -- console SQL
+-- Session de l'admin qui a saisi son code (écrit par le serveur avec la clé « service role »).
+insert into public.sessions_verifiees (session_id, user_id)
+values ('ad000000-0000-0000-0000-0000000000ad', 'ad000000-0000-0000-0000-0000000000ad');
 
 insert into public.seances (id, eleve_id, date, type, duree_min, tajwid) values
   ('5e000000-0000-0000-0000-0000000000a1', 'a0000000-0000-0000-0000-000000000001', '2026-11-09', 'revision', 30, 'Noun sakin'),
@@ -472,25 +477,44 @@ select pg_temp.attendu(
   'erreurs et sauvegardes : l''admin les lit');
 select pg_temp.console();
 
--- ---------- Double vérification de l'admin ------------------------------
-select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
-select pg_temp.attendu((select count(*) from public.journal_audit) > 0,
-  'double vérification : sans appareil enregistré, l''admin garde ses droits');
-select pg_temp.console();
-insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
-values (gen_random_uuid(), 'ad000000-0000-0000-0000-0000000000ad', 'Téléphone', 'totp', 'verified', now(), now());
-select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+-- ---------- Code de l'admin ------------------------------------------
+select pg_temp.en_tant_que_nouvelle_session('ad000000-0000-0000-0000-0000000000ad');
 select pg_temp.attendu((select count(*) from public.journal_audit) = 0,
-  'double vérification : appareil enregistré, mot de passe seul → aucun droit d''admin');
+  'code admin : nouvelle session sans code → aucun droit d''admin');
 update public.etablissements set nom = 'Sans code' where id = 'aaaaaaaa-0000-0000-0000-000000000000';
-select pg_temp.en_tant_que_verifie('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.doit_echouer(
+  $q$insert into public.sessions_verifiees (session_id, user_id)
+     values (gen_random_uuid(), 'ad000000-0000-0000-0000-0000000000ad')$q$,
+  'code admin : la session ne peut pas se déclarer vérifiée elle-même');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
 select pg_temp.attendu(
   (select nom from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') <> 'Sans code',
-  'double vérification : sans le code, l''admin ne modifie rien');
+  'code admin : sans le code, l''admin ne modifie rien');
 select pg_temp.attendu((select count(*) from public.journal_audit) > 0,
-  'double vérification : avec le code, l''admin retrouve ses droits');
+  'code admin : session vérifiée → droits d''admin');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.attendu((select count(*) from public.sessions_verifiees) = 0,
+  'code admin : un maître ne voit pas les sessions de l''admin');
+
+-- ---------- Ouvertures de l'appli -------------------------------------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+insert into public.ouvertures default values;
+insert into public.ouvertures default values;
+select pg_temp.attendu((select count(*) from public.ouvertures) = 1,
+  'ouvertures : une seule par quart d''heure');
+select pg_temp.doit_echouer(
+  $q$insert into public.ouvertures (user_id) values ('a0000000-0000-0000-0000-00000000000a')$q$,
+  'ouvertures : impossible au nom d''un autre');
+select pg_temp.attendu((select ouverte_le from public.ouvertures) = now(),
+  'ouvertures : l''heure vient de la base');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+insert into public.ouvertures default values;
+select pg_temp.attendu((select count(*) from public.ouvertures) = 1,
+  'ouvertures : chacun ne voit que les siennes');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu((select count(*) from public.dernieres_ouvertures()) = 2,
+  'ouvertures : l''admin voit la dernière utilisation de chacun');
 select pg_temp.console();
-delete from auth.mfa_factors where user_id = 'ad000000-0000-0000-0000-0000000000ad';
 
 -- ---------- Suppression définitive d'un élève -------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');

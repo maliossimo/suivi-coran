@@ -4646,28 +4646,61 @@ html[data-ouverture] .ouverture-version {
 
 /* ---------- Gestes de la fiche : glisser, tirer pour rafraîchir ---------- */
 .fiche-gestes {
-  display: contents;
+  /* Même disposition que la page : rien ne bouge quand l'animation commence. */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+  touch-action: pan-y;
 }
-.fiche-gestes.arrivee-gauche,
-.fiche-gestes.arrivee-droite {
-  display: block;
+.fiche-gestes.glisse {
+  transition: none;
 }
+/* Départ : le mois affiché glisse et s'estompe dans le sens du doigt pendant le chargement. */
+.fiche-gestes.depart-gauche,
+.fiche-gestes.depart-droite {
+  opacity: 0.35;
+  pointer-events: none;
+  transition:
+    transform 0.22s cubic-bezier(0.4, 0, 0.6, 1),
+    opacity 0.22s ease;
+}
+.fiche-gestes.depart-gauche {
+  transform: translateX(-28px);
+}
+.fiche-gestes.depart-droite {
+  transform: translateX(28px);
+}
+/* Arrivée : le nouveau mois entre par le côté opposé. */
 .fiche-gestes.arrivee-gauche {
-  animation: arrivee-gauche 0.24s cubic-bezier(0.2, 0.7, 0.2, 1);
+  animation: arrivee-gauche 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .fiche-gestes.arrivee-droite {
-  animation: arrivee-droite 0.24s cubic-bezier(0.2, 0.7, 0.2, 1);
+  animation: arrivee-droite 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 @keyframes arrivee-gauche {
   from {
-    opacity: 0.2;
+    opacity: 0;
     transform: translateX(36px);
   }
 }
 @keyframes arrivee-droite {
   from {
-    opacity: 0.2;
+    opacity: 0;
     transform: translateX(-36px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fiche-gestes,
+  .fiche-gestes.depart-gauche,
+  .fiche-gestes.depart-droite {
+    transform: none;
+  }
+  .fiche-gestes.arrivee-gauche,
+  .fiche-gestes.arrivee-droite {
+    animation-name: apparition;
   }
 }
 .tirer-rafraichir {
@@ -4761,35 +4794,23 @@ html[data-ouverture] .ouverture-version {
   background: var(--surface-2);
 }
 
-/* ---------- Double vérification (admin) ---------------------------- */
+/* ---------- Code de vérification (admin) -------------------------- */
 .champ-code {
   font-size: 22px;
   letter-spacing: 0.3em;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.qr-verification {
-  display: block;
-  width: 200px;
-  height: 200px;
-  margin: 4px auto;
-  padding: 8px;
-  border-radius: 12px;
-  background: #fff;
+.details-ouvertures {
+  margin-top: 12px;
 }
-.cle-verification {
-  display: block;
-  margin-top: 8px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--vert-clair);
-  font-size: 15px;
-  word-break: break-all;
-  user-select: all;
+.details-ouvertures summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--vert-texte);
 }
-.ligne-appareil {
+.details-ouvertures .liste-simple li {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: 12px;
 }

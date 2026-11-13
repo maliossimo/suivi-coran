@@ -3,6 +3,7 @@ import { accueilDuRole, type Role } from "@/domain/roles";
 import { Avatar } from "./Avatar";
 import { LogoAccueil } from "./logo/LogoAccueil";
 import { NavigationEspace } from "./NavigationEspace";
+import { SignalerOuverture } from "./SignalerOuverture";
 import { TitreBarre } from "./Salutation";
 
 const LIBELLE_ROLE: Record<Role, string> = { eleve: "Élève", maitre: "Cheikh", admin: "Administrateur" };
@@ -14,6 +15,7 @@ const LIBELLE_ROLE: Record<Role, string> = { eleve: "Élève", maitre: "Cheikh",
 export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string; role: Role }) {
   return (
     <header className="barre">
+      <SignalerOuverture />
       <div className="barre-contenu">
         <LogoAccueil accueil={accueilDuRole(role)} label="Accueil — Suivi cours Coran">
           <div className="barre-titres" aria-hidden="true">

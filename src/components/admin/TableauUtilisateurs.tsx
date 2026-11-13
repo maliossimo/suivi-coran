@@ -21,6 +21,7 @@ export interface LigneUtilisateur {
   etablissementId: string | null;
   creeLe: string;
   derniereConnexion: string | null;
+  derniereUtilisation: string | null;
   lecture: Lecture | null;
 }
 
@@ -134,7 +135,7 @@ export function TableauUtilisateurs({
               <th>Rôle</th>
               <th>Établissement</th>
               <th>Inscrit le</th>
-              <th>Dernière connexion</th>
+              <th>Dernière utilisation</th>
               <th>Statut</th>
               <th>Suppression</th>
             </tr>
@@ -185,7 +186,7 @@ export function TableauUtilisateurs({
                   )}
                 </td>
                 <td>{dateCourte(u.creeLe)}</td>
-                <td>{u.derniereConnexion ? dateHeure(u.derniereConnexion) : "Jamais"}</td>
+                <td>{u.derniereUtilisation ? dateHeure(u.derniereUtilisation) : "Jamais"}</td>
                 <td>
                   {u.id === moi ? (
                     "Vous"
