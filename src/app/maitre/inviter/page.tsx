@@ -9,7 +9,7 @@ import { QrCode } from "@/components/QrCode";
 import { envPublic } from "@/lib/env";
 import { exigerEspace } from "@/services/acces";
 import { listerClasses } from "@/services/admin";
-import { chargerQrClasse } from "@/services/classe";
+import { chargerQrClasse, classesDuCheikh } from "@/services/classe";
 
 function dateHeure(iso: string): string {
   return new Intl.DateTimeFormat("fr-FR", {
@@ -22,17 +22,29 @@ function dateHeure(iso: string): string {
   }).format(new Date(iso));
 }
 
-export default async function PageInviter({ searchParams }: { searchParams: Promise<{ classe?: string }> }) {
+export default async function PageInviter({
+  searchParams,
+}: {
+  searchParams: Promise<{ classe?: string; cours?: string }>;
+}) {
   const profil = await exigerEspace("maitre");
   const admin = profil.role === "admin";
-  const { classe } = await searchParams;
-  const classes = admin ? await listerClasses(profil) : [];
-  // L'admin choisit la classe ; le maître invite toujours dans la sienne.
+  const { classe, cours } = await searchParams;
+  const [classes, sesClasses] = await Promise.all([
+    admin ? listerClasses(profil) : Promise.resolve([]),
+    classesDuCheikh(profil),
+  ]);
+  // L'admin choisit l'établissement ; le Cheikh invite dans sa classe (au choix s'il en a plusieurs).
   const classeChoisie = admin ? classes.find((c) => c.id === classe) : undefined;
-  const qr = admin && !classeChoisie ? null : await chargerQrClasse(profil, classeChoisie?.id);
-  const champClasse = classeChoisie ? (
-    <input type="hidden" name="etablissementId" value={classeChoisie.id} />
-  ) : null;
+  const coursChoisi = sesClasses.find((c) => c.id === cours) ?? sesClasses[0];
+  const qr =
+    admin && !classeChoisie ? null : await chargerQrClasse(profil, classeChoisie?.id, coursChoisi?.id);
+  const champClasse = (
+    <>
+      {classeChoisie ? <input type="hidden" name="etablissementId" value={classeChoisie.id} /> : null}
+      {coursChoisi ? <input type="hidden" name="classe" value={coursChoisi.id} /> : null}
+    </>
+  );
   const lien = qr ? `${envPublic.NEXT_PUBLIC_SITE_URL}/rejoindre/${qr.code}` : null;
 
   return (
@@ -47,6 +59,23 @@ export default async function PageInviter({ searchParams }: { searchParams: Prom
           <h1>Inviter des élèves</h1>
           <p>Deux façons, au choix : un QR code à scanner en classe, ou une invitation par e-mail.</p>
         </header>
+
+        {sesClasses.length > 1 ? (
+          <nav className="puces-periode" aria-label="Classe">
+            {sesClasses.map((c) => (
+              <Link
+                key={c.id}
+                href={`/maitre/inviter?cours=${c.id}`}
+                className={c.id === coursChoisi?.id ? "puce-periode actif" : "puce-periode"}
+                aria-current={c.id === coursChoisi?.id ? "true" : undefined}
+                replace
+                scroll={false}
+              >
+                {c.nom}
+              </Link>
+            ))}
+          </nav>
+        ) : null}
 
         {admin ? (
           <form method="get" className="choix-classe">
@@ -126,7 +155,11 @@ export default async function PageInviter({ searchParams }: { searchParams: Prom
               <p className="carte-graphique-sous">
                 L’élève reçoit un e-mail avec un lien pour choisir son mot de passe.
               </p>
-              <FormulaireInvitation cible="eleve" etablissementId={classeChoisie?.id} />
+              <FormulaireInvitation
+                cible="eleve"
+                etablissementId={classeChoisie?.id}
+                classeId={coursChoisi?.id}
+              />
             </section>
           </>
         )}

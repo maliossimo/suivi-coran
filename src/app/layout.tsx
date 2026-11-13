@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import Script from "next/script";
 import { BandeauNotification } from "@/components/BandeauNotification";
 import { EtatReseau } from "@/components/EtatReseau";
+import { MiseAJourAuto } from "@/components/MiseAJourAuto";
 import { OuvertureAppli } from "@/components/OuvertureAppli";
 import { BandeauAnnulation } from "@/components/fiche/BandeauAnnulation";
 import "./globals.css";
@@ -139,6 +140,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <BandeauNotification />
         <BandeauAnnulation />
         <EtatReseau />
+        <MiseAJourAuto />
         {/* Installation sur l'écran d'accueil : l'invitation de Chrome est gardée dès son arrivée
             (elle peut arriver avant que la page soit prête) et le service worker est enregistré. */}
         <Script id="installation-appli" strategy="beforeInteractive" nonce={nonce}>

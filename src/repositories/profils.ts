@@ -33,15 +33,15 @@ export interface Profil {
  */
 export const profilConnecte = cache(async (): Promise<Profil | null> => {
   const supabase = await creerClientServeur();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  // Jeton vérifié (signature) sans appel réseau quand les clés de Supabase sont asymétriques.
+  const { data: jeton } = await supabase.auth.getClaims();
+  const id = jeton?.claims?.sub;
+  if (!id) return null;
 
   const { data, error } = await supabase
     .from("profils")
     .select("id, role, etablissement_id, prenom, nom, actif, lecture")
-    .eq("id", user.id)
+    .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(`Lecture du profil impossible : ${error.message}`);
   if (!data) return null;

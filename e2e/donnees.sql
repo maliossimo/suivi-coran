@@ -29,6 +29,10 @@ select pg_temp.compte('e2e00000-0000-0000-0000-0000000000ad', 'admin@bout-en-bou
   '{"prenom":"Admin","nom":"Essai"}');
 select pg_temp.compte('e2e00000-0000-0000-0000-0000000000c1', 'cheikh.a@bout-en-bout.test',
   '{"role":"maitre","etablissement_id":"e2e00000-0000-0000-0000-00000000000a","prenom":"Cheikh","nom":"Alpha"}');
+select pg_temp.compte('e2e00000-0000-0000-0000-0000000000c3', 'cheikh.a2@bout-en-bout.test',
+  '{"role":"maitre","etablissement_id":"e2e00000-0000-0000-0000-00000000000a","prenom":"Cheikh","nom":"Gamma"}');
+select pg_temp.compte('e2e00000-0000-0000-0000-0000000000e3', 'eleve.a2@bout-en-bout.test',
+  '{"etablissement_id":"e2e00000-0000-0000-0000-00000000000a","prenom":"Sami","nom":"Soir"}');
 select pg_temp.compte('e2e00000-0000-0000-0000-0000000000c2', 'cheikh.b@bout-en-bout.test',
   '{"role":"maitre","etablissement_id":"e2e00000-0000-0000-0000-00000000000b","prenom":"Cheikh","nom":"Bêta"}');
 select pg_temp.compte('e2e00000-0000-0000-0000-0000000000e1', 'eleve.a@bout-en-bout.test',
@@ -42,7 +46,8 @@ update public.profils set role = 'admin', etablissement_id = null
 -- (comme changer_lecture : autorise le changement de lecture pour cette transaction)
 select set_config('app.conversion_lecture', 'oui', true);
 update public.profils set lecture = 'hafs'
-  where id in ('e2e00000-0000-0000-0000-0000000000e1', 'e2e00000-0000-0000-0000-0000000000e2');
+  where id in ('e2e00000-0000-0000-0000-0000000000e1', 'e2e00000-0000-0000-0000-0000000000e2',
+               'e2e00000-0000-0000-0000-0000000000e3');
 
 -- Une séance de révision d'hier, à corriger par le Cheikh.
 insert into public.seances (id, eleve_id, date, type, duree_min) values
@@ -61,5 +66,14 @@ insert into public.membres_classe (classe_id, eleve_id) values
   ('e2e00000-0000-0000-0000-0000000c1a55', 'e2e00000-0000-0000-0000-0000000000e1');
 insert into public.membres_classe (classe_id, prenom, nom) values
   ('e2e00000-0000-0000-0000-0000000c1a55', 'Yanis', 'Sanscompte');
+
+-- Deuxième classe de la même mosquée, avec un autre Cheikh : chacun ne voit que ses élèves.
+insert into public.classes (id, etablissement_id, nom, jours) values
+  ('e2e00000-0000-0000-0000-0000000c1a56', 'e2e00000-0000-0000-0000-00000000000a', 'Coran du soir (test)',
+   array[1, 3]::smallint[]);
+insert into public.classes_cheikhs (classe_id, maitre_id) values
+  ('e2e00000-0000-0000-0000-0000000c1a56', 'e2e00000-0000-0000-0000-0000000000c3');
+insert into public.membres_classe (classe_id, eleve_id) values
+  ('e2e00000-0000-0000-0000-0000000c1a56', 'e2e00000-0000-0000-0000-0000000000e3');
 
 commit;
