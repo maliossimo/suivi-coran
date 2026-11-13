@@ -3,16 +3,7 @@ import { premierJour } from "@/domain/fiche";
 import { chargerBilan } from "@/services/fiche";
 import { FormulaireBilan } from "./FormulaireBilan";
 import { FormulaireCommentaire } from "./FormulaireCommentaire";
-
-function formaterDateHeure(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Paris",
-  }).format(new Date(iso));
-}
+import { dateHeure } from "@/domain/format";
 
 /** Bilan du mois, chargé après le reste de la fiche (affiché en différé). */
 export async function SectionBilan({
@@ -43,7 +34,7 @@ export async function SectionBilan({
           {commentaires.map((c) => (
             <p key={c.creeLe}>
               {c.texte}
-              <small> · {formaterDateHeure(c.creeLe)}</small>
+              <small> · {dateHeure(c.creeLe)}</small>
             </p>
           ))}
         </div>
