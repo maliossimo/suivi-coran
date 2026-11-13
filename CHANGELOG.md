@@ -20,7 +20,12 @@ Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z
 
 ### Amélioré
 
-- Réactivité : vérification de la connexion sans aller-retour réseau quand c'est possible ; plus aucun appel à la base pour les polices, icônes et fichiers fixes ; écran d’attente immédiat dans les présences.
+- Réactivité : vérification de la connexion sans aller-retour réseau quand c'est possible ; plus aucun appel à la base pour les polices, icônes et fichiers fixes ; écran d'attente immédiat dans les présences.
+
+### Corrigé
+
+- Après l'appel, le retour sur la classe pouvait rester bloqué sur la page de l'appel.
+- « Aller à » (sourate, marque-page) : si l'ouverture dans l'appli n'aboutit pas, la page s'ouvre normalement au bout de 3 secondes au lieu de rester sans réponse.
 
 ### Interne
 
