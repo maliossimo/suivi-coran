@@ -20,6 +20,21 @@ export default function manifest(): MetadataRoute.Manifest {
     related_applications: [
       { platform: "webapp", url: `${envPublic.NEXT_PUBLIC_SITE_URL}/manifest.webmanifest` },
     ],
+    // Appui long sur l'icône (Android, Chrome) : les deux gestes les plus fréquents de l'élève.
+    shortcuts: [
+      {
+        name: "Saisir ma séance du jour",
+        short_name: "Saisir ma séance",
+        url: "/eleve/aujourdhui",
+        icons: [{ src: "/icones/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+      {
+        name: "Ma progression",
+        short_name: "Progression",
+        url: "/eleve/progression",
+        icons: [{ src: "/icones/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+    ],
     icons: [
       { src: "/icones/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icones/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
