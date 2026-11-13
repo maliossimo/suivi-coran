@@ -331,7 +331,7 @@ function LigneJour({
       <span className={s ? "jour-contenu" : "jour-contenu jour-vide"}>
         {contenu ?? (jour.futur ? "" : "+ Saisir")}
         <EtatEnregistrement cle={cle} enBase={s} />
-        <PastilleCheikh etat={s ? etatCheikh(s) : null} court />
+        <PastilleCheikh etat={s ? etatCheikh(s) : null} />
         {s?.noteLibre ? <span className="pastille-note">Note</span> : null}
         {s?.nbCommentaires ? (
           <span className="pastille-commentaire">
@@ -365,20 +365,16 @@ function LegendePastilles({ vueMaitre }: { vueMaitre: boolean }) {
       <summary>Que veulent dire les pastilles ?</summary>
       <ul>
         <li>
-          <span className="pastille-ecoute">🎧 Écouté</span>
-          {vueMaitre
-            ? "tu as écouté la récitation : à retravailler."
-            : "ton Cheikh a écouté ta récitation : à retravailler."}
+          <PastilleCheikh etat="partielle" />
+          {vueMaitre ? "pas encore écouté." : "ton Cheikh ne l’a pas encore écouté."}
         </li>
         <li>
-          <span className="pastille-or">✓ Validé</span>
-          {vueMaitre ? "tu as validé : c’est acquis." : "ton Cheikh a validé : c’est acquis."}
+          <PastilleCheikh etat="ecoute" />
+          {vueMaitre ? "écouté, à retravailler." : "écouté par ton Cheikh, à retravailler."}
         </li>
         <li>
-          <span className="pastille-or pastille-partielle">Ajout à écouter</span>
-          {vueMaitre
-            ? "l’élève a ajouté ou modifié un passage depuis ton écoute."
-            : "tu as ajouté un passage depuis : ton Cheikh ne l’a pas encore écouté."}
+          <PastilleCheikh etat="valide" />
+          {vueMaitre ? "validé : acquis." : "validé par ton Cheikh : acquis."}
         </li>
         <li>
           <span className="pastille-commentaire">

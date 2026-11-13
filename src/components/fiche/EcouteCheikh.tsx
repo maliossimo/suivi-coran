@@ -62,7 +62,7 @@ export function EcouteCheikh({
         <h2>Récitation</h2>
         <div className="ecoute-cheikh-tout">
           <button type="button" onClick={() => void marquer("ecoute")} aria-pressed={tous("ecoute")}>
-            <Headphones size={16} aria-hidden="true" />
+            <Headphones size={16} strokeWidth={1.6} aria-hidden="true" />
             Tout écouté
           </button>
           <button
@@ -97,7 +97,9 @@ export function EcouteCheikh({
                     className={`choix-${c.etat}`}
                     onClick={() => void marquer(c.etat, i)}
                   >
-                    {c.etat === "ecoute" ? <Headphones size={14} aria-hidden="true" /> : null}
+                    {c.etat === "ecoute" ? (
+                      <Headphones size={15} strokeWidth={1.6} aria-hidden="true" />
+                    ) : null}
                     {c.etat === "valide" ? <Check size={14} aria-hidden="true" /> : null}
                     {c.libelle}
                   </button>
@@ -112,7 +114,7 @@ export function EcouteCheikh({
           {erreur}
         </p>
       ) : null}
-      <p className="ecoute-aide">Écouté : récité devant toi, à retravailler. Validé : acquis.</p>
+      <p className="ecoute-aide">Écouté : à retravailler. Validé : acquis.</p>
     </section>
   );
 }

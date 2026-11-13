@@ -2158,6 +2158,7 @@ input.champ-texte {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+/* Mêmes couleurs que l'appli : or = validé, vert = écouté, gris = à écouter. */
 .pdf-vu {
   display: inline-block;
   padding: 0 6px;
@@ -2165,12 +2166,16 @@ input.champ-texte {
   font-size: 9.5px;
   font-weight: 600;
   white-space: nowrap;
-  background: var(--vert-clair);
-  color: var(--vert-texte);
+  background: #f5ebd8;
+  color: #7a4f0e;
+}
+.pdf-vu-ecoute {
+  background: #e2eee8;
+  color: #1d5c47;
 }
 .pdf-vu-partielle {
-  background: var(--or-clair);
-  color: #7a5a14;
+  background: #ece8de;
+  color: #5b6660;
 }
 
 /* Objectifs. */
@@ -4238,25 +4243,32 @@ html[data-ouverture] .ouverture {
   color: rgba(255, 255, 255, 0.85);
 }
 .puce-declare {
-  background: #a9cbbb;
+  background: var(--etat-saisi);
 }
+/* Sourate : saisi (gris), dont écouté (vert), dont validé (or). */
 .jauge-double > span {
-  background: #a9cbbb;
+  background: var(--etat-saisi);
 }
 .jauge-double > span > span {
   display: block;
   height: 100%;
   border-radius: 99px;
-  background: var(--vert);
+  background: var(--etat-ecoute);
+}
+.jauge-double > span > span > span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--etat-valide);
+}
+.puce.puce-ecoute {
+  background: var(--etat-ecoute);
+}
+.puce.puce-valide {
+  background: var(--etat-valide);
 }
 .liste-sourates-vus {
   color: var(--texte-doux);
-}
-@media (prefers-color-scheme: dark) {
-  .puce-declare,
-  .jauge-double > span {
-    background: rgba(79, 163, 130, 0.35);
-  }
 }
 
 /* ---------- Liste des élèves : séances à voir par le Cheikh ---------- */
@@ -7019,23 +7031,46 @@ html.defilement-bloque {
 }
 
 /* ---------- Écouté / validé par le Cheikh -------------------------------- */
-.pastille-ecoute {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
+/* Une seule langue visuelle dans toute l'appli : gris = à écouter, vert = écouté,
+   or = validé. Le mot (ou le ✓) est toujours écrit : la couleur n'est jamais seule. */
+:root {
+  --etat-saisi: #c9c3b5;
+  --etat-ecoute: var(--vert);
+  --etat-valide: var(--or);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --etat-saisi: rgba(236, 232, 222, 0.28);
+  }
+}
+.pastille-etat {
+  display: inline-block;
+  margin-left: 8px;
   padding: 2px 8px;
+  border: 1px solid transparent;
   border-radius: 99px;
-  background: var(--vert-clair);
-  color: var(--vert-texte);
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
 }
-.passage-vu.passage-ecoute {
+.pastille-etat.etat-a-ecouter {
+  border-color: var(--champ);
+  background: var(--surface-3);
+  color: var(--texte-doux);
+}
+.pastille-etat.etat-ecoute {
+  background: var(--vert-clair);
   color: var(--vert-texte);
 }
-.pdf-vu-ecoute {
-  color: #1d5c47;
+.pastille-etat.etat-valide {
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.passage-vu .pastille-etat {
+  margin-left: 0;
+}
+.legende-pastilles .pastille-etat {
+  margin: 0 6px 0 0;
 }
 .ecoute-cheikh {
   display: grid;
