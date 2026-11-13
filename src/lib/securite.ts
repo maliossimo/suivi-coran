@@ -21,8 +21,9 @@ export function politiqueContenu(nonce: string, developpement = false): string {
     "frame-src https://challenges.cloudflare.com",
     "worker-src 'self'",
     "manifest-src 'self'",
-    // Récitations du Coran (EveryAyah et mp3quran.net), lues directement depuis leurs serveurs.
-    "media-src 'self' https://everyayah.com https://*.mp3quran.net",
+    // Récitations du Coran (EveryAyah et mp3quran.net), lues directement depuis leurs serveurs ;
+    // blob: : sa propre récitation enregistrée sur le téléphone (« Me réciter »).
+    "media-src 'self' blob: https://everyayah.com https://*.mp3quran.net",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -9,6 +9,7 @@ import { actionEnregistrerSeanceFond } from "@/app/actions/fiche";
 import { ChoixSourate } from "./ChoixSourate";
 import { ecrireBrouillon, effacerBrouillon, lireBrouillon, memeSaisie, type Brouillon } from "./brouillon";
 import { cleSeance, lireEnAttente, preparerEnvoi } from "./enregistrementsEnAttente";
+import { retourSensoriel } from "@/components/retourSensoriel";
 
 export interface SourateOption {
   numero: number;
@@ -189,6 +190,7 @@ export function FormulaireSeance({
     // l'envoi continue en arrière-plan ; la ligne du jour affiche « Enregistrement… ».
     const donnees = new FormData(e.currentTarget);
     setEnvoiEnCours(true);
+    retourSensoriel();
     // Le brouillon reste jusqu'à la confirmation de la base (voir brouillon.ts).
     ecrireBrouillon(cle, { dureeMin: duree, passages, noteLibre: note }, true, attendu);
     preparerEnvoi(cle, { dureeMin: duree, passages, noteLibre: note }, () =>

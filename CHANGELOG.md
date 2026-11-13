@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.13.0] — 2026-11-13
+
+### Nouveautés
+
+- Coran : appui long sur un verset pour son explication en français ; un simple toucher ouvre les actions (écouter, en boucle, mémoriser, explication, marque-page). Une astuce l'indique une fois.
+- Marque-pages : un verset marqué est souligné en or et se retrouve dans « Aller à » → « Marques ».
+- Arrêt automatique de l'écoute : après 15, 30 ou 60 minutes (avec un fondu) ou à la fin du passage.
+- « Me réciter » : on s'enregistre sur un verset, puis « Comparer » fait entendre le récitateur et sa propre voix. Les enregistrements restent sur le téléphone et sont effacés à la déconnexion.
+- Couleurs de la page du Coran : Auto, Clair, Sépia ou Sombre.
+- Petit son et vibration discrets quand une séance, une correction ou un appel est enregistré (désactivables dans « Mon compte »).
+
 ## [1.12.0] — 2026-11-13
 
 ### Nouveautés

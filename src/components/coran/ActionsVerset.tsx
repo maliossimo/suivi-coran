@@ -1,69 +1,120 @@
 "use client";
 
-import { BookOpenText, Play, Repeat, Repeat1, Settings2 } from "lucide-react";
+import { Bookmark, BookOpenText, Play, Repeat, Repeat1, Settings2 } from "lucide-react";
 import { Feuille } from "@/components/Feuille";
 import type { EtatExplication } from "./explications";
+import { ReciterVerset } from "./ReciterVerset";
+
+export type ModeVerset = "actions" | "explication";
 
 /**
- * Un verset touché : son explication en français, et ce qu'on peut en faire
- * (l'écouter à partir de là, le répéter en boucle, mémoriser à partir de lui).
+ * Un verset touché : ce qu'on peut en faire (écouter, répéter, mémoriser, marque-page,
+ * se réciter). Appui long : son explication en français, directement.
  */
 export function ActionsVerset({
   cle,
+  mode,
+  onMode,
   onFermer,
+  lecture,
   suivi,
   memorisation,
   explication,
+  marque,
+  adresseRecitateur,
   onEcouter,
   onRepeter,
   onMemoriser,
+  onMarque,
   onReglages,
+  onAvantEnregistrement,
 }: {
   /** « sourate:verset » ; null : feuille fermée. */
   cle: string | null;
+  mode: ModeVerset;
+  onMode: (mode: ModeVerset) => void;
   onFermer: () => void;
+  lecture: string;
   /** Le récitateur suit le texte verset par verset. */
   suivi: boolean;
   /** Vue sourate : répéter et mémoriser sont possibles. */
   memorisation: boolean;
   explication: EtatExplication | null;
+  marque: boolean;
+  /** Fichier du récitateur pour ce verset (comparer sa récitation). */
+  adresseRecitateur: string | null;
   onEcouter: (cle: string) => void;
   onRepeter: (cle: string) => void;
   onMemoriser: (cle: string) => void;
+  onMarque: (cle: string) => void;
   onReglages: () => void;
+  onAvantEnregistrement: () => void;
 }) {
   const verset = cle ? Number(cle.split(":")[1]) : 0;
   return (
     <Feuille ouverte={cle !== null} onFermer={onFermer} titre={verset ? `Verset ${verset}` : "Basmala"}>
-      {cle && suivi ? (
-        <div className="actions-verset-rapides">
-          <button type="button" onClick={() => onEcouter(cle)}>
-            <Play size={20} aria-hidden="true" />
-            <span>Écouter d’ici</span>
-          </button>
-          {memorisation && verset ? (
-            <>
-              <button type="button" onClick={() => onRepeter(cle)}>
-                <Repeat1 size={20} aria-hidden="true" />
-                <span>En boucle</span>
+      {cle ? (
+        <>
+          <div className="actions-verset-rapides">
+            {suivi ? (
+              <button type="button" onClick={() => onEcouter(cle)}>
+                <Play size={20} aria-hidden="true" />
+                <span>Écouter d’ici</span>
               </button>
-              <button type="button" onClick={() => onMemoriser(cle)}>
-                <Repeat size={20} aria-hidden="true" />
-                <span>Mémoriser…</span>
+            ) : null}
+            {suivi && memorisation && verset ? (
+              <>
+                <button type="button" onClick={() => onRepeter(cle)}>
+                  <Repeat1 size={20} aria-hidden="true" />
+                  <span>En boucle</span>
+                </button>
+                <button type="button" onClick={() => onMemoriser(cle)}>
+                  <Repeat size={20} aria-hidden="true" />
+                  <span>Mémoriser…</span>
+                </button>
+              </>
+            ) : null}
+            {verset ? (
+              <>
+                <button
+                  type="button"
+                  aria-pressed={mode === "explication"}
+                  onClick={() => onMode(mode === "explication" ? "actions" : "explication")}
+                >
+                  <BookOpenText size={20} aria-hidden="true" />
+                  <span>Explication</span>
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={marque}
+                  className={marque ? "marque" : undefined}
+                  onClick={() => onMarque(cle)}
+                >
+                  <Bookmark size={20} aria-hidden="true" />
+                  <span>{marque ? "Marqué" : "Marque-page"}</span>
+                </button>
+              </>
+            ) : null}
+            {!suivi ? (
+              <button type="button" onClick={onReglages}>
+                <Settings2 size={20} aria-hidden="true" />
+                <span>Récitateur verset par verset</span>
               </button>
-            </>
-          ) : null}
-        </div>
-      ) : cle ? (
-        <div className="actions-verset-rapides">
-          <button type="button" onClick={onReglages}>
-            <Settings2 size={20} aria-hidden="true" />
-            <span>Récitateur verset par verset</span>
-          </button>
-        </div>
-      ) : null}
+            ) : null}
+          </div>
 
-      {explication ? <Explication etat={explication} /> : null}
+          {mode === "explication" && explication ? <Explication etat={explication} /> : null}
+          {mode === "actions" && verset ? (
+            <ReciterVerset
+              key={cle}
+              lecture={lecture}
+              cle={cle}
+              adresseRecitateur={adresseRecitateur}
+              onAvantEnregistrement={onAvantEnregistrement}
+            />
+          ) : null}
+        </>
+      ) : null}
     </Feuille>
   );
 }

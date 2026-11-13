@@ -280,3 +280,64 @@ export function motA(reperes: readonly RepereMot[], ms: number): number | null {
   for (const r of reperes) if (ms >= r.debut && ms < r.fin) return r.mot;
   return null;
 }
+
+// ---------- Marque-pages ------------------------------------------------------
+
+export interface MarquePage {
+  lecture: "hafs" | "warsh";
+  sourate: number;
+  verset: number;
+  /** Date d'ajout (ISO). */
+  ajouteLe: string;
+}
+
+const memeVerset = (a: Omit<MarquePage, "ajouteLe">, b: Omit<MarquePage, "ajouteLe">) =>
+  a.lecture === b.lecture && a.sourate === b.sourate && a.verset === b.verset;
+
+export function estMarque(liste: readonly MarquePage[], v: Omit<MarquePage, "ajouteLe">): boolean {
+  return liste.some((m) => memeVerset(m, v));
+}
+
+/** Ajoute le verset (en tête, le plus récent d'abord) ou le retire s'il y est déjà. */
+export function basculerMarquePage(
+  liste: readonly MarquePage[],
+  v: Omit<MarquePage, "ajouteLe">,
+  maintenant: string,
+): MarquePage[] {
+  if (estMarque(liste, v)) return liste.filter((m) => !memeVerset(m, v));
+  return [{ ...v, ajouteLe: maintenant }, ...liste];
+}
+
+/** Lecture sûre de marque-pages gardés (données du téléphone, donc à vérifier). */
+export function lireMarquePages(brut: unknown): MarquePage[] {
+  if (!Array.isArray(brut)) return [];
+  return brut.filter(
+    (m): m is MarquePage =>
+      typeof m === "object" &&
+      m !== null &&
+      (m.lecture === "hafs" || m.lecture === "warsh") &&
+      Number.isInteger(m.sourate) &&
+      m.sourate >= 1 &&
+      m.sourate <= 114 &&
+      Number.isInteger(m.verset) &&
+      m.verset >= 1 &&
+      typeof m.ajouteLe === "string",
+  );
+}
+
+// ---------- Minuterie d'écoute ------------------------------------------------
+
+/** « 14:05 » ; au-delà d'une heure « 1 h 02 ». */
+export function libelleMinuterie(ms: number): string {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return h ? `${h} h ${String(m).padStart(2, "0")}` : `${m}:${String(sec).padStart(2, "0")}`;
+}
+
+/** Volume pendant les dernières secondes (fondu de `fondu` ms jusqu'au silence). */
+export function volumeMinuterie(resteMs: number, fondu = 10_000): number {
+  if (resteMs >= fondu) return 1;
+  return Math.max(0, resteMs / fondu);
+}

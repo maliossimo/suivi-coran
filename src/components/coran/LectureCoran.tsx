@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenText, Pause, Play, Repeat, Settings2, SkipBack, SkipForward, X } from "lucide-react";
+import { BookOpenText, Moon, Pause, Play, Repeat, Settings2, SkipBack, SkipForward, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   memo,
@@ -19,6 +19,8 @@ import {
   decouperMots,
   decouperMotsTajwid,
   etapeSuivante,
+  libelleMinuterie,
+  volumeMinuterie,
   familleTajwid,
   fichierVerset,
   motA,
@@ -31,11 +33,14 @@ import {
   type Repetition,
   type SegmentTajwid,
 } from "@/domain/coran";
-import { ActionsVerset } from "./ActionsVerset";
+import { ActionsVerset, type ModeVerset } from "./ActionsVerset";
+import { useAppuiLong } from "./appuiLong";
+import { useMarquePages } from "./marquePages";
+import { retourSensoriel } from "@/components/retourSensoriel";
 import { useExplication } from "./explications";
 import { adresseAudio, adresseMots, useHorsLigne } from "./horsLigne";
 import { MemoriserCoran } from "./MemoriserCoran";
-import { ReglagesCoran, TAILLES, type Reglages } from "./ReglagesCoran";
+import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
 import type { BlocAffiche, RecitationAffichee } from "./types";
 
 const CLE = "coran-reglages";
@@ -48,6 +53,7 @@ const DEFAUT: Reglages = {
   motParMot: true,
   taille: 2,
   favoris: [],
+  theme: "auto",
 };
 
 function lireReglages(): Reglages {
@@ -109,8 +115,12 @@ export function LectureCoran({
   const router = useRouter();
   const [reglages, setReglages] = useState<Reglages>(DEFAUT);
   const [ouvert, setOuvert] = useState<"reglages" | "memoriser" | null>(null);
-  /** Verset touché : sa feuille d'actions est ouverte. */
-  const [versetChoisi, setVersetChoisi] = useState<string | null>(null);
+  /** Verset touché (actions) ou appuyé longuement (explication) : sa feuille est ouverte. */
+  const [choix, setChoix] = useState<{ cle: string; mode: ModeVerset } | null>(null);
+  const versetChoisi = choix?.cle ?? null;
+  /** Arrêt automatique : heure de fin, « à la fin du passage », ou rien. */
+  const [minuterie, setMinuterie] = useState<{ fin: number; choix: ChoixMinuterie } | "fin" | null>(null);
+  const [maintenant, setMaintenant] = useState(0);
   /** Passage proposé à l'ouverture de « Mémoriser ». */
   const [brouillon, setBrouillon] = useState<Passage | null>(null);
   const [joue, setJoue] = useState(false);
@@ -297,8 +307,45 @@ export function LectureCoran({
     }
     const pos = positionRef.current;
     const suite = pos ? etapeSuivante(pos, pistes.length, repetition) : null;
+    // Minuterie « à la fin » : on s'arrête au bout du passage, même s'il se répète.
+    const finDuTour =
+      !suite || (pos !== null && pos.piste === pistes.length - 1 && suite.piste !== pos.piste);
+    if (minuterie === "fin" && finDuTour) {
+      setMinuterie(null);
+      arreter();
+      return;
+    }
     if (suite) jouer(suite);
     else arreter();
+  };
+
+  // Minuterie : décompte, fondu des dernières secondes, puis pause.
+  const finMinuterie = minuterie !== null && minuterie !== "fin" ? minuterie.fin : null;
+  useEffect(() => {
+    if (finMinuterie === null) return;
+    const tic = () => {
+      const reste = finMinuterie - Date.now();
+      setMaintenant(Date.now());
+      const a = audio.current;
+      if (a) a.volume = volumeMinuterie(reste);
+      if (reste <= 0) {
+        a?.pause();
+        if (a) a.volume = 1;
+        setMinuterie(null);
+      }
+    };
+    tic();
+    const id = setInterval(tic, 1000);
+    return () => {
+      clearInterval(id);
+      if (audio.current) audio.current.volume = 1;
+    };
+  }, [finMinuterie]);
+
+  const choisirMinuterie = (c: ChoixMinuterie) => {
+    if (c === 0) setMinuterie(null);
+    else if (c === -1) setMinuterie("fin");
+    else setMinuterie({ fin: Date.now() + c * 60_000, choix: c });
   };
 
   // Changement de récitateur ou de passage : on repart de zéro.
@@ -323,7 +370,7 @@ export function LectureCoran({
     (nouveau: Passage | null, rep: Repetition, cle?: string) => {
       setRepetition(rep);
       setOuvert(null);
-      setVersetChoisi(null);
+      setChoix(null);
       const meme = nouveau?.du === passage?.du && nouveau?.au === passage?.au;
       if (meme) {
         lancerDepuis(cle);
@@ -384,8 +431,62 @@ export function LectureCoran({
   // Vue page : glisser pour tourner les pages (sens du mushaf : vers la droite = page suivante).
   const depart = useRef<{ x: number; y: number } | null>(null);
 
-  /** Toucher un verset ouvre ses actions (stable : les versets ne se redessinent pas). */
-  const touche = useCallback((cle: string) => setVersetChoisi(cle), []);
+  /** Toucher : actions du verset ; appui long : son explication. */
+  const appui = useAppuiLong(
+    (cle) => setChoix({ cle, mode: "actions" }),
+    (cle) => {
+      setChoix({ cle, mode: "explication" });
+      fermerAstuce();
+    },
+  );
+
+  // Marque-pages de cette lecture.
+  const marquePages = useMarquePages();
+  const marques = useMemo(
+    () =>
+      new Set(
+        marquePages.liste.filter((m) => m.lecture === lecture).map((m) => cleVerset(m.sourate, m.verset)),
+      ),
+    [lecture, marquePages.liste],
+  );
+
+  // Arrivée depuis un marque-page (#verset-18-10) : le verset au centre, mis en évidence.
+  useEffect(() => {
+    let minuterieRepere: ReturnType<typeof setTimeout> | undefined;
+    const allerAuRepere = () => {
+      const m = /^#verset-(\d+)-(\d+)$/.exec(window.location.hash);
+      const el = m && texte.current?.querySelector<HTMLElement>(`[data-cle="${m[1]}:${m[2]}"]`);
+      if (!el) return;
+      el.scrollIntoView({ block: "center" });
+      el.classList.add("repere");
+      clearTimeout(minuterieRepere);
+      minuterieRepere = setTimeout(() => el.classList.remove("repere"), 2500);
+    };
+    allerAuRepere();
+    window.addEventListener("hashchange", allerAuRepere);
+    return () => {
+      window.removeEventListener("hashchange", allerAuRepere);
+      clearTimeout(minuterieRepere);
+    };
+  }, []);
+
+  // Astuce affichée une seule fois : l'appui long.
+  const [astuce, setAstuce] = useState(false);
+  useEffect(() => {
+    try {
+      setAstuce(localStorage.getItem("coran-astuce-appui-long") !== "vue");
+    } catch {
+      // stockage indisponible : pas d'astuce
+    }
+  }, []);
+  const fermerAstuce = () => {
+    setAstuce(false);
+    try {
+      localStorage.setItem("coran-astuce-appui-long", "vue");
+    } catch {
+      // stockage indisponible
+    }
+  };
 
   const etat =
     erreur ??
@@ -402,9 +503,15 @@ export function LectureCoran({
         : "Écoute de la sourate entière");
 
   const memorisation = Boolean(sourateUnique && recitation?.suivi);
-  const explication = useExplication(lecture, versetChoisi);
+  const explication = useExplication(lecture, choix?.mode === "explication" ? choix.cle : null);
+  /** Fichier du récitateur pour le verset choisi (comparer sa récitation). */
+  const adresseRecitateur = useMemo(() => {
+    if (!versetChoisi || !recitation?.suivi) return null;
+    const p = pistesCompletes.find((x) => x.cles.includes(versetChoisi));
+    return p ? adresse(fichierVerset(p.sourate, p.ayah)) : null;
+  }, [adresse, pistesCompletes, recitation?.suivi, versetChoisi]);
   const ouvrirMemoriser = (depart: Passage) => {
-    setVersetChoisi(null);
+    setChoix(null);
     setBrouillon(depart);
     setOuvert("memoriser");
   };
@@ -426,6 +533,24 @@ export function LectureCoran({
                 setRepetition(UNE_FOIS);
               }}
               aria-label="Revenir à toute la sourate"
+            >
+              <X size={16} aria-hidden="true" />
+            </button>
+          </div>
+        ) : null}
+        {minuterie ? (
+          <div className="coran-lecteur-passage coran-lecteur-minuterie">
+            <Moon size={15} aria-hidden="true" />
+            <span>
+              {minuterie === "fin"
+                ? "Arrêt à la fin"
+                : `Arrêt dans ${libelleMinuterie(minuterie.fin - (maintenant || Date.now()))}`}
+            </span>
+            <button
+              type="button"
+              className="coran-lecteur-effacer"
+              onClick={() => setMinuterie(null)}
+              aria-label="Annuler l’arrêt automatique"
             >
               <X size={16} aria-hidden="true" />
             </button>
@@ -543,6 +668,8 @@ export function LectureCoran({
         recitation={recitation}
         bibliothequeDisponible={bibliothequeDisponible}
         horsLigne={horsLigne}
+        minuterie={minuterie === null ? 0 : minuterie === "fin" ? -1 : minuterie.choix}
+        onMinuterie={choisirMinuterie}
       />
 
       {sourateUnique ? (
@@ -564,10 +691,21 @@ export function LectureCoran({
 
       <ActionsVerset
         cle={versetChoisi}
-        onFermer={() => setVersetChoisi(null)}
+        mode={choix?.mode ?? "actions"}
+        onMode={(mode) => setChoix((c) => (c ? { ...c, mode } : c))}
+        onFermer={() => setChoix(null)}
+        lecture={lecture}
         suivi={Boolean(recitation?.suivi)}
         memorisation={memorisation}
         explication={explication}
+        marque={versetChoisi !== null && marques.has(versetChoisi)}
+        adresseRecitateur={adresseRecitateur}
+        onMarque={(cle) => {
+          const [sourate, verset] = cle.split(":").map(Number) as [number, number];
+          marquePages.basculer({ lecture, sourate, verset });
+          retourSensoriel("leger");
+        }}
+        onAvantEnregistrement={() => audio.current?.pause()}
         onEcouter={(cle) =>
           ecouter(dansLePassage(cle) ? passage : null, dansLePassage(cle) ? repetition : UNE_FOIS, cle)
         }
@@ -579,10 +717,22 @@ export function LectureCoran({
           })
         }
         onReglages={() => {
-          setVersetChoisi(null);
+          setChoix(null);
           setOuvert("reglages");
         }}
       />
+
+      {astuce ? (
+        <p className="coran-astuce" role="note">
+          <span>
+            <b>Astuce :</b> touche un verset pour l’écouter ou le mémoriser, <b>appui long</b> pour son
+            explication.
+          </span>
+          <button type="button" onClick={fermerAstuce} aria-label="J’ai compris">
+            <X size={16} aria-hidden="true" />
+          </button>
+        </p>
+      ) : null}
 
       <article
         className={[
@@ -592,6 +742,7 @@ export function LectureCoran({
           avecTajwid ? "coran-tajwid" : "",
           "cliquable",
           passage ? "avec-passage" : "",
+          reglages.theme !== "auto" ? `theme-${reglages.theme}` : "",
         ].join(" ")}
         lang="ar"
         dir="rtl"
@@ -611,7 +762,7 @@ export function LectureCoran({
           if (cible) router.push(cible, { scroll: false });
         }}
       >
-        <div ref={texte}>
+        <div ref={texte} {...appui}>
           {blocs.map((b) => (
             <section key={b.sourate} className="coran-bloc">
               {vue === "page" && b.debut ? (
@@ -626,7 +777,6 @@ export function LectureCoran({
                   actif={clesActives.has(cleVerset(b.sourate, 0))}
                   mot={clesActives.has(cleVerset(b.sourate, 0)) && motsActifs ? mot : null}
                   horsPassage={Boolean(passage && passage.du !== 1)}
-                  onTouche={touche}
                 />
               ) : null}
               <p className="coran-versets">
@@ -643,7 +793,7 @@ export function LectureCoran({
                       actif={actif}
                       mot={actif && motsActifs && clesActives.size === 1 ? mot : null}
                       horsPassage={Boolean(passage && (v.n < passage.du || v.n > passage.au))}
-                      onTouche={touche}
+                      marque={marques.has(cle)}
                     />
                   );
                 })}
@@ -686,7 +836,7 @@ const Verset = memo(function Verset({
   actif,
   mot,
   horsPassage,
-  onTouche,
+  marque,
 }: {
   cle: string;
   n: number;
@@ -695,11 +845,16 @@ const Verset = memo(function Verset({
   actif: boolean;
   mot: number | null;
   horsPassage: boolean;
-  onTouche: (cle: string) => void;
+  marque: boolean;
 }) {
-  const classes = ["coran-verset", actif ? "actif" : "", horsPassage ? "hors-passage" : ""].join(" ");
+  const classes = [
+    "coran-verset",
+    actif ? "actif" : "",
+    horsPassage ? "hors-passage" : "",
+    marque ? "marque" : "",
+  ].join(" ");
   return (
-    <span className={classes} data-cle={cle} onClick={() => onTouche(cle)}>
+    <span className={classes} data-cle={cle}>
       {tajwid ? (
         <>
           {decouperMotsTajwid(tajwid).map((m, i) => (
@@ -742,20 +897,17 @@ const Basmala = memo(function Basmala({
   actif,
   mot,
   horsPassage,
-  onTouche,
 }: {
   texte: string;
   cle: string;
   actif: boolean;
   mot: number | null;
   horsPassage: boolean;
-  onTouche: (cle: string) => void;
 }) {
   return (
     <p
       className={["coran-basmala", actif ? "actif" : "", horsPassage ? "hors-passage" : ""].join(" ")}
       data-cle={cle}
-      onClick={() => onTouche(cle)}
     >
       {decouperMots(texte).map((m, i) =>
         m.mot === null ? (

@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { relancerEnAttente } from "./enregistrementsEnAttente";
+import { retoursActives } from "@/components/retourSensoriel";
 
 /** Distance minimale (px) d'un glissement, et rapport horizontal / vertical exigé. */
 const SEUIL_GLISSER = 70;
@@ -133,7 +134,7 @@ export function GestesFiche({
       const cible = d.onglets ? (dx < 0 ? ongletDroite : ongletGauche) : dx < 0 ? moisSuivant : moisPrecedent;
       if (!cible) return;
       partir(dx < 0 ? "gauche" : "droite");
-      navigator.vibrate?.(8);
+      if (retoursActives()) navigator.vibrate?.(8);
       router.push(cible, { scroll: false });
     };
 

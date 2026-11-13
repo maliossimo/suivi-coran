@@ -18,7 +18,21 @@ export interface Reglages {
   taille: number;
   /** Récitateurs mis en favori (étoile) : en tête de liste, choisis d'office. */
   favoris: string[];
+  /** Couleurs de la page du Coran ; « auto » suit le téléphone. */
+  theme: ThemeCoran;
 }
+
+export type ThemeCoran = "auto" | "clair" | "sepia" | "sombre";
+const THEMES: { valeur: ThemeCoran; libelle: string }[] = [
+  { valeur: "auto", libelle: "Auto" },
+  { valeur: "clair", libelle: "Clair" },
+  { valeur: "sepia", libelle: "Sépia" },
+  { valeur: "sombre", libelle: "Sombre" },
+];
+
+/** Arrêt automatique de l'écoute : minutes, 0 = jamais, -1 = à la fin du passage. */
+export const MINUTERIES = [0, 15, 30, 60, -1] as const;
+export type ChoixMinuterie = (typeof MINUTERIES)[number];
 
 export const TAILLES = [22, 26, 30, 34, 40, 46];
 const VITESSES = [0.75, 1, 1.25, 1.5];
@@ -36,6 +50,8 @@ export function ReglagesCoran({
   recitation,
   bibliothequeDisponible,
   horsLigne,
+  minuterie,
+  onMinuterie,
 }: {
   ouverte: boolean;
   onFermer: () => void;
@@ -48,6 +64,8 @@ export function ReglagesCoran({
   recitation: RecitationAffichee | null;
   bibliothequeDisponible: boolean;
   horsLigne: ReturnType<typeof useHorsLigne>;
+  minuterie: ChoixMinuterie;
+  onMinuterie: (choix: ChoixMinuterie) => void;
 }) {
   const favoris = new Set(reglages.favoris);
 
@@ -111,10 +129,33 @@ export function ReglagesCoran({
           afficher={(v) => `${String(v).replace(".", ",")}×`}
           onChange={(v) => modifier({ vitesse: v })}
         />
+        <Choix
+          libelle="Arrêter l’écoute"
+          valeurs={MINUTERIES}
+          valeur={minuterie}
+          afficher={(v) => (v === 0 ? "Non" : v === -1 ? (vue === "page" ? "Fin page" : "Fin") : `${v} min`)}
+          onChange={onMinuterie}
+        />
       </section>
 
       <section className="feuille-section">
         <h3>Affichage</h3>
+        <div className="coran-reglage">
+          <span>Couleurs</span>
+          <div className="coran-choix-ligne" role="group" aria-label="Couleurs de la page">
+            {THEMES.map((t) => (
+              <button
+                key={t.valeur}
+                type="button"
+                aria-pressed={reglages.theme === t.valeur}
+                onClick={() => modifier({ theme: t.valeur })}
+                className={`theme-pastille theme-${t.valeur}`}
+              >
+                {t.libelle}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="coran-reglage">
           <span>Taille du texte</span>
           <div className="coran-choix-ligne" role="group" aria-label="Taille du texte">
