@@ -5693,42 +5693,6 @@ html[data-ouverture] .ouverture-version {
   font-size: 14px;
   font-weight: 600;
 }
-.actions-verset {
-  display: grid;
-  gap: 6px;
-}
-.actions-verset p {
-  margin: 0;
-}
-.actions-verset button {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-height: 60px;
-  padding: 10px 14px;
-  border: 1px solid var(--ligne);
-  border-radius: 14px;
-  background: var(--surface-2);
-  color: var(--texte);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.actions-verset button > svg {
-  flex-shrink: 0;
-  color: var(--vert-texte);
-}
-.actions-verset button span {
-  display: grid;
-  gap: 2px;
-}
-.actions-verset button small {
-  color: var(--texte-doux);
-  font-size: 12.5px;
-}
-.actions-verset button:active {
-  background: var(--vert-clair);
-}
 .coran-cartouche a {
   color: inherit;
 }
@@ -6716,4 +6680,88 @@ html.defilement-bloque {
   .feuille::backdrop {
     animation: none;
   }
+}
+
+/* ---------- Verset touché : actions et explication ---------------------- */
+.actions-verset-rapides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
+}
+.actions-verset-rapides button {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-height: 70px;
+  padding: 10px 6px;
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--texte);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+.actions-verset-rapides button svg {
+  color: var(--vert-texte);
+}
+.actions-verset-rapides button:active {
+  background: var(--vert-clair);
+}
+.explication-verset {
+  display: grid;
+  gap: 10px;
+}
+.explication-verset h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+}
+.explication-texte p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+.explication-texte + .explication-texte {
+  padding-top: 10px;
+  border-top: 1px solid var(--ligne);
+}
+.explication-texte .explication-notes {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--bord-or);
+  border-radius: 0 10px 10px 0;
+  background: var(--surface-2);
+  color: var(--texte-doux);
+  font-size: 14px;
+}
+.explication-source {
+  margin: 0;
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+.explication-source a {
+  color: inherit;
+}
+.explication-attente {
+  display: grid;
+  gap: 8px;
+}
+.explication-attente span {
+  height: 14px;
+  border-radius: 7px;
+  background: var(--surface-3);
+  animation: pulsation 1.2s ease-in-out infinite;
+}
+.explication-attente span:last-child {
+  width: 60%;
 }

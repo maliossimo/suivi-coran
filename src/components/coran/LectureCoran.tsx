@@ -32,6 +32,7 @@ import {
   type SegmentTajwid,
 } from "@/domain/coran";
 import { ActionsVerset } from "./ActionsVerset";
+import { useExplication } from "./explications";
 import { adresseAudio, adresseMots, useHorsLigne } from "./horsLigne";
 import { MemoriserCoran } from "./MemoriserCoran";
 import { ReglagesCoran, TAILLES, type Reglages } from "./ReglagesCoran";
@@ -401,6 +402,7 @@ export function LectureCoran({
         : "Écoute de la sourate entière");
 
   const memorisation = Boolean(sourateUnique && recitation?.suivi);
+  const explication = useExplication(lecture, versetChoisi);
   const ouvrirMemoriser = (depart: Passage) => {
     setVersetChoisi(null);
     setBrouillon(depart);
@@ -565,6 +567,7 @@ export function LectureCoran({
         onFermer={() => setVersetChoisi(null)}
         suivi={Boolean(recitation?.suivi)}
         memorisation={memorisation}
+        explication={explication}
         onEcouter={(cle) =>
           ecouter(dansLePassage(cle) ? passage : null, dansLePassage(cle) ? repetition : UNE_FOIS, cle)
         }

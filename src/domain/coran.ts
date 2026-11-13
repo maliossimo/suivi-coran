@@ -154,6 +154,18 @@ export function pistesLecture(
   return pistes;
 }
 
+/**
+ * Warsh → Hafs : versets Hafs qui composent le verset Warsh `w`, d'après la table
+ * de la sourate (pour chaque verset Hafs, les versets Warsh qu'il contient).
+ */
+export function versetsHafsDuVerset(table: readonly (readonly number[])[], w: number): number[] {
+  const hafs: number[] = [];
+  table.forEach((warsh, i) => {
+    if (warsh.includes(w)) hafs.push(i + 1);
+  });
+  return hafs;
+}
+
 /** Répétitions pour mémoriser : chaque fichier `verset` fois, tout le passage `passage` fois (0 : sans fin). */
 export interface Repetition {
   verset: number;

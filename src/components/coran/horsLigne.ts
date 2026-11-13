@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { fichierVerset, type Piste } from "@/domain/coran";
+import { adresseExplications } from "./explications";
 
 /**
  * Coran hors ligne (côté téléphone). Le service worker (public/sw.js) sert ensuite :
@@ -176,6 +177,8 @@ export function useHorsLigne({
           credentials: "same-origin",
         }).catch(() => null);
         if (!r?.ok) echecs++;
+        // L'explication des versets, gardée par le service worker (sans bloquer si absente).
+        await fetch(adresseExplications(lecture, n), { credentials: "same-origin" }).catch(() => null);
       },
       () => {
         fait++;

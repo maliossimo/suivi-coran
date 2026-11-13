@@ -1,0 +1,76 @@
+name: Tests de bout en bout
+
+# Parcours complets dans un vrai navigateur (téléphone simulé) : connexion de chaque rôle,
+# fiche de l'élève, correction du Cheikh, présences, Coran, droits entre mosquées.
+# Base Supabase jetable et comptes fictifs (e2e/donnees.sql) : rien ne touche la vraie base.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bout-en-bout:
+    name: Parcours complets (navigateur)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Installation
+        run: npm ci --no-audit --no-fund
+
+      - uses: supabase/setup-cli@v3
+        with:
+          version: latest
+      - name: Démarrer Supabase (base, authentification, API)
+        run: supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,postgres-meta
+      - name: Comptes et données fictifs
+        run: |
+          supabase status -o env > .env.supabase
+          . ./.env.supabase
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f e2e/donnees.sql
+
+      - name: Construire et lancer l'appli
+        run: |
+          . ./.env.supabase
+          export NEXT_PUBLIC_SUPABASE_URL="$API_URL"
+          export NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY"
+          export SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY"
+          export NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+          npm run build
+          nohup npm run start > e2e-serveur.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:3000/connexion && exit 0
+            sleep 2
+          done
+          cat e2e-serveur.log
+          exit 1
+
+      # Playwright n'est pas une dépendance du projet : installé ici seulement.
+      - name: Navigateur de test
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Parcours
+        run: npx playwright test -c e2e/playwright.config.ts
+
+      - name: Journal du serveur
+        if: failure()
+        run: tail -n 200 e2e-serveur.log
+      # Captures d'écran (comptes fictifs uniquement) et rapport, à regarder après chaque passage.
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: bout-en-bout
+          path: e2e/resultats/
+          retention-days: 14
