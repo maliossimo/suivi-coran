@@ -40,6 +40,11 @@ describe("texte du Coran (KFGQPC)", () => {
       expect(decoupage).toHaveLength(s.nbVersets);
       for (const verset of decoupage) {
         expect(verset.length).toBeGreaterThan(0);
+        // Jamais de coupure avant un signe (voyelle, sukun…) : il s'afficherait détaché de sa lettre.
+        for (const morceau of verset)
+          expect(/^\p{Mn}/u.test(typeof morceau === "string" ? morceau : morceau[1])).toBe(false);
+        // Signes dans l'encodage de la police du Complexe (sukun U+06E1, lettre muette U+0652).
+        expect(verset.some((m) => (typeof m === "string" ? m : m[1]).includes("\u06df"))).toBe(false);
         for (const morceau of verset)
           if (typeof morceau !== "string") expect(codes.has(morceau[0])).toBe(true);
       }

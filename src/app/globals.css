@@ -4952,7 +4952,7 @@ html[data-ouverture] .ouverture-version {
 }
 
 /* ---------- Coran (lecture et récitations) ---------------------------- */
-/* Polices : Complexe du Roi Fahd (KFGQPC, rosace du numéro intégrée) et me_quran (texte Tanzil du tajwid). */
+/* Polices du Complexe du Roi Fahd (KFGQPC) : la rosace du numéro de verset est dessinée par la police. */
 @font-face {
   font-family: "KFGQPC Hafs";
   src: url("/polices/hafs.18.woff2") format("woff2");
@@ -4961,11 +4961,6 @@ html[data-ouverture] .ouverture-version {
 @font-face {
   font-family: "KFGQPC Warsh";
   src: url("/polices/warsh.10.woff2") format("woff2");
-  font-display: swap;
-}
-@font-face {
-  font-family: "me_quran";
-  src: url("/polices/me_quran.woff2") format("woff2");
   font-display: swap;
 }
 .espace-coran {
@@ -5288,11 +5283,6 @@ html[data-ouverture] .ouverture-version {
 .coran-warsh .coran-versets {
   font-family: "KFGQPC Warsh", var(--font-arabe), serif;
 }
-.coran-tajwid .coran-basmala,
-.coran-tajwid .coran-versets {
-  font-family: "me_quran", "KFGQPC Hafs", var(--font-arabe), serif;
-  line-height: 2.4;
-}
 .coran-basmala {
   margin-bottom: 10px;
   text-align: center;
@@ -5316,21 +5306,6 @@ html[data-ouverture] .ouverture-version {
 .coran-basmala.actif {
   background: color-mix(in srgb, var(--or) 26%, transparent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--or) 26%, transparent);
-}
-.coran-rosace {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.35em;
-  height: 1.35em;
-  margin: 0 0.15em;
-  padding: 0 0.15em;
-  border: 1.5px solid var(--or);
-  border-radius: 50%;
-  font-family: var(--font-arabe), serif;
-  font-size: 0.55em;
-  line-height: 1;
-  color: var(--or-texte);
-  vertical-align: middle;
 }
 
 /* Couleurs du tajwid */
@@ -5606,4 +5581,46 @@ html[data-ouverture] .ouverture-version {
   .coran-cartouche p {
     font-size: 26px;
   }
+}
+
+/* Coran hors ligne */
+.coran-hors-ligne {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ligne);
+}
+.coran-hors-ligne .coran-reglages-titre {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.coran-hors-ligne .bouton-secondaire {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.coran-hors-ligne small {
+  color: var(--texte-doux);
+}
+.coran-hors-ligne small.erreur {
+  color: var(--rouge);
+}
+.coran-hors-ligne-ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--vert-texte);
+}
+.coran-progres {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+}
+.coran-progres progress {
+  width: 100%;
+  accent-color: var(--vert);
 }

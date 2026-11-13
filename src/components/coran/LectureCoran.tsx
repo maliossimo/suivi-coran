@@ -2,6 +2,9 @@
 
 import {
   BookOpenText,
+  CloudDownload,
+  CloudOff,
+  Trash2,
   Minus,
   Palette,
   Pause,
@@ -42,6 +45,7 @@ import {
   type RepereMot,
   type SegmentTajwid,
 } from "@/domain/coran";
+import { adresseAudio, adresseMots, taille, useHorsLigne } from "./horsLigne";
 
 export interface RecitationAffichee {
   id: string;
@@ -50,6 +54,8 @@ export interface RecitationAffichee {
   suivi: boolean;
   source: string;
   mots: string | null;
+  dossier: string | null;
+  alignement: string | null;
 }
 
 export interface BlocAffiche {
@@ -188,6 +194,35 @@ export function LectureCoran({
     );
   }, [blocs, correspondance, passage]);
 
+  // Toute la sourate (ou la page), pour le téléchargement hors ligne.
+  const pistesCompletes = useMemo<Piste[]>(
+    () =>
+      pistesLecture(
+        blocs.map((b) => ({
+          sourate: b.sourate,
+          versets: b.versets.map((v) => v.n),
+          basmala: b.basmala !== null,
+        })),
+        correspondance ? (s) => correspondance[String(s)] : undefined,
+      ),
+    [blocs, correspondance],
+  );
+  const horsLigne = useHorsLigne({
+    dossier: recitation?.suivi ? recitation.dossier : null,
+    alignement: recitation?.alignement ?? null,
+    lecture,
+    pistes: pistesCompletes,
+  });
+  const { telecharges } = horsLigne;
+  /** Adresse d'un fichier : sur le téléphone s'il est téléchargé, sinon chez EveryAyah. */
+  const adresse = useCallback(
+    (fichier: string) =>
+      recitation?.dossier && telecharges.has(fichier)
+        ? adresseAudio(recitation.dossier, fichier)
+        : `${recitation?.source ?? ""}${fichier}`,
+    [recitation, telecharges],
+  );
+
   const piste = position ? pistes[position.piste] : undefined;
   const clesActives = useMemo(() => new Set(piste?.cles ?? []), [piste]);
 
@@ -213,14 +248,18 @@ export function LectureCoran({
       reperes.current = null;
       const fichier = fichierVerset(p.sourate, p.ayah);
       if (!a.src.endsWith(`/${fichier}`) || pos.foisVerset === 0 || a.ended) {
-        a.src = `${recitation.source}${fichier}`;
+        a.src = adresse(fichier);
       }
       a.currentTime = 0;
       a.playbackRate = reglages.vitesse;
       setCharge(true);
       void a.play().catch(() => setJoue(false));
       if (recitation.mots && p.cles.length === 1) {
-        void chargerReperes(`${recitation.mots}${p.sourate}/${p.ayah}.json`).then((r) => {
+        const url =
+          recitation.alignement && telecharges.has(fichier)
+            ? adresseMots(recitation.alignement, p.sourate, p.ayah)
+            : `${recitation.mots}${p.sourate}/${p.ayah}.json`;
+        void chargerReperes(url).then((r) => {
           if (positionRef.current === pos) reperes.current = r;
         });
       }
@@ -228,10 +267,10 @@ export function LectureCoran({
       if (suivante) {
         prochain.current ??= new Audio();
         prochain.current.preload = "auto";
-        prochain.current.src = `${recitation.source}${fichierVerset(suivante.sourate, suivante.ayah)}`;
+        prochain.current.src = adresse(fichierVerset(suivante.sourate, suivante.ayah));
       }
     },
-    [pistes, recitation, reglages.vitesse],
+    [adresse, pistes, recitation, reglages.vitesse, telecharges],
   );
 
   const lancerDepuis = useCallback(
@@ -612,6 +651,74 @@ export function LectureCoran({
                 </button>
               </div>
             </div>
+
+            {horsLigne.possible ? (
+              <div className="coran-hors-ligne">
+                <p className="coran-reglages-titre">
+                  <CloudOff size={16} aria-hidden="true" />
+                  Hors ligne
+                </p>
+                {vue === "sourate" ? (
+                  recitation?.suivi && recitation.dossier ? (
+                    horsLigne.sourateTelechargee ? (
+                      <div className="coran-hors-ligne-ligne">
+                        <span>✓ Récitation de cette sourate sur le téléphone ({recitation.nom})</span>
+                        <button
+                          type="button"
+                          className="coran-bouton"
+                          onClick={() => void horsLigne.supprimerSourate()}
+                          aria-label="Retirer du téléphone"
+                        >
+                          <Trash2 size={18} aria-hidden="true" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="bouton-secondaire"
+                        disabled={horsLigne.progres !== null}
+                        onClick={() => void horsLigne.telechargerSourate()}
+                      >
+                        <CloudDownload size={16} aria-hidden="true" />
+                        Télécharger la récitation de cette sourate
+                      </button>
+                    )
+                  ) : (
+                    <small>Choisis un récitateur « le texte suit » pour télécharger la récitation.</small>
+                  )
+                ) : null}
+                {horsLigne.texteGarde ? (
+                  <small>
+                    ✓ Texte des 114 sourates ({lecture === "warsh" ? "Warsh" : "Hafs"}) gardé sur le
+                    téléphone.
+                  </small>
+                ) : null}
+                <button
+                  type="button"
+                  className="bouton-secondaire"
+                  disabled={horsLigne.progres !== null}
+                  onClick={() => void horsLigne.garderTexte()}
+                >
+                  <CloudDownload size={16} aria-hidden="true" />
+                  {horsLigne.texteGarde
+                    ? "Mettre à jour le texte gardé"
+                    : "Garder tout le texte sur le téléphone"}
+                </button>
+                {horsLigne.progres ? (
+                  <div className="coran-progres" role="status">
+                    <span>
+                      {horsLigne.progres.quoi === "texte" ? "Texte" : "Récitation"} : {horsLigne.progres.fait}{" "}
+                      / {horsLigne.progres.total}
+                    </span>
+                    <progress value={horsLigne.progres.fait} max={horsLigne.progres.total} />
+                  </div>
+                ) : null}
+                {horsLigne.erreur ? <small className="erreur">{horsLigne.erreur}</small> : null}
+                {horsLigne.place !== null ? (
+                  <small>Place utilisée par l’appli : {taille(horsLigne.place)}</small>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         ) : null}
 
@@ -628,7 +735,11 @@ export function LectureCoran({
           }
           onError={() => {
             if (!audio.current?.getAttribute("src")) return;
-            setErreur("Récitation introuvable pour ce passage. Essaie un autre récitateur.");
+            setErreur(
+              navigator.onLine
+                ? "Récitation introuvable pour ce passage. Essaie un autre récitateur."
+                : "Pas de réseau : télécharge cette sourate (⚙ → Hors ligne) pour l’écouter sans connexion.",
+            );
             arreter();
           }}
         />
@@ -767,8 +878,9 @@ const Verset = memo(function Verset({
                 ),
               )}
             </span>
-          ))}{" "}
-          <span className="coran-rosace">{chiffresArabes(n)}</span>
+          ))}
+          {/* Numéro dessiné en rosace par la police du Complexe (espace insécable + chiffres). */}
+          {`\u00a0${chiffresArabes(n)}`}
         </>
       ) : (
         decouperMots(texte).map((m, i) =>
