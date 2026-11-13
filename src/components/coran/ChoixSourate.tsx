@@ -18,7 +18,9 @@ export function ChoixSourate({
       className="coran-choix"
       aria-label="Sourate"
       value={sourate}
-      onChange={(e) => router.push(`/admin/coran?lecture=${lecture}&sourate=${e.target.value}`)}
+      onChange={(e) =>
+        router.push(`/admin/coran?lecture=${lecture}&sourate=${e.target.value}`, { scroll: true })
+      }
     >
       {sourates.map((s) => (
         <option key={s.numero} value={s.numero}>
