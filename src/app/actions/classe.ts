@@ -46,6 +46,7 @@ export async function actionInviterMaitre(_: EtatInvitation, form: FormData): Pr
     nom: form.get("nom"),
     email,
     etablissementId: form.get("etablissementId"),
+    classe: form.get("classe"),
   });
   if (!resultat.ok) return { erreur: resultat.erreur };
   await notifier("Invitation envoyée");

@@ -99,6 +99,7 @@ export default async function PageAdmin() {
                   eleves={e.eleves}
                   comptes={e.comptes}
                   activite={activite.get(e.id)}
+                  classes={t.classes.filter((c) => c.etablissementId === e.id)}
                 />
               ))}
             </ul>
@@ -111,8 +112,14 @@ export default async function PageAdmin() {
 
         <section className="carte-graphique">
           <h2>Inviter un Cheikh</h2>
-          <p className="carte-graphique-sous">Il pourra ensuite inviter ses élèves.</p>
-          <FormulaireInvitation cible="maitre" etablissements={t.etablissements} />
+          <p className="carte-graphique-sous">
+            Choisis sa mosquée et sa classe : il y retrouvera ses élèves et pourra en inviter d’autres.
+          </p>
+          <FormulaireInvitation
+            cible="maitre"
+            etablissements={t.etablissements}
+            classes={t.classes.map((c) => ({ id: c.id, nom: c.nom, etablissementId: c.etablissementId }))}
+          />
           {t.invitationsEnAttente.length > 0 ? (
             <details className="admin-repli">
               <summary>En attente de première connexion ({t.invitationsEnAttente.length})</summary>

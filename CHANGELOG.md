@@ -9,6 +9,13 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.19.0] — 2026-11-14
+
+### Nouveautés
+
+- Administration : chaque mosquée affiche ses classes (Cheikhs, nombre d'élèves, jours), avec « + Nouvelle classe » ; « Voir la classe » devient « Voir les élèves » (toute la mosquée).
+- Invitation d'un Cheikh : on choisit sa mosquée puis sa classe ; à sa première connexion, il en devient le Cheikh.
+
 ## [1.18.0] — 2026-11-13
 
 ### Amélioré

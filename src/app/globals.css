@@ -7706,3 +7706,46 @@ html.defilement-bloque {
 .fil-journal small {
   color: var(--texte-doux);
 }
+
+/* Classes d'un établissement */
+.classes-etablissement {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ligne);
+  font-size: 14px;
+}
+.classes-etablissement-titre {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+.classes-etablissement ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.classe-carte {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--carte);
+  color: var(--texte);
+  text-decoration: none;
+}
+.classe-carte span {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.classes-etablissement > .lien-discret {
+  align-self: flex-start;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
