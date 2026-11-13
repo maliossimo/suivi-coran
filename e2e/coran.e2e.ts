@@ -133,3 +133,41 @@ test.describe("Coran (admin)", () => {
     await capture(page, "43-favoris");
   });
 });
+
+test.describe("Vérifier ma récitation", () => {
+  test("la voix transcrite est comparée mot à mot au verset", async ({ page }) => {
+    // Reconnaissance vocale simulée : « الحمد رب العالمين » (un mot oublié).
+    await page.addInitScript(() => {
+      class FausseReconnaissance {
+        onresult: ((e: unknown) => void) | null = null;
+        onend: (() => void) | null = null;
+        onerror: ((e: unknown) => void) | null = null;
+        lang = "";
+        continuous = false;
+        interimResults = false;
+        start() {
+          setTimeout(() => {
+            const resultat = Object.assign([{ transcript: "الحمد رب العالمين" }], { isFinal: true });
+            this.onresult?.({ resultIndex: 0, results: [resultat] });
+          }, 100);
+        }
+        stop() {
+          setTimeout(() => this.onend?.(), 50);
+        }
+        abort() {}
+      }
+      Object.assign(window, { webkitSpeechRecognition: FausseReconnaissance });
+    });
+    await seConnecter(page, COMPTES.admin, /\/admin/);
+    await page.goto("/admin/coran?lecture=hafs&sourate=1");
+    await page.locator('.coran-verset[data-cle="1:2"]').click();
+    const feuille = page.getByRole("dialog", { name: "Verset 2" });
+    const verifier = feuille.getByRole("region", { name: "Vérifier ma récitation" });
+    await verifier.getByRole("button", { name: "J’ai compris, commencer" }).click();
+    await expect(verifier.getByText("الحمد رب العالمين")).toBeVisible();
+    await verifier.getByRole("button", { name: "J’ai fini" }).click();
+    await expect(verifier.getByText("3 / 4")).toBeVisible();
+    await expect(verifier.locator(".verif-oublie")).toHaveCount(1);
+    await capture(page, "45-verifier-recitation");
+  });
+});
