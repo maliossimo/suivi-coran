@@ -4712,11 +4712,11 @@ html[data-ouverture] .ouverture-version {
 /* Départ : le mois affiché glisse et s'estompe dans le sens du doigt pendant le chargement. */
 .fiche-gestes.depart-gauche,
 .fiche-gestes.depart-droite {
-  opacity: 0.35;
+  opacity: 0.6;
   pointer-events: none;
   transition:
-    transform 0.22s cubic-bezier(0.4, 0, 0.6, 1),
-    opacity 0.22s ease;
+    transform 0.16s cubic-bezier(0.4, 0, 0.6, 1),
+    opacity 0.16s ease;
 }
 .fiche-gestes.depart-gauche {
   transform: translateX(-28px);
@@ -4726,10 +4726,10 @@ html[data-ouverture] .ouverture-version {
 }
 /* Arrivée : le nouveau mois entre par le côté opposé. */
 .fiche-gestes.arrivee-gauche {
-  animation: arrivee-gauche 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: arrivee-gauche 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .fiche-gestes.arrivee-droite {
-  animation: arrivee-droite 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: arrivee-droite 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 @keyframes arrivee-gauche {
   from {
