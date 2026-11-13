@@ -4,8 +4,8 @@ import { creerReferentiel, libellePassage, type Passage, type Sourate } from "@/
 import type { Lecture } from "@/domain/lectures";
 
 /**
- * Séance vue par l'administrateur : chaque passage s'ouvre dans la page Coran, dans la lecture
- * de l'élève, prêt à être écouté et répété. (La page Coran est encore réservée à l'admin.)
+ * Séance de l'élève : chaque passage s'ouvre dans la page Coran, dans sa lecture,
+ * prêt à être écouté et répété. Jamais dans la vue du Cheikh.
  */
 export function EcouterPassages({
   passages,

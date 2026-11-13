@@ -46,6 +46,7 @@ const DEFAUT: Reglages = {
   tajwid: false,
   motParMot: true,
   taille: 2,
+  favoris: [],
 };
 
 function lireReglages(): Reglages {
@@ -143,7 +144,12 @@ export function LectureCoran({
     });
   }, []);
 
-  const recitation = recitations.find((r) => r.id === reglages.recitation[lecture]) ?? recitations[0] ?? null;
+  // Le dernier choisi pour cette lecture, sinon le premier favori disponible, sinon le premier.
+  const recitation =
+    recitations.find((r) => r.id === reglages.recitation[lecture]) ??
+    recitations.find((r) => reglages.favoris.includes(r.id)) ??
+    recitations[0] ??
+    null;
   const sourateUnique = vue === "sourate" ? blocs[0] : undefined;
   const avecTajwid = lecture === "hafs" && reglages.tajwid;
   const motsActifs = Boolean(recitation?.mots && reglages.motParMot);

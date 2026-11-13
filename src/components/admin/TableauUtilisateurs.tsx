@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { actionBasculerUtilisateur, actionDeplacerUtilisateur } from "@/app/actions/admin";
 import { Avatar } from "@/components/Avatar";
+import { Selecteur } from "@/components/Selecteur";
 import { EtiquetteLecture } from "@/components/ChoixLecture";
 import { SuppressionUtilisateur } from "@/components/SuppressionUtilisateur";
 import { correspondARecherche } from "@/domain/classe";
@@ -87,27 +88,41 @@ export function TableauUtilisateurs({
             autoComplete="off"
           />
         </label>
-        <select aria-label="Rôle" value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="">Tous les rôles</option>
-          <option value="eleve">Élèves</option>
-          <option value="maitre">Cheikhs</option>
-          <option value="admin">Admins</option>
-        </select>
-        <select aria-label="Établissement" value={etab} onChange={(e) => setEtab(e.target.value)}>
-          <option value="">Tous les établissements</option>
-          {etablissements.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.nom}
-            </option>
-          ))}
-          <option value="aucun">Sans établissement</option>
-        </select>
-        <select aria-label="Statut" value={statut} onChange={(e) => setStatut(e.target.value)}>
-          <option value="">Tous les statuts</option>
-          <option value="actif">Actifs</option>
-          <option value="archive">Désactivés</option>
-          <option value="jamais">Jamais connectés</option>
-        </select>
+        <Selecteur
+          titre="Rôle"
+          valeur={role}
+          onChange={setRole}
+          options={[
+            { valeur: "", libelle: "Tous les rôles" },
+            { valeur: "eleve", libelle: "Élèves" },
+            { valeur: "maitre", libelle: "Cheikhs" },
+            { valeur: "admin", libelle: "Admins" },
+          ]}
+          compact
+        />
+        <Selecteur
+          titre="Établissement"
+          valeur={etab}
+          onChange={setEtab}
+          options={[
+            { valeur: "", libelle: "Tous les établissements" },
+            ...etablissements.map((e) => ({ valeur: e.id, libelle: e.nom })),
+            { valeur: "aucun", libelle: "Sans établissement" },
+          ]}
+          compact
+        />
+        <Selecteur
+          titre="Statut"
+          valeur={statut}
+          onChange={setStatut}
+          options={[
+            { valeur: "", libelle: "Tous les statuts" },
+            { valeur: "actif", libelle: "Actifs" },
+            { valeur: "archive", libelle: "Désactivés" },
+            { valeur: "jamais", libelle: "Jamais connectés" },
+          ]}
+          compact
+        />
       </div>
       {filtre ? (
         <p className="carte-graphique-sous">
@@ -159,29 +174,21 @@ export function TableauUtilisateurs({
                   ) : (
                     <form action={actionDeplacerUtilisateur} className="deplacer">
                       <input type="hidden" name="id" value={u.id} />
-                      <select
+                      <Selecteur
+                        titre={`Établissement de ${`${u.prenom} ${u.nom}`.trim()}`}
                         name="etablissementId"
-                        aria-label={`Établissement de ${u.prenom} ${u.nom}`}
                         defaultValue={u.etablissementId ?? ""}
-                        onChange={(e) => {
-                          const nouveau = nomEtab.get(e.target.value);
-                          if (
-                            nouveau &&
-                            window.confirm(`Déplacer ${`${u.prenom} ${u.nom}`.trim()} vers « ${nouveau} » ?`)
-                          ) {
-                            e.target.form?.requestSubmit();
-                          } else {
-                            e.target.value = u.etablissementId ?? "";
-                          }
-                        }}
-                      >
-                        {!u.etablissementId ? <option value="">—</option> : null}
-                        {etablissements.map((e) => (
-                          <option key={e.id} value={e.id}>
-                            {e.nom}
-                          </option>
-                        ))}
-                      </select>
+                        vide="—"
+                        options={etablissements.map((e) => ({ valeur: e.id, libelle: e.nom }))}
+                        avantChoix={(v) =>
+                          v === (u.etablissementId ?? "") ||
+                          window.confirm(
+                            `Déplacer ${`${u.prenom} ${u.nom}`.trim()} vers « ${nomEtab.get(v) ?? ""} » ?`,
+                          )
+                        }
+                        soumettre
+                        compact
+                      />
                     </form>
                   )}
                 </td>

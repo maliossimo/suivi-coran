@@ -3,6 +3,7 @@ import Link from "next/link";
 import { actionDesactiverQr, actionGenererQr } from "@/app/actions/classe";
 import { CopierLien } from "@/components/CopierLien";
 import { EnteteEspace } from "@/components/EnteteEspace";
+import { Selecteur } from "@/components/Selecteur";
 import { FormulaireInvitation } from "@/components/FormulaireInvitation";
 import { QrCode } from "@/components/QrCode";
 import { envPublic } from "@/lib/env";
@@ -50,19 +51,15 @@ export default async function PageInviter({ searchParams }: { searchParams: Prom
         {admin ? (
           <form method="get" className="choix-classe">
             <label htmlFor="classe">Classe</label>
-            <select id="classe" name="classe" className="champ-select" defaultValue={classeChoisie?.id ?? ""}>
-              <option value="" disabled>
-                Choisir une classe…
-              </option>
-              {classes.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nom}
-                </option>
-              ))}
-            </select>
-            <button type="submit" className="bouton-secondaire">
-              Choisir
-            </button>
+            <Selecteur
+              id="classe"
+              titre="Classe"
+              name="classe"
+              defaultValue={classeChoisie?.id ?? ""}
+              vide="Choisir une classe…"
+              options={classes.map((c) => ({ valeur: c.id, libelle: c.nom }))}
+              soumettre
+            />
           </form>
         ) : null}
 

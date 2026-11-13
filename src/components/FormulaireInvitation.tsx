@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { actionInviterEleve, actionInviterMaitre, type EtatInvitation } from "@/app/actions/classe";
+import { Selecteur } from "./Selecteur";
 
 /** Invitation d'un élève (par son maître) ou d'un maître (par l'admin). */
 export function FormulaireInvitation({
@@ -56,22 +57,12 @@ export function FormulaireInvitation({
       {cible === "maitre" ? (
         <div className="champ">
           <label htmlFor="etablissementId">Établissement</label>
-          <select
+          <Selecteur
             id="etablissementId"
+            titre="Établissement"
             name="etablissementId"
-            className="champ-select"
-            required
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Choisir…
-            </option>
-            {etablissements.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.nom}
-              </option>
-            ))}
-          </select>
+            options={etablissements.map((e) => ({ valeur: e.id, libelle: e.nom }))}
+          />
         </div>
       ) : null}
       <button className="bouton" type="submit" disabled={enCours}>

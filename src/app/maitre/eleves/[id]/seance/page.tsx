@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import { VueAdmin } from "@/components/admin/VueAdmin";
-import { EcouterPassages } from "@/components/coran/EcouterPassages";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { EcranSeance } from "@/components/fiche/EcranSeance";
 import { exigerEspace } from "@/services/acces";
@@ -35,13 +34,6 @@ export default async function PageSeanceMaitre({
         role={profil.role}
       />
       <main className="espace espace-etroit">
-        {profil.role === "admin" && donnees.seance ? (
-          <EcouterPassages
-            passages={donnees.seance.passages}
-            sourates={donnees.sourates}
-            lecture={donnees.lecture}
-          />
-        ) : null}
         <VueAdmin actif={profil.role === "admin"}>
           <EcranSeance donnees={donnees} eleveId={eleve.id} base={base} date={date} type={type} vueMaitre />
         </VueAdmin>

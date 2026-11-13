@@ -3,6 +3,7 @@
 import { Play, X } from "lucide-react";
 import { useState } from "react";
 import { Feuille } from "@/components/Feuille";
+import { Selecteur } from "@/components/Selecteur";
 import { resumeMemoriser, type Passage, type Repetition } from "@/domain/coran";
 import { Choix } from "./Controles";
 
@@ -40,7 +41,10 @@ function Brouillon({
 }: Proprietes) {
   const [passage, setPassage] = useState(depart);
   const [repetition, setRepetition] = useState(repetitionDepart);
-  const numeros = Array.from({ length: nbVersets }, (_, i) => i + 1);
+  const numeros = Array.from({ length: nbVersets }, (_, i) => ({
+    valeur: String(i + 1),
+    libelle: String(i + 1),
+  }));
   const nb = passage.au - passage.du + 1;
 
   return (
@@ -64,38 +68,31 @@ function Brouillon({
       }
     >
       <div className="coran-passage">
-        <label className="coran-reglage">
+        <div className="coran-reglage">
           <span>Du verset</span>
-          <select
-            value={passage.du}
-            onChange={(e) => {
-              const du = Number(e.target.value);
+          <Selecteur
+            titre="Du verset"
+            options={numeros}
+            valeur={String(passage.du)}
+            onChange={(v) => {
+              const du = Number(v);
               setPassage((p) => ({ du, au: Math.max(du, p.au) }));
             }}
-          >
-            {numeros.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="coran-reglage">
+            disposition="grille"
+            recherche={false}
+          />
+        </div>
+        <div className="coran-reglage">
           <span>Au verset</span>
-          <select
-            value={passage.au}
-            onChange={(e) => {
-              const au = Number(e.target.value);
-              setPassage((p) => ({ du: Math.min(au, p.du), au }));
-            }}
-          >
-            {numeros.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </label>
+          <Selecteur
+            titre="Au verset"
+            options={numeros.map((o) => ({ ...o, desactive: Number(o.valeur) < passage.du }))}
+            valeur={String(passage.au)}
+            onChange={(v) => setPassage((p) => ({ ...p, au: Number(v) }))}
+            disposition="grille"
+            recherche={false}
+          />
+        </div>
       </div>
       <Choix
         libelle="Répéter chaque verset"
