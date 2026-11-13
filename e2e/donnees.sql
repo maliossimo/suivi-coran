@@ -39,6 +39,8 @@ select pg_temp.compte('e2e00000-0000-0000-0000-0000000000e2', 'eleve.b@bout-en-b
 -- Rôle admin et lecture des élèves : réglés « à la console », comme en vrai.
 update public.profils set role = 'admin', etablissement_id = null
   where id = 'e2e00000-0000-0000-0000-0000000000ad';
+-- (comme changer_lecture : autorise le changement de lecture pour cette transaction)
+select set_config('app.conversion_lecture', 'oui', true);
 update public.profils set lecture = 'hafs'
   where id in ('e2e00000-0000-0000-0000-0000000000e1', 'e2e00000-0000-0000-0000-0000000000e2');
 
