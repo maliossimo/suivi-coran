@@ -13,6 +13,7 @@ import os
 import tempfile
 import threading
 import urllib.request
+from functools import lru_cache
 
 from dataclasses import dataclass
 
@@ -124,6 +125,139 @@ def mots_du_verset(sourate: int, verset: int, riwaya: str, texte_warsh: str | No
     return warsh.verse(sourate, verset, texte_warsh, hafs).split(" ")
 
 
+MOTS_MAX = 400  # une page ou un peu plus
+RECUL = 3  # l'élève peut reprendre quelques mots en arrière
+
+
+@lru_cache(maxsize=64)
+def _mots_passage(sourate: int, du: int, au: int, riwaya: str, textes: tuple[str, ...] | None):
+    """Mots du passage, avec pour chacun son verset et sa place dans le verset."""
+    mots, places = [], []
+    for k, v in enumerate(range(du, au + 1)):
+        texte = textes[k] if textes and k < len(textes) else None
+        ms = mots_du_verset(sourate, v, riwaya, texte)
+        mots += ms
+        places += [(v, j) for j in range(len(ms))]
+    return tuple(mots), tuple(places)
+
+
+@lru_cache(maxsize=64)
+def _reference(mots: tuple[str, ...], riwaya: str):
+    """Écriture phonétique attendue du passage entier, et la place de chaque mot dans cette écriture."""
+    ref = imam.expected(list(mots), riwaya=riwaya)
+    return ref.phonemes, tuple(ref.spans)
+
+
+def _situer(entendu: str, mots: tuple[str, ...], riwaya: str, depuis: int) -> tuple[int, int]:
+    """Les mots [a, b) que couvre ce morceau : le départ près de « depuis » (l'élève peut reprendre un peu
+    avant), la fin là où l'écriture attendue ressemble le plus à ce qui a été entendu."""
+    ph, spans = _reference(mots, riwaya)
+    n = len(mots)
+    meilleur = (float("inf"), depuis, min(n, depuis + 1))
+    for a in range(max(0, depuis - RECUL), min(n, depuis + 2)):
+        debut = spans[a][0]
+        for b in range(a + 1, n + 1):
+            attendu = ph[debut : spans[b - 1][1]]
+            if len(attendu) > 2 * len(entendu) + 20:
+                break
+            d = imam.Levenshtein.distance(attendu, entendu) + 0.5 * abs(a - depuis)
+            if d < meilleur[0]:
+                meilleur = (d, a, b)
+    return meilleur[1], meilleur[2]
+
+
+def _etat(notes: list) -> str:
+    if any(n["rule"] == "word" for n in notes):
+        return "oublie"
+    if any(n["severity"] == "jali" for n in notes):
+        return "erreur"
+    return "a_revoir" if notes else "juste"
+
+
+def _lire_audio(pcm: bytes) -> np.ndarray:
+    if len(pcm) % 2:
+        raise ErreurSaisie("Audio invalide.")
+    audio = np.frombuffer(pcm, "<i2").astype(np.float32) / 32768
+    duree = len(audio) / FREQ
+    if duree < DUREE_MIN:
+        raise ErreurSaisie("Récitation trop courte.")
+    if duree > DUREE_MAX + 0.5:
+        raise ErreurSaisie("30 secondes au plus par morceau.")
+    return audio
+
+
+def analyser_passage(
+    pcm: bytes,
+    sourate: int,
+    du: int,
+    au: int,
+    riwaya: str,
+    textes_warsh: list[str] | None = None,
+    depuis: int = 0,
+    tempo: list[float] | None = None,
+    reglages: Reglages = REGLAGES,
+) -> dict:
+    """Un morceau (≤ 30 s) d'une récitation des versets du..au : il est situé dans le passage, à partir du mot
+    « depuis », puis jugé mot par mot. tempo : les madd naturels déjà entendus dans la séance (le rythme de
+    l'élève), rendus complétés pour le morceau suivant."""
+    if riwaya not in ("hafs", "warsh"):
+        raise ErreurSaisie("Lecture inconnue.")
+    if not (1 <= sourate <= 114) or du < 1 or au < du or au - du > 40:
+        raise ErreurSaisie("Verset inconnu.")
+    audio = _lire_audio(pcm)
+    try:
+        mots, places = _mots_passage(sourate, du, au, riwaya, tuple(textes_warsh) if textes_warsh else None)
+    except ErreurSaisie:
+        raise
+    except Exception as e:  # noqa: BLE001
+        raise ErreurSaisie("Verset inconnu.") from e
+    if len(mots) > MOTS_MAX:
+        raise ErreurSaisie("Passage trop long : choisis moins de versets.")
+    depuis = max(0, min(depuis, len(mots) - 1))
+    tempo = [float(t) for t in (tempo or []) if isinstance(t, (int, float)) and 0.05 < t < 3][-40:]
+
+    entendu, probs, instants = entendre(audio, riwaya, reglages.modele)
+    if not entendu:
+        return {"entendu": "", "mots": [], "couverts": [depuis, depuis], "tempo": tempo}
+
+    a, b = _situer(entendu, mots, riwaya, depuis)
+    ref = imam.recited(list(mots[a:b]), entendu, riwaya=riwaya)
+    bornes = imam._boundaries(ref.phonemes, entendu)
+    resultat = []
+    for k, m in enumerate(
+        imam.listen(
+            ref,
+            entendu,
+            heard_probs=probs,
+            min_prob=reglages.min_prob,
+            min_prob_jali=reglages.min_prob_jali,
+            langs=("fr",),
+            heard_times=instants,
+            tempo=tempo,
+        )
+    ):
+        g = a + m["index"]
+        s0, s1 = ref.spans[k]
+        h0, h1 = bornes[s0], bornes[s1]
+        resultat.append(
+            {
+                "verset": places[g][0],
+                "place": places[g][1],
+                "indice": g,
+                "mot": m["word"],
+                "etat": _etat(m["notes"]),
+                "remarques": [
+                    {"gravite": n["severity"], "regle": n["rule"], "texte": n["msg"]["fr"]} for n in m["notes"]
+                ],
+                "madd": [{"nom": d["name"]["fr"], "temps": d["heard"]} for d in m["madd"]],
+                # où entendre ce mot dans le morceau (secondes)
+                "debut": round(max(0.0, instants[min(h0, len(instants) - 1)] - 0.15), 2),
+                "fin": round(instants[min(max(h1, h0 + 1), len(instants) - 1)] + 0.1, 2),
+            }
+        )
+    return {"entendu": entendu, "mots": resultat, "couverts": [a, b], "tempo": tempo}
+
+
 def analyser(
     pcm: bytes,
     sourate: int,
@@ -132,59 +266,16 @@ def analyser(
     texte_warsh: str | None = None,
     reglages: Reglages = REGLAGES,
 ) -> dict:
-    """pcm : 16 kHz, mono, 16 bits (petit-boutiste). Renvoie les mots avec leurs remarques en français."""
-    if riwaya not in ("hafs", "warsh"):
-        raise ErreurSaisie("Lecture inconnue.")
+    """Un verset entier ; les mots non entendus sont marqués oubliés."""
     if not (1 <= sourate <= 114) or verset < 1:
         raise ErreurSaisie("Verset inconnu.")
-    if len(pcm) % 2:
-        raise ErreurSaisie("Audio invalide.")
-    audio = np.frombuffer(pcm, "<i2").astype(np.float32) / 32768
-    duree = len(audio) / FREQ
-    if duree < DUREE_MIN:
-        raise ErreurSaisie("Récitation trop courte.")
-    if duree > DUREE_MAX + 0.5:
-        raise ErreurSaisie("30 secondes au plus : récite un verset à la fois.")
-
-    try:
-        mots = mots_du_verset(sourate, verset, riwaya, texte_warsh)
-    except ErreurSaisie:
-        raise
-    except Exception as e:  # noqa: BLE001
-        raise ErreurSaisie("Verset inconnu.") from e
-
-    entendu, probs, instants = entendre(audio, riwaya, reglages.modele)
-    if not entendu:
-        return {"entendu": "", "mots": [{"mot": m, "etat": "oublie", "remarques": [], "madd": []} for m in mots]}
-
-    ref = imam.recited(mots, entendu, riwaya=riwaya)
-    resultat = []
-    for m in imam.listen(
-        ref,
-        entendu,
-        heard_probs=probs,
-        min_prob=reglages.min_prob,
-        min_prob_jali=reglages.min_prob_jali,
-        langs=("fr",),
-        heard_times=instants,
-    ):
-        notes = m["notes"]
-        if any(n["rule"] == "word" for n in notes):
-            etat = "oublie"
-        elif any(n["severity"] == "jali" for n in notes):
-            etat = "erreur"
-        elif notes:
-            etat = "a_revoir"
-        else:
-            etat = "juste"
-        resultat.append(
-            {
-                "mot": m["word"],
-                "etat": etat,
-                "remarques": [
-                    {"gravite": n["severity"], "regle": n["rule"], "texte": n["msg"]["fr"]} for n in notes
-                ],
-                "madd": [{"nom": d["name"]["fr"], "temps": d["heard"]} for d in m["madd"]],
-            }
-        )
-    return {"entendu": entendu, "mots": resultat}
+    r = analyser_passage(
+        pcm, sourate, verset, verset, riwaya, [texte_warsh] if texte_warsh else None, reglages=reglages
+    )
+    mots, _ = _mots_passage(sourate, verset, verset, riwaya, (texte_warsh,) if texte_warsh else None)
+    vus = {m["indice"]: m for m in r["mots"]}
+    r["mots"] = [
+        vus.get(i, {"verset": verset, "place": i, "indice": i, "mot": w, "etat": "oublie", "remarques": [], "madd": []})
+        for i, w in enumerate(mots)
+    ]
+    return r
