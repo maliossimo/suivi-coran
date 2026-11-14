@@ -18,13 +18,26 @@ from datasets import Audio, load_dataset  # noqa: E402
 
 from _tajwid.moteur import Reglages, analyser_passage  # noqa: E402
 
+# (nom, réglages, son envoyé en μ-law 8 bits)
 CONFIGS = [
-    Reglages("int8", 0.3, 0.7, madd_naturel=True),  # réglages d'origine
-    Reglages("int8", 0.5, 0.8, madd_naturel=True),
-    Reglages(),  # réglages retenus
-    Reglages("int8", 0.7, 0.9),
-    Reglages("fp32", 0.5, 0.8),
+    ("actuel (double écoute, 0,3 / 0,7)", Reglages(), False),
+    ("une seule écoute, 0,5 / 0,8 (1.23)", Reglages(min_prob=0.5, min_prob_jali=0.8, consensus=False), False),
 ]
+
+
+def via_mulaw(pcm: bytes) -> bytes:
+    """Le son tel qu'il arriverait en μ-law (aller-retour), pour mesurer la perte."""
+    import numpy as np
+
+    from _tajwid.moteur import _mulaw
+
+    x = np.frombuffer(pcm, "<i2").astype(np.int32)
+    signe = np.where(x < 0, 0x80, 0)
+    s = np.minimum(np.abs(x), 32635) + 0x84
+    exposant = np.clip(np.floor(np.log2(np.maximum(s, 1) >> 7)).astype(int), 0, 7)
+    mantisse = (s >> (exposant + 3)) & 0x0F
+    u = (~(signe | (exposant << 4) | mantisse)) & 0xFF
+    return (np.clip(_mulaw(u.astype(np.uint8).tobytes()) * 32768, -32768, 32767)).astype("<i2").tobytes()
 
 
 def pcm(audio: dict) -> bytes:
@@ -55,7 +68,7 @@ def main() -> None:
     ds = load_dataset("obadx/qdat_bench", split="train").cast_column("audio", Audio(decode=False))
     etiquettes = [{c: ds[i][c] for c in ds.column_names if c not in ("audio", "sifat")} for i in range(len(ds))]
     audios = [pcm(x["audio"]) for x in ds]
-    for reglages in CONFIGS:
+    for nom_config, reglages, en_mulaw in CONFIGS:
         debut = time.time()
         durees = []
         compte = {nom: Counter() for nom in REGLES}
@@ -63,7 +76,8 @@ def main() -> None:
         for x, a in zip(etiquettes, audios):
             t = time.time()
             try:
-                r = analyser_passage(a, 5, 109, 109, "hafs", depuis=7, reglages=reglages)
+                son = via_mulaw(a) if en_mulaw else a
+                r = analyser_passage(son, 5, 109, 109, "hafs", depuis=7, reglages=reglages)
             except Exception as e:  # noqa: BLE001
                 print("erreur :", e)
                 continue
@@ -80,7 +94,7 @@ def main() -> None:
                     remarques_sur_juste += bool(par_mot.get(mot))
         durees.sort()
         print(
-            f"\n=== {reglages} — {time.time() - debut:.0f} s, médiane {durees[len(durees) // 2]:.2f} s,"
+            f"\n=== {nom_config} : {reglages} — {time.time() - debut:.0f} s, médiane {durees[len(durees) // 2]:.2f} s,"
             f" max {durees[-1]:.2f} s"
         )
         print(f"  remarques sur des mots annotés justes : {remarques_sur_juste}/{mots_justes}")

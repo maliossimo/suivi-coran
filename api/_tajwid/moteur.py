@@ -42,12 +42,18 @@ class Reglages:
     """Réglages choisis sur le banc d'essai (159 apprenants annotés, tests_python/banc_qdat.py) :
     le modèle complet (fp32) n'y fait pas mieux que l'int8 ; des seuils de confiance 0,5 / 0,8 retirent
     un dixième des fausses remarques pour presque autant de fautes repérées ; la longueur du madd naturel
-    y est plus souvent reprochée à tort qu'à raison : elle n'est pas jugée (un madd naturel oublié l'est)."""
+    y est plus souvent reprochée à tort qu'à raison : elle n'est pas jugée (un madd naturel oublié l'est).
+    La double écoute (int8 + fp32, remarque gardée si les deux la font) avec des seuils 0,3 / 0,7 fait
+    mieux sur les deux tableaux : 65 fausses remarques sur 868 mots justes (au lieu de 73) et 87 fautes
+    repérées (au lieu de 81), pour ~0,3 s par morceau au lieu de ~0,1 s : retenue (précision d'abord)."""
 
     modele: str = MODELE
-    min_prob: float = 0.5  # finesses de tajwid (madd, ghunna…) : tues si le modèle doute
-    min_prob_jali: float = 0.8  # fautes nettes (lettre, voyelle, son)
+    min_prob: float = 0.3  # finesses de tajwid (madd, ghunna…) : tues si le modèle doute
+    min_prob_jali: float = 0.7  # fautes nettes (lettre, voyelle, son)
     madd_naturel: bool = False  # juger la longueur du madd naturel (trop long / trop court)
+    # Double écoute : le morceau est aussi écouté par l'autre version du modèle, et une remarque
+    # n'est gardée que si les deux la font (moins de remarques fausses ou changeantes).
+    consensus: bool = True
 
 
 REGLAGES = Reglages()
@@ -243,6 +249,24 @@ def analyser_passage(
         return {"entendu": "", "mots": [], "couverts": [depuis, depuis], "tempo": tempo, "passage": passage}
 
     a, b = _situer(entendu, mots, riwaya, depuis)
+    confirmees = None
+    if reglages.consensus:
+        autre = "fp32" if reglages.modele == "int8" else "int8"
+        entendu2, probs2, instants2 = entendre(audio, riwaya, autre)
+        confirmees = set()
+        if entendu2:
+            ref2 = imam.recited(list(mots[a:b]), entendu2, riwaya=riwaya)
+            for m2 in imam.listen(
+                ref2,
+                entendu2,
+                heard_probs=probs2,
+                min_prob=reglages.min_prob,
+                min_prob_jali=reglages.min_prob_jali,
+                langs=("fr",),
+                heard_times=instants2,
+                tempo=list(tempo),
+            ):
+                confirmees |= {(a + m2["index"], n["rule"].split(":")[0]) for n in m2["notes"]}
     ref = imam.recited(list(mots[a:b]), entendu, riwaya=riwaya)
     bornes = imam._boundaries(ref.phonemes, entendu)
     resultat = []
@@ -258,12 +282,13 @@ def analyser_passage(
             tempo=tempo,
         )
     ):
+        g = a + m["index"]
         notes = [
             n
             for n in m["notes"]
-            if reglages.madd_naturel or not (n["rule"] == "NormalMaddRule" and n["severity"] == "khafi")
+            if (reglages.madd_naturel or not (n["rule"] == "NormalMaddRule" and n["severity"] == "khafi"))
+            and (confirmees is None or (g, n["rule"].split(":")[0]) in confirmees)
         ]
-        g = a + m["index"]
         s0, s1 = ref.spans[k]
         h0, h1 = bornes[s0], bornes[s1]
         resultat.append(

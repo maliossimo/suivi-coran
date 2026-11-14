@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Eye, EyeOff, Mic, Play, Square, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { actionSignalerTajwid } from "@/app/actions/tajwid";
 import { bloquerDefilement } from "@/components/Feuille";
 import { retourSensoriel } from "@/components/retourSensoriel";
@@ -34,6 +34,16 @@ const LIBELLE_AFFICHE: Record<EtatAffiche, string> = { ...LIBELLE_ETAT, non_reci
 /** Pendant la récitation : le jugement s'il est arrivé, sinon « entendu » (suivi en direct) ou rien. */
 const classeEnDirect = (etat: EtatAffiche | undefined, entendu: boolean) =>
   etat ?? (entendu ? "entendu" : "");
+
+/** ﴿٣﴾ : le numéro du verset, comme dans le mushaf. */
+function NumeroVerset({ n }: { n: number }) {
+  return (
+    <span className="reciter-numero" aria-label={`fin du verset ${n}`}>
+      {" "}
+      ﴿{n.toLocaleString("ar-EG")}﴾{" "}
+    </span>
+  );
+}
 
 /** Jeton d'accès au moteur, gardé quelques minutes. */
 async function demanderJeton(): Promise<string> {
@@ -350,17 +360,17 @@ export function ModeReciter({
   const texte = (
     <p className="reciter-texte" lang="ar" dir="rtl">
       {passage
-        ? mots.map((m) => (
-            <span
-              key={m.indice}
-              className={`reciter-mot ${classeEnDirect(m.analyse?.etat, m.indice < suiviFin)}`}
-            >
-              {m.mot}{" "}
-            </span>
+        ? mots.map((m, i) => (
+            <Fragment key={m.indice}>
+              <span className={`reciter-mot ${classeEnDirect(m.analyse?.etat, m.indice < suiviFin)}`}>
+                {m.mot}{" "}
+              </span>
+              {mots[i + 1]?.verset !== m.verset ? <NumeroVerset n={m.verset} /> : null}
+            </Fragment>
           ))
         : versetsChoisis.map((v) => (
             <span key={v.n}>
-              {v.texte} <span className="reciter-numero">﴿{v.n.toLocaleString("ar-EG")}﴾</span>{" "}
+              {v.texte} <NumeroVerset n={v.n} />
             </span>
           ))}
     </p>
@@ -440,17 +450,19 @@ export function ModeReciter({
       <main className="reciter-corps">
         {etape === "resultat" ? (
           <p className="reciter-texte" lang="ar" dir="rtl">
-            {mots.map((m) => (
-              <button
-                key={m.indice}
-                type="button"
-                className={`reciter-mot ${m.etat}${m.indice === choisi ? " choisi" : ""}`}
-                aria-label={`${m.mot} : ${LIBELLE_AFFICHE[m.etat]}`}
-                aria-pressed={m.indice === choisi}
-                onClick={() => setChoisi(m.indice)}
-              >
-                {m.mot}
-              </button>
+            {mots.map((m, i) => (
+              <Fragment key={m.indice}>
+                <button
+                  type="button"
+                  className={`reciter-mot ${m.etat}${m.indice === choisi ? " choisi" : ""}`}
+                  aria-label={`${m.mot} : ${LIBELLE_AFFICHE[m.etat]}`}
+                  aria-pressed={m.indice === choisi}
+                  onClick={() => setChoisi(m.indice)}
+                >
+                  {m.mot}
+                </button>
+                {mots[i + 1]?.verset !== m.verset ? <NumeroVerset n={m.verset} /> : null}
+              </Fragment>
             ))}
           </p>
         ) : masquer && etape !== "pret" ? (
