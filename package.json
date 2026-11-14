@@ -1,6 +1,6 @@
 {
   "name": "suivi-coran",
-  "version": "1.20.0",
+  "version": "1.21.0",
   "private": true,
   "description": "Suivi des cours de Coran : apprentissage et révision, espace élève, maître et admin.",
   "engines": {

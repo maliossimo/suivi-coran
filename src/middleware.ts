@@ -23,6 +23,6 @@ export const config = {
   // Toutes les pages sauf les fichiers fixes (scripts, images, polices, sons, service worker…) :
   // pour eux, ni session ni CSP à calculer, donc aucun aller-retour vers Supabase.
   matcher: [
-    "/((?!_next/static|_next/image|polices/|icones/|sw\\.js|manifest\\.webmanifest|api/version|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|mp3|json|txt|xml)$).*)",
+    "/((?!_next/static|_next/image|polices/|icones/|sw\\.js|manifest\\.webmanifest|api/version|api/moteur_tajwid|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|mp3|json|txt|xml)$).*)",
   ],
 };

@@ -45,6 +45,40 @@ jobs:
       - run: npm run typecheck
       - run: npm test
 
+  tajwid:
+    name: Moteur tajwid (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # Le moteur (modèle téléchargé, récitations de référence) n'est testé que si la PR le touche.
+      - name: La PR touche-t-elle le moteur ?
+        id: changements
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ] || \
+             git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^(api/|tests_python/|requirements\.txt)'; then
+            echo "moteur=oui" >> "$GITHUB_OUTPUT"
+          else
+            echo "Aucun changement du moteur tajwid : tests inutiles."
+          fi
+      - uses: actions/setup-python@v6
+        if: steps.changements.outputs.moteur == 'oui'
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Installation
+        if: steps.changements.outputs.moteur == 'oui'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -r requirements.txt pytest
+      - name: Tests (dont l'analyse réelle de récitations de référence)
+        if: steps.changements.outputs.moteur == 'oui'
+        env:
+          TAJWID_REEL: "1"
+        run: python -m pytest tests_python -v -s
+
   base:
     name: Migrations et règles d'accès (RLS)
     runs-on: ubuntu-latest
