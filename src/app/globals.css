@@ -8850,3 +8850,56 @@ html[data-ouverture] .ouverture {
   min-height: 56px;
   margin: 16px 0;
 }
+
+/* Réciter : « Révéler en récitant », chaque mot apparaît une fois récité */
+.reciter-mot.cache,
+.reciter-mot.cache * {
+  color: transparent !important;
+  text-shadow: none;
+}
+.reciter-mot.cache {
+  border-radius: 6px;
+  background: repeating-linear-gradient(90deg, var(--surface-3) 0 10px, transparent 10px 14px) center / 100%
+    0.5em no-repeat;
+  transition:
+    color 0.25s,
+    background-size 0.25s;
+}
+
+/* Réciter : essais précédents et mots difficiles */
+.reciter-historique {
+  display: grid;
+  gap: 8px;
+  margin: 8px 16px 0;
+  font-size: var(--t-petit);
+  color: var(--texte-doux);
+}
+.reciter-historique p {
+  margin: 0;
+}
+.reciter-historique b {
+  color: var(--texte);
+}
+.reciter-difficiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.reciter-difficile {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-height: 40px;
+  padding: 4px 12px;
+  border: 1px solid var(--bord-or);
+  border-radius: 999px;
+  background: var(--or-clair);
+  color: var(--texte);
+  font: inherit;
+  cursor: pointer;
+}
+.reciter-difficile span {
+  font-family: "KFGQPC Hafs", var(--font-arabe), serif;
+  font-size: 20px;
+}
