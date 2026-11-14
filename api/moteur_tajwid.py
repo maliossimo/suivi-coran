@@ -69,7 +69,15 @@ class handler(BaseHTTPRequestHandler):  # noqa: N801 (nom imposé par Vercel)
                 resultat = analyser(pcm, sourate, verset, riwaya, textes[0] if textes else None)
             else:
                 resultat = analyser_passage(
-                    pcm, sourate, du, au, riwaya, textes, depuis, tempo if isinstance(tempo, list) else None
+                    pcm,
+                    sourate,
+                    du,
+                    au,
+                    riwaya,
+                    textes,
+                    depuis,
+                    tempo if isinstance(tempo, list) else None,
+                    avec_passage="liste" in q,
                 )
             self._repondre(200, resultat)
         except ErreurSaisie as e:

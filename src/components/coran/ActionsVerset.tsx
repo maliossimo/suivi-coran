@@ -1,10 +1,9 @@
 "use client";
 
-import { Bookmark, BookOpenText, Play, Repeat, Repeat1, Settings2 } from "lucide-react";
+import { Bookmark, BookOpenText, Mic, Play, Repeat, Repeat1, Settings2 } from "lucide-react";
 import { Feuille } from "@/components/Feuille";
 import type { EtatExplication } from "./explications";
 import { ReciterVerset } from "./ReciterVerset";
-import { VerifierRecitation } from "./VerifierRecitation";
 
 export type ModeVerset = "actions" | "explication";
 
@@ -23,7 +22,7 @@ export function ActionsVerset({
   explication,
   marque,
   adresseRecitateur,
-  texteVerset,
+  onReciter,
   onEcouter,
   onRepeter,
   onMemoriser,
@@ -45,8 +44,8 @@ export function ActionsVerset({
   marque: boolean;
   /** Fichier du récitateur pour ce verset (comparer sa récitation). */
   adresseRecitateur: string | null;
-  /** Texte du verset choisi (vérifier sa récitation mot à mot). */
-  texteVerset: string | null;
+  /** Ouvre le mode « Réciter » à partir de ce verset (vérification du tajwid). */
+  onReciter: ((cle: string) => void) | null;
   onEcouter: (cle: string) => void;
   onRepeter: (cle: string) => void;
   onMemoriser: (cle: string) => void;
@@ -117,15 +116,11 @@ export function ActionsVerset({
               onAvantEnregistrement={onAvantEnregistrement}
             />
           ) : null}
-          {mode === "actions" && verset && texteVerset ? (
-            <VerifierRecitation
-              key={cle}
-              sourate={Number(cle.split(":")[0])}
-              verset={verset}
-              lecture={lecture === "warsh" ? "warsh" : "hafs"}
-              texteVerset={texteVerset}
-              onAvantEcoute={onAvantEnregistrement}
-            />
+          {mode === "actions" && verset && onReciter ? (
+            <button type="button" className="bouton actions-verset-reciter" onClick={() => onReciter(cle)}>
+              <Mic size={18} aria-hidden="true" />
+              Vérifier ma récitation à partir d’ici
+            </button>
           ) : null}
         </>
       ) : null}

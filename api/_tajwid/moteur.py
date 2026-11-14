@@ -196,6 +196,7 @@ def analyser_passage(
     depuis: int = 0,
     tempo: list[float] | None = None,
     reglages: Reglages = REGLAGES,
+    avec_passage: bool = False,
 ) -> dict:
     """Un morceau (≤ 30 s) d'une récitation des versets du..au : il est situé dans le passage, à partir du mot
     « depuis », puis jugé mot par mot. tempo : les madd naturels déjà entendus dans la séance (le rythme de
@@ -216,9 +217,10 @@ def analyser_passage(
     depuis = max(0, min(depuis, len(mots) - 1))
     tempo = [float(t) for t in (tempo or []) if isinstance(t, (int, float)) and 0.05 < t < 3][-40:]
 
+    passage = [[v, p, w] for (v, p), w in zip(places, mots)] if avec_passage else None
     entendu, probs, instants = entendre(audio, riwaya, reglages.modele)
     if not entendu:
-        return {"entendu": "", "mots": [], "couverts": [depuis, depuis], "tempo": tempo}
+        return {"entendu": "", "mots": [], "couverts": [depuis, depuis], "tempo": tempo, "passage": passage}
 
     a, b = _situer(entendu, mots, riwaya, depuis)
     ref = imam.recited(list(mots[a:b]), entendu, riwaya=riwaya)
@@ -255,7 +257,7 @@ def analyser_passage(
                 "fin": round(instants[min(max(h1, h0 + 1), len(instants) - 1)] + 0.1, 2),
             }
         )
-    return {"entendu": entendu, "mots": resultat, "couverts": [a, b], "tempo": tempo}
+    return {"entendu": entendu, "mots": resultat, "couverts": [a, b], "tempo": tempo, "passage": passage}
 
 
 def analyser(

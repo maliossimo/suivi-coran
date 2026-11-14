@@ -148,32 +148,72 @@ test.describe("Vérifier ma récitation", () => {
     expect(r.status()).toBe(403);
   });
 
-  test("la récitation est analysée et chaque mot coloré, avec ses remarques", async ({ page }) => {
+  test("mode Réciter : la récitation est analysée par morceaux, chaque mot coloré, avec ses remarques", async ({
+    page,
+  }) => {
+    // Micro simulé : un son régulier (celui de Chrome ne fait que des bips).
+    await page.addInitScript(() => {
+      navigator.mediaDevices.getUserMedia = async () => {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        // 1,2 s de son, 0,5 s de silence : comme une voix qui respire, sans vraie pause.
+        for (let t = 0; t < 60; t += 1.7) {
+          gain.gain.setValueAtTime(0.3, ctx.currentTime + t);
+          gain.gain.setValueAtTime(0, ctx.currentTime + t + 1.2);
+        }
+        const dest = ctx.createMediaStreamDestination();
+        osc.connect(gain).connect(dest);
+        osc.start();
+        return dest.stream;
+      };
+    });
     // Le moteur (fonction Python sur Vercel) ne tourne pas ici : sa réponse est simulée.
+    let envois = 0;
     await page.route("**/api/moteur_tajwid**", async (route) => {
-      expect(route.request().method()).toBe("POST");
+      if (route.request().method() === "GET") return route.fulfill({ json: { pret: true } });
+      envois++;
+      const url = new URL(route.request().url());
       expect(route.request().headers()["authorization"]).toMatch(/^Jeton /);
+      expect(url.searchParams.get("du")).toBe("2");
       expect((route.request().postDataBuffer()?.length ?? 0) % 2).toBe(0);
+      const mot = (
+        indice: number,
+        texte: string,
+        etat: string,
+        remarques: { regle: string; texte: string }[] = [],
+      ) => ({
+        verset: 2,
+        place: indice,
+        indice,
+        mot: texte,
+        etat,
+        remarques: remarques.map((r) => ({ gravite: etat === "erreur" ? "jali" : "khafi", ...r })),
+        madd: [],
+        debut: indice * 0.5,
+        fin: indice * 0.5 + 0.5,
+      });
       await route.fulfill({
         json: {
           entendu: "…",
+          couverts: [0, 4],
+          tempo: [0.2],
+          passage: [
+            [2, 0, "ٱلْحَمْدُ"],
+            [2, 1, "لِلَّهِ"],
+            [2, 2, "رَبِّ"],
+            [2, 3, "ٱلْعَٰلَمِينَ"],
+          ],
           mots: [
-            { mot: "ٱلْحَمْدُ", etat: "juste", remarques: [], madd: [] },
-            { mot: "لِلَّهِ", etat: "juste", remarques: [], madd: [] },
-            {
-              mot: "رَبِّ",
-              etat: "erreur",
-              remarques: [{ gravite: "jali", texte: "la chadda sur ب n’a pas été prononcée" }],
-              madd: [],
-            },
-            {
-              mot: "ٱلْعَٰلَمِينَ",
-              etat: "a_revoir",
-              remarques: [
-                { gravite: "khafi", texte: "madd ʿarid (à l’arrêt) trop long : 8 temps au lieu de 6 temps" },
-              ],
-              madd: [{ nom: "madd ʿarid (à l’arrêt)", temps: 6 }],
-            },
+            mot(0, "ٱلْحَمْدُ", "juste"),
+            mot(1, "لِلَّهِ", "juste"),
+            mot(2, "رَبِّ", "erreur", [{ regle: "shadda", texte: "la chadda sur ب n’a pas été prononcée" }]),
+            mot(3, "ٱلْعَٰلَمِينَ", "a_revoir", [
+              {
+                regle: "AaredMaddRule",
+                texte: "madd ʿarid (à l’arrêt) trop long : 8 temps au lieu de 6 temps",
+              },
+            ]),
           ],
         },
       });
@@ -181,19 +221,24 @@ test.describe("Vérifier ma récitation", () => {
     await seConnecter(page, COMPTES.admin, /\/admin/);
     await page.goto("/admin/coran?lecture=hafs&sourate=1");
     await page.locator('.coran-verset[data-cle="1:2"]').click();
-    const feuille = page.getByRole("dialog", { name: "Verset 2" });
-    const verifier = feuille.getByRole("region", { name: "Vérifier ma récitation" });
-    await verifier.getByRole("button", { name: "Commencer la récitation" }).click();
-    await expect(verifier.getByText(/^0:0\d \/ 0:30$/)).toBeVisible();
-    await page.waitForTimeout(1500); // micro simulé de Chrome
-    await verifier.getByRole("button", { name: "J’ai fini" }).click();
+    await page.getByRole("button", { name: "Vérifier ma récitation à partir d’ici" }).click();
+    const reciter = page.getByRole("dialog", { name: "Réciter" });
+    await expect(reciter).toBeVisible();
+    await reciter.getByRole("button", { name: "Commencer la récitation" }).click();
+    await expect(reciter.getByText("Son parfait")).toBeVisible({ timeout: 10_000 });
+    await page.waitForTimeout(1500);
+    await reciter.getByRole("button", { name: "J’ai fini" }).click();
 
-    await expect(verifier.getByText("50 %")).toBeVisible({ timeout: 15_000 });
+    await expect(reciter.getByText("50 %")).toBeVisible({ timeout: 15_000 });
+    expect(envois).toBe(1);
+    await expect(reciter.getByText("1 à revoir")).toBeVisible();
     // La première faute nette est montrée d'office.
-    await expect(verifier.getByText("la chadda sur ب n’a pas été prononcée")).toBeVisible();
-    await verifier.getByRole("button", { name: /ٱلْعَٰلَمِينَ/ }).click();
-    await expect(verifier.getByText(/madd ʿarid \(à l’arrêt\) trop long/)).toBeVisible();
-    await expect(verifier.getByRole("button", { name: "Réécouter ma récitation" })).toBeVisible();
-    await capture(page, "45-verifier-recitation");
+    await expect(reciter.getByText("La chadda sur ب n’a pas été prononcée.")).toBeVisible();
+    await expect(reciter.getByRole("button", { name: "Toi" })).toBeVisible();
+    await reciter.getByRole("button", { name: /ٱلْعَٰلَمِينَ/ }).click();
+    await expect(reciter.getByText(/Madd ʿarid \(à l’arrêt\) trop long/)).toBeVisible();
+    await capture(page, "45-reciter-resultat");
+    await reciter.getByRole("button", { name: "L’appli s’est trompée" }).click();
+    await expect(reciter.getByText(/Merci, c’est noté/)).toBeVisible();
   });
 });
