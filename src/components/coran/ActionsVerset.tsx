@@ -4,6 +4,7 @@ import { Bookmark, BookOpenText, Play, Repeat, Repeat1, Settings2 } from "lucide
 import { Feuille } from "@/components/Feuille";
 import type { EtatExplication } from "./explications";
 import { ReciterVerset } from "./ReciterVerset";
+import { VerifierRecitation } from "./VerifierRecitation";
 
 export type ModeVerset = "actions" | "explication";
 
@@ -22,6 +23,7 @@ export function ActionsVerset({
   explication,
   marque,
   adresseRecitateur,
+  texteVerset,
   onEcouter,
   onRepeter,
   onMemoriser,
@@ -43,6 +45,8 @@ export function ActionsVerset({
   marque: boolean;
   /** Fichier du récitateur pour ce verset (comparer sa récitation). */
   adresseRecitateur: string | null;
+  /** Texte du verset choisi (vérifier sa récitation mot à mot). */
+  texteVerset: string | null;
   onEcouter: (cle: string) => void;
   onRepeter: (cle: string) => void;
   onMemoriser: (cle: string) => void;
@@ -112,6 +116,9 @@ export function ActionsVerset({
               adresseRecitateur={adresseRecitateur}
               onAvantEnregistrement={onAvantEnregistrement}
             />
+          ) : null}
+          {mode === "actions" && verset && texteVerset ? (
+            <VerifierRecitation key={cle} texteVerset={texteVerset} onAvantEcoute={onAvantEnregistrement} />
           ) : null}
         </>
       ) : null}

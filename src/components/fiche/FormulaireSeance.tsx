@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { EtatCheikh, Seance, TypeSeance } from "@/domain/fiche";
+import { dateCourte } from "@/domain/format";
 import { premierChevauchement, type Passage } from "@/domain/versets";
 import { actionEnregistrerSeanceFond } from "@/app/actions/fiche";
 import { ChoixSourate } from "./ChoixSourate";
@@ -468,6 +469,7 @@ export function FormulaireSeance({
                   <span lang="ar" dir="rtl">
                     {nomSourate(p.sourateDebut)?.nomAr}
                   </span>
+                  {p.valide && p.valideLe ? <small>validé le {dateCourte(p.valideLe)}</small> : null}
                 </span>
                 {/* L'élève voit où en est chaque passage ; le Cheikh a ses boutons au-dessus. */}
                 {initiale?.corrigee && !vueMaitre ? <PastilleCheikh etat={etatPassage(p)} /> : null}

@@ -1,15 +1,6 @@
 import { exigerEspace } from "@/services/acces";
 import { chargerEtatSite } from "@/services/admin";
-
-function dateHeure(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Paris",
-  }).format(new Date(iso));
-}
+import { dateHeure } from "@/domain/format";
 
 function taille(octets: number | null): string {
   if (octets === null) return "";

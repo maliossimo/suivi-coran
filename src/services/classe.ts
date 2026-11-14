@@ -122,7 +122,7 @@ export async function inviterEleve(
       ok: false,
       erreur:
         acteur.role === "admin"
-          ? "Choisis d'abord une classe."
+          ? "Choisis d'abord un établissement."
           : "Seul un Cheikh rattaché à un établissement peut inviter un élève.",
     };
   }
@@ -292,7 +292,7 @@ export async function genererQrClasse(
       ok: false,
       erreur:
         acteur.role === "admin"
-          ? "Choisis d'abord une classe."
+          ? "Choisis d'abord un établissement."
           : "Seul un Cheikh rattaché à une classe peut créer un QR code.",
     };
   }

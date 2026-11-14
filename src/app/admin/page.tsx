@@ -12,14 +12,8 @@ import { GraphiqueUsage } from "@/components/admin/GraphiqueUsage";
 import { formaterDuree } from "@/domain/fiche";
 import { exigerEspace } from "@/services/acces";
 import { chargerTableauAdmin } from "@/services/admin";
-
-const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
-
-function dateCourte(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" }).format(
-    new Date(iso),
-  );
-}
+import { dateCourte } from "@/domain/format";
+import { LIBELLE_ROLE } from "@/domain/roles";
 
 export default async function PageAdmin() {
   const profil = await exigerEspace("admin");
@@ -129,10 +123,10 @@ export default async function PageAdmin() {
                     <span className="ligne-invitation-qui">
                       <b>{`${u.prenom} ${u.nom}`.trim() || "Sans nom"}</b>
                       <span>
-                        {ROLES[u.role]}
+                        {LIBELLE_ROLE[u.role]}
                         {u.etablissementId ? ` · ${nomEtab.get(u.etablissementId) ?? ""}` : ""}
                         {u.email ? ` · ${u.email}` : ""}
-                        {u.inviteLe ? ` · invité le ${dateCourte(u.inviteLe)}` : ""}
+                        {u.inviteLe ? ` · invité le ${dateCourte(u.inviteLe, true)}` : ""}
                       </span>
                     </span>
                     <form action={actionRenvoyerInvitation}>

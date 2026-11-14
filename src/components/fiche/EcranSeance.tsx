@@ -7,16 +7,7 @@ import { BoutonSupprimerSeance } from "./BoutonSupprimerSeance";
 import { EcouteCheikh } from "./EcouteCheikh";
 import { FormulaireCommentaire } from "./FormulaireCommentaire";
 import { FormulaireSeance } from "./FormulaireSeance";
-
-function formaterDateHeure(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Paris",
-  }).format(new Date(iso));
-}
+import { dateHeure } from "@/domain/format";
 
 /**
  * Écran d'une séance, commun à l'élève et au Cheikh.
@@ -48,7 +39,7 @@ export function EcranSeance({
         {donnees.commentaires.map((c) => (
           <p key={c.creeLe}>
             {c.texte}
-            <small> · {formaterDateHeure(c.creeLe)}</small>
+            <small> · {dateHeure(c.creeLe)}</small>
           </p>
         ))}
       </section>

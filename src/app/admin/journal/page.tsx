@@ -5,6 +5,8 @@ import { Selecteur } from "@/components/Selecteur";
 import { depuisQuand, ELEMENTS, grouperParJour, phraseAudit } from "@/domain/journal";
 import { exigerEspace } from "@/services/acces";
 import { chargerJournal } from "@/services/admin";
+import { dateHeure, heure } from "@/domain/format";
+import { LIBELLE_ROLE } from "@/domain/roles";
 
 const ACTIONS: Record<string, string> = {
   INSERT: "Créations",
@@ -13,27 +15,7 @@ const ACTIONS: Record<string, string> = {
   SUPPRESSION_UTILISATEUR: "Comptes supprimés",
 };
 
-const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
-
 const MAJUSCULE = (texte: string) => texte.charAt(0).toUpperCase() + texte.slice(1);
-
-function heure(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Paris",
-  }).format(new Date(iso));
-}
-
-function dateHeure(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Paris",
-  }).format(new Date(iso));
-}
 
 /** « Inès Kaci » → prénom et nom pour l'avatar. */
 function decouper(nom: string): { prenom: string; nom: string } {
@@ -71,7 +53,7 @@ export default async function PageJournal({
                 <Avatar {...decouper(c.nom)} cle={c.id} role={c.role} taille="petit" />
                 <span className="liste-personnes-nom">
                   <b>{c.nom}</b>
-                  <small>{ROLES[c.role]}</small>
+                  <small>{LIBELLE_ROLE[c.role]}</small>
                 </span>
                 <span className="liste-personnes-quand">
                   <span className={c.ouvertures7j ? "point-actif" : "point-inactif"} aria-hidden="true" />

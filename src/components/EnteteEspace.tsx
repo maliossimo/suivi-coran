@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { accueilDuRole, type Role } from "@/domain/roles";
+import { accueilDuRole, LIBELLE_ROLE_LONG, type Role } from "@/domain/roles";
 import { Avatar } from "./Avatar";
 import { LogoAccueil } from "./logo/LogoAccueil";
 import { NavigationEspace } from "./NavigationEspace";
 import { SignalerOuverture } from "./SignalerOuverture";
 import { TitreBarre } from "./Salutation";
-
-const LIBELLE_ROLE: Record<Role, string> = { eleve: "Élève", maitre: "Cheikh", admin: "Administrateur" };
 
 /**
  * Barre du haut des espaces élève, maître et admin : logo (retour à l'accueil),
@@ -29,7 +27,7 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
           <span className="barre-nom">
             {nom || "Mon compte"}
             {/* Le maître sait qu'il est maître : on n'affiche son rôle que pour l'élève et l'admin. */}
-            {role === "maitre" ? null : <small>{LIBELLE_ROLE[role]}</small>}
+            {role === "maitre" ? null : <small>{LIBELLE_ROLE_LONG[role]}</small>}
           </span>
         </Link>
       </div>
