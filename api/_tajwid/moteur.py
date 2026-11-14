@@ -39,11 +39,15 @@ MODELE = os.environ.get("TAJWID_MODELE", "int8")
 
 @dataclass(frozen=True)
 class Reglages:
-    """Seuils de confiance : une remarque sur un son dont le modèle doute est tue."""
+    """Réglages choisis sur le banc d'essai (159 apprenants annotés, tests_python/banc_qdat.py) :
+    le modèle complet (fp32) n'y fait pas mieux que l'int8 ; des seuils de confiance 0,5 / 0,8 retirent
+    un dixième des fausses remarques pour presque autant de fautes repérées ; la longueur du madd naturel
+    y est plus souvent reprochée à tort qu'à raison : elle n'est pas jugée (un madd naturel oublié l'est)."""
 
     modele: str = MODELE
-    min_prob: float = 0.3  # finesses de tajwid (madd, ghunna…)
-    min_prob_jali: float = 0.7  # fautes nettes (lettre, voyelle, son)
+    min_prob: float = 0.5  # finesses de tajwid (madd, ghunna…) : tues si le modèle doute
+    min_prob_jali: float = 0.8  # fautes nettes (lettre, voyelle, son)
+    madd_naturel: bool = False  # juger la longueur du madd naturel (trop long / trop court)
 
 
 REGLAGES = Reglages()
@@ -238,6 +242,11 @@ def analyser_passage(
             tempo=tempo,
         )
     ):
+        notes = [
+            n
+            for n in m["notes"]
+            if reglages.madd_naturel or not (n["rule"] == "NormalMaddRule" and n["severity"] == "khafi")
+        ]
         g = a + m["index"]
         s0, s1 = ref.spans[k]
         h0, h1 = bornes[s0], bornes[s1]
@@ -247,10 +256,8 @@ def analyser_passage(
                 "place": places[g][1],
                 "indice": g,
                 "mot": m["word"],
-                "etat": _etat(m["notes"]),
-                "remarques": [
-                    {"gravite": n["severity"], "regle": n["rule"], "texte": n["msg"]["fr"]} for n in m["notes"]
-                ],
+                "etat": _etat(notes),
+                "remarques": [{"gravite": n["severity"], "regle": n["rule"], "texte": n["msg"]["fr"]} for n in notes],
                 "madd": [{"nom": d["name"]["fr"], "temps": d["heard"]} for d in m["madd"]],
                 # où entendre ce mot dans le morceau (secondes)
                 "debut": round(max(0.0, instants[min(h0, len(instants) - 1)] - 0.15), 2),

@@ -19,12 +19,11 @@ from datasets import Audio, load_dataset  # noqa: E402
 from _tajwid.moteur import Reglages, analyser_passage  # noqa: E402
 
 CONFIGS = [
-    Reglages("int8", 0.3, 0.7),
-    Reglages("int8", 0.5, 0.8),
+    Reglages("int8", 0.3, 0.7, madd_naturel=True),  # réglages d'origine
+    Reglages("int8", 0.5, 0.8, madd_naturel=True),
+    Reglages(),  # réglages retenus
     Reglages("int8", 0.7, 0.9),
-    Reglages("fp32", 0.3, 0.7),
     Reglages("fp32", 0.5, 0.8),
-    Reglages("fp32", 0.7, 0.9),
 ]
 
 

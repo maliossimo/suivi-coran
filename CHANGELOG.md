@@ -18,6 +18,7 @@ Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z
 - Avis sur le son pendant la récitation (« Son parfait », « Parle un peu plus fort », « Endroit bruyant »…), silences retirés avant l'analyse.
 - Résultat : score, pastilles, mots colorés ; sur un mot, la remarque, « Toi » (réécouter ce mot dans ta récitation) et « Récitateur » (le verset), et « L’appli s’est trompée » (seuls le mot et la règle sont gardés, pour régler la vérification).
 - Le moteur se prépare dès l'ouverture du mode Réciter.
+- Précision réglée sur un banc d'essai de 159 récitations d'apprenants annotées par des enseignants : seuils de confiance relevés (moins de fausses remarques), longueur du madd naturel plus jugée (plus souvent reprochée à tort qu'à raison) ; le modèle complet n'y faisant pas mieux, le modèle compact (plus rapide) est gardé. Analyse d'un morceau : environ 0,2 s sur le serveur.
 
 ## [1.21.0] — 2026-11-14
 
