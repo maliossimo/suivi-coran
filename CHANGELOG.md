@@ -9,6 +9,13 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.24.0] — 2026-11-14
+
+### Amélioré
+
+- Vérification du tajwid plus précise : chaque morceau est écouté par les deux versions du modèle et une remarque n'est faite que si les deux l'entendent. Sur le banc d'essai (159 élèves annotés) : 11 % de fausses remarques en moins et davantage de vraies fautes repérées (qalqala, ghunna). La réponse prend environ 0,3 s par morceau au lieu de 0,1 s.
+- Mode Réciter : les numéros des versets restent affichés pendant la récitation et dans le résultat.
+
 ## [1.23.0] — 2026-11-14
 
 ### Nouveautés

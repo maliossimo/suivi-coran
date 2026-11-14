@@ -19,7 +19,7 @@ from urllib.parse import parse_qs, urlparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from _tajwid import jeton  # noqa: E402
-from _tajwid.moteur import DUREE_MAX, FREQ, ErreurSaisie, analyser, analyser_passage, session, suivre  # noqa: E402
+from _tajwid.moteur import DUREE_MAX, FREQ, REGLAGES, ErreurSaisie, analyser, analyser_passage, session, suivre  # noqa: E402
 
 TAILLE_MAX = int((DUREE_MAX + 0.5) * FREQ * 2)
 
@@ -39,6 +39,8 @@ class handler(BaseHTTPRequestHandler):  # noqa: N801 (nom imposé par Vercel)
         if "prechauffer" in parse_qs(urlparse(self.path).query):
             try:
                 session()
+                if REGLAGES.consensus:
+                    session("fp32" if REGLAGES.modele == "int8" else "int8")  # double écoute : l'autre version
                 from quran_transcript import Aya  # noqa: F401  (charge le texte du Coran)
             except Exception:  # noqa: BLE001
                 self._repondre(503, {"pret": False})

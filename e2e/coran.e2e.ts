@@ -239,6 +239,7 @@ test.describe("Vérifier ma récitation", () => {
     await expect(reciter.getByText("50 %")).toBeVisible({ timeout: 15_000 });
     expect(envois).toBe(1);
     await expect(reciter.getByText("1 à revoir")).toBeVisible();
+    await expect(reciter.getByLabel("fin du verset 2")).toBeVisible();
     // La première faute nette est montrée d'office.
     await expect(reciter.getByText("La chadda sur ب n’a pas été prononcée.")).toBeVisible();
     await expect(reciter.getByRole("button", { name: "Toi" })).toBeVisible();
