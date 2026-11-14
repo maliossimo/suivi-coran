@@ -31,6 +31,10 @@ const chrono = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)
 
 const LIBELLE_AFFICHE: Record<EtatAffiche, string> = { ...LIBELLE_ETAT, non_recite: "Pas récité" };
 
+/** Pendant la récitation : le jugement s'il est arrivé, sinon « entendu » (suivi en direct) ou rien. */
+const classeEnDirect = (etat: EtatAffiche | undefined, entendu: boolean) =>
+  etat ?? (entendu ? "entendu" : "");
+
 /** Jeton d'accès au moteur, gardé quelques minutes. */
 async function demanderJeton(): Promise<string> {
   const r = await fetch("/api/tajwid/jeton", { method: "POST" });
@@ -75,6 +79,9 @@ export function ModeReciter({
   const [enCours, setEnCours] = useState(0);
   const [choisi, setChoisi] = useState<number | null>(null);
   const [signale, setSignale] = useState<Set<number>>(new Set());
+  /** Suivi en direct : jusqu'où l'élève est arrivé (mots), avant même l'analyse de la pause. */
+  const [suiviFin, setSuiviFin] = useState(0);
+  const suivi = useRef({ fin: 0, passage: false });
   const dialogue = useRef<HTMLDialogElement>(null);
   const audio = useRef<HTMLAudioElement | null>(null);
   const urlAudio = useRef<string | null>(null);
@@ -144,7 +151,10 @@ export function ModeReciter({
           }
           const a = lireAnalyse(corps);
           if (!a || seance !== file.current.seance) return;
-          if (a.passage?.length) setPassage(a.passage);
+          if (a.passage?.length) {
+            setPassage(a.passage);
+            suivi.current.passage = true;
+          }
           if (a.couverts) f.depuis = a.couverts[1];
           if (a.tempo) f.tempo = a.tempo;
           setResultats((l) => {
@@ -164,6 +174,58 @@ export function ModeReciter({
   );
 
   const micro = useCaptureReciter(envoyer);
+  const { dernieresSecondes } = micro;
+
+  // Suivi en direct : toutes les 2 s, les dernières secondes sont situées dans le passage
+  // et les mots déjà récités s'allument (le jugement, lui, arrive à la pause).
+  useEffect(() => {
+    if (etape !== "ecoute") return;
+    const seance = file.current.seance;
+    let occupe = false;
+    const minuteur = setInterval(() => {
+      if (occupe) return;
+      const son = dernieresSecondes();
+      if (!son) return;
+      occupe = true;
+      void (async () => {
+        try {
+          const f = file.current;
+          const jeton = await (f.jeton ?? (f.jeton = demanderJeton()));
+          const q = new URLSearchParams({
+            suivi: "1",
+            sourate: String(sourate),
+            du: String(du),
+            au: String(au),
+            depuis: String(Math.max(suivi.current.fin, f.depuis)),
+            riwaya: lecture,
+          });
+          if (!suivi.current.passage) q.set("liste", "1");
+          if (lecture === "warsh") for (const v of versetsChoisis) q.append("texte", v.texte);
+          const r = await fetch(`/api/moteur_tajwid?${q}`, {
+            method: "POST",
+            headers: { Authorization: `Jeton ${jeton}`, "Content-Type": "application/octet-stream" },
+            body: son.buffer as ArrayBuffer,
+          });
+          if (!r.ok || seance !== file.current.seance) return;
+          const a = lireAnalyse({ entendu: "", mots: [], ...((await r.json()) as object) });
+          if (!a) return;
+          if (a.passage?.length && !suivi.current.passage) {
+            suivi.current.passage = true;
+            setPassage(a.passage);
+          }
+          if (a.couverts && a.couverts[1] > suivi.current.fin) {
+            suivi.current.fin = a.couverts[1];
+            setSuiviFin(a.couverts[1]);
+          }
+        } catch {
+          // le suivi est un plus : l'analyse à la pause suffit
+        } finally {
+          occupe = false;
+        }
+      })();
+    }, 2000);
+    return () => clearInterval(minuteur);
+  }, [etape, dernieresSecondes, sourate, du, au, lecture, versetsChoisis]);
 
   const recommencer = () => {
     file.current = {
@@ -176,6 +238,8 @@ export function ModeReciter({
     };
     setPassage(null);
     setResultats([]);
+    setSuiviFin(0);
+    suivi.current = { fin: 0, passage: false };
     setEnCours(0);
     setChoisi(null);
     setSignale(new Set());
@@ -289,7 +353,7 @@ export function ModeReciter({
         ? mots.map((m) => (
             <span
               key={m.indice}
-              className={etape === "ecoute" || etape === "fin" ? `reciter-mot ${m.etat}` : "reciter-mot"}
+              className={`reciter-mot ${classeEnDirect(m.analyse?.etat, m.indice < suiviFin)}`}
             >
               {m.mot}{" "}
             </span>

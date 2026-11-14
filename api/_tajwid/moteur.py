@@ -152,19 +152,21 @@ def _reference(mots: tuple[str, ...], riwaya: str):
     return ref.phonemes, tuple(ref.spans)
 
 
-def _situer(entendu: str, mots: tuple[str, ...], riwaya: str, depuis: int) -> tuple[int, int]:
+def _situer(
+    entendu: str, mots: tuple[str, ...], riwaya: str, depuis: int, recul: int = RECUL, ecart: float = 0.5
+) -> tuple[int, int]:
     """Les mots [a, b) que couvre ce morceau : le départ près de « depuis » (l'élève peut reprendre un peu
     avant), la fin là où l'écriture attendue ressemble le plus à ce qui a été entendu."""
     ph, spans = _reference(mots, riwaya)
     n = len(mots)
     meilleur = (float("inf"), depuis, min(n, depuis + 1))
-    for a in range(max(0, depuis - RECUL), min(n, depuis + 2)):
+    for a in range(max(0, depuis - recul), min(n, depuis + 2)):
         debut = spans[a][0]
         for b in range(a + 1, n + 1):
             attendu = ph[debut : spans[b - 1][1]]
             if len(attendu) > 2 * len(entendu) + 20:
                 break
-            d = imam.Levenshtein.distance(attendu, entendu) + 0.5 * abs(a - depuis)
+            d = imam.Levenshtein.distance(attendu, entendu) + ecart * abs(a - depuis)
             if d < meilleur[0]:
                 meilleur = (d, a, b)
     return meilleur[1], meilleur[2]
@@ -178,10 +180,24 @@ def _etat(notes: list) -> str:
     return "a_revoir" if notes else "juste"
 
 
-def _lire_audio(pcm: bytes) -> np.ndarray:
-    if len(pcm) % 2:
+def _mulaw(octets: bytes) -> np.ndarray:
+    """μ-law 8 bits (G.711) → échantillons entre -1 et 1 : deux fois moins lourd à envoyer (suivi en direct)."""
+    u = ~np.frombuffer(octets, np.uint8)
+    signe = (u & 0x80) != 0
+    exposant = (u >> 4) & 0x07
+    mantisse = u & 0x0F
+    v = ((mantisse.astype(np.int32) << 3) + 0x84) << exposant
+    v = (v - 0x84).astype(np.float32) / 32768
+    return np.where(signe, -v, v)
+
+
+def _lire_audio(pcm: bytes, format_audio: str = "pcm") -> np.ndarray:
+    if format_audio == "mulaw":
+        audio = _mulaw(pcm)
+    elif len(pcm) % 2:
         raise ErreurSaisie("Audio invalide.")
-    audio = np.frombuffer(pcm, "<i2").astype(np.float32) / 32768
+    else:
+        audio = np.frombuffer(pcm, "<i2").astype(np.float32) / 32768
     duree = len(audio) / FREQ
     if duree < DUREE_MIN:
         raise ErreurSaisie("Récitation trop courte.")
@@ -265,6 +281,33 @@ def analyser_passage(
             }
         )
     return {"entendu": entendu, "mots": resultat, "couverts": [a, b], "tempo": tempo, "passage": passage}
+
+
+def suivre(
+    son: bytes,
+    sourate: int,
+    du: int,
+    au: int,
+    riwaya: str,
+    textes_warsh: list[str] | None = None,
+    depuis: int = 0,
+    avec_passage: bool = False,
+) -> dict:
+    """Suivi en direct : les dernières secondes récitées (μ-law), seulement situées dans le passage
+    (jusqu'où l'élève est arrivé), sans jugement — celui-ci vient à la pause, sur le morceau entier."""
+    if riwaya not in ("hafs", "warsh"):
+        raise ErreurSaisie("Lecture inconnue.")
+    if not (1 <= sourate <= 114) or du < 1 or au < du or au - du > 40:
+        raise ErreurSaisie("Verset inconnu.")
+    audio = _lire_audio(son, "mulaw")
+    mots, places = _mots_passage(sourate, du, au, riwaya, tuple(textes_warsh) if textes_warsh else None)
+    passage = [[v, p, w] for (v, p), w in zip(places, mots)] if avec_passage else None
+    entendu, _, _ = entendre(audio, riwaya)
+    if len(entendu) < 4:
+        return {"couverts": [depuis, depuis], "passage": passage}
+    depuis = max(0, min(depuis, len(mots) - 1))
+    a, b = _situer(entendu, mots, riwaya, depuis, recul=25, ecart=0.15)
+    return {"couverts": [a, b], "passage": passage}
 
 
 def analyser(

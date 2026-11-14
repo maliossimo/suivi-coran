@@ -24,3 +24,41 @@ export async function enregistrerSignalement(s: NouveauSignalement): Promise<voi
   });
   if (error) throw new Error(`Signalement impossible : ${error.message}`);
 }
+
+export interface Signalement {
+  quand: string;
+  auteur: string;
+  lecture: Lecture;
+  sourate: number;
+  verset: number;
+  mot: string;
+  regles: string[];
+  remarque: string | null;
+}
+
+/** Derniers signalements (lisibles par l'admin seulement : la base filtre). */
+export async function listerSignalements(limite = 200): Promise<Signalement[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("signalements_tajwid")
+    .select("cree_le, lecture, sourate, verset, mot, regles, remarque, profils(prenom, nom)")
+    .order("cree_le", { ascending: false })
+    .limit(limite);
+  if (error) throw new Error(`Lecture des signalements impossible : ${error.message}`);
+  return (data ?? []).map((s) => {
+    const p = (Array.isArray(s.profils) ? s.profils[0] : s.profils) as {
+      prenom?: string;
+      nom?: string;
+    } | null;
+    return {
+      quand: s.cree_le as string,
+      auteur: `${p?.prenom ?? ""} ${p?.nom ?? ""}`.trim() || "Compte supprimé",
+      lecture: s.lecture as Lecture,
+      sourate: s.sourate as number,
+      verset: s.verset as number,
+      mot: s.mot as string,
+      regles: (s.regles as string[] | null) ?? [],
+      remarque: (s.remarque as string | null) ?? null,
+    };
+  });
+}
