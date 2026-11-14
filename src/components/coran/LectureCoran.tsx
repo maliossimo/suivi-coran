@@ -1,6 +1,17 @@
 "use client";
 
-import { BookOpenText, Moon, Pause, Play, Repeat, Settings2, SkipBack, SkipForward, X } from "lucide-react";
+import {
+  BookOpenText,
+  Mic,
+  Moon,
+  Pause,
+  Play,
+  Repeat,
+  Settings2,
+  SkipBack,
+  SkipForward,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   memo,
@@ -40,6 +51,7 @@ import { retourSensoriel } from "@/components/retourSensoriel";
 import { useExplication } from "./explications";
 import { adresseAudio, adresseMots, useHorsLigne } from "./horsLigne";
 import { MemoriserCoran } from "./MemoriserCoran";
+import { ModeReciter } from "./ModeReciter";
 import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
 import type { BlocAffiche, RecitationAffichee } from "./types";
 
@@ -117,6 +129,8 @@ export function LectureCoran({
   const [ouvert, setOuvert] = useState<"reglages" | "memoriser" | null>(null);
   /** Verset touché (actions) ou appuyé longuement (explication) : sa feuille est ouverte. */
   const [choix, setChoix] = useState<{ cle: string; mode: ModeVerset } | null>(null);
+  /** Mode « Réciter » ouvert : sourate et verset de départ. */
+  const [reciter, setReciter] = useState<{ sourate: number; depart: number } | null>(null);
   const versetChoisi = choix?.cle ?? null;
   /** Arrêt automatique : heure de fin, « à la fin du passage », ou rien. */
   const [minuterie, setMinuterie] = useState<{ fin: number; choix: ChoixMinuterie } | "fin" | null>(null);
@@ -511,12 +525,17 @@ export function LectureCoran({
     const p = pistesCompletes.find((x) => x.cles.includes(versetChoisi));
     return p ? adresse(fichierVerset(p.sourate, p.ayah)) : null;
   }, [adresse, pistesCompletes, recitation?.suivi, versetChoisi]);
-  /** Texte du verset choisi (vérifier sa récitation). */
-  const texteVerset = useMemo(() => {
-    if (!versetChoisi) return null;
-    const [sourate, n] = versetChoisi.split(":").map(Number);
-    return blocs.find((b) => b.sourate === sourate)?.versets.find((v) => v.n === n)?.texte ?? null;
-  }, [blocs, versetChoisi]);
+  /** Fichier du récitateur pour un verset (mode Réciter : l'écouter après sa propre récitation). */
+  const adresseVerset = useCallback(
+    (sourate: number, n: number) => {
+      if (!recitation?.suivi) return null;
+      const cle = cleVerset(sourate, n);
+      const p = pistesCompletes.find((x) => x.cles.includes(cle));
+      return p ? adresse(fichierVerset(p.sourate, p.ayah)) : null;
+    },
+    [adresse, pistesCompletes, recitation?.suivi],
+  );
+  const blocReciter = reciter ? blocs.find((b) => b.sourate === reciter.sourate) : undefined;
   const ouvrirMemoriser = (depart: Passage) => {
     setChoix(null);
     setBrouillon(depart);
@@ -615,6 +634,23 @@ export function LectureCoran({
               <Repeat size={20} aria-hidden="true" />
             </button>
           ) : null}
+          {blocs[0] ? (
+            <button
+              type="button"
+              className="coran-bouton"
+              onClick={() => {
+                audio.current?.pause();
+                setReciter({
+                  sourate: blocs[0]!.sourate,
+                  depart: passage?.du ?? blocs[0]!.versets[0]?.n ?? 1,
+                });
+              }}
+              aria-haspopup="dialog"
+              aria-label="Réciter et vérifier mon tajwid"
+            >
+              <Mic size={20} aria-hidden="true" />
+            </button>
+          ) : null}
           <button
             type="button"
             className="coran-bouton"
@@ -679,6 +715,19 @@ export function LectureCoran({
         onMinuterie={choisirMinuterie}
       />
 
+      {reciter && blocReciter ? (
+        <ModeReciter
+          sourate={blocReciter.sourate}
+          nomSourate={blocReciter.nomLatin}
+          versets={blocReciter.versets}
+          depart={reciter.depart}
+          lecture={lecture === "warsh" ? "warsh" : "hafs"}
+          adresseVerset={(n) => adresseVerset(blocReciter.sourate, n)}
+          onAvantEcoute={() => audio.current?.pause()}
+          onFermer={() => setReciter(null)}
+        />
+      ) : null}
+
       {sourateUnique ? (
         <MemoriserCoran
           ouverte={ouvert === "memoriser"}
@@ -707,7 +756,11 @@ export function LectureCoran({
         explication={explication}
         marque={versetChoisi !== null && marques.has(versetChoisi)}
         adresseRecitateur={adresseRecitateur}
-        texteVerset={texteVerset}
+        onReciter={(cle) => {
+          const [sourate, verset] = cle.split(":").map(Number) as [number, number];
+          setChoix(null);
+          setReciter({ sourate, depart: verset });
+        }}
         onMarque={(cle) => {
           const [sourate, verset] = cle.split(":").map(Number) as [number, number];
           marquePages.basculer({ lecture, sourate, verset });

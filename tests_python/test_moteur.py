@@ -101,5 +101,33 @@ def test_empreinte_du_modele():
 
     infos = json.load(urllib.request.urlopen("https://huggingface.co/api/models/Hisnlabs/tajweed-v2", timeout=30))  # noqa: S310
     print("\nrévision Hugging Face :", infos.get("sha"))
-    chemin = moteur._chemin_modele()
+    chemin = moteur._chemin_modele("int8")
     print("\nempreinte du modèle :", hashlib.sha256(open(chemin, "rb").read()).hexdigest(), os.path.getsize(chemin))
+
+
+@reel
+def test_plusieurs_versets_par_morceaux():
+    """Al-Fatiha 2 à 4 récités d'affilée, envoyés en deux morceaux : chaque morceau est situé dans le passage."""
+    from _tajwid.moteur import analyser_passage
+
+    v2, v3, v4 = (recitation("Husary_128kbps", 1, v) for v in (2, 3, 4))
+    debut = time.time()
+    r1 = analyser_passage(v2 + v3, 1, 2, 4, "hafs", depuis=0)
+    print("\nmorceau 1 :", r1["couverts"], resume(r1), f"{time.time() - debut:.1f} s")
+    assert r1["couverts"][0] == 0
+    assert [m["verset"] for m in r1["mots"]] == [2, 2, 2, 2, 3, 3], resume(r1)
+    debuts = [m["debut"] for m in r1["mots"]]
+    assert debuts == sorted(debuts) and all(m["fin"] > m["debut"] for m in r1["mots"])
+
+    debut = time.time()
+    r2 = analyser_passage(v4, 1, 2, 4, "hafs", depuis=r1["couverts"][1], tempo=r1["tempo"])
+    print("morceau 2 :", r2["couverts"], resume(r2), f"{time.time() - debut:.1f} s")
+    assert [m["verset"] for m in r2["mots"]] == [4, 4, 4], resume(r2)
+    assert all(m["etat"] == "juste" for m in r1["mots"] + r2["mots"]), resume(r1) + resume(r2)
+
+
+def test_passage_refuse_une_plage_impossible():
+    from _tajwid.moteur import analyser_passage
+
+    with pytest.raises(ErreurSaisie):
+        analyser_passage(UNE_SECONDE, 1, 5, 2, "hafs")

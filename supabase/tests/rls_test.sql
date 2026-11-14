@@ -745,6 +745,44 @@ select pg_temp.attendu((select count(*) from public.dernieres_ouvertures()) = 2,
   'ouvertures : l''admin voit la dernière utilisation de chacun');
 select pg_temp.console();
 
+-- ---------- Signalements de la vérification tajwid --------------------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+insert into public.signalements_tajwid (sourate, verset, mot, regles, remarque)
+  values (5, 109, 'لَنَآ', '{MonfaselMaddRule}', 'madd munfasil trop court');
+select pg_temp.attendu(
+  (select auteur_id from public.signalements_tajwid) = 'a0000000-0000-0000-0000-000000000001',
+  'signalements tajwid : l''auteur est celui qui signale');
+select pg_temp.doit_echouer(
+  $q$insert into public.signalements_tajwid (auteur_id, sourate, verset, mot)
+     values ('a0000000-0000-0000-0000-000000000002', 1, 2, 'رَبِّ')$q$,
+  'signalements tajwid : impossible au nom d''un autre');
+select pg_temp.doit_echouer(
+  $q$insert into public.signalements_tajwid (sourate, verset, mot) values (115, 1, 'x')$q$,
+  'signalements tajwid : sourate inconnue refusée');
+update public.signalements_tajwid set mot = 'x';
+delete from public.signalements_tajwid;
+select pg_temp.attendu((select mot from public.signalements_tajwid) = 'لَنَآ',
+  'signalements tajwid : ni modification ni suppression');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
+select pg_temp.attendu((select count(*) from public.signalements_tajwid) = 0,
+  'signalements tajwid : un élève ne voit pas ceux des autres');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.attendu((select count(*) from public.signalements_tajwid) = 0,
+  'signalements tajwid : un Cheikh ne les voit pas');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu((select count(*) from public.signalements_tajwid) = 1,
+  'signalements tajwid : l''admin les voit');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
+do $$ begin
+  for i in 1..30 loop
+    insert into public.signalements_tajwid (sourate, verset, mot) values (1, 2, 'رَبِّ');
+  end loop;
+end $$;
+select pg_temp.doit_echouer(
+  $q$insert into public.signalements_tajwid (sourate, verset, mot) values (1, 2, 'رَبِّ')$q$,
+  'signalements tajwid : 30 par jour au plus');
+select pg_temp.console();
+
 -- ---------- Suppression définitive d'un élève -------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 select pg_temp.doit_echouer(
