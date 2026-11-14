@@ -63,6 +63,8 @@ export function Feuille({
   const ouverteA = useRef(0);
   /** Le doigt s'est posé sur le voile depuis l'ouverture (sinon, le « clic » vient du geste d'avant). */
   const appuiSurVoile = useRef(false);
+  /** Le doigt s'est posé dans la feuille depuis son ouverture. */
+  const appuiDepuisOuverture = useRef(false);
   const idTitre = useId();
   useFermerAuRetour(ouverte, onFermer);
 
@@ -72,6 +74,7 @@ export function Feuille({
     if (!d.open) d.showModal();
     ouverteA.current = Date.now();
     appuiSurVoile.current = false;
+    appuiDepuisOuverture.current = false;
     // Le focus va sur la feuille elle-même : pas de clavier qui surgit, pas de bouton surligné.
     contenu.current?.focus({ preventScroll: true });
     const debloquer = bloquerDefilement();
@@ -93,8 +96,19 @@ export function Feuille({
       }}
       // Toucher le voile (en dehors du contenu) ferme la feuille : seulement un toucher commencé
       // sur le voile après l'ouverture (le doigt d'un appui long qui se relève ne compte pas).
+      onPointerDownCapture={() => {
+        appuiDepuisOuverture.current = true;
+      }}
       onPointerDown={(e) => {
         appuiSurVoile.current = e.target === e.currentTarget;
+      }}
+      // Le doigt d'un appui long se relève sur la feuille qui vient de s'ouvrir : le « clic » qui suit
+      // n'appuie sur aucun bouton (il viendrait du geste d'avant, pas d'un choix).
+      onClickCapture={(e) => {
+        if (!appuiDepuisOuverture.current && e.detail > 0) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget && appuiSurVoile.current && Date.now() - ouverteA.current > 400)

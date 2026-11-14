@@ -37,40 +37,10 @@ test.describe("Coran (admin)", () => {
     const verset = page.locator('.coran-verset[data-cle="18:10"]');
     await verset.scrollIntoViewIfNeeded();
     // Au milieu d'un mot du verset (un verset peut s'étaler sur plusieurs lignes).
-    await page.evaluate(() => {
-      const w = window as unknown as { __log: string[] };
-      w.__log = [];
-      const t0 = performance.now();
-      new MutationObserver((ms) => {
-        for (const m of ms)
-          for (const n of [...m.addedNodes, ...m.removedNodes])
-            if (n instanceof Element && (n.tagName === "DIALOG" || n.querySelector?.("dialog")))
-              w.__log.push(`${Math.round(performance.now() - t0)} ${m.addedNodes.length ? "+" : "-"}dialog`);
-      }).observe(document.body, { childList: true, subtree: true });
-      document.addEventListener(
-        "close",
-        () => w.__log.push(`${Math.round(performance.now() - t0)} close`),
-        true,
-      );
-      document.addEventListener(
-        "cancel",
-        () => w.__log.push(`${Math.round(performance.now() - t0)} cancel`),
-        true,
-      );
-    });
     await appuiLong(page, verset.locator(".mot").nth(1));
-    await page.waitForTimeout(500);
-    console.log(
-      "DIAG2",
-      await page.evaluate(() => [
-        (window as unknown as { __log: string[] }).__log,
-        "CloseWatcher" in window,
-        history.length,
-      ]),
-    );
     const feuille = page.getByRole("dialog", { name: "Verset 10" });
     await expect(feuille).toBeVisible();
-    // Le doigt relevé sur le voile ne referme pas la feuille.
+    // Le doigt relevé (sur le voile ou sur un bouton de la feuille) ne la referme pas.
     await page.waitForTimeout(300);
     await expect(feuille).toBeVisible();
     // Explication chargée (ou message clair si la source est injoignable).
