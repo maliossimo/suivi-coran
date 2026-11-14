@@ -95,6 +95,7 @@ def main() -> None:
         durees = []
         compte = {nom: Counter() for nom in REGLES}
         remarques_sur_juste, mots_justes = 0, 0
+        sures = Counter()  # (juste|faute, sûre ou non) : la confiance montrée à l'élève est-elle utile ?
         for x, a in zip(etiquettes, audios):
             t = time.time()
             try:
@@ -105,8 +106,11 @@ def main() -> None:
                 continue
             durees.append(time.time() - t)
             par_mot = {m["indice"]: {n["regle"].split(":")[0] for n in m["remarques"]} for m in r["mots"]}
+            sure_mot = {m["indice"]: {n["regle"].split(":")[0]: n.get("sure", True) for n in m["remarques"]} for m in r["mots"]}
             for nom, (mot, regle, juste) in REGLES.items():
                 signale = regle in par_mot.get(mot, set())
+                if signale:
+                    sures[("juste" if juste(x) else "faute", sure_mot[mot][regle])] += 1
                 compte[nom][("juste" if juste(x) else "faute", signale)] += 1
             # Mots dont toutes les règles annotées sont justes : une remarque y est (probablement) fausse.
             for mot in range(7, 15):
@@ -120,6 +124,10 @@ def main() -> None:
             f" max {durees[-1]:.2f} s"
         )
         print(f"  remarques sur des mots annotés justes : {remarques_sur_juste}/{mots_justes}")
+        print(
+            f"  remarques montrées « sûres » : {sures[('faute', True)]} vraies fautes, {sures[('juste', True)]} à tort ;"
+            f" « pas sûres » : {sures[('faute', False)]} vraies fautes, {sures[('juste', False)]} à tort"
+        )
         for nom, c in compte.items():
             fautes = c[("faute", True)] + c[("faute", False)]
             justes = c[("juste", True)] + c[("juste", False)]

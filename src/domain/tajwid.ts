@@ -13,6 +13,8 @@ export interface Remarque {
   /** Règle en cause (pour « L'appli s'est trompée »). */
   regle: string;
   texte: string;
+  /** false : le modèle hésitait (ou l'horloge est limite) ; l'élève compare lui-même avec le récitateur. */
+  sure: boolean;
 }
 
 export interface MotAnalyse {
@@ -75,13 +77,14 @@ export function lireAnalyse(brut: unknown): AnalyseTajwid | null {
       remarques: Array.isArray(remarques)
         ? remarques
             .filter(
-              (r): r is { gravite: string; regle?: unknown; texte: string } =>
+              (r): r is { gravite: string; regle?: unknown; texte: string; sure?: unknown } =>
                 estTexte(r?.texte) && estTexte(r?.gravite),
             )
             .map((r) => ({
               gravite: r.gravite === "jali" ? "jali" : "khafi",
               regle: estTexte(r.regle) ? r.regle : "",
               texte: r.texte,
+              sure: r.sure !== false,
             }))
         : [],
       madd: Array.isArray(madd)
@@ -210,4 +213,37 @@ export function appliquerCorrections(
       remarques.length === 0 ? "juste" : remarques.some((r) => r.gravite === "jali") ? "erreur" : "a_revoir";
     return { ...m, remarques, etat };
   });
+}
+
+/** Un mot dont toutes les remarques sont incertaines : montré à part, plus discrètement. */
+export function estIncertain(m: MotAnalyse | undefined): boolean {
+  return !!m && m.etat !== "oublie" && m.remarques.length > 0 && m.remarques.every((r) => !r.sure);
+}
+
+export interface Guide {
+  /** Mots à reprendre (fautes sûres, mots oubliés), dans l'ordre du passage. */
+  aReprendre: number[];
+  /** Mots où l'appli n'est pas sûre : à écouter et comparer. */
+  aVerifier: number[];
+  /** Le verset à reprendre en premier (celui qui a le plus de mots à reprendre), s'il y en a un. */
+  verset: number | null;
+}
+
+/** Ce que l'élève fait ensuite, après une récitation. */
+export function guiderResultat(mots: readonly MotDuPassage[]): Guide {
+  const aReprendre: number[] = [];
+  const aVerifier: number[] = [];
+  const parVerset = new Map<number, number>();
+  for (const m of mots) {
+    if (m.etat === "juste" || m.etat === "non_recite") continue;
+    if (estIncertain(m.analyse)) {
+      aVerifier.push(m.indice);
+      continue;
+    }
+    aReprendre.push(m.indice);
+    parVerset.set(m.verset, (parVerset.get(m.verset) ?? 0) + 1);
+  }
+  let verset: number | null = null;
+  for (const [v, n] of parVerset) if (verset === null || n > (parVerset.get(verset) ?? 0)) verset = v;
+  return { aReprendre, aVerifier, verset };
 }
