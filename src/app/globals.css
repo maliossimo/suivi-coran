@@ -8542,3 +8542,31 @@ button.reciter-mot {
 .reciter-legende {
   margin-top: 12px;
 }
+
+/* Admin : erreurs rencontrées, lisibles en entier sur téléphone */
+.liste-erreurs {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.liste-erreurs li {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--fond);
+}
+.liste-erreurs-tete {
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.liste-erreurs-message {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+}
+.liste-erreurs small {
+  color: var(--texte-doux);
+}

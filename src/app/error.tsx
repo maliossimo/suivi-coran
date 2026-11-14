@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { VERSION } from "@/lib/version";
 import { actionSignalerErreur } from "./actions/erreur";
 
 /** Une page a planté : on garde le cadre de l'appli, on propose de réessayer, l'admin est prévenu. */
@@ -12,7 +13,21 @@ export default function ErreurPage({
   reset: () => void;
 }) {
   useEffect(() => {
-    const message = error.digest ? `${error.message} (réf. ${error.digest})` : error.message;
+    // Message, version de l'appli chargée dans le téléphone (elle peut être plus ancienne que celle en
+    // ligne) et premières lignes de la pile : de quoi retrouver la cause sans le téléphone.
+    const pile = (error.stack ?? "")
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith(error.name))
+      .slice(0, 3)
+      .join(" | ");
+    const message = [
+      error.digest ? `${error.message} (réf. ${error.digest})` : error.message,
+      `appli ${VERSION}`,
+      pile,
+    ]
+      .filter(Boolean)
+      .join(" — ");
     void actionSignalerErreur(window.location.pathname + window.location.search, message);
     if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
       void import("@sentry/nextjs").then((Sentry) => Sentry.captureException(error));

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { VERSION } from "@/lib/version";
 import { actionSignalerErreur } from "./actions/erreur";
 
 /** Dernier filet : une erreur imprévue affiche cette page et part dans les alertes. */
@@ -12,7 +13,21 @@ export default function ErreurGlobale({
   reset: () => void;
 }) {
   useEffect(() => {
-    const message = error.digest ? `${error.message} (réf. ${error.digest})` : error.message;
+    // Message, version de l'appli chargée dans le téléphone (elle peut être plus ancienne que celle en
+    // ligne) et premières lignes de la pile : de quoi retrouver la cause sans le téléphone.
+    const pile = (error.stack ?? "")
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith(error.name))
+      .slice(0, 3)
+      .join(" | ");
+    const message = [
+      error.digest ? `${error.message} (réf. ${error.digest})` : error.message,
+      `appli ${VERSION}`,
+      pile,
+    ]
+      .filter(Boolean)
+      .join(" — ");
     void actionSignalerErreur(window.location.pathname + window.location.search, message);
     // Sentry n'est chargé que s'il est configuré.
     if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
