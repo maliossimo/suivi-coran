@@ -26,7 +26,7 @@ DUREE_MIN, DUREE_MAX = 0.5, 30.0  # secondes (le modèle prend une phrase ou un 
 
 # Modèle int8 (23 Mo), téléchargé au premier appel puis gardé en mémoire. Révision et empreinte figées :
 # un fichier différent est refusé.
-REVISION = os.environ.get("TAJWID_REVISION", "main")
+REVISION = os.environ.get("TAJWID_REVISION", "b3b0503d32b4d9a8a0447880b4564fd3e9d69c15")
 EMPREINTE = os.environ.get(
     "TAJWID_SHA256", "79cca1a2fc7ef81e325a3071a5f26cfec69203ef2c63177549065cdc1022c373"
 )
