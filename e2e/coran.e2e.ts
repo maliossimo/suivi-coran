@@ -173,7 +173,7 @@ test.describe("Vérifier ma récitation", () => {
     await expect(verifier.getByText("الحمد رب العالمين")).toBeVisible();
     await verifier.getByRole("button", { name: "J’ai fini" }).click();
     await expect(verifier.getByText("3 / 4")).toBeVisible();
-    await expect(verifier.locator(".verif-oublie")).toHaveCount(1);
+    await expect(verifier.locator(".verifier-mots .verif-oublie")).toHaveCount(1);
     await capture(page, "45-verifier-recitation");
   });
 });
