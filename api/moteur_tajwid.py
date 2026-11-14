@@ -6,6 +6,7 @@ Requête : en-tête « Authorization: Jeton … » (délivré par /api/tajwid/je
   - soit du, au, depuis (un morceau d'une récitation de plusieurs versets, situé à partir du mot « depuis »),
 plus texte (répété, un par verset) pour Warsh. En-tête facultatif X-Tempo : JSON, le rythme rendu par le morceau
 précédent. Réponse : JSON {entendu, mots[], couverts, tempo} ou {erreur}.
+Avec suivi=1 : suivi en direct, corps = dernières secondes en μ-law 8 bits ; réponse {couverts} seulement.
 GET : préchauffe le moteur (modèle chargé) et dit s'il est prêt.
 """
 
@@ -18,7 +19,7 @@ from urllib.parse import parse_qs, urlparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from _tajwid import jeton  # noqa: E402
-from _tajwid.moteur import DUREE_MAX, FREQ, ErreurSaisie, analyser, analyser_passage, session  # noqa: E402
+from _tajwid.moteur import DUREE_MAX, FREQ, ErreurSaisie, analyser, analyser_passage, session, suivre  # noqa: E402
 
 TAILLE_MAX = int((DUREE_MAX + 0.5) * FREQ * 2)
 
@@ -65,6 +66,9 @@ class handler(BaseHTTPRequestHandler):  # noqa: N801 (nom imposé par Vercel)
         textes = q.get("texte") or None
         pcm = self.rfile.read(taille)
         try:
+            if "suivi" in q:
+                self._repondre(200, suivre(pcm, sourate, du, au, riwaya, textes, depuis, avec_passage="liste" in q))
+                return
             if verset:
                 resultat = analyser(pcm, sourate, verset, riwaya, textes[0] if textes else None)
             else:

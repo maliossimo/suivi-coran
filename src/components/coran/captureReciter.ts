@@ -15,6 +15,8 @@ const FREQ = 16_000;
 const TAILLE_TRAME = 4096; // ≈ 256 ms à 16 kHz
 /** Une séance de récitation : au plus 10 minutes. */
 const DUREE_MAX_S = 600;
+/** Le suivi en direct regarde les dernières secondes. */
+const TRAMES_SUIVI = 32; // ≈ 8 s
 
 /**
  * Le micro pendant le mode Réciter : l'audio est ramené à 16 kHz au fil de l'eau, découpé aux pauses,
@@ -34,6 +36,7 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
     toutes: [] as Trame[], // toutes les trames de la séance (bruit de fond, avis)
     trames: [] as Trame[], // celles du morceau en cours
     echantillons: [] as Int16Array[], // une par trame du morceau en cours
+    recentes: [] as Int16Array[], // les dernières trames (suivi en direct), morceaux confondus
     reste: new Float32Array(0), // échantillons 16 kHz pas encore groupés en trame
     total: 0,
   });
@@ -70,6 +73,8 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
       e.toutes.push(trame);
       e.trames.push(trame);
       e.echantillons.push(pcm);
+      e.recentes.push(pcm);
+      if (e.recentes.length > TRAMES_SUIVI) e.recentes.shift();
       const bruit = estimerBruit(e.toutes);
       setNiveau(Math.min(1, trame.rms * 8));
       setAvis(avisSon(e.toutes, bruit));
@@ -101,11 +106,34 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
     const flux = await navigator.mediaDevices.getUserMedia({
       audio: { channelCount: 1, echoCancellation: false, noiseSuppression: false, autoGainControl: true },
     });
-    const ctx = new AudioContext();
-    const source = ctx.createMediaStreamSource(flux);
+    // Le navigateur ramène lui-même le son à 16 kHz (conversion de qualité) quand il le sait ;
+    // sinon (Firefox), on le fait plus bas.
+    const ouvrir = (frequence?: number) => {
+      const c = frequence ? new AudioContext({ sampleRate: frequence }) : new AudioContext();
+      try {
+        return { ctx: c, source: c.createMediaStreamSource(flux) };
+      } catch (e) {
+        void c.close().catch(() => undefined);
+        throw e;
+      }
+    };
+    let ouvert: ReturnType<typeof ouvrir>;
+    try {
+      ouvert = ouvrir(FREQ);
+    } catch {
+      ouvert = ouvrir();
+    }
+    const { ctx, source } = ouvert;
     const noeud = ctx.createScriptProcessor(4096, 1, 1);
     const rapport = ctx.sampleRate / FREQ;
-    etat.current = { toutes: [], trames: [], echantillons: [], reste: new Float32Array(0), total: 0 };
+    etat.current = {
+      toutes: [],
+      trames: [],
+      echantillons: [],
+      recentes: [],
+      reste: new Float32Array(0),
+      total: 0,
+    };
     noeud.onaudioprocess = (ev) => {
       const entree = ev.inputBuffer.getChannelData(0);
       // Ramène à 16 kHz : moyenne de chaque groupe d'échantillons (filtre simple contre le repliement).
@@ -152,7 +180,34 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
   const arreterRef = useRef(arreter);
   arreterRef.current = arreter;
 
-  return { actif, niveau, secondes, avis, demarrer, arreter };
+  /** Les dernières secondes récitées, en μ-law (suivi en direct) ; null s'il n'y a rien à suivre. */
+  const dernieresSecondes = useCallback((): Uint8Array | null => {
+    const e = etat.current;
+    const bruit = estimerBruit(e.toutes);
+    const trames = e.toutes.slice(-e.recentes.length);
+    if (!ressources.current || !contientParole(trames.slice(-8), bruit)) return null;
+    const n = e.recentes.reduce((t, x) => t + x.length, 0);
+    const sortie = new Uint8Array(n);
+    let o = 0;
+    for (const bloc of e.recentes) {
+      for (let i = 0; i < bloc.length; i++) sortie[o++] = versMulaw(bloc[i]!);
+    }
+    return sortie;
+  }, []);
+
+  return { actif, niveau, secondes, avis, demarrer, arreter, dernieresSecondes };
+}
+
+/** Un échantillon 16 bits en μ-law 8 bits (G.711). */
+export function versMulaw(echantillon: number): number {
+  let s = echantillon;
+  const signe = s < 0 ? 0x80 : 0;
+  if (s < 0) s = -s;
+  s = Math.min(s, 32635) + 0x84;
+  let exposant = 7;
+  for (let masque = 0x4000; exposant > 0 && !(s & masque); masque >>= 1) exposant--;
+  const mantisse = (s >> (exposant + 3)) & 0x0f;
+  return ~(signe | (exposant << 4) | mantisse) & 0xff;
 }
 
 /** Un extrait (secondes) d'un morceau, en WAV, pour le réécouter. */

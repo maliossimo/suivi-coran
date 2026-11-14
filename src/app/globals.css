@@ -8329,3 +8329,9 @@ button.reciter-mot {
   flex: 1;
   min-height: 50px;
 }
+.reciter-mot.entendu {
+  color: var(--vert-texte);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--vert) 40%, transparent);
+  text-underline-offset: 8px;
+}
