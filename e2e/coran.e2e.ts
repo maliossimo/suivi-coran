@@ -37,6 +37,16 @@ test.describe("Coran (admin)", () => {
     await verset.scrollIntoViewIfNeeded();
     // Au milieu d'un mot du verset (un verset peut s'étaler sur plusieurs lignes).
     await appuiLong(page, verset.locator(".mot").nth(1));
+    // DIAGNOSTIC temporaire
+    await page.waitForTimeout(800);
+    console.log(
+      "DIAG",
+      await page.evaluate(() => ({
+        dialogues: [...document.querySelectorAll("dialog")].map((d) => [d.open, d.getAttribute("aria-labelledby"), d.textContent?.slice(0, 40)]),
+        mots: document.querySelectorAll('.coran-verset[data-cle="18:10"] .mot').length,
+        y: window.scrollY,
+      })),
+    );
 
     const feuille = page.getByRole("dialog", { name: "Verset 10" });
     await expect(feuille).toBeVisible();
