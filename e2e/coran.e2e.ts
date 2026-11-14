@@ -101,6 +101,35 @@ test.describe("Coran (admin)", () => {
     await capture(page, "46-me-reciter");
   });
 
+  test("iPhone : le geste retour ferme la feuille sans quitter la page, et n'annule pas une navigation", async ({
+    page,
+  }) => {
+    // Comme Safari : pas de CloseWatcher (Chrome sur Android ferme déjà les feuilles seul).
+    await page.addInitScript(() => {
+      delete (window as { CloseWatcher?: unknown }).CloseWatcher;
+    });
+    await page.goto("/admin/coran?lecture=hafs&sourate=1");
+    await page.locator('.coran-verset[data-cle="1:2"]').click();
+    const feuille = page.getByRole("dialog", { name: "Verset 2" });
+    await expect(feuille).toBeVisible();
+    await page.goBack();
+    await expect(feuille).toBeHidden();
+    await expect(page).toHaveURL(/sourate=1(&|$)/);
+
+    // Une sourate choisie depuis « Aller à » s'ouvre ; un seul retour ramène à la précédente.
+    await page.locator(".coran-aller").click();
+    const aller = page.getByRole("dialog", { name: "Aller à" });
+    await aller.getByRole("searchbox", { name: "Chercher une sourate" }).fill("kahf");
+    await aller
+      .getByRole("button", { name: /Al-Kahf/ })
+      .first()
+      .click();
+    await expect(page).toHaveURL(/sourate=18/, { timeout: 15_000 });
+    await page.goBack();
+    await expect(page).toHaveURL(/sourate=1(&|$)/, { timeout: 15_000 });
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
+
   test("« Aller à » trouve une sourate par son nom", async ({ page }) => {
     await page.goto("/admin/coran?lecture=hafs&sourate=1");
     await page.locator(".coran-aller").click();

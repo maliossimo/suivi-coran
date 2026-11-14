@@ -1,9 +1,10 @@
 "use client";
 
 import { Check, Eye, EyeOff, Headphones, Mic, Play, RotateCcw, Square, X } from "lucide-react";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { actionCorrectionsTajwid, actionSignalerTajwid } from "@/app/actions/tajwid";
 import { bloquerDefilement } from "@/components/Feuille";
+import { useFermerAuRetour } from "@/components/retour";
 import { retourSensoriel } from "@/components/retourSensoriel";
 import { Selecteur } from "@/components/Selecteur";
 import { LIBELLE_AVIS } from "@/domain/decoupage";
@@ -71,6 +72,10 @@ export function ModeReciter({
   adresseVerset,
   onAvantEcoute,
   onFermer,
+  taille = 30,
+  peutAgrandir = true,
+  peutReduire = true,
+  onTaille,
 }: {
   sourate: number;
   nomSourate: string;
@@ -82,7 +87,13 @@ export function ModeReciter({
   adresseVerset: (verset: number) => string | null;
   onAvantEcoute: () => void;
   onFermer: () => void;
+  /** Taille du texte arabe (px), la même que dans la lecture du Coran, réglable ici aussi. */
+  taille?: number;
+  peutAgrandir?: boolean;
+  peutReduire?: boolean;
+  onTaille?: (pas: 1 | -1) => void;
 }) {
+  useFermerAuRetour(true, onFermer);
   const dernierVerset = versets.at(-1)?.n ?? depart;
   const [du, setDu] = useState(depart);
   const [au, setAu] = useState(Math.min(depart + 4, dernierVerset));
@@ -490,7 +501,13 @@ export function ModeReciter({
   );
 
   return (
-    <dialog ref={dialogue} className="reciter" aria-label="Réciter" onCancel={onFermer}>
+    <dialog
+      ref={dialogue}
+      className="reciter"
+      aria-label="Réciter"
+      onCancel={onFermer}
+      style={{ "--taille-reciter": `${taille}px` } as CSSProperties}
+    >
       <header className="reciter-entete">
         <button type="button" className="reciter-fermer" aria-label="Fermer" onClick={onFermer}>
           <X size={22} aria-hidden="true" />
@@ -566,6 +583,26 @@ export function ModeReciter({
       ) : null}
 
       <main className="reciter-corps">
+        {onTaille && (etape === "pret" || etape === "resultat") && !(masquer && etape === "pret") ? (
+          <div className="reciter-taille" role="group" aria-label="Taille du texte">
+            <button
+              type="button"
+              onClick={() => onTaille(-1)}
+              disabled={!peutReduire}
+              aria-label="Texte plus petit"
+            >
+              A−
+            </button>
+            <button
+              type="button"
+              onClick={() => onTaille(1)}
+              disabled={!peutAgrandir}
+              aria-label="Texte plus grand"
+            >
+              A+
+            </button>
+          </div>
+        ) : null}
         {etape === "resultat" ? (
           <p className="reciter-texte" lang="ar" dir="rtl">
             {mots.map((m, i) => (

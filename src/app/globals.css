@@ -8161,7 +8161,7 @@ html.defilement-bloque {
 .reciter-texte {
   margin: 0;
   font-family: var(--font-arabe), serif;
-  font-size: 27px;
+  font-size: calc(var(--taille-reciter, 30px) * 0.9);
   line-height: 2.2;
   text-align: justify;
 }
@@ -8427,4 +8427,80 @@ button.reciter-mot {
 }
 .reciter-detail li.incertaine {
   color: var(--texte-doux);
+}
+
+/* Navigation : barre fine en haut dès qu'on touche un lien */
+.barre-navigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 3px;
+  padding-top: env(safe-area-inset-top);
+  background: linear-gradient(90deg, transparent, var(--or), transparent) no-repeat;
+  background-size: 40% 3px;
+  background-position-y: bottom;
+  animation: barre-navigation 1.1s ease-in-out infinite;
+  pointer-events: none;
+  box-sizing: content-box;
+}
+@keyframes barre-navigation {
+  from {
+    background-position-x: -40%;
+  }
+  to {
+    background-position-x: 140%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .barre-navigation {
+    animation: none;
+    background: var(--or);
+    opacity: 0.7;
+  }
+}
+
+/* Réciter : taille du texte arabe (la même que la lecture du Coran) */
+.reciter-taille {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.reciter-taille button {
+  min-width: 44px;
+  min-height: 36px;
+  border: 1px solid var(--ligne);
+  border-radius: 999px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.reciter-taille button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Écran vide avec une action à faire tout de suite */
+.vide-action {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+
+/* Chargement de la lecture du Coran : des lignes de texte, alignées à droite */
+.squelette-coran {
+  display: grid;
+  justify-items: end;
+  gap: 16px;
+}
+.squelette-coran .squelette-ligne {
+  justify-self: stretch;
+}
+.squelette-verset {
+  height: 26px;
+  border-radius: 8px;
 }

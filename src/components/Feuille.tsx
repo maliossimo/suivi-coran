@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useFermerAuRetour } from "./retour";
 
 /**
  * Nombre de feuilles ouvertes : le défilement de la page n'est rendu qu'à la
@@ -61,6 +62,7 @@ export function Feuille({
   /** Ouverture : le doigt d'un appui long se relève juste après, sur le voile. */
   const ouverteA = useRef(0);
   const idTitre = useId();
+  useFermerAuRetour(ouverte, onFermer);
 
   useEffect(() => {
     const d = dialogue.current;
