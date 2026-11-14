@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.28.0] — 2026-11-14
+
+### Nouveautés
+
+- Mode Réciter : le texte est coloré selon les règles du tajwid (madd, ghunna, ikhfaʾ, idgham, iqlab, qalqala, lettres non prononcées), avec la légende des couleurs présentes dans le passage. Après la récitation, les couleurs restent : les fautes sont encadrées (rouge, ou doré pour « à revoir »). Un bouton masque les couleurs, et ce choix est retenu sur l'appareil. Disponible en Hafs.
+
 ## [1.27.0] — 2026-11-14
 
 ### Amélioré

@@ -1,12 +1,13 @@
 "use client";
 
-import { Check, Eye, EyeOff, Headphones, Mic, Play, RotateCcw, Square, X } from "lucide-react";
+import { Check, Eye, EyeOff, Headphones, Mic, Palette, Play, RotateCcw, Square, X } from "lucide-react";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { actionCorrectionsTajwid, actionSignalerTajwid } from "@/app/actions/tajwid";
 import { bloquerDefilement } from "@/components/Feuille";
 import { useFermerAuRetour } from "@/components/retour";
 import { retourSensoriel } from "@/components/retourSensoriel";
 import { Selecteur } from "@/components/Selecteur";
+import { familleTajwid, FAMILLES_TAJWID, motsTajwid, type SegmentTajwid } from "@/domain/coran";
 import { LIBELLE_AVIS } from "@/domain/decoupage";
 import {
   appliquerCorrections,
@@ -28,9 +29,29 @@ type Etape = "pret" | "ecoute" | "fin" | "resultat";
 export interface VersetReciter {
   n: number;
   texte: string;
+  /** Hafs : le verset découpé pour colorer le tajwid (null si indisponible). */
+  tajwid?: SegmentTajwid[] | null;
 }
 
 const CLE_MASQUER = "tajwid-masquer-texte";
+const CLE_COULEURS = "reciter-sans-couleurs";
+
+/** Un mot coloré selon le tajwid (chaque lettre de la couleur de sa règle). */
+function MotColore({ segments }: { segments: readonly SegmentTajwid[] }) {
+  return (
+    <>
+      {segments.map((s, j) =>
+        typeof s === "string" ? (
+          s
+        ) : (
+          <span key={j} className={`tj tj-${familleTajwid(s[0]) ?? "aucune"}`}>
+            {s[1]}
+          </span>
+        ),
+      )}
+    </>
+  );
+}
 const MOTS_MAX = 400;
 
 const chrono = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
@@ -99,6 +120,8 @@ export function ModeReciter({
   const [au, setAu] = useState(Math.min(depart + 4, dernierVerset));
   const [etape, setEtape] = useState<Etape>("pret");
   const [masquer, setMasquer] = useState(false);
+  /** Couleurs du tajwid sur le texte (Hafs) ; l'élève peut les masquer, choix retenu sur l'appareil. */
+  const [couleurs, setCouleurs] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
   const [passage, setPassage] = useState<[number, number, string][] | null>(null);
   const [resultats, setResultats] = useState<MotAnalyse[][]>([]);
@@ -141,6 +164,7 @@ export function ModeReciter({
       .finally(() => setMoteurPret(true));
     try {
       setMasquer(localStorage.getItem(CLE_MASQUER) === "1");
+      setCouleurs(localStorage.getItem(CLE_COULEURS) !== "1");
     } catch {
       // stockage indisponible : texte affiché
     }
@@ -439,6 +463,16 @@ export function ModeReciter({
     }).catch(() => undefined);
   };
 
+  const basculerCouleurs = () =>
+    setCouleurs((c) => {
+      try {
+        localStorage.setItem(CLE_COULEURS, c ? "1" : "0");
+      } catch {
+        // sans stockage : vaut pour cette fois
+      }
+      return !c;
+    });
+
   const basculerMasquer = () =>
     setMasquer((m) => {
       try {
@@ -479,22 +513,55 @@ export function ModeReciter({
               : reecoute
                 ? "Réécoute de tes mots à reprendre…"
                 : null;
+  /** Mots colorés par verset ; seulement là où ils correspondent un à un aux mots du moteur. */
+  const tajwidDispo = lecture === "hafs" && versets.some((v) => v.tajwid);
+  const colorer = tajwidDispo && couleurs;
+  const motsColores = useMemo(() => {
+    const parVerset = new Map<number, SegmentTajwid[][]>();
+    if (!colorer) return parVerset;
+    for (const v of versets) if (v.tajwid) parVerset.set(v.n, motsTajwid(v.tajwid));
+    if (passage) {
+      const compte = new Map<number, number>();
+      for (const [v] of passage) compte.set(v, (compte.get(v) ?? 0) + 1);
+      for (const [v, ms] of parVerset) if (compte.has(v) && compte.get(v) !== ms.length) parVerset.delete(v);
+    }
+    return parVerset;
+  }, [colorer, versets, passage]);
+  const motAffiche = (m: { verset: number; place: number; mot: string }) => {
+    const segments = motsColores.get(m.verset)?.[m.place];
+    return segments ? <MotColore segments={segments} /> : m.mot;
+  };
+  const famillesPresentes = useMemo(() => {
+    const cles = new Set<string>();
+    for (const v of versetsChoisis)
+      for (const s of v.tajwid ?? []) if (typeof s !== "string") cles.add(familleTajwid(s[0]) ?? "");
+    return FAMILLES_TAJWID.filter((f) => cles.has(f.cle));
+  }, [versetsChoisis]);
+  const classeTexte = `reciter-texte${colorer ? " avec-couleurs" : ""}`;
+
   const optionsVersets = versets.map((v) => ({ valeur: String(v.n), libelle: `Verset ${v.n}` }));
 
   const texte = (
-    <p className="reciter-texte" lang="ar" dir="rtl">
+    <p className={classeTexte} lang="ar" dir="rtl">
       {passage
         ? mots.map((m, i) => (
             <Fragment key={m.indice}>
               <span className={`reciter-mot ${classeEnDirect(m.analyse?.etat, m.indice < suiviFin)}`}>
-                {m.mot}{" "}
+                {motAffiche(m)}{" "}
               </span>
               {mots[i + 1]?.verset !== m.verset ? <NumeroVerset n={m.verset} /> : null}
             </Fragment>
           ))
         : versetsChoisis.map((v) => (
             <span key={v.n}>
-              {v.texte} <NumeroVerset n={v.n} />
+              {colorer && motsColores.get(v.n)
+                ? motsColores.get(v.n)!.map((segments, j) => (
+                    <Fragment key={j}>
+                      <MotColore segments={segments} />{" "}
+                    </Fragment>
+                  ))
+                : `${v.texte} `}
+              <NumeroVerset n={v.n} />
             </span>
           ))}
     </p>
@@ -583,28 +650,45 @@ export function ModeReciter({
       ) : null}
 
       <main className="reciter-corps">
-        {onTaille && (etape === "pret" || etape === "resultat") && !(masquer && etape === "pret") ? (
-          <div className="reciter-taille" role="group" aria-label="Taille du texte">
-            <button
-              type="button"
-              onClick={() => onTaille(-1)}
-              disabled={!peutReduire}
-              aria-label="Texte plus petit"
-            >
-              A−
-            </button>
-            <button
-              type="button"
-              onClick={() => onTaille(1)}
-              disabled={!peutAgrandir}
-              aria-label="Texte plus grand"
-            >
-              A+
-            </button>
+        {(onTaille || tajwidDispo) &&
+        (etape === "pret" || etape === "resultat") &&
+        !(masquer && etape === "pret") ? (
+          <div className="reciter-taille" role="group" aria-label="Affichage du texte">
+            {tajwidDispo ? (
+              <button
+                type="button"
+                className="reciter-couleurs"
+                aria-pressed={couleurs}
+                onClick={basculerCouleurs}
+                aria-label={couleurs ? "Masquer les couleurs du tajwid" : "Montrer les couleurs du tajwid"}
+              >
+                <Palette size={16} aria-hidden="true" /> {couleurs ? "Couleurs" : "Sans couleurs"}
+              </button>
+            ) : null}
+            {onTaille ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onTaille(-1)}
+                  disabled={!peutReduire}
+                  aria-label="Texte plus petit"
+                >
+                  A−
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onTaille(1)}
+                  disabled={!peutAgrandir}
+                  aria-label="Texte plus grand"
+                >
+                  A+
+                </button>
+              </>
+            ) : null}
           </div>
         ) : null}
         {etape === "resultat" ? (
-          <p className="reciter-texte" lang="ar" dir="rtl">
+          <p className={classeTexte} lang="ar" dir="rtl">
             {mots.map((m, i) => (
               <Fragment key={m.indice}>
                 <button
@@ -614,7 +698,7 @@ export function ModeReciter({
                   aria-pressed={m.indice === choisi}
                   onClick={() => setChoisi(m.indice)}
                 >
-                  {m.mot}
+                  {motAffiche(m)}
                 </button>
                 {mots[i + 1]?.verset !== m.verset ? <NumeroVerset n={m.verset} /> : null}
               </Fragment>
@@ -627,6 +711,22 @@ export function ModeReciter({
         ) : (
           texte
         )}
+        {colorer && famillesPresentes.length > 0 && (etape === "pret" ? !masquer : etape === "resultat") ? (
+          <details className="coran-legende reciter-legende">
+            <summary>Couleurs du tajwid</summary>
+            <ul>
+              {famillesPresentes.map((f) => (
+                <li key={f.cle}>
+                  <span className={`tj-pastille tj-${f.cle}`} aria-hidden="true" />
+                  <span>{f.libelle}</span>
+                  <span lang="ar" dir="rtl">
+                    {f.arabe}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : null}
         {erreur ? (
           <p className="message-erreur" role="alert">
             {erreur}
