@@ -263,6 +263,13 @@ test.describe("Vérifier ma récitation", () => {
     const reciter = page.getByRole("dialog", { name: "Réciter" });
     await expect(reciter).toBeVisible();
     await expect(reciter.getByRole("status").filter({ hasText: "Prêt : touche le micro" })).toBeVisible();
+    // Couleurs du tajwid sur les lettres, avec leur légende ; un bouton les masque (choix retenu).
+    await expect(reciter.locator(".reciter-texte .tj").first()).toBeVisible();
+    await expect(reciter.getByText("Couleurs du tajwid")).toBeVisible();
+    await reciter.getByRole("button", { name: "Masquer les couleurs du tajwid" }).click();
+    await expect(reciter.locator(".reciter-texte .tj")).toHaveCount(0);
+    await reciter.getByRole("button", { name: "Montrer les couleurs du tajwid" }).click();
+    await expect(reciter.locator(".reciter-texte .tj").first()).toBeVisible();
     await reciter.getByRole("button", { name: "Commencer la récitation" }).click();
     await expect(reciter.getByText("Son parfait")).toBeVisible({ timeout: 10_000 });
     // Le suivi en direct part toutes les 2 s.

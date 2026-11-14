@@ -113,6 +113,8 @@ export function lireAnalyse(brut: unknown): AnalyseTajwid | null {
 export interface MotDuPassage {
   indice: number;
   verset: number;
+  /** Place du mot dans son verset (0 = premier). */
+  place: number;
   mot: string;
   etat: EtatAffiche;
   analyse?: MotAnalyse;
@@ -134,19 +136,20 @@ export function assemblerPassage(
     for (const m of mots) if (m.indice !== undefined) vus.set(m.indice, { analyse: m, morceau });
   });
   const dernier = Math.max(-1, ...vus.keys());
-  return passage.map(([verset, , mot], indice) => {
+  return passage.map(([verset, place, mot], indice) => {
     const vu = vus.get(indice);
     if (vu) {
       return {
         indice,
         verset,
+        place,
         mot: vu.analyse.mot,
         etat: vu.analyse.etat,
         analyse: vu.analyse,
         morceau: vu.morceau,
       };
     }
-    return { indice, verset, mot, etat: indice < dernier ? "oublie" : "non_recite" };
+    return { indice, verset, place, mot, etat: indice < dernier ? "oublie" : "non_recite" };
   });
 }
 
