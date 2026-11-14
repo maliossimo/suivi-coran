@@ -95,6 +95,9 @@ export function ModeReciter({
   sourate,
   nomSourate,
   nomArabe,
+  recitateur = null,
+  recitateurs = [],
+  onRecitateur,
   versets,
   depart,
   lecture,
@@ -110,6 +113,10 @@ export function ModeReciter({
   nomSourate: string;
   /** Nom de la sourate en arabe, écrit en calligraphie dans le titre. */
   nomArabe?: string;
+  /** Récitateur de référence (« Récitateur » dans le détail d'un mot), choisi ici ou dans la lecture. */
+  recitateur?: string | null;
+  recitateurs?: { valeur: string; libelle: string }[];
+  onRecitateur?: (id: string) => void;
   /** Versets de la sourate affichée. */
   versets: readonly VersetReciter[];
   depart: number;
@@ -706,6 +713,15 @@ export function ModeReciter({
             onChange={(v) => setAu(Math.max(du, Number(v)))}
             options={optionsVersets.filter((o) => Number(o.valeur) >= du)}
           />
+          {onRecitateur && recitateurs.length > 1 ? (
+            <Selecteur
+              titre="Récitateur de référence"
+              compact
+              valeur={recitateur ?? ""}
+              onChange={onRecitateur}
+              options={recitateurs}
+            />
+          ) : null}
         </div>
       ) : null}
       {etape === "pret" && (historique.scores.length > 0 || historique.difficiles.length > 0) ? (

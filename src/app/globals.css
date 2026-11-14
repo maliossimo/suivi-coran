@@ -2795,14 +2795,23 @@ input.champ-texte {
   white-space: nowrap;
 }
 @media (prefers-color-scheme: dark) {
-  .hizb-pastille.hizb-jamais_revisee {
+  :where(:root:not([data-theme="clair"])) .hizb-pastille.hizb-jamais_revisee {
     background: #4a3a14;
     color: #f0cf85;
   }
-  .hizb-pastille.hizb-a_revoir {
+  :where(:root:not([data-theme="clair"])) .hizb-pastille.hizb-a_revoir {
     background: #4a231d;
     color: #f2a58e;
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .hizb-pastille.hizb-jamais_revisee {
+  background: #4a3a14;
+  color: #f0cf85;
+}
+:where(:root[data-theme="sombre"]) .hizb-pastille.hizb-a_revoir {
+  background: #4a231d;
+  color: #f2a58e;
 }
 
 /* ---------- Admin : statistiques et suppression ----------------------- */
@@ -3024,7 +3033,7 @@ button:active:not(:disabled),
 
 /* ---------- Mode sombre (suit le réglage du téléphone) ----------------- */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:where(:not([data-theme="clair"])) {
     --fond: #0e1613;
     --carte: #16201c;
     --surface-2: #1b2722;
@@ -3044,51 +3053,117 @@ button:active:not(:disabled),
     --ombre: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
     --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
   }
-  input,
-  textarea,
-  select {
+  :where(:root:not([data-theme="clair"])) input,
+  :where(:root:not([data-theme="clair"])) textarea,
+  :where(:root:not([data-theme="clair"])) select {
     background-color: var(--surface-2);
     color: var(--texte);
   }
   @media (max-width: 760px) {
-    .nav-espace {
+    :where(:root:not([data-theme="clair"])) .nav-espace {
       background: rgba(22, 32, 28, 0.94);
     }
   }
-  .barre-enregistrer {
+  :where(:root:not([data-theme="clair"])) .barre-enregistrer {
     background: linear-gradient(180deg, rgba(14, 22, 19, 0) 0, var(--fond) 30%);
   }
-  .carte-coran {
+  :where(:root:not([data-theme="clair"])) .carte-coran {
     --c-vide: #24312b;
   }
-  .carte-vide {
+  :where(:root:not([data-theme="clair"])) .carte-vide {
     color: #94a19b;
   }
-  .carte-en_cours {
+  :where(:root:not([data-theme="clair"])) .carte-en_cours {
     --c-en-cours: #2c5546;
     color: #d6e8df;
   }
-  .carte-jauge {
+  :where(:root:not([data-theme="clair"])) .carte-jauge {
     background: #3f8f70;
   }
-  .graphique text {
+  :where(:root:not([data-theme="clair"])) .graphique text {
     fill: var(--texte-doux);
   }
-  .menu-plus-item:hover {
+  :where(:root:not([data-theme="clair"])) .menu-plus-item:hover {
     background: #3a1f1b;
   }
-  .lien-pdf,
-  .bouton-lien-texte,
-  .lien-action,
-  .lien-retour {
+  :where(:root:not([data-theme="clair"])) .lien-pdf,
+  :where(:root:not([data-theme="clair"])) .bouton-lien-texte,
+  :where(:root:not([data-theme="clair"])) .lien-action,
+  :where(:root:not([data-theme="clair"])) .lien-retour {
     color: #7cc3a5;
   }
-  .carte-eleve:hover {
+  :where(:root:not([data-theme="clair"])) .carte-eleve:hover {
     box-shadow:
       0 2px 4px rgba(0, 0, 0, 0.4),
       0 12px 28px rgba(0, 0, 0, 0.4);
   }
 }
+/* Même chose quand le thème sombre est choisi à la main. */
+:root:where([data-theme="sombre"]) {
+  --fond: #0e1613;
+  --carte: #16201c;
+  --surface-2: #1b2722;
+  --surface-3: #24312b;
+  --texte: #e6ece8;
+  --texte-doux: #a2aea8;
+  --ligne: #2a3832;
+  --champ: #3a4943;
+  /* Contrastes vérifiés (WCAG AA) : texte blanc sur --vert 5,2:1 ; --vert-texte sur les cartes 7,9:1. */
+  --vert: #2f7a5e;
+  --vert-texte: #6cc3a0;
+  --vert-clair: #1c3a2f;
+  --or-clair: #2b2416;
+  --bord-or: #5b4a24;
+  --or-texte: #e3c27a;
+  --rouge: #e07a6c;
+  --ombre: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
+}
+:where(:root[data-theme="sombre"]) input,
+:where(:root[data-theme="sombre"]) textarea,
+:where(:root[data-theme="sombre"]) select {
+  background-color: var(--surface-2);
+  color: var(--texte);
+}
+@media (max-width: 760px) {
+  :where(:root[data-theme="sombre"]) .nav-espace {
+    background: rgba(22, 32, 28, 0.94);
+  }
+}
+:where(:root[data-theme="sombre"]) .barre-enregistrer {
+  background: linear-gradient(180deg, rgba(14, 22, 19, 0) 0, var(--fond) 30%);
+}
+:where(:root[data-theme="sombre"]) .carte-coran {
+  --c-vide: #24312b;
+}
+:where(:root[data-theme="sombre"]) .carte-vide {
+  color: #94a19b;
+}
+:where(:root[data-theme="sombre"]) .carte-en_cours {
+  --c-en-cours: #2c5546;
+  color: #d6e8df;
+}
+:where(:root[data-theme="sombre"]) .carte-jauge {
+  background: #3f8f70;
+}
+:where(:root[data-theme="sombre"]) .graphique text {
+  fill: var(--texte-doux);
+}
+:where(:root[data-theme="sombre"]) .menu-plus-item:hover {
+  background: #3a1f1b;
+}
+:where(:root[data-theme="sombre"]) .lien-pdf,
+:where(:root[data-theme="sombre"]) .bouton-lien-texte,
+:where(:root[data-theme="sombre"]) .lien-action,
+:where(:root[data-theme="sombre"]) .lien-retour {
+  color: #7cc3a5;
+}
+:where(:root[data-theme="sombre"]) .carte-eleve:hover {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
 @media print {
   :root {
     color-scheme: light;
@@ -3206,15 +3281,25 @@ button:active:not(:disabled),
   stroke: var(--champ);
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:where(:not([data-theme="clair"])) {
     --teinte-0: #24312b;
     --teinte-1: #2f6b55;
     --teinte-2: #4fa585;
     --teinte-3: #9be0c2;
   }
-  .graphique line {
+  :where(:root:not([data-theme="clair"])) .graphique line {
     stroke: var(--surface-3);
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:root:where([data-theme="sombre"]) {
+  --teinte-0: #24312b;
+  --teinte-1: #2f6b55;
+  --teinte-2: #4fa585;
+  --teinte-3: #9be0c2;
+}
+:where(:root[data-theme="sombre"]) .graphique line {
+  stroke: var(--surface-3);
 }
 
 /* Bouton « Enregistrer » collé en bas : toute la largeur. */
@@ -3222,19 +3307,33 @@ button:active:not(:disabled),
   width: 100%;
 }
 @media (prefers-color-scheme: dark) {
-  .tuile-alerte {
+  :where(:root:not([data-theme="clair"])) .tuile-alerte {
     background: #3a2418;
     border-color: #6b3d22;
   }
-  .tuile-alerte strong,
-  .tuile-alerte span {
+  :where(:root:not([data-theme="clair"])) .tuile-alerte strong,
+  :where(:root:not([data-theme="clair"])) .tuile-alerte span {
     color: #f3b98f;
   }
-  .statut-non_atteint:has(input:checked) {
+  :where(:root:not([data-theme="clair"])) .statut-non_atteint:has(input:checked) {
     background: #3a2418;
     border-color: #b5651d;
     color: #f3b98f;
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .tuile-alerte {
+  background: #3a2418;
+  border-color: #6b3d22;
+}
+:where(:root[data-theme="sombre"]) .tuile-alerte strong,
+:where(:root[data-theme="sombre"]) .tuile-alerte span {
+  color: #f3b98f;
+}
+:where(:root[data-theme="sombre"]) .statut-non_atteint:has(input:checked) {
+  background: #3a2418;
+  border-color: #b5651d;
+  color: #f3b98f;
 }
 
 /* Menu ⋯ : ancré au début de la rangée de boutons, pour rester dans l'écran. */
@@ -3251,10 +3350,15 @@ button:active:not(:disabled),
 }
 
 @media (prefers-color-scheme: dark) {
-  .pastille-note {
+  :where(:root:not([data-theme="clair"])) .pastille-note {
     background: #26304a;
     color: #c9d4f2;
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .pastille-note {
+  background: #26304a;
+  color: #c9d4f2;
 }
 
 /* ---------- Correction par passage ------------------------------------ */
@@ -3341,13 +3445,21 @@ button:active:not(:disabled),
   cursor: default;
 }
 @media (prefers-color-scheme: dark) {
-  .pastille-echec {
+  :where(:root:not([data-theme="clair"])) .pastille-echec {
     background: #4a231d;
     color: #f2a58e;
   }
-  .bouton-valider-ok {
+  :where(:root:not([data-theme="clair"])) .bouton-valider-ok {
     color: #fff;
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .pastille-echec {
+  background: #4a231d;
+  color: #f2a58e;
+}
+:where(:root[data-theme="sombre"]) .bouton-valider-ok {
+  color: #fff;
 }
 
 /* ---------- Sélecteur (remplace les listes déroulantes) ----------------- */
@@ -3658,15 +3770,25 @@ button:active:not(:disabled),
   }
 }
 @media (prefers-color-scheme: dark) {
-  .bandeau-annulation {
+  :where(:root:not([data-theme="clair"])) .bandeau-annulation {
     background: #e6ece8;
     color: #0e1613;
   }
-  .bandeau-annulation button {
+  :where(:root:not([data-theme="clair"])) .bandeau-annulation button {
     background: #0e1613;
     color: #e6ece8;
   }
 }
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .bandeau-annulation {
+  background: #e6ece8;
+  color: #0e1613;
+}
+:where(:root[data-theme="sombre"]) .bandeau-annulation button {
+  background: #0e1613;
+  color: #e6ece8;
+}
+
 .texte-ok {
   color: var(--vert-texte);
 }
@@ -3730,13 +3852,21 @@ button:active:not(:disabled),
 
 /* ---------- Contrastes en mode sombre (normes WCAG AA, 4,5:1 minimum) ---- */
 @media (prefers-color-scheme: dark) {
-  .message-erreur {
+  :where(:root:not([data-theme="clair"])) .message-erreur {
     background: #3a1d19;
     color: #f2a58e;
   }
-  .texte-alerte {
+  :where(:root:not([data-theme="clair"])) .texte-alerte {
     color: #f0b36b !important;
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .message-erreur {
+  background: #3a1d19;
+  color: #f2a58e;
+}
+:where(:root[data-theme="sombre"]) .texte-alerte {
+  color: #f0b36b !important;
 }
 
 /* ---------- Avatars : carré arrondi comme la tuile ق, une teinte par personne ---------- */
@@ -3817,33 +3947,61 @@ button:active:not(:disabled),
   gap: 10px;
 }
 @media (prefers-color-scheme: dark) {
-  .avatar {
+  :where(:root:not([data-theme="clair"])) .avatar {
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
-  .avatar-teinte-0 {
+  :where(:root:not([data-theme="clair"])) .avatar-teinte-0 {
     background: #1d3e32;
     color: #a8dcc4;
   }
-  .avatar-teinte-1 {
+  :where(:root:not([data-theme="clair"])) .avatar-teinte-1 {
     background: #173f45;
     color: #9fd7de;
   }
-  .avatar-teinte-2 {
+  :where(:root:not([data-theme="clair"])) .avatar-teinte-2 {
     background: #3d3018;
     color: #ecc98a;
   }
-  .avatar-teinte-3 {
+  :where(:root:not([data-theme="clair"])) .avatar-teinte-3 {
     background: #45251b;
     color: #f2b9a3;
   }
-  .avatar-teinte-4 {
+  :where(:root:not([data-theme="clair"])) .avatar-teinte-4 {
     background: #2f3a1c;
     color: #c8d79a;
   }
-  .avatar-teinte-5 {
+  :where(:root:not([data-theme="clair"])) .avatar-teinte-5 {
     background: #232c48;
     color: #b9c5ea;
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .avatar {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+:where(:root[data-theme="sombre"]) .avatar-teinte-0 {
+  background: #1d3e32;
+  color: #a8dcc4;
+}
+:where(:root[data-theme="sombre"]) .avatar-teinte-1 {
+  background: #173f45;
+  color: #9fd7de;
+}
+:where(:root[data-theme="sombre"]) .avatar-teinte-2 {
+  background: #3d3018;
+  color: #ecc98a;
+}
+:where(:root[data-theme="sombre"]) .avatar-teinte-3 {
+  background: #45251b;
+  color: #f2b9a3;
+}
+:where(:root[data-theme="sombre"]) .avatar-teinte-4 {
+  background: #2f3a1c;
+  color: #c8d79a;
+}
+:where(:root[data-theme="sombre"]) .avatar-teinte-5 {
+  background: #232c48;
+  color: #b9c5ea;
 }
 
 /* ---------- Légende des pastilles ---------------------------------------- */
@@ -4145,13 +4303,21 @@ html[data-ouverture] .ouverture {
   }
 }
 @media (prefers-color-scheme: dark) {
-  .barre {
+  :where(:root:not([data-theme="clair"])) .barre {
     background: #0f3a2c;
     box-shadow:
       inset 0 -2px 0 rgba(214, 175, 92, 0.45),
       0 6px 18px rgba(0, 0, 0, 0.35);
   }
 }
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .barre {
+  background: #0f3a2c;
+  box-shadow:
+    inset 0 -2px 0 rgba(214, 175, 92, 0.45),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .logo-etoile-branches,
   .logo-etoile-lettre {
@@ -4307,16 +4473,27 @@ html[data-ouverture] .ouverture {
   white-space: nowrap;
 }
 @media (prefers-color-scheme: dark) {
-  .anneau-declare {
+  :where(:root:not([data-theme="clair"])) .anneau-declare {
     stroke: rgba(79, 163, 130, 0.35);
   }
-  .carte-a-voir::after,
-  .carte-pastille-a-voir {
+  :where(:root:not([data-theme="clair"])) .carte-a-voir::after,
+  :where(:root:not([data-theme="clair"])) .carte-pastille-a-voir {
     background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 5px);
   }
-  .carte-pastille-a-voir {
+  :where(:root:not([data-theme="clair"])) .carte-pastille-a-voir {
     background-color: #3f8f70;
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .anneau-declare {
+  stroke: rgba(79, 163, 130, 0.35);
+}
+:where(:root[data-theme="sombre"]) .carte-a-voir::after,
+:where(:root[data-theme="sombre"]) .carte-pastille-a-voir {
+  background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 5px);
+}
+:where(:root[data-theme="sombre"]) .carte-pastille-a-voir {
+  background-color: #3f8f70;
 }
 
 /* ---------- Sans réseau ---------- */
@@ -4351,10 +4528,15 @@ html[data-ouverture] .ouverture {
   white-space: nowrap;
 }
 @media (prefers-color-scheme: dark) {
-  .pastille-attente {
+  :where(:root:not([data-theme="clair"])) .pastille-attente {
     background: #2e3a42;
     color: #cfd8de;
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .pastille-attente {
+  background: #2e3a42;
+  color: #cfd8de;
 }
 
 /* ---------- Lien en cours de chargement ---------- */
@@ -5073,7 +5255,7 @@ html[data-ouverture] .ouverture-version {
   --tj-muette: #9a9a9a;
 }
 @media (prefers-color-scheme: dark) {
-  .espace-coran {
+  :where(:root:not([data-theme="clair"])) .espace-coran {
     --tj-madd-2: #7ea1ff;
     --tj-madd-246: #9aa2ff;
     --tj-madd-45: #6f8cff;
@@ -5086,6 +5268,20 @@ html[data-ouverture] .ouverture-version {
     --tj-qalqala: #ff6268;
     --tj-muette: #7f8a85;
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .espace-coran {
+  --tj-madd-2: #7ea1ff;
+  --tj-madd-246: #9aa2ff;
+  --tj-madd-45: #6f8cff;
+  --tj-madd-6: #b4b9ff;
+  --tj-ghunna: #ff9d4d;
+  --tj-ikhfa: #d977ec;
+  --tj-idgham: #3cc59e;
+  --tj-idgham-sans: #7fd65a;
+  --tj-iqlab: #5fd3ff;
+  --tj-qalqala: #ff6268;
+  --tj-muette: #7f8a85;
 }
 
 /* Choix de la sourate */
@@ -7039,10 +7235,15 @@ html.defilement-bloque {
   --etat-valide: var(--or);
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:where(:not([data-theme="clair"])) {
     --etat-saisi: rgba(236, 232, 222, 0.28);
   }
 }
+/* Même chose quand le thème sombre est choisi à la main. */
+:root:where([data-theme="sombre"]) {
+  --etat-saisi: rgba(236, 232, 222, 0.28);
+}
+
 .pastille-etat {
   display: inline-block;
   margin-left: 8px;
@@ -8637,7 +8838,7 @@ button.reciter-mot {
 
 /* Mode sombre plus doux : moins noir, cartes qui se détachent, l'or réservé à l'important. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:where(:not([data-theme="clair"])) {
     --fond: #121c18;
     --carte: #1a2621;
     --surface-2: #1f2c27;
@@ -8647,16 +8848,37 @@ button.reciter-mot {
     --texte-doux: #a9b5af;
     --ombre: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.28);
   }
-  .carte-graphique {
+  :where(:root:not([data-theme="clair"])) .carte-graphique {
     border-color: rgba(255, 255, 255, 0.04);
   }
-  .etat-site-liste li.etat-site-alerte {
+  :where(:root:not([data-theme="clair"])) .etat-site-liste li.etat-site-alerte {
     background: rgba(201, 162, 74, 0.1);
     color: var(--texte);
   }
-  .etat-site-liste li.etat-site-alerte .etat-site-titre {
+  :where(:root:not([data-theme="clair"])) .etat-site-liste li.etat-site-alerte .etat-site-titre {
     color: var(--or-texte);
   }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:root:where([data-theme="sombre"]) {
+  --fond: #121c18;
+  --carte: #1a2621;
+  --surface-2: #1f2c27;
+  --surface-3: #283731;
+  --ligne: #2f3f38;
+  --texte: #e8eee9;
+  --texte-doux: #a9b5af;
+  --ombre: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+:where(:root[data-theme="sombre"]) .carte-graphique {
+  border-color: rgba(255, 255, 255, 0.04);
+}
+:where(:root[data-theme="sombre"]) .etat-site-liste li.etat-site-alerte {
+  background: rgba(201, 162, 74, 0.1);
+  color: var(--texte);
+}
+:where(:root[data-theme="sombre"]) .etat-site-liste li.etat-site-alerte .etat-site-titre {
+  color: var(--or-texte);
 }
 
 /* Animations légères : la coche se dessine à la validation, les cartes glissent en place. */
@@ -8788,13 +9010,21 @@ html[data-ouverture] .ouverture {
   animation: apparition 0.22s ease-out;
 }
 @media (prefers-color-scheme: dark) {
-  .semaine-pliable > summary::after {
+  :where(:root:not([data-theme="clair"])) .semaine-pliable > summary::after {
     background:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236cc3a0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E")
         center / 18px no-repeat,
       var(--vert-clair);
   }
 }
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .semaine-pliable > summary::after {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236cc3a0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E")
+      center / 18px no-repeat,
+    var(--vert-clair);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .semaine-pliable > summary,
   .semaine-pliable > summary::after,
@@ -8908,4 +9138,93 @@ html[data-ouverture] .ouverture {
 .mini-courbe {
   color: var(--vert-texte);
   vertical-align: middle;
+}
+
+/* Admin : vitesse réelle par page */
+.liste-vitesse {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.liste-vitesse li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--t-petit);
+}
+.liste-vitesse code {
+  overflow-wrap: anywhere;
+}
+.liste-vitesse span {
+  min-width: 56px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-align: center;
+  font-weight: 600;
+}
+.vitesse-bon {
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.vitesse-moyen {
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.vitesse-lent {
+  background: color-mix(in srgb, var(--rouge) 15%, transparent);
+  color: var(--rouge);
+}
+
+/* Thème choisi à la main (« Mon compte ») : les contrôles du navigateur suivent */
+:root[data-theme="clair"] {
+  color-scheme: light;
+}
+:root[data-theme="sombre"] {
+  color-scheme: dark;
+}
+
+/* Taille du texte de toute l'appli (« Mon compte ») */
+html[data-taille="grand"] body {
+  zoom: 1.1;
+}
+html[data-taille="tres-grand"] body {
+  zoom: 1.22;
+}
+
+/* Choix en segments (Apparence) */
+.reglage-apparence {
+  display: grid;
+  gap: 8px;
+}
+.reglage-apparence-titre {
+  font-size: var(--t-petit);
+  color: var(--texte-doux);
+}
+.choix-segmente {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--surface-3);
+}
+.choix-segmente button {
+  flex: 1 1 0;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--texte);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.choix-segmente button[aria-checked="true"] {
+  background: var(--carte);
+  box-shadow: var(--ombre);
+  font-weight: 700;
+  color: var(--vert-texte);
 }

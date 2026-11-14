@@ -727,6 +727,9 @@ export function LectureCoran({
           sourate={blocReciter.sourate}
           nomSourate={blocReciter.nomLatin}
           nomArabe={blocReciter.nomAr}
+          recitateur={recitation?.suivi ? recitation.id : null}
+          recitateurs={recitations.filter((r) => r.suivi).map((r) => ({ valeur: r.id, libelle: r.nom }))}
+          onRecitateur={(id) => modifier({ recitation: { ...reglages.recitation, [lecture]: id } })}
           versets={blocReciter.versets}
           depart={reciter.depart}
           lecture={lecture === "warsh" ? "warsh" : "hafs"}

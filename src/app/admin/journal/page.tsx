@@ -5,6 +5,8 @@ import { Selecteur } from "@/components/Selecteur";
 import { depuisQuand, ELEMENTS, grouperParJour, phraseAudit, regrouperOuvertures } from "@/domain/journal";
 import { exigerEspace } from "@/services/acces";
 import { chargerJournal } from "@/services/admin";
+import { chargerSecuriteEtVitesse } from "@/services/securite";
+import { note } from "@/domain/vitesse";
 import { CorrectionsApprises } from "@/components/admin/CorrectionsApprises";
 import { chargerCorrectionsTajwid, chargerSignalementsTajwid } from "@/services/tajwid";
 import { dateHeure, heure } from "@/domain/format";
@@ -35,10 +37,14 @@ export default async function PageJournal({
     profil,
     await searchParams,
   );
-  const [signalements, corrections] = await Promise.all([
+  const [signalements, corrections, securite] = await Promise.all([
     chargerSignalementsTajwid(profil),
     chargerCorrectionsTajwid(profil),
+    chargerSecuriteEtVitesse(profil, noms),
   ]);
+  const echecs7j = securite.evenements.filter(
+    (e) => e.type === "echec_connexion" && Date.parse(e.quand) > Date.now() - 7 * 86_400_000,
+  ).length;
   const filtre = Object.values(filtres).some(Boolean);
   const maintenant = new Date();
   const jours = grouperParJour(evenements, maintenant);
@@ -87,6 +93,79 @@ export default async function PageJournal({
               ))}
             </ul>
           </details>
+        </section>
+
+        <section className="carte-graphique">
+          <div className="admin-titre">
+            <h2>Sécurité</h2>
+            <span className="admin-compte">30 derniers jours</span>
+          </div>
+          {securite.evenements.length === 0 ? (
+            <p className="carte-graphique-sous">Rien à signaler : aucun nouvel appareil ni mot de passe erroné.</p>
+          ) : (
+            <>
+              {echecs7j >= 5 ? (
+                <p className="message-erreur" role="alert">
+                  {echecs7j} mots de passe erronés en 7 jours : vérifie qu’aucun compte n’est visé.
+                </p>
+              ) : null}
+              <details className="admin-repli" open={securite.evenements.length <= 6}>
+                <summary>
+                  {securite.evenements.length} événement{securite.evenements.length > 1 ? "s" : ""}
+                </summary>
+                <ul className="fil-journal">
+                  {securite.evenements.map((e) => (
+                    <li key={e.id}>
+                      <time dateTime={e.quand}>{dateHeure(e.quand)}</time>
+                      <span>
+                        {e.type === "nouvel_appareil" ? (
+                          <>
+                            <b>{e.nom ?? "Un compte"}</b> s’est connecté depuis un nouvel appareil
+                          </>
+                        ) : (
+                          <>
+                            Mot de passe erroné pour <b>{e.email ?? "une adresse"}</b>
+                          </>
+                        )}
+                        {e.libelle ? ` · ${e.libelle}` : ""}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </>
+          )}
+        </section>
+
+        <section className="carte-graphique">
+          <div className="admin-titre">
+            <h2>Vitesse réelle</h2>
+            <span className="admin-compte">{securite.mesures} mesures sur 7 jours</span>
+          </div>
+          {securite.vitesse.length === 0 ? (
+            <p className="carte-graphique-sous">
+              Pas encore de mesure : elles arrivent au fil des visites (une sur deux est mesurée).
+            </p>
+          ) : (
+            <>
+              <p className="carte-graphique-sous">
+                Pour 3 visites sur 4 : temps d’affichage et de réaction au toucher, sur les vrais téléphones.
+              </p>
+              <ul className="liste-vitesse">
+                {securite.vitesse.map((l) => (
+                  <li key={l.page}>
+                    <code>{l.page}</code>
+                    <span className={`vitesse-${l.lcp === null ? "bon" : note("LCP", l.lcp)}`}>
+                      {l.lcp === null ? "—" : `${(l.lcp / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} s`}
+                    </span>
+                    <span className={`vitesse-${l.inp === null ? "bon" : note("INP", l.inp)}`}>
+                      {l.inp === null ? "—" : `${Math.round(l.inp)} ms`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
 
         <section className="carte-graphique">
