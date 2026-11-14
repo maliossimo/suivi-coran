@@ -99,7 +99,7 @@ export function grouperParJour<T extends { quand: string }>(
 }
 
 export interface OuvertureGroupee {
-  id: string;
+  id: string | number;
   personneId: string;
   /** La plus récente, puis la plus ancienne du groupe. */
   derniere: string;
@@ -112,7 +112,7 @@ export interface OuvertureGroupee {
  * plusieurs fois de suite le même jour : « Malek a ouvert l'appli 6 fois, de 16:35 à 19:46 ».
  */
 export function regrouperOuvertures(
-  ouvertures: readonly { id: string; quand: string; personneId: string }[],
+  ouvertures: readonly { id: string | number; quand: string; personneId: string }[],
 ): OuvertureGroupee[] {
   const groupes: OuvertureGroupee[] = [];
   for (const o of ouvertures) {
