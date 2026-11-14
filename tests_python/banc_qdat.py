@@ -6,7 +6,6 @@ Affiche le schéma des annotations, puis, pour chaque réglage (modèle, seuils)
 sur les quatre règles annotées et les temps d'analyse, pour choisir les réglages à garder.
 """
 
-import json
 import os
 import subprocess
 import sys
@@ -17,7 +16,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "api"))
 
 from datasets import Audio, load_dataset  # noqa: E402
 
-from _tajwid.moteur import Reglages, analyser  # noqa: E402
+from _tajwid.moteur import Reglages, analyser_passage  # noqa: E402
 
 CONFIGS = [
     Reglages("int8", 0.3, 0.7),
@@ -39,41 +38,60 @@ def pcm(audio: dict) -> bytes:
     ).stdout
 
 
+# Les enregistrements commencent à « قَالُوا۟ » (mot 7 du verset 5:109). Pour chaque règle annotée :
+# le mot concerné, la règle du moteur, et quand l'annotation dit que c'est juste.
+REGLES = {
+    "madd naturel (قالوا)": (7, "NormalMaddRule", lambda x: x["qalo_alif_len"] == 2 and x["qalo_waw_len"] == 2),
+    "madd naturel (لا)": (8, "NormalMaddRule", lambda x: x["laa_alif_len"] == 2),
+    "madd munfasil (لنآ)": (10, "MonfaselMaddRule", lambda x: x["separate_madd"] in (2, 4, 5)),
+    "ghunna (إنّك)": (11, "ghunnah", lambda x: x["noon_moshaddadah_len"] == 1),
+    "ikhfaʾ (أنت)": (12, "ikhfa", lambda x: x["noon_mokhfah_len"] == 2),
+    "madd naturel (علّام)": (13, "NormalMaddRule", lambda x: x["allam_alif_len"] == 2),
+    "qalqala (الغيوب)": (14, "qalqalah", lambda x: x["qalqalah"] == 1),
+    "madd ʿarid (الغيوب)": (14, "AaredMaddRule", lambda x: x["madd_aared_len"] in (2, 4, 6)),
+}
+
+
 def main() -> None:
     ds = load_dataset("obadx/qdat_bench", split="train").cast_column("audio", Audio(decode=False))
-    colonnes = [c for c in ds.column_names if c != "audio"]
-    print("colonnes :", colonnes)
-    print("exemple :", json.dumps({c: ds[0][c] for c in colonnes}, ensure_ascii=False, default=str)[:3000])
-    for c in colonnes:
-        valeurs = Counter(str(v) for v in ds[c])
-        if len(valeurs) <= 12:
-            print(f"  {c}: {dict(valeurs)}")
-
+    etiquettes = [{c: ds[i][c] for c in ds.column_names if c not in ("audio", "sifat")} for i in range(len(ds))]
     audios = [pcm(x["audio"]) for x in ds]
     for reglages in CONFIGS:
         debut = time.time()
-        lignes, durees = [], []
-        for i, a in enumerate(audios):
+        durees = []
+        compte = {nom: Counter() for nom in REGLES}
+        remarques_sur_juste, mots_justes = 0, 0
+        for x, a in zip(etiquettes, audios):
             t = time.time()
             try:
-                r = analyser(a, 5, 109, "hafs", reglages=reglages)
+                r = analyser_passage(a, 5, 109, 109, "hafs", depuis=7, reglages=reglages)
             except Exception as e:  # noqa: BLE001
-                lignes.append({"i": i, "erreur": str(e)})
+                print("erreur :", e)
                 continue
             durees.append(time.time() - t)
-            lignes.append(
-                {
-                    "i": i,
-                    "id": ds[i]["id"],
-                    "mots": [[m["etat"], [x["regle"] for x in m["remarques"]]] for m in r["mots"]],
-                }
-            )
+            par_mot = {m["indice"]: {n["regle"].split(":")[0] for n in m["remarques"]} for m in r["mots"]}
+            for nom, (mot, regle, juste) in REGLES.items():
+                signale = regle in par_mot.get(mot, set())
+                compte[nom][("juste" if juste(x) else "faute", signale)] += 1
+            # Mots dont toutes les règles annotées sont justes : une remarque y est (probablement) fausse.
+            for mot in range(7, 15):
+                regles_mot = [j for (m, _, j) in REGLES.values() if m == mot]
+                if regles_mot and all(j(x) for j in regles_mot):
+                    mots_justes += 1
+                    remarques_sur_juste += bool(par_mot.get(mot))
         durees.sort()
         print(
             f"\n=== {reglages} — {time.time() - debut:.0f} s, médiane {durees[len(durees) // 2]:.2f} s,"
             f" max {durees[-1]:.2f} s"
         )
-        print("RESULTATS " + json.dumps(lignes, ensure_ascii=False))
+        print(f"  remarques sur des mots annotés justes : {remarques_sur_juste}/{mots_justes}")
+        for nom, c in compte.items():
+            fautes = c[("faute", True)] + c[("faute", False)]
+            justes = c[("juste", True)] + c[("juste", False)]
+            print(
+                f"  {nom:24} fautes repérées {c[('faute', True)]}/{fautes}"
+                f"   fausses remarques {c[('juste', True)]}/{justes}"
+            )
 
 
 if __name__ == "__main__":
