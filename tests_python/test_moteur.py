@@ -101,8 +101,9 @@ def test_empreinte_du_modele():
 
     infos = json.load(urllib.request.urlopen("https://huggingface.co/api/models/Hisnlabs/tajweed-v2", timeout=30))  # noqa: S310
     print("\nrévision Hugging Face :", infos.get("sha"))
-    chemin = moteur._chemin_modele("int8")
-    print("\nempreinte du modèle :", hashlib.sha256(open(chemin, "rb").read()).hexdigest(), os.path.getsize(chemin))
+    for variante in moteur.VARIANTES:
+        chemin = moteur._chemin_modele(variante)
+        print(f"\nempreinte du modèle {variante} :", hashlib.sha256(open(chemin, "rb").read()).hexdigest(), os.path.getsize(chemin))
 
 
 @reel

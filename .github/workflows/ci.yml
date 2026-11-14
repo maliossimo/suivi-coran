@@ -85,6 +85,11 @@ jobs:
         run: |
           pip install datasets
           python tests_python/banc_qdat.py
+      # Récitateurs de référence sur ~70 versets variés : toute remarque y est fausse (n'échoue pas la CI).
+      - name: Banc d'essai récitateurs
+        if: steps.changements.outputs.moteur == 'oui'
+        continue-on-error: true
+        run: python tests_python/banc_recitateurs.py
 
   base:
     name: Migrations et règles d'accès (RLS)

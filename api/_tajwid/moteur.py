@@ -54,6 +54,10 @@ class Reglages:
     # Double écoute : le morceau est aussi écouté par l'autre version du modèle, et une remarque
     # n'est gardée que si les deux la font (moins de remarques fausses ou changeantes).
     consensus: bool = True
+    # Madd naturel mesuré à l'horloge (voir _mesurer_madds) : None = pas de mesure. Un « madd oublié »
+    # tenu au moins `madd_long` temps n'est pas reproché ; un madd tenu moins de `madd_court` temps l'est.
+    madd_long: float | None = None
+    madd_court: float | None = None
 
 
 REGLAGES = Reglages()
@@ -178,6 +182,64 @@ def _situer(
     return meilleur[1], meilleur[2]
 
 
+def _mesurer_madds(ref, entendu: str, bornes: list[int], instants: list[float]) -> dict[int, list[dict]]:
+    """Chaque madd naturel du morceau, mesuré à l'horloge : sa durée rapportée à celle d'une voyelle brève
+    de la même personne dans le même morceau (1 temps). Le modèle écrit parfois une voyelle allongée sans
+    son signe de madd (ou l'inverse) : l'horloge départage. → {mot du morceau : [{symboles, temps}]}"""
+    if not instants or len(instants) != len(entendu) + 1:
+        return {}
+    longues = set(imam.LONG)
+    breves = sorted(
+        d
+        for k in range(len(entendu) - 1)
+        if entendu[k] in imam.HARAKAT and entendu[k + 1] not in longues
+        for d in [instants[k + 1] - instants[k]]
+        if 0.02 < d < 0.6
+    )
+    if len(breves) < 3:
+        return {}
+    breve = breves[len(breves) // 2]
+    fins = set(ref.ends or [len(ref.words) - 1])
+    mesures: dict[int, list[dict]] = {}
+    for u in ref.units:
+        if u.kind != "madd" or u.rule != "NormalMaddRule" or u.word in fins:
+            continue  # en fin de souffle, le madd peut être tenu comme ʿarid
+        hs, he = bornes[u.s], bornes[u.e]
+        n, rs, re_ = imam._run(entendu, max(0, hs - 1), min(len(entendu), he + 1), u.char)
+        if n:
+            duree = imam._dur(entendu, instants, rs, re_)
+        else:  # pas de signe de madd : la voyelle brève entendue à cet endroit
+            ks = [k for k in range(max(0, hs - 2), min(len(entendu), he + 1)) if entendu[k] in imam.HARAKAT]
+            if not ks:
+                continue
+            duree = instants[ks[-1] + 1] - instants[ks[-1]]
+        mesures.setdefault(u.word, []).append({"pos": u.s, "symboles": n, "temps": round(duree / breve, 2)})
+    return mesures
+
+
+def _madd_tenu(note: dict, mesures: list[dict] | None, reglages: Reglages) -> bool:
+    """Un « madd naturel oublié » alors que l'horloge dit que la voyelle a bien été tenue : remarque retirée."""
+    if reglages.madd_long is None or note["rule"] != "NormalMaddRule" or note["heard"] != 0 or not mesures:
+        return False
+    return any(m["pos"] == note.get("pos") and m["symboles"] == 0 and m["temps"] >= reglages.madd_long for m in mesures)
+
+
+def _madd_trop_court(notes: list, mesures: list[dict] | None, reglages: Reglages) -> dict | None:
+    """Un madd naturel écrit par le modèle mais tenu nettement moins de 2 temps à l'horloge."""
+    if reglages.madd_court is None or not mesures or any(n["rule"] == "NormalMaddRule" for n in notes):
+        return None
+    courts = [m["temps"] for m in mesures if m["symboles"] > 0 and m["temps"] < reglages.madd_court]
+    if not courts:
+        return None
+    return {
+        "rule": "NormalMaddRule",
+        "severity": "khafi",
+        "expected": [2],
+        "heard": 1,
+        "msg": {"fr": "Madd naturel trop court : tiens la voyelle 2 temps"},
+    }
+
+
 def _etat(notes: list) -> str:
     if any(n["rule"] == "word" for n in notes):
         return "oublie"
@@ -223,6 +285,7 @@ def analyser_passage(
     tempo: list[float] | None = None,
     reglages: Reglages = REGLAGES,
     avec_passage: bool = False,
+    diagnostic: bool = False,
 ) -> dict:
     """Un morceau (≤ 30 s) d'une récitation des versets du..au : il est situé dans le passage, à partir du mot
     « depuis », puis jugé mot par mot. tempo : les madd naturels déjà entendus dans la séance (le rythme de
@@ -269,6 +332,7 @@ def analyser_passage(
                 confirmees |= {(a + m2["index"], n["rule"].split(":")[0]) for n in m2["notes"]}
     ref = imam.recited(list(mots[a:b]), entendu, riwaya=riwaya)
     bornes = imam._boundaries(ref.phonemes, entendu)
+    mesures = _mesurer_madds(ref, entendu, bornes, instants)
     resultat = []
     for k, m in enumerate(
         imam.listen(
@@ -288,7 +352,11 @@ def analyser_passage(
             for n in m["notes"]
             if (reglages.madd_naturel or not (n["rule"] == "NormalMaddRule" and n["severity"] == "khafi"))
             and (confirmees is None or (g, n["rule"].split(":")[0]) in confirmees)
+            and not _madd_tenu(n, mesures.get(k), reglages)
         ]
+        trop_court = _madd_trop_court(notes, mesures.get(k), reglages)
+        if trop_court:
+            notes.append(trop_court)
         s0, s1 = ref.spans[k]
         h0, h1 = bornes[s0], bornes[s1]
         resultat.append(
@@ -303,6 +371,7 @@ def analyser_passage(
                 # où entendre ce mot dans le morceau (secondes)
                 "debut": round(max(0.0, instants[min(h0, len(instants) - 1)] - 0.15), 2),
                 "fin": round(instants[min(max(h1, h0 + 1), len(instants) - 1)] + 0.1, 2),
+                **({"mesures_madd": mesures.get(k, [])} if diagnostic else {}),
             }
         )
     return {"entendu": entendu, "mots": resultat, "couverts": [a, b], "tempo": tempo, "passage": passage}

@@ -20,9 +20,13 @@ from _tajwid.moteur import Reglages, analyser_passage  # noqa: E402
 
 # (nom, réglages, son envoyé en μ-law 8 bits)
 CONFIGS = [
-    ("actuel (double écoute, 0,3 / 0,7)", Reglages(), False),
-    ("une seule écoute, 0,5 / 0,8 (1.23)", Reglages(min_prob=0.5, min_prob_jali=0.8, consensus=False), False),
+    ("actuel (double écoute, 0,3 / 0,7)", Reglages(madd_long=None, madd_court=None), False),
+    ("madd à l'horloge 1,6 / 1,3", Reglages(madd_long=1.6, madd_court=1.3), False),
+    ("madd à l'horloge 1,4 / 1,2", Reglages(madd_long=1.4, madd_court=1.2), False),
 ]
+
+# Madd naturels annotés : (mot, rang du madd dans le mot, colonne de l'annotation en temps)
+MADDS_ANNOTES = [(7, 0, "qalo_alif_len"), (7, 1, "qalo_waw_len"), (8, 0, "laa_alif_len"), (13, 0, "allam_alif_len")]
 
 
 def via_mulaw(pcm: bytes) -> bytes:
@@ -68,6 +72,25 @@ def main() -> None:
     ds = load_dataset("obadx/qdat_bench", split="train").cast_column("audio", Audio(decode=False))
     etiquettes = [{c: ds[i][c] for c in ds.column_names if c not in ("audio", "sifat")} for i in range(len(ds))]
     audios = [pcm(x["audio"]) for x in ds]
+    # Durées des madd naturels à l'horloge (en voyelles brèves) selon l'annotation : pour régler les seuils.
+    repartition: dict = {}
+    for x, a in zip(etiquettes, audios):
+        try:
+            r = analyser_passage(a, 5, 109, 109, "hafs", depuis=7, diagnostic=True)
+        except Exception:  # noqa: BLE001
+            continue
+        par_mot = {m["indice"]: sorted(m.get("mesures_madd", []), key=lambda d: d["pos"]) for m in r["mots"]}
+        for mot, rang, colonne in MADDS_ANNOTES:
+            ms = par_mot.get(mot, [])
+            if rang < len(ms):
+                cle = (x[colonne], "signe" if ms[rang]["symboles"] else "sans signe")
+                repartition.setdefault(cle, []).append(ms[rang]["temps"])
+    print("\n=== madd naturels mesurés (temps rapporté à une voyelle brève), par annotation")
+    for (temps, signe), valeurs in sorted(repartition.items(), key=lambda kv: (str(kv[0][0]), kv[0][1])):
+        v = sorted(valeurs)
+        q = [v[int(len(v) * f)] for f in (0.1, 0.25, 0.5, 0.75, 0.9)] if len(v) >= 5 else v
+        print(f"  annoté {temps} temps, {signe:10} n={len(v):3}  déciles 10/25/50/75/90 : {q}")
+
     for nom_config, reglages, en_mulaw in CONFIGS:
         debut = time.time()
         durees = []
