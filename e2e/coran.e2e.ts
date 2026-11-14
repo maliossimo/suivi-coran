@@ -36,7 +36,25 @@ test.describe("Coran (admin)", () => {
     const verset = page.locator('.coran-verset[data-cle="18:10"]');
     await verset.scrollIntoViewIfNeeded();
     // Au milieu d'un mot du verset (un verset peut s'étaler sur plusieurs lignes).
+    await page.evaluate(() => {
+      (window as unknown as { __ev: string[] }).__ev = [];
+      for (const t of ["pointerdown", "pointercancel", "pointerup", "pointerleave", "contextmenu", "touchstart"])
+        window.addEventListener(t, (e) => (window as unknown as { __ev: string[] }).__ev.push(`${t}:${(e.target as Element)?.className}`), true);
+    });
+    const boite = await verset.locator(".mot").nth(1).boundingBox();
+    console.log(
+      "DIAG0",
+      boite,
+      await page.evaluate(
+        (b) => {
+          const el = b ? document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2) : null;
+          return el ? `${el.tagName}.${el.className}` : "rien";
+        },
+        boite,
+      ),
+    );
     await appuiLong(page, verset.locator(".mot").nth(1));
+    console.log("DIAG1", await page.evaluate(() => (window as unknown as { __ev: string[] }).__ev));
     // DIAGNOSTIC temporaire
     await page.waitForTimeout(800);
     console.log(
