@@ -62,9 +62,7 @@ export function LigneEtablissement({
             {activite.elevesActifs7j} actif{activite.elevesActifs7j > 1 ? "s" : ""} sur 7 j ·{" "}
             {activite.seances30j} séances en 30 j
           </span>
-          {activite.semaines?.some((n) => n > 0) ? (
-            <MiniCourbe valeurs={activite.semaines} />
-          ) : null}
+          {activite.semaines?.some((n) => n > 0) ? <MiniCourbe valeurs={activite.semaines} /> : null}
           {activite.eleves ? <span>régularité {activite.regularite ?? 0} %</span> : null}
           {activite.enBaisse ? (
             <span className="pastille-etat etat-a-ecouter">
@@ -171,7 +169,13 @@ function MiniCourbe({ valeurs }: { valeurs: number[] }) {
       role="img"
       aria-label={`Séances des 8 dernières semaines : ${valeurs.join(", ")}`}
     >
-      <polyline points={points.join(" ")} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <polyline
+        points={points.join(" ")}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

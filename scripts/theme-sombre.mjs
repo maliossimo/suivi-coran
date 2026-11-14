@@ -59,7 +59,10 @@ function conditionnerRegles(contenu, condition) {
     if (tete.trim().startsWith("@")) {
       sortie += `${prefixe}\n  ${tete.trim()} {${conditionnerRegles(corps, condition)}\n  }`;
     } else {
-      const selecteurs = tete.split(",").map((x) => conditionner(x, condition)).join(",\n  ");
+      const selecteurs = tete
+        .split(",")
+        .map((x) => conditionner(x, condition))
+        .join(",\n  ");
       sortie += `${prefixe}\n  ${selecteurs} {${corps}}`;
     }
     i = fin + 1;

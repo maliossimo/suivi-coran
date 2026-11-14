@@ -101,7 +101,9 @@ export default async function PageJournal({
             <span className="admin-compte">30 derniers jours</span>
           </div>
           {securite.evenements.length === 0 ? (
-            <p className="carte-graphique-sous">Rien à signaler : aucun nouvel appareil ni mot de passe erroné.</p>
+            <p className="carte-graphique-sous">
+              Rien à signaler : aucun nouvel appareil ni mot de passe erroné.
+            </p>
           ) : (
             <>
               {echecs7j >= 5 ? (
@@ -156,7 +158,9 @@ export default async function PageJournal({
                   <li key={l.page}>
                     <code>{l.page}</code>
                     <span className={`vitesse-${l.lcp === null ? "bon" : note("LCP", l.lcp)}`}>
-                      {l.lcp === null ? "—" : `${(l.lcp / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} s`}
+                      {l.lcp === null
+                        ? "—"
+                        : `${(l.lcp / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} s`}
                     </span>
                     <span className={`vitesse-${l.inp === null ? "bon" : note("INP", l.inp)}`}>
                       {l.inp === null ? "—" : `${Math.round(l.inp)} ms`}

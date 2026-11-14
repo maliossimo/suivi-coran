@@ -64,9 +64,12 @@ export async function recevoirMesure(profil: Profil | null, brut: unknown, ua: s
   if (!profil) return;
   const m = schemaMesure.safeParse(brut);
   if (!m.success) return;
-  await noterVitesse(pageGenerique(m.data.page), m.data.metrique, m.data.valeur, /Mobi|Android|iPhone/.test(ua)).catch(
-    () => undefined,
-  );
+  await noterVitesse(
+    pageGenerique(m.data.page),
+    m.data.metrique,
+    m.data.valeur,
+    /Mobi|Android|iPhone/.test(ua),
+  ).catch(() => undefined);
 }
 
 export interface EvenementAffiche extends EvenementSecurite {
@@ -84,7 +87,10 @@ export async function chargerSecuriteEtVitesse(
     listerMesuresVitesse().catch(() => []),
   ]);
   return {
-    evenements: evenements.map((e) => ({ ...e, nom: e.personneId ? (noms.get(e.personneId) ?? null) : null })),
+    evenements: evenements.map((e) => ({
+      ...e,
+      nom: e.personneId ? (noms.get(e.personneId) ?? null) : null,
+    })),
     vitesse: vitesseParPage(mesures).slice(0, 12),
     mesures: mesures.length,
   };

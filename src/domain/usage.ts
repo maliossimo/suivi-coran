@@ -125,16 +125,20 @@ export function calculerStatsUsage(
       warsh: elevesEtab.filter((u) => u.lecture === "warsh").length,
       sansLecture: elevesEtab.filter((u) => !u.lecture).length,
       enBaisse: elevesEtab.filter((u) => {
-        const recentes = passees.filter((x) => x.eleveId === u.id && joursEntre(x.date, aujourdhui) < 14).length;
+        const recentes = passees.filter(
+          (x) => x.eleveId === u.id && joursEntre(x.date, aujourdhui) < 14,
+        ).length;
         const avant = passees.filter(
-          (x) => x.eleveId === u.id && joursEntre(x.date, aujourdhui) >= 14 && joursEntre(x.date, aujourdhui) < 28,
+          (x) =>
+            x.eleveId === u.id && joursEntre(x.date, aujourdhui) >= 14 && joursEntre(x.date, aujourdhui) < 28,
         ).length;
         return avant >= 2 && recentes * 2 <= avant;
       }).length,
       regularite: elevesEtab.length
         ? Math.round(
             (elevesEtab.filter(
-              (u) => passees.filter((x) => x.eleveId === u.id && joursEntre(x.date, aujourdhui) < 14).length >= 3,
+              (u) =>
+                passees.filter((x) => x.eleveId === u.id && joursEntre(x.date, aujourdhui) < 14).length >= 3,
             ).length /
               elevesEtab.length) *
               100,
@@ -142,7 +146,8 @@ export function calculerStatsUsage(
         : 0,
       semaines: semaines.slice(-8).map((sem) => {
         const fin = decaler(sem.debut, 6);
-        return passees.filter((x) => x.date >= sem.debut && x.date <= fin && etabDe.get(x.eleveId) === e.id).length;
+        return passees.filter((x) => x.date >= sem.debut && x.date <= fin && etabDe.get(x.eleveId) === e.id)
+          .length;
       }),
     };
   });

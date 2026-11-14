@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   BookOpenText,
   Mic,
@@ -51,9 +52,11 @@ import { retourSensoriel } from "@/components/retourSensoriel";
 import { useExplication } from "./explications";
 import { adresseAudio, adresseMots, garderSourateOuverte, useHorsLigne } from "./horsLigne";
 import { MemoriserCoran } from "./MemoriserCoran";
-import { ModeReciter } from "./ModeReciter";
 import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
 import type { BlocAffiche, RecitationAffichee } from "./types";
+
+// Le mode Réciter (capture du micro, résultat) n'est chargé qu'au premier appui sur « Réciter ».
+const ModeReciter = dynamic(() => import("./ModeReciter").then((m) => m.ModeReciter), { ssr: false });
 
 const CLE = "coran-reglages";
 const UNE_FOIS: Repetition = { verset: 1, passage: 1 };

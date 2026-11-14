@@ -57,9 +57,19 @@ export async function listerEvenementsSecurite(): Promise<EvenementSecurite[]> {
 }
 
 /** Une mesure de vitesse réelle (anonyme). */
-export async function noterVitesse(page: string, metrique: string, valeur: number, mobile: boolean): Promise<void> {
+export async function noterVitesse(
+  page: string,
+  metrique: string,
+  valeur: number,
+  mobile: boolean,
+): Promise<void> {
   const supabase = await creerClientServeur();
-  await supabase.rpc("noter_vitesse", { p_page: page, p_metrique: metrique, p_valeur: valeur, p_mobile: mobile });
+  await supabase.rpc("noter_vitesse", {
+    p_page: page,
+    p_metrique: metrique,
+    p_valeur: valeur,
+    p_mobile: mobile,
+  });
 }
 
 export interface MesureVitesse {
