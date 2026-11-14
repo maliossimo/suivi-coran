@@ -15,7 +15,7 @@ let defilementGarde = 0;
  * `overflow: hidden` ne suffit pas sur iPhone : on fige le document à sa position
  * puis on la rend telle quelle à la fermeture.
  */
-function bloquerDefilement(): () => void {
+export function bloquerDefilement(): () => void {
   if (ouvertes++ === 0) {
     defilementGarde = window.scrollY;
     const corps = document.body.style;

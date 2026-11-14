@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { bilanTajwid, lireAnalyse, premierMotARevoir, type MotAnalyse } from "./tajwid";
+import {
+  assemblerPassage,
+  bilanPassage,
+  bilanTajwid,
+  lireAnalyse,
+  premierMotARevoir,
+  type MotAnalyse,
+} from "./tajwid";
 
 const mot = (etat: MotAnalyse["etat"], texte = "كلمة"): MotAnalyse => ({
   mot: texte,
@@ -59,5 +66,40 @@ describe("premierMotARevoir", () => {
     expect(premierMotARevoir([mot("a_revoir"), mot("oublie")])).toBe(1);
     expect(premierMotARevoir([mot("juste"), mot("a_revoir")])).toBe(1);
     expect(premierMotARevoir([mot("juste")])).toBeNull();
+  });
+});
+
+describe("assemblerPassage", () => {
+  const passage: [number, number, string][] = [
+    [2, 0, "a"],
+    [2, 1, "b"],
+    [3, 0, "c"],
+    [3, 1, "d"],
+    [4, 0, "e"],
+  ];
+  const vu = (indice: number, etat: MotAnalyse["etat"] = "juste"): MotAnalyse => ({
+    mot: `m${indice}`,
+    etat,
+    remarques: [],
+    madd: [],
+    indice,
+  });
+
+  it("place chaque résultat sur son mot, le plus récent l'emporte", () => {
+    const mots = assemblerPassage(passage, [
+      [vu(0), vu(1, "erreur")],
+      [vu(1), vu(2)],
+    ]);
+    expect(mots.slice(0, 3).map((m) => [m.etat, m.morceau])).toEqual([
+      ["juste", 0],
+      ["juste", 1],
+      ["juste", 1],
+    ]);
+  });
+
+  it("oublié avant le dernier mot récité, non récité après", () => {
+    const mots = assemblerPassage(passage, [[vu(0), vu(2)]]);
+    expect(mots.map((m) => m.etat)).toEqual(["juste", "oublie", "juste", "non_recite", "non_recite"]);
+    expect(bilanPassage(mots)).toMatchObject({ total: 3, score: 67 });
   });
 });

@@ -78,6 +78,13 @@ jobs:
         env:
           TAJWID_REEL: "1"
         run: python -m pytest tests_python -v -s
+      # Banc d'essai sur 159 apprenants annotés : chiffres pour régler le moteur (n'échoue pas la CI).
+      - name: Banc d'essai qdat_bench
+        if: steps.changements.outputs.moteur == 'oui'
+        continue-on-error: true
+        run: |
+          pip install datasets
+          python tests_python/banc_qdat.py
 
   base:
     name: Migrations et règles d'accès (RLS)
