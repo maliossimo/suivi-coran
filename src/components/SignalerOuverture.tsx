@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { actionAppareil } from "@/app/actions/mesures";
 import { actionOuverture } from "@/app/actions/ouverture";
 
 const CLE = "derniere-ouverture";
@@ -22,6 +23,17 @@ export function SignalerOuverture() {
         // stockage indisponible : la base limite de toute façon à une ouverture par quart d'heure
       }
       actionOuverture().catch(() => undefined);
+      // L'appareil (identifiant tiré au hasard, gardé sur le téléphone) : un nouveau est signalé à l'admin.
+      try {
+        let appareil = localStorage.getItem("appareil-id");
+        if (!appareil) {
+          appareil = crypto.randomUUID();
+          localStorage.setItem("appareil-id", appareil);
+        }
+        actionAppareil(appareil).catch(() => undefined);
+      } catch {
+        // stockage indisponible : pas de suivi d'appareil
+      }
     };
     signaler();
     document.addEventListener("visibilitychange", signaler);

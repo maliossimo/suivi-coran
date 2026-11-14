@@ -62,6 +62,15 @@ export function LigneEtablissement({
             {activite.elevesActifs7j} actif{activite.elevesActifs7j > 1 ? "s" : ""} sur 7 j ·{" "}
             {activite.seances30j} séances en 30 j
           </span>
+          {activite.semaines?.some((n) => n > 0) ? (
+            <MiniCourbe valeurs={activite.semaines} />
+          ) : null}
+          {activite.eleves ? <span>régularité {activite.regularite ?? 0} %</span> : null}
+          {activite.enBaisse ? (
+            <span className="pastille-etat etat-a-ecouter">
+              {activite.enBaisse} élève{activite.enBaisse > 1 ? "s" : ""} en baisse
+            </span>
+          ) : null}
           {activite.aVoir ? <span className="pastille-etat etat-valide">{activite.aVoir} à voir</span> : null}
           {activite.sansSaisie7j ? (
             <span className="pastille-etat etat-a-ecouter">{activite.sansSaisie7j} sans saisie</span>
@@ -143,5 +152,26 @@ export function LigneEtablissement({
         </details>
       </div>
     </li>
+  );
+}
+
+/** Les séances des 8 dernières semaines, en petite courbe (la plus récente à droite). */
+function MiniCourbe({ valeurs }: { valeurs: number[] }) {
+  const L = 80;
+  const H = 22;
+  const max = Math.max(1, ...valeurs);
+  const pas = L / Math.max(1, valeurs.length - 1);
+  const points = valeurs.map((v, i) => `${(i * pas).toFixed(1)},${(H - 2 - (v / max) * (H - 4)).toFixed(1)}`);
+  return (
+    <svg
+      className="mini-courbe"
+      viewBox={`0 0 ${L} ${H}`}
+      width={L}
+      height={H}
+      role="img"
+      aria-label={`Séances des 8 dernières semaines : ${valeurs.join(", ")}`}
+    >
+      <polyline points={points.join(" ")} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
   );
 }

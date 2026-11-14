@@ -8903,3 +8903,9 @@ html[data-ouverture] .ouverture {
   font-family: "KFGQPC Hafs", var(--font-arabe), serif;
   font-size: 20px;
 }
+
+/* Admin : petite courbe d'activité de chaque mosquée */
+.mini-courbe {
+  color: var(--vert-texte);
+  vertical-align: middle;
+}
