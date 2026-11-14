@@ -57,7 +57,7 @@ jobs:
         id: changements
         run: |
           if [ "${{ github.event_name }}" != "pull_request" ] || \
-             git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^(api/|tests_python/|requirements\.txt)'; then
+             git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^(api/|tests_python/|requirements\.txt|scripts/modeles-tajwid\.mjs)'; then
             echo "moteur=oui" >> "$GITHUB_OUTPUT"
           else
             echo "Aucun changement du moteur tajwid : tests inutiles."
@@ -73,6 +73,10 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           pip install -r requirements.txt pytest
+      # Comme au déploiement : le modèle embarqué dans la fonction, empreintes vérifiées.
+      - name: Modèle embarqué
+        if: steps.changements.outputs.moteur == 'oui'
+        run: node scripts/modeles-tajwid.mjs --forcer --strict && ls -l api/_tajwid/modeles
       - name: Tests (dont l'analyse réelle de récitations de référence)
         if: steps.changements.outputs.moteur == 'oui'
         env:

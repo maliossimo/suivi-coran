@@ -8349,3 +8349,15 @@ button.reciter-mot {
   border-bottom: 1px solid var(--ligne);
   font-size: 14px;
 }
+
+/* Corrections apprises des signalements (journal admin) */
+.corrections-apprises li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.corrections-apprises li[data-refusee] > span {
+  opacity: 0.55;
+  text-decoration: line-through;
+}

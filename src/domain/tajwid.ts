@@ -182,3 +182,32 @@ export function premierMotARevoir(mots: readonly MotAnalyse[]): number | null {
   }
   return null;
 }
+
+/** Une remarque que l'appli a appris à ne plus faire sur un mot (signalements « L'appli s'est trompée »). */
+export interface CorrectionApprise {
+  verset: number;
+  mot: string;
+  regle: string;
+}
+
+/**
+ * Retire des mots analysés les remarques corrigées par les signalements (même verset, même mot, même règle,
+ * sans sa précision après « : »), puis recalcule l'état du mot. Un mot non entendu le reste.
+ */
+export function appliquerCorrections(
+  mots: readonly MotAnalyse[],
+  corrections: readonly CorrectionApprise[],
+): MotAnalyse[] {
+  if (corrections.length === 0) return [...mots];
+  const cles = new Set(corrections.map((c) => `${c.verset}|${c.mot}|${c.regle}`));
+  return mots.map((m) => {
+    if (m.etat === "oublie" || m.verset === undefined || m.remarques.length === 0) return m;
+    const remarques = m.remarques.filter(
+      (r) => !cles.has(`${m.verset}|${m.mot}|${r.regle.split(":")[0] ?? r.regle}`),
+    );
+    if (remarques.length === m.remarques.length) return m;
+    const etat: EtatMot =
+      remarques.length === 0 ? "juste" : remarques.some((r) => r.gravite === "jali") ? "erreur" : "a_revoir";
+    return { ...m, remarques, etat };
+  });
+}

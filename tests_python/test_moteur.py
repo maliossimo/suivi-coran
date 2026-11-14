@@ -103,7 +103,16 @@ def test_empreinte_du_modele():
     print("\nrévision Hugging Face :", infos.get("sha"))
     for variante in moteur.VARIANTES:
         chemin = moteur._chemin_modele(variante)
-        print(f"\nempreinte du modèle {variante} :", hashlib.sha256(open(chemin, "rb").read()).hexdigest(), os.path.getsize(chemin))
+        empreinte = hashlib.sha256(open(chemin, "rb").read()).hexdigest()
+        print(f"\nempreinte du modèle {variante} :", empreinte, os.path.getsize(chemin), chemin)
+        assert empreinte == moteur.VARIANTES[variante][1]
+
+
+def test_modele_embarque_utilise_en_premier(tmp_path, monkeypatch):
+    """Le modèle embarqué au déploiement sert directement, sans téléchargement."""
+    (tmp_path / "int8.onnx").write_bytes(b"x")
+    monkeypatch.setattr(moteur, "EMBARQUES", str(tmp_path))
+    assert moteur._chemin_modele("int8") == str(tmp_path / "int8.onnx")
 
 
 @reel

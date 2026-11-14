@@ -62,3 +62,66 @@ export async function listerSignalements(limite = 200): Promise<Signalement[]> {
     };
   });
 }
+
+export interface CorrectionTajwid {
+  lecture: Lecture;
+  sourate: number;
+  verset: number;
+  mot: string;
+  regle: string;
+}
+
+/** Corrections apprises d'un passage : remarques à ne plus faire sur ces mots (la base décide lesquelles). */
+export async function listerCorrections(
+  lecture: Lecture,
+  sourate: number,
+  du: number,
+  au: number,
+): Promise<CorrectionTajwid[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("corrections_tajwid", {
+    p_lecture: lecture,
+    p_sourate: sourate,
+    p_du: du,
+    p_au: au,
+  });
+  if (error) throw new Error(`Lecture des corrections impossible : ${error.message}`);
+  return ((data ?? []) as { verset: number; mot: string; regle: string }[]).map((c) => ({
+    lecture,
+    sourate,
+    verset: c.verset,
+    mot: c.mot,
+    regle: c.regle,
+  }));
+}
+
+export interface CorrectionApprise extends CorrectionTajwid {
+  signalements: number;
+  refusee: boolean;
+}
+
+/** Pour l'admin : toutes les corrections apprises, refusées comprises. */
+export async function listerToutesCorrections(): Promise<CorrectionApprise[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("corrections_tajwid_admin");
+  if (error) throw new Error(`Lecture des corrections impossible : ${error.message}`);
+  return ((data ?? []) as Record<string, unknown>[]).map((c) => ({
+    lecture: c.lecture as Lecture,
+    sourate: c.sourate as number,
+    verset: c.verset as number,
+    mot: c.mot as string,
+    regle: c.regle as string,
+    signalements: Number(c.signalements),
+    refusee: Boolean(c.refusee),
+  }));
+}
+
+/** L'admin refuse (ou rétablit) une correction apprise. */
+export async function changerRefusCorrection(c: CorrectionTajwid, refuser: boolean): Promise<void> {
+  const supabase = await creerClientServeur();
+  const cle = { lecture: c.lecture, sourate: c.sourate, verset: c.verset, mot: c.mot, regle: c.regle };
+  const { error } = refuser
+    ? await supabase.from("corrections_tajwid_refusees").insert(cle)
+    : await supabase.from("corrections_tajwid_refusees").delete().match(cle);
+  if (error) throw new Error(`Modification impossible : ${error.message}`);
+}

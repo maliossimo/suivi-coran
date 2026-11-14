@@ -1,0 +1,14 @@
+{
+  "depot": "Hisnlabs/tajweed-v2",
+  "revision": "b3b0503d32b4d9a8a0447880b4564fd3e9d69c15",
+  "variantes": {
+    "int8": {
+      "fichier": "onnx/model-int8.onnx",
+      "sha256": "79cca1a2fc7ef81e325a3071a5f26cfec69203ef2c63177549065cdc1022c373"
+    },
+    "fp32": {
+      "fichier": "onnx/model-fp32.onnx",
+      "sha256": "44851c4df6bccc718ea56f843693b343539f268a2b340c80abad26cbee8f684d"
+    }
+  }
+}
