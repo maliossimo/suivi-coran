@@ -158,7 +158,11 @@ test.describe("Vérifier ma récitation", () => {
           this.onresult = null;
         }
       }
-      Object.assign(window, { webkitSpeechRecognition: FausseReconnaissance });
+      // Chrome expose aussi la version sans préfixe : on remplace les deux.
+      Object.assign(window, {
+        SpeechRecognition: FausseReconnaissance,
+        webkitSpeechRecognition: FausseReconnaissance,
+      });
     });
     await seConnecter(page, COMPTES.admin, /\/admin/);
     await page.goto("/admin/coran?lecture=hafs&sourate=1");
