@@ -118,7 +118,14 @@ export function ActionsVerset({
             />
           ) : null}
           {mode === "actions" && verset && texteVerset ? (
-            <VerifierRecitation key={cle} texteVerset={texteVerset} onAvantEcoute={onAvantEnregistrement} />
+            <VerifierRecitation
+              key={cle}
+              sourate={Number(cle.split(":")[0])}
+              verset={verset}
+              lecture={lecture === "warsh" ? "warsh" : "hafs"}
+              texteVerset={texteVerset}
+              onAvantEcoute={onAvantEnregistrement}
+            />
           ) : null}
         </>
       ) : null}

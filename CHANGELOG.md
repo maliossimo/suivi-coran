@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.21.0] — 2026-11-14
+
+### Nouveautés
+
+- Coran : « Vérifier ma récitation » corrige maintenant le tajwid. Tu récites le verset (30 s au plus), notre serveur l'analyse avec un modèle ouvert spécialisé (HisnLabs Tajweed v2) et dit pour chaque mot s'il est juste, à revoir, faux ou oublié, avec la remarque en français (madd trop court ou trop long, ghunna, ikhfaʾ, iqlab, idgham, chadda, qalqala, mauvaise lettre ou voyelle). Score, compteurs, réécoute de sa récitation, et « Masquer le texte » pour réciter de mémoire. Hafs et Warsh ; rien n'est enregistré, la voix ne passe plus par Google ou Apple.
+
 ## [1.20.0] — 2026-11-14
 
 ### Nouveautés

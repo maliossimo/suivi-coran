@@ -12,5 +12,11 @@
       "test/**": false,
       "dependabot/**": false
     }
+  },
+  "functions": {
+    "api/moteur_tajwid.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{node_modules,.next,src,e2e,supabase,public,docs,tests_python,.github}/**"
+    }
   }
 }

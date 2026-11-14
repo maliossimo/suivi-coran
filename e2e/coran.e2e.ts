@@ -135,33 +135,47 @@ test.describe("Coran (admin)", () => {
 });
 
 test.describe("Vérifier ma récitation", () => {
-  test("la voix transcrite est comparée mot à mot au verset", async ({ page }) => {
-    // Reconnaissance vocale simulée : « الحمد رب العالمين » (un mot oublié).
-    await page.addInitScript(() => {
-      class FausseReconnaissance {
-        onresult: ((e: unknown) => void) | null = null;
-        onend: (() => void) | null = null;
-        onerror: ((e: unknown) => void) | null = null;
-        lang = "";
-        continuous = false;
-        interimResults = false;
-        start() {
-          setTimeout(() => {
-            const resultat = Object.assign([{ transcript: "الحمد رب العالمين" }], { isFinal: true });
-            this.onresult?.({ resultIndex: 0, results: [resultat] });
-          }, 100);
-        }
-        stop() {
-          setTimeout(() => this.onend?.(), 50);
-        }
-        abort() {
-          this.onresult = null;
-        }
-      }
-      // Chrome expose aussi la version sans préfixe : on remplace les deux.
-      Object.assign(window, {
-        SpeechRecognition: FausseReconnaissance,
-        webkitSpeechRecognition: FausseReconnaissance,
+  test("l'appli délivre un jeton au compte qui peut ouvrir le Coran", async ({ page }) => {
+    await seConnecter(page, COMPTES.admin, /\/admin/);
+    const r = await page.request.post("/api/tajwid/jeton");
+    expect(r.status()).toBe(200);
+    expect((await r.json()).jeton).toMatch(/^[\w-]+\.[0-9a-f]{64}$/);
+  });
+
+  test("un élève sans accès au Coran n'a pas de jeton", async ({ page }) => {
+    await seConnecter(page, COMPTES.eleveA, /\/eleve/);
+    const r = await page.request.post("/api/tajwid/jeton");
+    expect(r.status()).toBe(403);
+  });
+
+  test("la récitation est analysée et chaque mot coloré, avec ses remarques", async ({ page }) => {
+    // Le moteur (fonction Python sur Vercel) ne tourne pas ici : sa réponse est simulée.
+    await page.route("**/api/moteur_tajwid**", async (route) => {
+      expect(route.request().method()).toBe("POST");
+      expect(route.request().headers()["authorization"]).toMatch(/^Jeton /);
+      expect((route.request().postDataBuffer()?.length ?? 0) % 2).toBe(0);
+      await route.fulfill({
+        json: {
+          entendu: "…",
+          mots: [
+            { mot: "ٱلْحَمْدُ", etat: "juste", remarques: [], madd: [] },
+            { mot: "لِلَّهِ", etat: "juste", remarques: [], madd: [] },
+            {
+              mot: "رَبِّ",
+              etat: "erreur",
+              remarques: [{ gravite: "jali", texte: "la chadda sur ب n’a pas été prononcée" }],
+              madd: [],
+            },
+            {
+              mot: "ٱلْعَٰلَمِينَ",
+              etat: "a_revoir",
+              remarques: [
+                { gravite: "khafi", texte: "madd ʿarid (à l’arrêt) trop long : 8 temps au lieu de 6 temps" },
+              ],
+              madd: [{ nom: "madd ʿarid (à l’arrêt)", temps: 6 }],
+            },
+          ],
+        },
       });
     });
     await seConnecter(page, COMPTES.admin, /\/admin/);
@@ -169,11 +183,17 @@ test.describe("Vérifier ma récitation", () => {
     await page.locator('.coran-verset[data-cle="1:2"]').click();
     const feuille = page.getByRole("dialog", { name: "Verset 2" });
     const verifier = feuille.getByRole("region", { name: "Vérifier ma récitation" });
-    await verifier.getByRole("button", { name: "J’ai compris, commencer" }).click();
-    await expect(verifier.getByText("الحمد رب العالمين")).toBeVisible();
+    await verifier.getByRole("button", { name: "Commencer la récitation" }).click();
+    await expect(verifier.getByText(/^0:0\d \/ 0:30$/)).toBeVisible();
+    await page.waitForTimeout(1500); // micro simulé de Chrome
     await verifier.getByRole("button", { name: "J’ai fini" }).click();
-    await expect(verifier.getByText("3 / 4")).toBeVisible();
-    await expect(verifier.locator(".verifier-mots .verif-oublie")).toHaveCount(1);
+
+    await expect(verifier.getByText("50 %")).toBeVisible({ timeout: 15_000 });
+    // La première faute nette est montrée d'office.
+    await expect(verifier.getByText("la chadda sur ب n’a pas été prononcée")).toBeVisible();
+    await verifier.getByRole("button", { name: /ٱلْعَٰلَمِينَ/ }).click();
+    await expect(verifier.getByText(/madd ʿarid \(à l’arrêt\) trop long/)).toBeVisible();
+    await expect(verifier.getByRole("button", { name: "Réécouter ma récitation" })).toBeVisible();
     await capture(page, "45-verifier-recitation");
   });
 });
