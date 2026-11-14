@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 import Script from "next/script";
+import { Suspense } from "react";
 import { BandeauNotification } from "@/components/BandeauNotification";
+import { BarreNavigation } from "@/components/BarreNavigation";
 import { EtatReseau } from "@/components/EtatReseau";
 import { MiseAJourAuto } from "@/components/MiseAJourAuto";
 import { OuvertureAppli } from "@/components/OuvertureAppli";
@@ -135,6 +137,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       suppressHydrationWarning
     >
       <body>
+        <Suspense fallback={null}>
+          <BarreNavigation />
+        </Suspense>
         <OuvertureAppli />
         {children}
         <BandeauNotification />

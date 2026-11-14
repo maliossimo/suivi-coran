@@ -5,7 +5,7 @@ import { LogoEtoile } from "./logo/LogoEtoile";
  * même barre du haut et silhouettes des cartes, pour que la navigation
  * paraisse immédiate même quand la base met un peu de temps à répondre.
  */
-export function Chargement({ titre }: { titre: string }) {
+export function Chargement({ titre, coran = false }: { titre: string; coran?: boolean }) {
   return (
     <>
       <header className="barre">
@@ -23,12 +23,24 @@ export function Chargement({ titre }: { titre: string }) {
       </header>
       <main className="espace" aria-busy="true" aria-live="polite">
         <span className="visuellement-cache">Chargement…</span>
-        <div className="squelette squelette-ligne" />
-        <div className="squelette squelette-onglets" />
-        <div className="squelette-grille">
-          <div className="squelette squelette-carte" />
-          <div className="squelette squelette-carte" />
-        </div>
+        {coran ? (
+          // Lecture du Coran : la barre de la sourate puis des lignes de texte, de droite à gauche.
+          <div className="squelette-coran">
+            <div className="squelette squelette-ligne" />
+            {[92, 100, 84, 97, 76, 100, 88].map((l, i) => (
+              <div key={i} className="squelette squelette-verset" style={{ width: `${l}%` }} />
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="squelette squelette-ligne" />
+            <div className="squelette squelette-onglets" />
+            <div className="squelette-grille">
+              <div className="squelette squelette-carte" />
+              <div className="squelette squelette-carte" />
+            </div>
+          </>
+        )}
       </main>
     </>
   );

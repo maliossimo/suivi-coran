@@ -135,7 +135,9 @@ export default async function PageRapport({
         </header>
 
         {r.classes.length === 0 ? (
-          <p className="carte-graphique-sous">Aucune classe pour l’instant.</p>
+          <p className="carte-graphique-sous">
+            Aucune classe pour l’instant : crée-en une depuis <Link href="/presences">Présences</Link>.
+          </p>
         ) : null}
         {r.classes.map((c) => (
           <TableauClasse key={c.classe.id} c={c} />

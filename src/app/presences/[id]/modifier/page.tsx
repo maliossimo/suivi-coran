@@ -58,7 +58,7 @@ export default async function PageModifierClasse({
               ))}
             </ul>
           ) : (
-            <p className="carte-graphique-sous">Pas encore d’élève.</p>
+            <p className="carte-graphique-sous">Pas encore d’élève : ajoute-les ci-dessous.</p>
           )}
           <AjoutMembre
             classeId={classe.id}

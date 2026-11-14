@@ -725,6 +725,12 @@ export function LectureCoran({
           adresseVerset={(n) => adresseVerset(blocReciter.sourate, n)}
           onAvantEcoute={() => audio.current?.pause()}
           onFermer={() => setReciter(null)}
+          taille={TAILLES[reglages.taille] ?? 30}
+          peutAgrandir={reglages.taille < TAILLES.length - 1}
+          peutReduire={reglages.taille > 0}
+          onTaille={(pas) =>
+            modifier({ taille: Math.min(TAILLES.length - 1, Math.max(0, reglages.taille + pas)) })
+          }
         />
       ) : null}
 

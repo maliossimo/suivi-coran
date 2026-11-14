@@ -9,6 +9,16 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.27.0] — 2026-11-14
+
+### Amélioré
+
+- Sur iPhone, le geste retour ferme la feuille ou le mode Réciter ouverts au lieu de quitter la page (Android le faisait déjà).
+- Une fine barre apparaît en haut de l'écran dès qu'on touche un lien : on voit tout de suite que la page suivante arrive.
+- Lecture du Coran : pendant le chargement, des lignes de texte s'affichent à la place du gros bloc vide.
+- Mode Réciter : la taille du texte arabe est la même que dans la lecture du Coran, et se règle sur place (A− / A+).
+- Présences : les écrans vides disent quoi faire (créer la première classe, ajouter des élèves) avec le bouton qui va avec.
+
 ## [1.26.0] — 2026-11-14
 
 ### Amélioré
