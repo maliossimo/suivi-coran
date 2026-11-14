@@ -248,5 +248,11 @@ test.describe("Vérifier ma récitation", () => {
     await capture(page, "45-reciter-resultat");
     await reciter.getByRole("button", { name: "L’appli s’est trompée" }).click();
     await expect(reciter.getByText(/Merci, c’est noté/)).toBeVisible();
+    // Signalé par l'admin : la remarque disparaît et devient une correction apprise.
+    await expect(reciter.getByText(/Madd ʿarid \(à l’arrêt\) trop long/)).toHaveCount(0);
+    await page.waitForLoadState("networkidle");
+    await page.goto("/admin/journal");
+    await expect(page.getByText("Corrections apprises (1)")).toBeVisible();
+    await expect(page.getByText(/Madd ʿarid/).first()).toBeVisible();
   });
 });
