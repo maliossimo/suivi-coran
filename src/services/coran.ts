@@ -184,3 +184,16 @@ export async function versetPourHorsLigne(
     },
   });
 }
+
+/** La sourate suivante, pour la lecture en continu (sans changer de page). */
+export async function chargerSourateSuivante(
+  acteur: Profil,
+  lecture: unknown,
+  sourate: unknown,
+): Promise<BlocCoran | null> {
+  const n = z.coerce.number().int().min(1).max(113).safeParse(sourate);
+  const l = z.enum(["hafs", "warsh"]).safeParse(lecture);
+  if (!n.success || !l.success || !peutOuvrirCoran(acteur)) return null;
+  const page = await chargerPageCoran(acteur, { lecture: l.data, sourate: String(n.data + 1) });
+  return page.blocs[0] ?? null;
+}

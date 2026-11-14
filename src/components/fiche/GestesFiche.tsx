@@ -191,6 +191,11 @@ export function GestesFiche({
               ? { minHeight: sortie.hauteur }
               : undefined
         }
+        // Ouvrir ou replier une semaine : petite vibration, comme un vrai bouton.
+        onClick={(e) => {
+          if ((e.target as Element).closest?.(".semaine-pliable > summary") && retoursActives())
+            navigator.vibrate?.(8);
+        }}
         onAnimationEnd={(e) => {
           if (e.target === e.currentTarget && sortie && sortie.cle !== cleFiche) setSortie(null);
         }}

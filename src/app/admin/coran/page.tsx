@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { LectureCoran } from "@/components/coran/LectureCoran";
+import { SuiteCoran } from "@/components/coran/SuiteCoran";
 import { NavigationCoran } from "@/components/coran/NavigationCoran";
 import { chiffresArabes } from "@/domain/coran";
 import { LIBELLE_LECTURE } from "@/domain/lectures";
@@ -92,6 +93,8 @@ export default async function PageCoran({
             ) : null
           }
         />
+
+        {p.vue === "sourate" && !p.passage ? <SuiteCoran lecture={p.lecture} sourate={bloc.sourate} /> : null}
 
         <p className="coran-source">
           Texte : Complexe du Roi Fahd (KFGQPC). Tajwid : texte Tanzil.net, règles cpfair/quran-tajweed (CC BY

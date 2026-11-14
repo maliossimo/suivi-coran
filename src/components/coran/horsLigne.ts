@@ -207,3 +207,27 @@ export function useHorsLigne({
 export function taille(octets: number): string {
   return `${(octets / 1024 / 1024).toFixed(1).replace(".", ",")} Mo`;
 }
+
+/**
+ * Chaque sourate ouverte (et la suivante) reste lisible sans réseau : elle est gardée par le service
+ * worker, en arrière-plan, une fois par jour au plus. Les pages ouvertes par un lien interne ne passent
+ * pas par une « vraie » navigation : sans cela, elles ne seraient pas gardées.
+ */
+export function garderSourateOuverte(lecture: string, sourate: number): void {
+  if (!horsLignePossible() || !navigator.onLine) return;
+  const jour = new Date().toISOString().slice(0, 10);
+  for (const n of [sourate, sourate + 1]) {
+    if (n < 1 || n > 114) continue;
+    const cle = `coran-garde-${lecture}-${n}`;
+    try {
+      if (localStorage.getItem(cle) === jour) continue;
+      localStorage.setItem(cle, jour);
+    } catch {
+      continue; // sans stockage, pas de garde automatique (évite de retélécharger sans cesse)
+    }
+    void fetch(`/admin/coran?lecture=${lecture}&sourate=${n}`, {
+      headers: { "X-Suivi-Hors-Ligne": "1" },
+      credentials: "same-origin",
+    }).catch(() => undefined);
+  }
+}

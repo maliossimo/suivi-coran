@@ -8741,3 +8741,112 @@ html[data-ouverture] .ouverture {
     72px 72px,
     auto;
 }
+
+/* Fiche : l'en-tête d'une semaine réagit comme un vrai bouton */
+.semaine-pliable > summary {
+  min-height: 48px;
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.15s,
+    transform 0.12s;
+  touch-action: manipulation;
+}
+.semaine-pliable > summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  margin-left: 10px;
+  border-radius: 999px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d5c47' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E")
+      center / 18px no-repeat,
+    var(--vert-clair);
+  transition: transform 0.2s ease;
+}
+.semaine-pliable[open] > summary::after {
+  transform: rotate(90deg);
+}
+.semaine-pliable > summary:hover {
+  background: color-mix(in srgb, var(--vert-clair) 55%, transparent);
+}
+.semaine-pliable > summary:active {
+  background: var(--vert-clair);
+  transform: scale(0.98);
+}
+.semaine-pliable > summary:focus-visible {
+  outline: 3px solid var(--or);
+  outline-offset: 2px;
+}
+.semaine-pliable[open] > summary h3 {
+  color: var(--vert-texte);
+}
+.semaine-pliable[open] > summary ~ * {
+  animation: apparition 0.22s ease-out;
+}
+@media (prefers-color-scheme: dark) {
+  .semaine-pliable > summary::after {
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236cc3a0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E")
+        center / 18px no-repeat,
+      var(--vert-clair);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .semaine-pliable > summary,
+  .semaine-pliable > summary::after,
+  .semaine-pliable[open] > summary ~ * {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Admin : l'état du site tient en une ligne quand tout va bien */
+.etat-site-resume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+}
+.etat-site-resume::-webkit-details-marker {
+  display: none;
+}
+.etat-site-resume::after {
+  content: "›";
+  margin-left: auto;
+  color: var(--texte-doux);
+  font-size: 20px;
+  transition: transform 0.15s;
+}
+.etat-site-repliable[open] > .etat-site-resume::after {
+  transform: rotate(90deg);
+}
+.etat-site-voyant {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #3aa57a;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #3aa57a 22%, transparent);
+}
+.etat-site-voyant.alerte {
+  background: var(--or);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--or) 22%, transparent);
+}
+
+/* Coran : lecture en continu, la sourate suivante s'ajoute dessous */
+.coran-suite-bloc {
+  margin-top: 28px;
+  animation: apparition 0.3s ease-out;
+}
+.coran-suite-pied {
+  display: grid;
+  place-items: center;
+  min-height: 56px;
+  margin: 16px 0;
+}

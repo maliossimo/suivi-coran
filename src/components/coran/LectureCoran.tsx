@@ -49,7 +49,7 @@ import { useAppuiLong } from "./appuiLong";
 import { useMarquePages } from "./marquePages";
 import { retourSensoriel } from "@/components/retourSensoriel";
 import { useExplication } from "./explications";
-import { adresseAudio, adresseMots, useHorsLigne } from "./horsLigne";
+import { adresseAudio, adresseMots, garderSourateOuverte, useHorsLigne } from "./horsLigne";
 import { MemoriserCoran } from "./MemoriserCoran";
 import { ModeReciter } from "./ModeReciter";
 import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
@@ -176,6 +176,13 @@ export function LectureCoran({
     recitations[0] ??
     null;
   const sourateUnique = vue === "sourate" ? blocs[0] : undefined;
+  // La sourate ouverte et la suivante restent lisibles sans réseau.
+  const numeroSourate = sourateUnique?.sourate;
+  useEffect(() => {
+    if (!numeroSourate) return;
+    const t = setTimeout(() => garderSourateOuverte(lecture, numeroSourate), 3000);
+    return () => clearTimeout(t);
+  }, [lecture, numeroSourate]);
   const avecTajwid = lecture === "hafs" && reglages.tajwid;
   const motsActifs = Boolean(recitation?.mots && reglages.motParMot);
 
@@ -777,7 +784,7 @@ export function LectureCoran({
         onEcouter={(cle) =>
           ecouter(dansLePassage(cle) ? passage : null, dansLePassage(cle) ? repetition : UNE_FOIS, cle)
         }
-        onRepeter={(cle) => ecouter({ du: numero(cle), au: numero(cle) }, { verset: 1, passage: 0 })}
+        onRepeter={(cle, fois) => ecouter({ du: numero(cle), au: numero(cle) }, { verset: 1, passage: fois })}
         onMemoriser={(cle) =>
           ouvrirMemoriser({
             du: numero(cle),
