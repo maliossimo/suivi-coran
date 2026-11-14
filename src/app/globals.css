@@ -7829,3 +7829,20 @@ html.defilement-bloque {
 .verifier-legende .verif-different {
   padding: 0 4px;
 }
+
+/* Doigts : les commandes touchées souvent font au moins 44 px de haut (recommandation d'accessibilité). */
+@media (pointer: coarse) {
+  .choix-statut button,
+  .ecoute-choix button,
+  .ecoute-cheikh-tout button,
+  .bandeau-annulation button,
+  .bouton-valider,
+  .duree-rapide,
+  .lien-retour,
+  .lien-pdf,
+  .archives summary,
+  .classes-etablissement > .lien-discret,
+  .bouton-lien-texte {
+    min-height: 44px;
+  }
+}

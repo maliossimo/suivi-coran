@@ -21,6 +21,7 @@ Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z
 - Base : index pour les lectures fréquentes (statistiques d'une période, journal filtré par personne, suppression d'un Cheikh).
 - Code : formats de date et noms des rôles regroupés en un seul endroit, avertissements corrigés.
 - Administration : l'onglet « Classes » devient « Élèves » (tous les élèves d'une mosquée), pour ne plus confondre classe et établissement.
+- Téléphone : les boutons touchés souvent (appel, écoute du Cheikh, durées, retour, annuler) font au moins 44 px de haut.
 - Tests : création d'une classe depuis l'administration, vérification de la récitation, mesure de la navigation entre onglets corrigée.
 
 ## [1.19.0] — 2026-11-14
