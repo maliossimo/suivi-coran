@@ -20,11 +20,10 @@ from _tajwid.moteur import Reglages, analyser_passage  # noqa: E402
 
 # (nom, réglages, son envoyé en μ-law 8 bits)
 CONFIGS = [
-    ("actuel (double écoute, 0,3 / 0,7)", Reglages(madd_tenu=None, madd_trop_long=None), False),
-    ("actuel, 2e passage (stabilité)", Reglages(madd_tenu=None, madd_trop_long=None), False),
-    ("madd tenu ≥ 1,25", Reglages(madd_tenu=1.25, madd_trop_long=None), False),
+    ("1.24 (double écoute, 0,3 / 0,7)", Reglages(madd_tenu=None, madd_trop_long=None), False),
     ("madd tenu ≥ 1,25, trop long ≥ 3,2", Reglages(madd_tenu=1.25, madd_trop_long=3.2), False),
-    ("madd tenu ≥ 1,3, trop long ≥ 3,0", Reglages(madd_tenu=1.3, madd_trop_long=3.0), False),
+    ("madd tenu ≥ 1,25, trop long ≥ 3,5", Reglages(madd_tenu=1.25, madd_trop_long=3.5), False),
+    ("madd tenu ≥ 1,25, trop long ≥ 3,8", Reglages(madd_tenu=1.25, madd_trop_long=3.8), False),
 ]
 
 # Madd naturels annotés : (mot, rang du madd dans le mot, colonne de l'annotation en temps)
