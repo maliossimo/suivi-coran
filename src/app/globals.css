@@ -8504,3 +8504,41 @@ button.reciter-mot {
   height: 26px;
   border-radius: 8px;
 }
+
+/* Réciter : couleurs du tajwid sur les lettres ; les fautes sont alors encadrées, pas recolorées */
+.reciter-texte.avec-couleurs {
+  font-family: "KFGQPC Hafs", var(--font-arabe), serif;
+}
+.reciter-texte.avec-couleurs .reciter-mot.juste,
+.reciter-texte.avec-couleurs .reciter-mot.entendu,
+.reciter-texte.avec-couleurs .reciter-mot.a_revoir,
+.reciter-texte.avec-couleurs .reciter-mot.erreur {
+  color: var(--texte);
+}
+.reciter-texte.avec-couleurs .reciter-mot.a_revoir {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--or);
+}
+.reciter-texte.avec-couleurs .reciter-mot.erreur {
+  background: transparent;
+  box-shadow: inset 0 0 0 2.5px var(--rouge);
+}
+.reciter-texte.avec-couleurs .reciter-mot.entendu {
+  text-decoration-color: color-mix(in srgb, var(--vert) 70%, transparent);
+}
+.reciter-texte.avec-couleurs .reciter-mot.choisi {
+  outline-color: var(--texte);
+}
+.reciter-couleurs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-end: auto;
+  padding: 0 12px;
+}
+.reciter-couleurs[aria-pressed="false"] {
+  color: var(--texte-doux);
+}
+.reciter-legende {
+  margin-top: 12px;
+}

@@ -341,3 +341,10 @@ export function volumeMinuterie(resteMs: number, fondu = 10_000): number {
   if (resteMs >= fondu) return 1;
   return Math.max(0, resteMs / fondu);
 }
+
+/** Les mots colorés d'un verset (sans espaces ni signes isolés), dans l'ordre : un par mot récité. */
+export function motsTajwid(segments: readonly SegmentTajwid[]): SegmentTajwid[][] {
+  return decouperMotsTajwid(segments)
+    .filter((m) => m.mot !== null)
+    .map((m) => m.segments);
+}

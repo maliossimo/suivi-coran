@@ -5,6 +5,7 @@ import {
   chiffresArabes,
   decouperMots,
   decouperMotsTajwid,
+  motsTajwid,
   etapeSuivante,
   familleTajwid,
   motA,
@@ -125,6 +126,14 @@ describe("mot par mot", () => {
     expect(m.filter((x) => x.mot)).toEqual([
       { segments: ["بِسْمِ"], mot: 1 },
       { segments: [["h", "ٱ"], "للَّهِ"], mot: 2 },
+    ]);
+  });
+
+  it("donne les mots colorés d'un verset, un par mot", () => {
+    expect(motsTajwid(["بِسْمِ ", ["h", "ٱ"], "للَّهِ ", ["o", "مَٰ"], "لِكِ"])).toEqual([
+      ["بِسْمِ"],
+      [["h", "ٱ"], "للَّهِ"],
+      [["o", "مَٰ"], "لِكِ"],
     ]);
   });
 
