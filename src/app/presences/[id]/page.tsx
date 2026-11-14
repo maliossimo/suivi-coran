@@ -136,9 +136,21 @@ export default async function PageClasse({
             <BoutonPartager titre={`Présences ${c.classe.nom}`} texte={texte} />
           </div>
           {c.lignes.length === 0 ? (
-            <p className="carte-graphique-sous">Aucun élève dans cette classe.</p>
+            <div className="vide-action">
+              <p className="carte-graphique-sous">Aucun élève dans cette classe pour l’instant.</p>
+              {reglages ? (
+                <Link
+                  href={avecVue(`/presences/${c.classe.id}/modifier`, apercu)}
+                  className="bouton bouton-lien"
+                >
+                  <UserPlus size={16} aria-hidden="true" /> Ajouter des élèves
+                </Link>
+              ) : null}
+            </div>
           ) : c.dates.length === 0 ? (
-            <p className="carte-graphique-sous">Pas encore de cours ce mois-ci.</p>
+            <p className="carte-graphique-sous">
+              Pas encore de cours ce mois-ci : le tableau se remplit à chaque appel.
+            </p>
           ) : (
             <div className="tableau-defilant">
               <table className="tableau tableau-presences">

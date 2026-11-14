@@ -1,6 +1,7 @@
 import { CalendarCheck, FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
+import { EtatVide } from "@/components/EtatVide";
 import { ChoixVue } from "@/components/presences/ChoixVue";
 import { EnvoiAppels } from "@/components/presences/EnvoiAppels";
 import { PreparerHorsLigne } from "@/components/fiche/PreparerHorsLigne";
@@ -37,14 +38,18 @@ export default async function PagePresences({ searchParams }: { searchParams: Pr
         {profil.role === "admin" ? <ChoixVue chemin="/presences" apercu={apercu} /> : null}
 
         {p.classes.length === 0 ? (
-          <section className="carte-graphique">
-            <h2>Aucune classe</h2>
-            <p className="carte-graphique-sous">
+          <EtatVide titre="Aucune classe pour l’instant">
+            <p>
               {peut.organiser
                 ? "Crée une classe (par exemple « Coran » le lundi, mardi et jeudi, « Fiqh » le samedi et dimanche), choisis son Cheikh, puis ajoute ses élèves."
                 : "Le responsable de la mosquée crée les classes et t’y désigne comme Cheikh."}
             </p>
-          </section>
+            {peut.organiser ? (
+              <Link href={avecVue("/presences/nouvelle", apercu)} className="bouton bouton-lien">
+                <Plus size={16} aria-hidden="true" /> Créer la première classe
+              </Link>
+            ) : null}
+          </EtatVide>
         ) : (
           <ul className="liste-classes">
             {p.classes.map((c) => (
@@ -85,7 +90,7 @@ export default async function PagePresences({ searchParams }: { searchParams: Pr
           </ul>
         )}
 
-        {peut.organiser ? (
+        {peut.organiser && p.classes.length > 0 ? (
           <Link href={avecVue("/presences/nouvelle", apercu)} className="bouton-secondaire bouton-lien">
             <Plus size={16} aria-hidden="true" /> Nouvelle classe
           </Link>
