@@ -2,7 +2,7 @@
 
 import { RefreshCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { nouvelleVersion, rechargementSansGene } from "@/domain/miseAJour";
+import { nouvelleVersion } from "@/domain/miseAJour";
 import { COMMIT } from "@/lib/version";
 
 /** Vérification régulière, en plus du retour sur l'appli et du retour du réseau. */
@@ -21,17 +21,18 @@ async function versionEnLigne(): Promise<string | null> {
 }
 
 /**
- * Met l'appli à jour toute seule après une mise en ligne, sans qu'on ait à la fermer :
- * - en revenant sur l'appli (elle était en arrière-plan) : rechargement immédiat ;
- * - en touchant un lien : la page suivante s'ouvre directement dans la nouvelle version ;
- * - appli ouverte sans être touchée depuis 20 s, sans saisie, son ni feuille ouverte.
- * Les saisies en cours sont gardées en brouillon par ailleurs ; rien n'est perdu.
+ * Met l'appli à jour toute seule après une mise en ligne, sans jamais couper ce qu'on fait :
+ * la nouvelle version est préparée en arrière-plan (service worker), puis appliquée
+ * - à la prochaine ouverture : retour sur l'appli après au moins une minute ailleurs ;
+ * - ou en touchant un lien : la page suivante s'ouvre directement dans la nouvelle version.
+ * Jamais pendant qu'on lit, récite ou saisit. Les saisies en cours sont de toute façon gardées en brouillon.
  */
 export function MiseAJourAuto() {
   /** Numéro de la version en ligne, quand elle diffère de celle de l'appli ouverte. */
   const [enAttente, setEnAttente] = useState<string | null>(null);
   const [recharge, setRecharge] = useState(false);
-  const dernierGeste = useRef(Date.now());
+  /** Depuis quand l'appli est en arrière-plan (null : au premier plan). */
+  const cacheeDepuis = useRef<number | null>(null);
 
   // Recherche d'une nouvelle version.
   useEffect(() => {
@@ -77,27 +78,17 @@ export function MiseAJourAuto() {
       setTimeout(() => window.location.reload(), 600);
     };
 
-    const geste = () => {
-      dernierGeste.current = Date.now();
-    };
-    const etat = () => {
-      const actif = document.activeElement;
-      return {
-        visible: document.visibilityState === "visible",
-        feuilleOuverte: Boolean(document.querySelector("dialog[open]")),
-        sonEnCours: [...document.querySelectorAll("audio")].some((a) => !a.paused),
-        saisieEnCours:
-          actif instanceof HTMLInputElement ||
-          actif instanceof HTMLTextAreaElement ||
-          actif instanceof HTMLSelectElement ||
-          (actif instanceof HTMLElement && actif.isContentEditable),
-        inactifDepuis: Date.now() - dernierGeste.current,
-      };
-    };
+    const sonEnCours = () => [...document.querySelectorAll("audio")].some((a) => !a.paused);
 
-    // 1. Retour sur l'appli : rien n'est en cours, on recharge tout de suite.
+    // 1. Prochaine ouverture : l'appli revient au premier plan après au moins une minute ailleurs.
     const auRetour = () => {
-      if (document.visibilityState === "visible" && !etat().sonEnCours) recharger();
+      if (document.visibilityState === "hidden") {
+        cacheeDepuis.current = Date.now();
+        return;
+      }
+      const absence = cacheeDepuis.current ? Date.now() - cacheeDepuis.current : 0;
+      cacheeDepuis.current = null;
+      if (absence >= 60_000 && !sonEnCours()) recharger();
     };
     // 2. Un lien interne touché : on l'ouvre en vrai chargement, donc dans la nouvelle version.
     const surLien = (e: MouseEvent) => {
@@ -105,7 +96,7 @@ export function MiseAJourAuto() {
       if (!(lien instanceof HTMLAnchorElement) || lien.target || e.defaultPrevented) return;
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const url = new URL(lien.href, window.location.href);
-      if (url.origin !== window.location.origin || etat().sonEnCours) return;
+      if (url.origin !== window.location.origin || sonEnCours()) return;
       e.preventDefault();
       e.stopPropagation();
       try {
@@ -116,19 +107,9 @@ export function MiseAJourAuto() {
       setRecharge(true);
       window.location.assign(url.href);
     };
-    // 3. Appli ouverte mais au repos.
-    const auRepos = setInterval(() => {
-      if (rechargementSansGene(etat())) recharger();
-    }, 5_000);
-
-    for (const t of ["pointerdown", "keydown", "scroll"] as const)
-      window.addEventListener(t, geste, { passive: true, capture: true });
     document.addEventListener("visibilitychange", auRetour);
     document.addEventListener("click", surLien, true);
     return () => {
-      clearInterval(auRepos);
-      for (const t of ["pointerdown", "keydown", "scroll"] as const)
-        window.removeEventListener(t, geste, { capture: true });
       document.removeEventListener("visibilitychange", auRetour);
       document.removeEventListener("click", surLien, true);
     };

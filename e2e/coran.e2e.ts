@@ -31,16 +31,16 @@ test.describe("Coran (admin)", () => {
 
   test("appui long sur un verset : son explication directement", async ({ page }) => {
     await page.goto("/admin/coran?lecture=hafs&sourate=18");
-    // L'appli doit être prête (scripts chargés) avant le geste.
+    // L'appli doit être prête (texte du Coran interactif) avant le geste.
     await page.waitForLoadState("networkidle");
+    await expect(page.locator(".coran-page[data-pret]")).toBeVisible();
     const verset = page.locator('.coran-verset[data-cle="18:10"]');
     await verset.scrollIntoViewIfNeeded();
     // Au milieu d'un mot du verset (un verset peut s'étaler sur plusieurs lignes).
     await appuiLong(page, verset.locator(".mot").nth(1));
-
     const feuille = page.getByRole("dialog", { name: "Verset 10" });
     await expect(feuille).toBeVisible();
-    // Le doigt relevé sur le voile ne referme pas la feuille.
+    // Le doigt relevé (sur le voile ou sur un bouton de la feuille) ne la referme pas.
     await page.waitForTimeout(300);
     await expect(feuille).toBeVisible();
     // Explication chargée (ou message clair si la source est injoignable).

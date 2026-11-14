@@ -5,6 +5,7 @@ import {
   avisSon,
   contientParole,
   estimerBruit,
+  DUREE_TRAME_S,
   pointDeCoupe,
   seuilVoix,
   type AvisSon,
@@ -44,9 +45,12 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
   const emettre = useCallback((trames: Trame[], echantillons: Int16Array[]) => {
     const bruit = estimerBruit(etat.current.toutes);
     if (!contientParole(trames, bruit)) return;
-    // On retire le silence du début (on en garde une trame).
+    // On retire le silence du début, en gardant environ 0,5 s avant la voix (une trame suffisait
+    // rarement) : le début d'un mot prononcé doucement (hamza, « و », « ف », « ه ») reste sous le
+    // seuil ; coupé, le moteur risque de ne pas entendre le mot et de le compter « non entendu ».
     const seuil = seuilVoix(bruit);
-    const premier = Math.max(0, trames.findIndex((t) => t.rms >= seuil) - 1);
+    const avant = Math.ceil(0.3 / DUREE_TRAME_S);
+    const premier = Math.max(0, trames.findIndex((t) => t.rms >= seuil) - avant);
     const morceau = echantillons.slice(premier);
     const pcm = new Int16Array(morceau.reduce((n, e) => n + e.length, 0));
     let o = 0;

@@ -824,6 +824,52 @@ select pg_temp.doit_echouer(
   'signalements tajwid : 30 par jour au plus');
 select pg_temp.console();
 
+-- ---------- Essais du mode Réciter, sécurité, vitesse -------------------
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+insert into public.essais_recitation (sourate, du, au, score, fautes)
+  values (1, 1, 7, 80, '[{"verset": 2, "mot": "ٱلْحَمْدُ", "regle": "ghunnah"}]');
+select pg_temp.attendu((select count(*) from public.essais_recitation) = 1,
+  'essais : l''élève lit ses essais');
+select pg_temp.doit_echouer(
+  $q$insert into public.essais_recitation (eleve_id, sourate, du, au, score)
+     values ('a0000000-0000-0000-0000-000000000002', 1, 1, 1, 50)$q$,
+  'essais : pas au nom d''un autre élève');
+select pg_temp.doit_echouer(
+  $q$insert into public.essais_recitation (sourate, du, au, score) values (1, 5, 2, 50)$q$,
+  'essais : passage cohérent');
+select pg_temp.attendu(public.noter_appareil('appareil-eleve-1', 'Android · Chrome') = false,
+  'sécurité : le tout premier appareil n''est pas un événement');
+select pg_temp.attendu(public.noter_appareil('appareil-eleve-2', 'iPhone · Safari') = true,
+  'sécurité : un second appareil est signalé');
+select pg_temp.attendu((select count(*) from public.evenements_securite) = 0,
+  'sécurité : un élève ne lit pas les événements');
+select public.noter_vitesse('/eleve', 'LCP', 1200, true);
+select pg_temp.attendu((select count(*) from public.mesures_vitesse) = 0,
+  'vitesse : un élève ne lit pas les mesures');
+select pg_temp.doit_echouer(
+  $q$insert into public.mesures_vitesse (page, metrique, valeur) values ('/x', 'LCP', 1)$q$,
+  'vitesse : pas d''écriture directe');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
+select pg_temp.attendu((select count(*) from public.essais_recitation) = 0,
+  'essais : un élève ne lit pas ceux d''un autre');
+
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select pg_temp.attendu((select count(*) from public.essais_recitation) = 1,
+  'essais : le Cheikh lit ceux de son élève');
+
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.attendu((select count(*) from public.essais_recitation) = 0,
+  'essais : un Cheikh d''une autre mosquée ne les lit pas');
+
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu(
+  (select count(*) from public.evenements_securite where type = 'nouvel_appareil') = 1
+  and (select count(*) from public.appareils_connus) = 2,
+  'sécurité : l''admin voit le nouvel appareil');
+select pg_temp.attendu((select count(*) from public.mesures_vitesse where metrique = 'LCP') = 1,
+  'vitesse : l''admin lit les mesures');
+
 -- ---------- Suppression définitive d'un élève -------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 select pg_temp.doit_echouer(

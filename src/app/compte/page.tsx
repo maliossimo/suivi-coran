@@ -6,6 +6,7 @@ import { EtiquetteLecture } from "@/components/ChoixLecture";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireMotDePasse } from "@/components/FormulaireMotDePasse";
 import { InstallerAppli } from "@/components/InstallerAppli";
+import { ReglageApparence } from "@/components/ReglageApparence";
 import { ReglageRetours } from "@/components/ReglageRetours";
 import { chargerCompte } from "@/services/acces";
 import { LIBELLE_ROLE_LONG } from "@/domain/roles";
@@ -48,6 +49,12 @@ export default async function PageCompte() {
             </Link>
           </section>
         ) : null}
+
+        <section className="carte-compte-section">
+          <h2>Apparence</h2>
+          <ReglageApparence />
+          <p className="carte-graphique-sous">Réglage propre à ce téléphone.</p>
+        </section>
 
         <section className="carte-compte-section">
           <h2>Sons et vibrations</h2>
