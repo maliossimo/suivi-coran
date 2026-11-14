@@ -70,7 +70,9 @@ jobs:
           cache-dependency-path: requirements.txt
       - name: Installation
         if: steps.changements.outputs.moteur == 'oui'
-        run: pip install -r requirements.txt pytest
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -r requirements.txt pytest
       - name: Tests (dont l'analyse réelle de récitations de référence)
         if: steps.changements.outputs.moteur == 'oui'
         env:
