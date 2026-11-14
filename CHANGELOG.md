@@ -9,6 +9,25 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.30.0] — 2026-11-15
+
+### Nouveautés
+
+- Mode Réciter : « Révéler » cache le texte, et chaque mot apparaît une fois récité. On voit ses essais précédents sur le passage (62 % → 75 % → 88 %) et ses mots difficiles, à reprendre d'un appui. Le récitateur de référence se choisit sur place.
+- Lecture du Coran en continu : en faisant défiler, la sourate suivante s'ajoute dessous. Sur un verset : « Écouter ×3 » et « Écouter ×5 ».
+- Mon compte : thème clair ou sombre au choix, et taille du texte de toute l'appli (normale, grande, très grande).
+- Administration : chaque mosquée montre sa courbe des 8 dernières semaines, sa régularité et ses élèves en baisse.
+- Journal : rubrique Sécurité (connexion depuis un nouvel appareil, mots de passe erronés) et Vitesse réelle (temps d'affichage mesurés sur les téléphones).
+
+### Amélioré
+
+- Fiche : l'en-tête d'une semaine réagit comme un vrai bouton (enfoncement, flèche, petite vibration).
+- Administration : l'état du site tient en une ligne verte quand tout va bien.
+- Chaque sourate ouverte, et la suivante, reste lisible sans réseau.
+- Les mises à jour s'appliquent à la prochaine ouverture de l'appli, jamais pendant qu'on lit ou qu'on récite.
+- Le mode Réciter n'est chargé qu'au premier appui : la page du Coran s'ouvre plus vite.
+- Next.js passe en version 16 ; tests visuels de l'apparence (captures comparées à chaque changement).
+
 ## [1.29.0] — 2026-11-14
 
 ### Nouveautés

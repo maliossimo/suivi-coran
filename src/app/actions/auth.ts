@@ -1,10 +1,12 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { envPublic } from "@/lib/env";
 import { changerMotDePasse, connecter, deconnecter, envoyerLienReinitialisation } from "@/repositories/auth";
 import { destinationApresConnexion } from "@/services/acces";
+import { signalerEchecConnexion } from "@/services/securite";
 import { notifier } from "./notification";
 
 /** Jeton anti-robots (Cloudflare Turnstile) ajouté au formulaire par le composant AntiRobot. */
@@ -33,7 +35,11 @@ export async function actionConnexion(_: EtatFormulaire, form: FormData): Promis
 
   const { ok } = await connecter(saisie.data.email, saisie.data.motDePasse, jetonAntiRobot(form));
   // Message volontairement identique dans tous les cas d'échec.
-  if (!ok) return { erreur: "Adresse e-mail ou mot de passe incorrect." };
+  if (!ok) {
+    // Noté pour l’admin (connexions suspectes).
+    await signalerEchecConnexion(saisie.data.email, (await headers()).get("user-agent") ?? "");
+    return { erreur: "Adresse e-mail ou mot de passe incorrect." };
+  }
 
   redirect(await destinationApresConnexion());
 }

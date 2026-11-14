@@ -45,6 +45,12 @@ export interface EtablissementUsage {
   warsh: number;
   /** Élèves qui n'ont pas encore choisi leur lecture. */
   sansLecture: number;
+  /** Élèves en baisse : moitié moins de séances ces 14 jours que les 14 jours d'avant (au moins 2). */
+  enBaisse: number;
+  /** Part des élèves avec au moins 3 séances ces 14 derniers jours (régularité), en %. */
+  regularite: number;
+  /** Séances par semaine, les 8 dernières (la plus récente en dernier). */
+  semaines: number[];
 }
 
 export interface StatsUsage {
@@ -118,6 +124,31 @@ export function calculerStatsUsage(
       hafs: elevesEtab.filter((u) => u.lecture === "hafs").length,
       warsh: elevesEtab.filter((u) => u.lecture === "warsh").length,
       sansLecture: elevesEtab.filter((u) => !u.lecture).length,
+      enBaisse: elevesEtab.filter((u) => {
+        const recentes = passees.filter(
+          (x) => x.eleveId === u.id && joursEntre(x.date, aujourdhui) < 14,
+        ).length;
+        const avant = passees.filter(
+          (x) =>
+            x.eleveId === u.id && joursEntre(x.date, aujourdhui) >= 14 && joursEntre(x.date, aujourdhui) < 28,
+        ).length;
+        return avant >= 2 && recentes * 2 <= avant;
+      }).length,
+      regularite: elevesEtab.length
+        ? Math.round(
+            (elevesEtab.filter(
+              (u) =>
+                passees.filter((x) => x.eleveId === u.id && joursEntre(x.date, aujourdhui) < 14).length >= 3,
+            ).length /
+              elevesEtab.length) *
+              100,
+          )
+        : 0,
+      semaines: semaines.slice(-8).map((sem) => {
+        const fin = decaler(sem.debut, 6);
+        return passees.filter((x) => x.date >= sem.debut && x.date <= fin && etabDe.get(x.eleveId) === e.id)
+          .length;
+      }),
     };
   });
 

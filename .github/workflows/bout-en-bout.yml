@@ -6,6 +6,11 @@ name: Tests de bout en bout
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      captures:
+        description: "Refaire les captures de référence des tests visuels et les enregistrer sur la branche"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -19,6 +24,9 @@ jobs:
     name: Parcours complets (navigateur)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Écriture seulement pour enregistrer de nouvelles captures de référence (lancement à la main).
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -66,7 +74,18 @@ jobs:
           npm install --no-save --no-audit --no-fund @playwright/test@latest
           google-chrome --version
       - name: Parcours
+        if: ${{ !inputs.captures }}
         run: npx playwright test -c e2e/playwright.config.ts
+      # Tests visuels : chaque écran est comparé à sa capture de référence (e2e/visuel.e2e.ts-snapshots).
+      # Lancé à la main avec « captures », refait ces références et les enregistre sur la branche.
+      - name: Nouvelles captures de référence
+        if: ${{ inputs.captures }}
+        run: |
+          npx playwright test -c e2e/playwright.config.ts e2e/visuel.e2e.ts --update-snapshots=all
+          git config user.name "maliossimo"
+          git config user.email "55502349+maliossimo@users.noreply.github.com"
+          git add e2e/visuel.e2e.ts-snapshots
+          git diff --cached --quiet || { git commit -m "Met à jour les captures de référence des tests visuels"; git push; }
 
       - name: Journal du serveur
         if: failure()

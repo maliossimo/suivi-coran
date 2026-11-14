@@ -2,7 +2,13 @@
 
 import { Check, Eye, EyeOff, Headphones, Mic, Palette, Play, RotateCcw, Square, X } from "lucide-react";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { actionCorrectionsTajwid, actionSignalerTajwid } from "@/app/actions/tajwid";
+import {
+  actionCorrectionsTajwid,
+  actionGarderEssai,
+  actionHistoriquePassage,
+  actionSignalerTajwid,
+} from "@/app/actions/tajwid";
+import { fautesAGarder, type MotDifficile } from "@/domain/essais";
 import { bloquerDefilement } from "@/components/Feuille";
 import { useFermerAuRetour } from "@/components/retour";
 import { retourSensoriel } from "@/components/retourSensoriel";
@@ -35,6 +41,7 @@ export interface VersetReciter {
 
 const CLE_MASQUER = "tajwid-masquer-texte";
 const CLE_COULEURS = "reciter-sans-couleurs";
+const CLE_REVELER = "reciter-reveler";
 
 /** Un mot coloré selon le tajwid (chaque lettre de la couleur de sa règle). */
 function MotColore({ segments }: { segments: readonly SegmentTajwid[] }) {
@@ -88,6 +95,9 @@ export function ModeReciter({
   sourate,
   nomSourate,
   nomArabe,
+  recitateur = null,
+  recitateurs = [],
+  onRecitateur,
   versets,
   depart,
   lecture,
@@ -103,6 +113,10 @@ export function ModeReciter({
   nomSourate: string;
   /** Nom de la sourate en arabe, écrit en calligraphie dans le titre. */
   nomArabe?: string;
+  /** Récitateur de référence (« Récitateur » dans le détail d'un mot), choisi ici ou dans la lecture. */
+  recitateur?: string | null;
+  recitateurs?: { valeur: string; libelle: string }[];
+  onRecitateur?: (id: string) => void;
   /** Versets de la sourate affichée. */
   versets: readonly VersetReciter[];
   depart: number;
@@ -125,6 +139,13 @@ export function ModeReciter({
   const [masquer, setMasquer] = useState(false);
   /** Couleurs du tajwid sur le texte (Hafs) ; l'élève peut les masquer, choix retenu sur l'appareil. */
   const [couleurs, setCouleurs] = useState(true);
+  /** « Révéler en récitant » : chaque mot n'apparaît qu'une fois récité (tester sa mémoire). */
+  const [reveler, setReveler] = useState(false);
+  /** Essais précédents sur ce passage et mots difficiles de la sourate. */
+  const [historique, setHistorique] = useState<{ scores: { score: number }[]; difficiles: MotDifficile[] }>({
+    scores: [],
+    difficiles: [],
+  });
   const [erreur, setErreur] = useState<string | null>(null);
   const [passage, setPassage] = useState<[number, number, string][] | null>(null);
   const [resultats, setResultats] = useState<MotAnalyse[][]>([]);
@@ -168,6 +189,7 @@ export function ModeReciter({
     try {
       setMasquer(localStorage.getItem(CLE_MASQUER) === "1");
       setCouleurs(localStorage.getItem(CLE_COULEURS) !== "1");
+      setReveler(localStorage.getItem(CLE_REVELER) === "1");
     } catch {
       // stockage indisponible : texte affiché
     }
@@ -356,6 +378,21 @@ export function ModeReciter({
   );
   const bilan = useMemo(() => bilanPassage(mots), [mots]);
   const guide = useMemo(() => guiderResultat(mots), [mots]);
+
+  // Avant de réciter : les essais précédents sur ce passage et les mots difficiles.
+  useEffect(() => {
+    if (etape !== "pret") return;
+    let actif = true;
+    const t = setTimeout(() => {
+      void actionHistoriquePassage({ lecture, sourate, du, au })
+        .then((h) => actif && setHistorique(h))
+        .catch(() => undefined);
+    }, 300);
+    return () => {
+      actif = false;
+      clearTimeout(t);
+    };
+  }, [etape, lecture, sourate, du, au]);
   const derniersVersets = useMemo(() => {
     const couverts = new Set<number>();
     for (const m of mots) if (m.etat !== "non_recite") couverts.add(m.verset);
@@ -366,6 +403,25 @@ export function ModeReciter({
     if (etape !== "resultat") return;
     retourSensoriel(bilan.score === 100 ? "succes" : "leger");
     setChoisi(guide.aReprendre[0] ?? guide.aVerifier[0] ?? null);
+    // L'essai est gardé (score et mots fautifs, jamais l'audio) : historique et mots difficiles.
+    const recites = mots.filter((m) => m.etat !== "non_recite");
+    if (recites.length) {
+      void actionGarderEssai({
+        lecture,
+        sourate,
+        du: Math.min(...recites.map((m) => m.verset)),
+        au: Math.max(...recites.map((m) => m.verset)),
+        score: bilan.score,
+        fautes: fautesAGarder(
+          recites.map((m) => ({
+            verset: m.verset,
+            mot: m.mot,
+            etat: m.etat,
+            remarques: m.analyse?.remarques,
+          })),
+        ),
+      }).catch(() => undefined);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- une seule fois, à l'arrivée du résultat
   }, [etape]);
 
@@ -466,6 +522,16 @@ export function ModeReciter({
     }).catch(() => undefined);
   };
 
+  const basculerReveler = () =>
+    setReveler((r) => {
+      try {
+        localStorage.setItem(CLE_REVELER, r ? "0" : "1");
+      } catch {
+        // sans stockage : vaut pour cette fois
+      }
+      return !r;
+    });
+
   const basculerCouleurs = () =>
     setCouleurs((c) => {
       try {
@@ -549,24 +615,42 @@ export function ModeReciter({
       {passage
         ? mots.map((m, i) => (
             <Fragment key={m.indice}>
-              <span className={`reciter-mot ${classeEnDirect(m.analyse?.etat, m.indice < suiviFin)}`}>
+              <span
+                className={`reciter-mot ${classeEnDirect(m.analyse?.etat, m.indice < suiviFin)}${
+                  reveler && !m.analyse && m.indice >= suiviFin ? " cache" : ""
+                }`}
+              >
                 {motAffiche(m)}{" "}
               </span>
               {mots[i + 1]?.verset !== m.verset ? <NumeroVerset n={m.verset} /> : null}
             </Fragment>
           ))
-        : versetsChoisis.map((v) => (
-            <span key={v.n}>
-              {colorer && motsColores.get(v.n)
-                ? motsColores.get(v.n)!.map((segments, j) => (
+        : reveler
+          ? versetsChoisis.map((v, iv) => (
+              <span key={v.n}>
+                {v.texte
+                  .split(/\s+/)
+                  .filter(Boolean)
+                  .map((w, j) => (
                     <Fragment key={j}>
-                      <MotColore segments={segments} />{" "}
+                      <span className={`reciter-mot${iv === 0 && j === 0 ? "" : " cache"}`}>{w}</span>{" "}
                     </Fragment>
-                  ))
-                : `${v.texte} `}
-              <NumeroVerset n={v.n} />
-            </span>
-          ))}
+                  ))}
+                <NumeroVerset n={v.n} />
+              </span>
+            ))
+          : versetsChoisis.map((v) => (
+              <span key={v.n}>
+                {colorer && motsColores.get(v.n)
+                  ? motsColores.get(v.n)!.map((segments, j) => (
+                      <Fragment key={j}>
+                        <MotColore segments={segments} />{" "}
+                      </Fragment>
+                    ))
+                  : `${v.texte} `}
+                <NumeroVerset n={v.n} />
+              </span>
+            ))}
     </p>
   );
 
@@ -629,6 +713,46 @@ export function ModeReciter({
             onChange={(v) => setAu(Math.max(du, Number(v)))}
             options={optionsVersets.filter((o) => Number(o.valeur) >= du)}
           />
+          {onRecitateur && recitateurs.length > 1 ? (
+            <Selecteur
+              titre="Récitateur de référence"
+              compact
+              valeur={recitateur ?? ""}
+              onChange={onRecitateur}
+              options={recitateurs}
+            />
+          ) : null}
+        </div>
+      ) : null}
+      {etape === "pret" && (historique.scores.length > 0 || historique.difficiles.length > 0) ? (
+        <div className="reciter-historique">
+          {historique.scores.length ? (
+            <p>
+              Tes essais ici : <b>{historique.scores.map((e) => `${e.score} %`).join(" → ")}</b>
+            </p>
+          ) : null}
+          {historique.difficiles.length ? (
+            <div className="reciter-difficiles">
+              <span>Mots difficiles :</span>
+              {historique.difficiles.map((m) => (
+                <button
+                  key={`${m.verset}|${m.mot}`}
+                  type="button"
+                  className="reciter-difficile"
+                  aria-label={`${m.mot}, verset ${m.verset}, raté ${m.fois} fois : reprendre ce verset`}
+                  onClick={() => {
+                    setDu(m.verset);
+                    setAu(m.verset);
+                  }}
+                >
+                  <span lang="ar" dir="rtl">
+                    {m.mot}
+                  </span>
+                  <small>v. {m.verset}</small>
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -664,6 +788,17 @@ export function ModeReciter({
         (etape === "pret" || etape === "resultat") &&
         !(masquer && etape === "pret") ? (
           <div className="reciter-taille" role="group" aria-label="Affichage du texte">
+            {etape === "pret" ? (
+              <button
+                type="button"
+                className="reciter-couleurs"
+                aria-pressed={reveler}
+                onClick={basculerReveler}
+                aria-label={reveler ? "Montrer tout le texte" : "Révéler les mots en récitant"}
+              >
+                <Eye size={16} aria-hidden="true" /> {reveler ? "Révéler : oui" : "Révéler"}
+              </button>
+            ) : null}
             {tajwidDispo ? (
               <button
                 type="button"

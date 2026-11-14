@@ -47,7 +47,8 @@ export function ActionsVerset({
   /** Ouvre le mode « Réciter » à partir de ce verset (vérification du tajwid). */
   onReciter: ((cle: string) => void) | null;
   onEcouter: (cle: string) => void;
-  onRepeter: (cle: string) => void;
+  /** Écouter ce verset `fois` fois (0 : en boucle, sans fin). */
+  onRepeter: (cle: string, fois: number) => void;
   onMemoriser: (cle: string) => void;
   onMarque: (cle: string) => void;
   onReglages: () => void;
@@ -67,7 +68,15 @@ export function ActionsVerset({
             ) : null}
             {suivi && memorisation && verset ? (
               <>
-                <button type="button" onClick={() => onRepeter(cle)}>
+                <button type="button" onClick={() => onRepeter(cle, 3)}>
+                  <Repeat1 size={20} aria-hidden="true" />
+                  <span>Écouter ×3</span>
+                </button>
+                <button type="button" onClick={() => onRepeter(cle, 5)}>
+                  <Repeat1 size={20} aria-hidden="true" />
+                  <span>Écouter ×5</span>
+                </button>
+                <button type="button" onClick={() => onRepeter(cle, 0)}>
                   <Repeat1 size={20} aria-hidden="true" />
                   <span>En boucle</span>
                 </button>

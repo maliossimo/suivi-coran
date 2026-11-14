@@ -5,6 +5,7 @@ import Script from "next/script";
 import { Suspense } from "react";
 import { BandeauNotification } from "@/components/BandeauNotification";
 import { BarreNavigation } from "@/components/BarreNavigation";
+import { MesureVitesse } from "@/components/MesureVitesse";
 import { EtatReseau } from "@/components/EtatReseau";
 import { MiseAJourAuto } from "@/components/MiseAJourAuto";
 import { OuvertureAppli } from "@/components/OuvertureAppli";
@@ -140,6 +141,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Suspense fallback={null}>
           <BarreNavigation />
         </Suspense>
+        <MesureVitesse />
         <OuvertureAppli />
         {children}
         <BandeauNotification />
@@ -151,7 +153,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Script id="installation-appli" strategy="beforeInteractive" nonce={nonce}>
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__invitationInstallation=e;window.dispatchEvent(new Event("installation-disponible"));});
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}
-try{var appli=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var calme=matchMedia("(prefers-reduced-motion: reduce)").matches;if(appli&&!calme&&!sessionStorage.getItem("ouverture")){sessionStorage.setItem("ouverture","1");var h=document.documentElement;h.setAttribute("data-ouverture","");var fin=function(){h.removeAttribute("data-ouverture");};setTimeout(fin,1350);addEventListener("pointerdown",fin,{once:true});}}catch(e){}`}
+try{var appli=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var calme=matchMedia("(prefers-reduced-motion: reduce)").matches;if(appli&&!calme&&!sessionStorage.getItem("ouverture")){sessionStorage.setItem("ouverture","1");var h=document.documentElement;h.setAttribute("data-ouverture","");var fin=function(){h.removeAttribute("data-ouverture");};setTimeout(fin,1350);addEventListener("pointerdown",fin,{once:true});}}catch(e){}
+try{var ap=JSON.parse(localStorage.getItem("apparence")||"{}");var r=document.documentElement;if(ap.theme==="clair"||ap.theme==="sombre")r.setAttribute("data-theme",ap.theme);if(ap.taille==="grand"||ap.taille==="tres-grand")r.setAttribute("data-taille",ap.taille);}catch(e){}`}
         </Script>
         {/* Vercel Speed Insights : vitesse réelle mesurée chez les utilisateurs (sans paquet npm). */}
         <Script id="speed-insights-file" strategy="afterInteractive" nonce={nonce}>

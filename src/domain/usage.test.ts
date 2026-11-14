@@ -80,6 +80,9 @@ describe("calculerStatsUsage", () => {
         hafs: 1,
         warsh: 1,
         sansLecture: 0,
+        enBaisse: 0,
+        regularite: 0,
+        semaines: [0, 0, 0, 0, 0, 0, 1, 2],
       },
       {
         id: "B",
@@ -93,8 +96,40 @@ describe("calculerStatsUsage", () => {
         hafs: 0,
         warsh: 0,
         sansLecture: 1,
+        enBaisse: 0,
+        regularite: 0,
+        semaines: [0, 1, 0, 0, 0, 0, 1, 1],
       },
     ]);
+  });
+});
+
+describe("élèves en baisse et régularité par mosquée", () => {
+  it("repère l'élève qui fait moitié moins qu'avant, et ceux qui viennent régulièrement", () => {
+    const st = calculerStatsUsage(
+      [
+        { id: "x", role: "eleve", actif: true, etablissementId: "A" },
+        { id: "y", role: "eleve", actif: true, etablissementId: "A" },
+      ],
+      [{ id: "A", nom: "École A" }],
+      [
+        // x : 4 séances il y a 3-4 semaines, 1 ces 14 jours → en baisse
+        s("x", "2026-10-16"),
+        s("x", "2026-10-18"),
+        s("x", "2026-10-20"),
+        s("x", "2026-10-22"),
+        s("x", "2026-11-05"),
+        // y : 3 séances ces 14 jours → régulier
+        s("y", "2026-11-02"),
+        s("y", "2026-11-06"),
+        s("y", "2026-11-10"),
+      ],
+      "2026-11-11",
+      12,
+      new Map(),
+    );
+    expect(st.parEtablissement[0]?.enBaisse).toBe(1);
+    expect(st.parEtablissement[0]?.regularite).toBe(50);
   });
 });
 

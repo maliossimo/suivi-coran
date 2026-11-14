@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   BookOpenText,
   Mic,
@@ -49,11 +50,13 @@ import { useAppuiLong } from "./appuiLong";
 import { useMarquePages } from "./marquePages";
 import { retourSensoriel } from "@/components/retourSensoriel";
 import { useExplication } from "./explications";
-import { adresseAudio, adresseMots, useHorsLigne } from "./horsLigne";
+import { adresseAudio, adresseMots, garderSourateOuverte, useHorsLigne } from "./horsLigne";
 import { MemoriserCoran } from "./MemoriserCoran";
-import { ModeReciter } from "./ModeReciter";
 import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
 import type { BlocAffiche, RecitationAffichee } from "./types";
+
+// Le mode Réciter (capture du micro, résultat) n'est chargé qu'au premier appui sur « Réciter ».
+const ModeReciter = dynamic(() => import("./ModeReciter").then((m) => m.ModeReciter), { ssr: false });
 
 const CLE = "coran-reglages";
 const UNE_FOIS: Repetition = { verset: 1, passage: 1 };
@@ -156,7 +159,11 @@ export function LectureCoran({
    */
   const aLancer = useRef<string | null | undefined>(undefined);
 
-  useEffect(() => setReglages(lireReglages()), []);
+  const [pret, setPret] = useState(false);
+  useEffect(() => {
+    setReglages(lireReglages());
+    setPret(true);
+  }, []);
   const modifier = useCallback((m: Partial<Reglages>) => {
     setReglages((r) => {
       const n = { ...r, ...m };
@@ -176,6 +183,13 @@ export function LectureCoran({
     recitations[0] ??
     null;
   const sourateUnique = vue === "sourate" ? blocs[0] : undefined;
+  // La sourate ouverte et la suivante restent lisibles sans réseau.
+  const numeroSourate = sourateUnique?.sourate;
+  useEffect(() => {
+    if (!numeroSourate) return;
+    const t = setTimeout(() => garderSourateOuverte(lecture, numeroSourate), 3000);
+    return () => clearTimeout(t);
+  }, [lecture, numeroSourate]);
   const avecTajwid = lecture === "hafs" && reglages.tajwid;
   const motsActifs = Boolean(recitation?.mots && reglages.motParMot);
 
@@ -720,6 +734,9 @@ export function LectureCoran({
           sourate={blocReciter.sourate}
           nomSourate={blocReciter.nomLatin}
           nomArabe={blocReciter.nomAr}
+          recitateur={recitation?.suivi ? recitation.id : null}
+          recitateurs={recitations.filter((r) => r.suivi).map((r) => ({ valeur: r.id, libelle: r.nom }))}
+          onRecitateur={(id) => modifier({ recitation: { ...reglages.recitation, [lecture]: id } })}
           versets={blocReciter.versets}
           depart={reciter.depart}
           lecture={lecture === "warsh" ? "warsh" : "hafs"}
@@ -777,7 +794,7 @@ export function LectureCoran({
         onEcouter={(cle) =>
           ecouter(dansLePassage(cle) ? passage : null, dansLePassage(cle) ? repetition : UNE_FOIS, cle)
         }
-        onRepeter={(cle) => ecouter({ du: numero(cle), au: numero(cle) }, { verset: 1, passage: 0 })}
+        onRepeter={(cle, fois) => ecouter({ du: numero(cle), au: numero(cle) }, { verset: 1, passage: fois })}
         onMemoriser={(cle) =>
           ouvrirMemoriser({
             du: numero(cle),
@@ -812,6 +829,8 @@ export function LectureCoran({
           passage ? "avec-passage" : "",
           reglages.theme !== "auto" ? `theme-${reglages.theme}` : "",
         ].join(" ")}
+        // Texte interactif (toucher, appui long) : posé une fois la page prête dans le navigateur.
+        data-pret={pret ? "" : undefined}
         lang="ar"
         dir="rtl"
         style={{ "--taille-coran": `${TAILLES[reglages.taille]}px` } as CSSProperties}

@@ -12,7 +12,11 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await capture(page, "11-eleve-seance");
     // L'envoi part en arrière-plan : on attend la réponse du serveur avant de recharger
     // (un rechargement couperait l'envoi ; dans l'appli, il reprendrait au retour).
-    const envoi = page.waitForResponse((r) => r.request().method() === "POST", { timeout: 20_000 });
+    // (Seulement l'envoi de la séance : d'autres envois discrets partent aussi à l'ouverture.)
+    const envoi = page.waitForResponse(
+      (r) => r.request().method() === "POST" && (r.request().postData() ?? "").includes("dureeMin"),
+      { timeout: 20_000 },
+    );
     await enregistrer.click();
     await expect(page).toHaveURL(/\/eleve(\?|$)/);
     await envoi;

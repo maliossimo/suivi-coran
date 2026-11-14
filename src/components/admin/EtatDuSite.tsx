@@ -17,9 +17,21 @@ export async function EtatDuSite() {
   const age = e.sauvegarde ? (Date.now() - Date.parse(e.sauvegarde.faiteLe)) / 86_400_000 : null;
   const sauvegardeOk = age !== null && age < 2;
 
+  const toutVaBien = sauvegardeOk && e.erreurs7j === 0;
+
   return (
-    <section className="carte-graphique etat-site">
-      <h2>État du site</h2>
+    <details className="carte-graphique etat-site etat-site-repliable" open={!toutVaBien}>
+      <summary className="etat-site-resume">
+        <span className={`etat-site-voyant${toutVaBien ? "" : " alerte"}`} aria-hidden="true" />
+        <span>
+          <b>{toutVaBien ? "Tout va bien" : "État du site"}</b>
+          {" · "}
+          {e.version.numero}
+          {toutVaBien && e.sauvegarde ? ` · sauvegarde ${depuisQuand(e.sauvegarde.faiteLe, new Date())}` : ""}
+          {!toutVaBien && e.erreurs7j ? ` · ${e.erreurs7j} erreur${e.erreurs7j > 1 ? "s" : ""}` : ""}
+          {!toutVaBien && !sauvegardeOk ? " · sauvegarde à vérifier" : ""}
+        </span>
+      </summary>
       <ul className="etat-site-liste">
         <li>
           <span className="etat-site-titre">Version en ligne</span>
@@ -67,6 +79,6 @@ export async function EtatDuSite() {
           ))}
         </ul>
       ) : null}
-    </section>
+    </details>
   );
 }

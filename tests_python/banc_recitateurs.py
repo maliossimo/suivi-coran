@@ -64,6 +64,7 @@ def main() -> None:
     print(f"{len(sons)} récitations ({len(VERSETS)} versets × {len(RECITATEURS)} récitateurs, ≤ 30 s)")
     for nom, reglages in CONFIGS:
         debut, mots, repris, par_regle, par_rec, durees = time.time(), 0, 0, Counter(), Counter(), []
+        oublis = []
         for (rec, s, v), a in sons.items():
             t = time.time()
             try:
@@ -77,6 +78,7 @@ def main() -> None:
                 regles = {n["regle"].split(":")[0] for n in m["remarques"]}
                 if m["etat"] == "oublie":
                     regles.add("mot non entendu")
+                    oublis.append(f"{rec.split('_')[0]} {s}:{v} « {m['mot']} »")
                 if regles:
                     repris += 1
                     par_rec[rec] += 1
@@ -88,6 +90,8 @@ def main() -> None:
         )
         print("  par récitateur : " + ", ".join(f"{k} {c}" for k, c in par_rec.most_common()))
         print("  par règle : " + ", ".join(f"{k} {c}" for k, c in par_regle.most_common()))
+        if oublis:
+            print("  mots non entendus : " + " ; ".join(oublis))
 
 
 if __name__ == "__main__":
