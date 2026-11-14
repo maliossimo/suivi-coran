@@ -165,3 +165,13 @@ def test_suivi_en_direct_situe_les_dernieres_secondes():
     print("\nsuivi :", r["couverts"], f"{time.time() - debut:.2f} s")
     assert r["couverts"][1] == 6  # arrivé à la fin du verset 3
     assert len(r["passage"]) == 9
+
+
+@reel
+def test_double_ecoute_garde_un_recitateur_juste():
+    from _tajwid.moteur import Reglages, analyser_passage
+
+    debut = time.time()
+    r = analyser_passage(recitation("Husary_128kbps", 2, 4), 2, 4, 4, "hafs", reglages=Reglages(consensus=True))
+    print("\ndouble écoute :", resume(r), f"{time.time() - debut:.2f} s")
+    assert all(m["etat"] == "juste" for m in r["mots"]), resume(r)
