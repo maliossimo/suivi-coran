@@ -8361,3 +8361,70 @@ button.reciter-mot {
   opacity: 0.55;
   text-decoration: line-through;
 }
+
+/* Réciter : ce que fait l'appli, toujours visible */
+.reciter-statut {
+  margin: 0 20px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--fond);
+  color: var(--texte-doux);
+  font-size: 13px;
+  text-align: center;
+}
+.reciter-statut.lent,
+.reciter-statut.coupe {
+  background: var(--or-clair);
+  color: var(--or-texte);
+  font-weight: 600;
+}
+
+/* Réciter : résultat guidé */
+.reciter-bilan strong {
+  font-size: 28px;
+}
+.reciter-score {
+  color: var(--texte-doux);
+  font-size: 14px;
+}
+.reciter-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+.reciter-guide button {
+  flex: 1 1 140px;
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Réciter : quand l'appli hésite, la remarque est plus discrète et le mot souligné en pointillés */
+.reciter-mot.incertain {
+  color: var(--texte);
+  background: transparent;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--or);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
+}
+.pastille.incertain {
+  border: 1px dashed var(--or);
+  color: var(--or-texte);
+}
+.reciter-detail.incertain .reciter-detail-tete b {
+  border: 1px dashed var(--or);
+  background: transparent;
+  color: var(--or-texte);
+}
+.reciter-doute {
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 14px;
+}
+.reciter-detail li.incertaine {
+  color: var(--texte-doux);
+}

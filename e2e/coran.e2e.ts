@@ -180,6 +180,8 @@ test.describe("Vérifier ma récitation", () => {
         return route.fulfill({ json: { couverts: [0, 2] } });
       }
       envois++;
+      // Le serveur ne répond pas la première fois : l'envoi est réessayé, la récitation n'est pas perdue.
+      if (envois === 1) return route.fulfill({ status: 503, json: { erreur: "Indisponible." } });
       expect(route.request().headers()["authorization"]).toMatch(/^Jeton /);
       expect(url.searchParams.get("du")).toBe("2");
       expect((route.request().postDataBuffer()?.length ?? 0) % 2).toBe(0);
@@ -187,7 +189,7 @@ test.describe("Vérifier ma récitation", () => {
         indice: number,
         texte: string,
         etat: string,
-        remarques: { regle: string; texte: string }[] = [],
+        remarques: { regle: string; texte: string; sure?: boolean }[] = [],
       ) => ({
         verset: 2,
         place: indice,
@@ -218,6 +220,7 @@ test.describe("Vérifier ma récitation", () => {
               {
                 regle: "AaredMaddRule",
                 texte: "madd ʿarid (à l’arrêt) trop long : 8 temps au lieu de 6 temps",
+                sure: false,
               },
             ]),
           ],
@@ -230,20 +233,24 @@ test.describe("Vérifier ma récitation", () => {
     await page.getByRole("button", { name: "Vérifier ma récitation à partir d’ici" }).click();
     const reciter = page.getByRole("dialog", { name: "Réciter" });
     await expect(reciter).toBeVisible();
+    await expect(reciter.getByRole("status").filter({ hasText: "Prêt : touche le micro" })).toBeVisible();
     await reciter.getByRole("button", { name: "Commencer la récitation" }).click();
     await expect(reciter.getByText("Son parfait")).toBeVisible({ timeout: 10_000 });
     // Le suivi en direct part toutes les 2 s.
     await expect.poll(() => suivis, { timeout: 10_000 }).toBeGreaterThan(0);
     await reciter.getByRole("button", { name: "J’ai fini" }).click();
 
-    await expect(reciter.getByText("50 %")).toBeVisible({ timeout: 15_000 });
-    expect(envois).toBe(1);
-    await expect(reciter.getByText("1 à revoir")).toBeVisible();
+    await expect(reciter.getByText("1 mot à reprendre")).toBeVisible({ timeout: 20_000 });
+    expect(envois).toBe(2);
+    await expect(reciter.getByText("50 % de mots justes")).toBeVisible();
+    await expect(reciter.getByText("1 à vérifier (l’appli hésite)")).toBeVisible();
+    await expect(reciter.getByRole("button", { name: "Réécouter ce mot" })).toBeVisible();
     await expect(reciter.getByLabel("fin du verset 2")).toBeVisible();
     // La première faute nette est montrée d'office.
     await expect(reciter.getByText("La chadda sur ب n’a pas été prononcée.")).toBeVisible();
     await expect(reciter.getByRole("button", { name: "Toi" })).toBeVisible();
-    await reciter.getByRole("button", { name: /ٱلْعَٰلَمِينَ/ }).click();
+    await reciter.getByRole("button", { name: /ٱلْعَٰلَمِينَ : à vérifier/ }).click();
+    await expect(reciter.getByText("L’appli n’est pas sûre", { exact: false })).toBeVisible();
     await expect(reciter.getByText(/Madd ʿarid \(à l’arrêt\) trop long/)).toBeVisible();
     await capture(page, "45-reciter-resultat");
     await reciter.getByRole("button", { name: "L’appli s’est trompée" }).click();

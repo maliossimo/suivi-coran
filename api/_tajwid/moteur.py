@@ -246,6 +246,28 @@ def _madd_trop_long(notes: list, mesures: list[dict] | None, reglages: Reglages)
     }
 
 
+SURE_JALI, SURE_KHAFI = 0.85, 0.6  # confiance du modèle au-delà de laquelle une remarque est « sûre »
+
+
+def _sure(note: dict, probs: list[float], bornes: list[int], mesures: list[dict] | None) -> bool:
+    """La remarque est-elle sûre ? Une remarque gardée reste juste le plus souvent, mais quand le modèle
+    hésitait (ou que l'horloge est limite), l'élève le voit : il compare lui-même avec le récitateur."""
+    if note["rule"] == "word":
+        return True
+    if note["rule"] == "NormalMaddRule" and mesures:
+        m = next((x for x in mesures if x["pos"] == note.get("pos")), None)
+        if m is not None:
+            return m["temps"] < 1.1 if note["heard"] == 0 else m["temps"] >= 4.2
+    pos = note.get("pos")
+    if pos is None or not probs:
+        return True
+    h = bornes[min(max(pos, 0), len(bornes) - 1)]
+    fenetre = probs[max(0, h - 1) : min(len(probs), h + 2)]
+    if not fenetre:
+        return True
+    return min(fenetre) >= (SURE_JALI if note["severity"] == "jali" else SURE_KHAFI)
+
+
 def _etat(notes: list) -> str:
     if any(n["rule"] == "word" for n in notes):
         return "oublie"
@@ -372,7 +394,15 @@ def analyser_passage(
                 "indice": g,
                 "mot": m["word"],
                 "etat": _etat(notes),
-                "remarques": [{"gravite": n["severity"], "regle": n["rule"], "texte": n["msg"]["fr"]} for n in notes],
+                "remarques": [
+                    {
+                        "gravite": n["severity"],
+                        "regle": n["rule"],
+                        "texte": n["msg"]["fr"],
+                        "sure": _sure(n, probs, bornes, mesures.get(k)),
+                    }
+                    for n in notes
+                ],
                 "madd": [{"nom": d["name"]["fr"], "temps": d["heard"]} for d in m["madd"]],
                 # où entendre ce mot dans le morceau (secondes)
                 "debut": round(max(0.0, instants[min(h0, len(instants) - 1)] - 0.15), 2),
