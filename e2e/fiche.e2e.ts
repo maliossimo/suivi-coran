@@ -27,6 +27,14 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
         { timeout: 20_000 },
       )
       .toBe("15");
+
+    // La suppression est rangée dans le menu « ⋯ », qui reste dans l'écran.
+    await page.locator('summary[aria-label="Plus d’actions"]').click();
+    const supprimer = page.getByRole("button", { name: /Supprimer cette séance/ });
+    await expect(supprimer).toBeVisible();
+    const boite = await supprimer.boundingBox();
+    const largeur = page.viewportSize()?.width ?? 0;
+    expect(boite && boite.x >= 0 && boite.x + boite.width <= largeur).toBe(true);
   });
 
   test("le Cheikh voit sa classe et corrige la séance d'hier", async ({ page }) => {
@@ -78,6 +86,7 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await seConnecter(page2, COMPTES.eleveA, /\/eleve/);
     await page2.goto(`/eleve/seance?date=${jourParis(-1)}&type=revision`);
     await expect(page2.getByText("✓ Validé", { exact: true }).first()).toBeVisible();
+    await expect(page2.getByText(/^validé le /).first()).toBeVisible();
     await capture(page2, "12-eleve-valide");
     await eleve.close();
   });

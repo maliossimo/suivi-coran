@@ -20,3 +20,18 @@ test.describe("Administration", () => {
     await capture(page, "41-admin-journal");
   });
 });
+
+test.describe("Administration : classes", () => {
+  test("l'admin crée une classe depuis la carte de la mosquée", async ({ page }) => {
+    await seConnecter(page, COMPTES.admin, /\/admin/);
+    await page.getByRole("link", { name: "+ Nouvelle classe" }).first().click();
+    await expect(page).toHaveURL(/\/presences\/nouvelle\?etablissement=/);
+    await page.getByLabel("Nom de la classe").fill("Tajwid (test)");
+    await page.getByRole("button", { name: "Créer la classe" }).click();
+    await expect(page).toHaveURL(/\/presences\/[0-9a-f-]{36}\/modifier/, { timeout: 20_000 });
+
+    await page.goto("/admin");
+    await expect(page.getByRole("link", { name: /Tajwid \(test\)/ })).toBeVisible();
+    await capture(page, "42-admin-classes");
+  });
+});

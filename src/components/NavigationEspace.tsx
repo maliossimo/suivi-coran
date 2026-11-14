@@ -66,7 +66,7 @@ const ONGLETS: Record<Role, Onglet[]> = {
   admin: [
     { href: "/admin", libelle: "Admin", icone: "admin", actif: (c) => c === "/admin" },
     { href: "/admin/journal", libelle: "Journal", icone: "journal", actif: commence("/admin/journal") },
-    { href: "/maitre", libelle: "Classes", icone: "classe", actif: commence("/maitre") },
+    { href: "/maitre", libelle: "Élèves", icone: "classe", actif: commence("/maitre") },
     { href: "/admin/coran", libelle: "Coran", icone: "coran", actif: commence("/admin/coran") },
     { href: "/presences", libelle: "Présences", icone: "presences", actif: commence("/presences") },
     { ...COMPTE, libelle: "Compte" },

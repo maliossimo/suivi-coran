@@ -10,9 +10,8 @@ import { SuppressionUtilisateur } from "@/components/SuppressionUtilisateur";
 import { correspondARecherche } from "@/domain/classe";
 import { depuisQuand } from "@/domain/journal";
 import type { Lecture } from "@/domain/lectures";
-import type { Role } from "@/domain/roles";
-
-const ROLES = { eleve: "Élève", maitre: "Cheikh", admin: "Admin" } as const;
+import { LIBELLE_ROLE, type Role } from "@/domain/roles";
+import { dateCourte } from "@/domain/format";
 
 export interface LigneUtilisateur {
   id: string;
@@ -25,12 +24,6 @@ export interface LigneUtilisateur {
   derniereConnexion: string | null;
   derniereUtilisation: string | null;
   lecture: Lecture | null;
-}
-
-function dateCourte(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" }).format(
-    new Date(iso),
-  );
 }
 
 /** Liste des comptes avec recherche et filtres (rôle, établissement, statut), et leurs actions. */
@@ -141,7 +134,7 @@ export function TableauUtilisateurs({
               <span className="compte-identite">
                 <span className="compte-nom">
                   <b>{nomComplet}</b>
-                  <span className={`pastille-role pastille-${u.role}`}>{ROLES[u.role]}</span>
+                  <span className={`pastille-role pastille-${u.role}`}>{LIBELLE_ROLE[u.role]}</span>
                   {u.role === "eleve" ? <EtiquetteLecture lecture={u.lecture} /> : null}
                 </span>
                 <small suppressHydrationWarning>
@@ -149,7 +142,7 @@ export function TableauUtilisateurs({
                   {u.actif ? "" : "désactivé · "}
                   {u.derniereUtilisation
                     ? `vu ${depuisQuand(u.derniereUtilisation, new Date())}`
-                    : `jamais connecté · inscrit le ${dateCourte(u.creeLe)}`}
+                    : `jamais connecté · inscrit le ${dateCourte(u.creeLe, true)}`}
                 </small>
               </span>
               {u.id === moi ? (

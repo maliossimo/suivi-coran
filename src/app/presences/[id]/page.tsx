@@ -20,11 +20,6 @@ import { chargerClasseMois, exigerPresences } from "@/services/presences";
 
 export const metadata = { title: "Présences de la classe" };
 
-/** « Inès M. » : la première colonne du tableau reste étroite sur téléphone. */
-function nomCourt(m: { prenom: string; nom: string }): string {
-  return `${m.prenom}${m.nom ? ` ${m.nom.charAt(0)}.` : ""}`;
-}
-
 export default async function PageClasse({
   params,
   searchParams,

@@ -28,6 +28,8 @@ export interface Passage {
   corrige?: boolean;
   /** Vrai si le Cheikh l'a validé : acquis (suppose « écouté »). */
   valide?: boolean;
+  /** Quand il l'a validé (horodatage ISO, lecture seule). */
+  valideLe?: string;
 }
 
 /** Intervalle fermé d'index globaux. */

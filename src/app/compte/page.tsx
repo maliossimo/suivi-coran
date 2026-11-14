@@ -8,8 +8,7 @@ import { FormulaireMotDePasse } from "@/components/FormulaireMotDePasse";
 import { InstallerAppli } from "@/components/InstallerAppli";
 import { ReglageRetours } from "@/components/ReglageRetours";
 import { chargerCompte } from "@/services/acces";
-
-const LIBELLE_ROLE = { eleve: "Élève", maitre: "Cheikh", admin: "Administrateur" } as const;
+import { LIBELLE_ROLE_LONG } from "@/domain/roles";
 
 export default async function PageCompte() {
   const { profil, email } = await chargerCompte();
@@ -30,7 +29,7 @@ export default async function PageCompte() {
           />
           <div>
             <h1>{nom || "Mon compte"}</h1>
-            <p>{LIBELLE_ROLE[profil.role]}</p>
+            <p>{LIBELLE_ROLE_LONG[profil.role]}</p>
             {email ? <p className="carte-compte-email">{email}</p> : null}
           </div>
         </section>

@@ -25,10 +25,17 @@ test("réactivité : temps d'affichage des pages principales", async ({ page }) 
 
   // Navigation dans l'appli : onglets du bas (le contenu change sans recharger).
   await page.goto("/admin");
-  for (const onglet of ["Présences", "Coran", "Admin"]) {
+  // Mesure jusqu'à l'affichage de la nouvelle page (et non l'inactivité du réseau,
+  // qui dépend des préchargements et faussait les chiffres).
+  for (const [onglet, adresse] of [
+    ["Présences", /\/presences(\?|$)/],
+    ["Coran", /\/admin\/coran/],
+    ["Admin", /\/admin(\?|$)/],
+  ] as const) {
     await chrono(`onglet « ${onglet} » (navigation)`, async () => {
       await page.getByRole("link", { name: onglet, exact: true }).first().click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForURL(adresse);
+      await page.locator("main").first().waitFor();
     });
   }
 
