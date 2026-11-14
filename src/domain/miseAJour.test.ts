@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { INACTIVITE_AVANT_RECHARGEMENT, nouvelleVersion, rechargementSansGene } from "./miseAJour";
+import {
+  erreurDeVersion,
+  INACTIVITE_AVANT_RECHARGEMENT,
+  nouvelleVersion,
+  rechargementSansGene,
+} from "./miseAJour";
 
 describe("mise à jour automatique", () => {
   it("repère un autre déploiement", () => {
@@ -26,5 +31,20 @@ describe("mise à jour automatique", () => {
     expect(rechargementSansGene({ ...calme, feuilleOuverte: true })).toBe(false);
     expect(rechargementSansGene({ ...calme, inactifDepuis: 3_000 })).toBe(false);
     expect(rechargementSansGene({ ...calme, visible: false })).toBe(false);
+  });
+});
+
+describe("erreurDeVersion", () => {
+  it("reconnaît un décalage entre l'appli ouverte et la version en ligne", () => {
+    expect(erreurDeVersion("TypeError", "e[o] is not a function")).toBe(true);
+    expect(erreurDeVersion("ChunkLoadError", "Loading chunk 123 failed.")).toBe(true);
+    expect(erreurDeVersion("Error", "Loading chunk app/admin/coran/page failed.")).toBe(true);
+    expect(erreurDeVersion("TypeError", "Cannot read properties of undefined (reading 'call')")).toBe(true);
+    expect(erreurDeVersion("TypeError", "Failed to fetch dynamically imported module: /x.js")).toBe(true);
+  });
+
+  it("laisse passer les vraies erreurs", () => {
+    expect(erreurDeVersion("TypeError", "onTaille is not a function")).toBe(false);
+    expect(erreurDeVersion("Error", "Séance introuvable")).toBe(false);
   });
 });

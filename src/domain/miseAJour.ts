@@ -36,3 +36,18 @@ export function rechargementSansGene(e: EtatEcran): boolean {
     e.inactifDepuis >= INACTIVITE_AVANT_RECHARGEMENT
   );
 }
+
+/**
+ * Plantage dû à un décalage de versions : l'appli ouverte (ancienne) charge un morceau de code de la
+ * nouvelle version mise en ligne entre-temps (ou l'inverse). Un rechargement suffit à le corriger.
+ */
+export function erreurDeVersion(nom: string, message: string): boolean {
+  return (
+    nom === "ChunkLoadError" ||
+    /^\w{1,3}\[\w{1,3}\] is not a function$/.test(message) ||
+    /Loading (CSS )?chunk [\w-]+ failed/i.test(message) ||
+    /reading 'call'/.test(message) ||
+    /dynamically imported module/i.test(message) ||
+    /Failed to find Server Action/i.test(message)
+  );
+}
