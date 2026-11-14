@@ -42,15 +42,18 @@ class Reglages:
     """Réglages choisis sur le banc d'essai (159 apprenants annotés, tests_python/banc_qdat.py) :
     le modèle complet (fp32) n'y fait pas mieux que l'int8 ; des seuils de confiance 0,5 / 0,8 retirent
     un dixième des fausses remarques pour presque autant de fautes repérées ; la longueur du madd naturel
-    y est plus souvent reprochée à tort qu'à raison : elle n'est pas jugée (un madd naturel oublié l'est)."""
+    y est plus souvent reprochée à tort qu'à raison : elle n'est pas jugée (un madd naturel oublié l'est).
+    La double écoute (int8 + fp32, remarque gardée si les deux la font) avec des seuils 0,3 / 0,7 fait
+    mieux sur les deux tableaux : 65 fausses remarques sur 868 mots justes (au lieu de 73) et 87 fautes
+    repérées (au lieu de 81), pour ~0,3 s par morceau au lieu de ~0,1 s : retenue (précision d'abord)."""
 
     modele: str = MODELE
-    min_prob: float = 0.5  # finesses de tajwid (madd, ghunna…) : tues si le modèle doute
-    min_prob_jali: float = 0.8  # fautes nettes (lettre, voyelle, son)
+    min_prob: float = 0.3  # finesses de tajwid (madd, ghunna…) : tues si le modèle doute
+    min_prob_jali: float = 0.7  # fautes nettes (lettre, voyelle, son)
     madd_naturel: bool = False  # juger la longueur du madd naturel (trop long / trop court)
     # Double écoute : le morceau est aussi écouté par l'autre version du modèle, et une remarque
     # n'est gardée que si les deux la font (moins de remarques fausses ou changeantes).
-    consensus: bool = False
+    consensus: bool = True
 
 
 REGLAGES = Reglages()

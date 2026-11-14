@@ -20,10 +20,8 @@ from _tajwid.moteur import Reglages, analyser_passage  # noqa: E402
 
 # (nom, réglages, son envoyé en μ-law 8 bits)
 CONFIGS = [
-    ("actuel", Reglages(), False),
-    ("son léger (μ-law)", Reglages(), True),
-    ("double écoute", Reglages(consensus=True), False),
-    ("double écoute, seuils d'origine", Reglages(min_prob=0.3, min_prob_jali=0.7, consensus=True), False),
+    ("actuel (double écoute, 0,3 / 0,7)", Reglages(), False),
+    ("une seule écoute, 0,5 / 0,8 (1.23)", Reglages(min_prob=0.5, min_prob_jali=0.8, consensus=False), False),
 ]
 
 
