@@ -20,10 +20,17 @@ describe("depuisQuand", () => {
     expect(depuisQuand(null, maintenant)).toBe("jamais");
     expect(depuisQuand("2026-11-13T19:59:30Z", maintenant)).toBe("à l’instant");
     expect(depuisQuand("2026-11-13T19:45:00Z", maintenant)).toBe("il y a 15 min");
-    expect(depuisQuand("2026-11-13T17:00:00Z", maintenant)).toBe("il y a 3 h");
-    expect(depuisQuand("2026-11-12T10:00:00Z", maintenant)).toBe("hier");
-    expect(depuisQuand("2026-11-09T10:00:00Z", maintenant)).toBe("il y a 4 j");
-    expect(depuisQuand("2026-10-02T10:00:00Z", maintenant)).toBe("2 oct.");
+    expect(depuisQuand("2026-11-13T17:00:00Z", maintenant)).toBe("aujourd’hui à 18:00");
+    expect(depuisQuand("2026-11-12T20:14:00Z", maintenant)).toBe("hier à 21:14");
+    expect(depuisQuand("2026-11-09T08:05:00Z", maintenant)).toBe("lundi à 09:05");
+    expect(depuisQuand("2026-10-02T10:00:00Z", maintenant)).toBe("2 oct. à 12:00");
+  });
+});
+
+describe("depuisQuand, au fil des jours de Paris", () => {
+  it("passe à « hier » à minuit, heure de Paris", () => {
+    const maintenant = new Date("2026-11-13T23:30:00Z"); // 0 h 30 le 14 à Paris
+    expect(depuisQuand("2026-11-13T22:00:00Z", maintenant)).toBe("hier à 23:00");
   });
 });
 
