@@ -8570,3 +8570,174 @@ button.reciter-mot {
 .liste-erreurs small {
   color: var(--texte-doux);
 }
+
+/* Nouveautés (historique des versions) */
+.nouveautes-rubrique h3 {
+  margin: 12px 0 4px;
+  color: var(--texte-doux);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.nouveautes-rubrique ul {
+  margin: 0;
+  padding-inline-start: 20px;
+  display: grid;
+  gap: 6px;
+}
+
+/* =====================================================================
+   1.29 — Beauté : échelle de texte, sombre plus doux, titres, motif, animations
+   ===================================================================== */
+
+/* Une seule échelle de tailles de texte pour tout le site. */
+:root {
+  --t-page: 26px;
+  --t-carte: 19px;
+  --t-sous-titre: 16px;
+  --t-texte: 15px;
+  --t-petit: 13px;
+  --t-mini: 12px;
+}
+.carte-graphique h2,
+.etat-vide h2,
+.fenetre-contenu h2 {
+  font-size: var(--t-carte);
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.carte-graphique h3 {
+  font-size: var(--t-sous-titre);
+}
+.carte-graphique-sous,
+.admin-compte,
+.admin-note {
+  font-size: var(--t-petit);
+}
+
+/* Titres de cartes : le compteur passe dessous plutôt que de casser le titre (grands textes). */
+.admin-titre {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+.admin-titre h2 {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.admin-compte {
+  white-space: normal;
+}
+
+/* En-tête : le motif géométrique, discret, sur le vert. */
+.barre {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23e9c873' stroke-opacity='0.13' stroke-width='1.3'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 72px 72px;
+  background-position: right -12px top -6px;
+}
+
+/* Mode sombre plus doux : moins noir, cartes qui se détachent, l'or réservé à l'important. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond: #121c18;
+    --carte: #1a2621;
+    --surface-2: #1f2c27;
+    --surface-3: #283731;
+    --ligne: #2f3f38;
+    --texte: #e8eee9;
+    --texte-doux: #a9b5af;
+    --ombre: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.28);
+  }
+  .carte-graphique {
+    border-color: rgba(255, 255, 255, 0.04);
+  }
+  .etat-site-liste li.etat-site-alerte {
+    background: rgba(201, 162, 74, 0.1);
+    color: var(--texte);
+  }
+  .etat-site-liste li.etat-site-alerte .etat-site-titre {
+    color: var(--or-texte);
+  }
+}
+
+/* Animations légères : la coche se dessine à la validation, les cartes glissent en place. */
+@keyframes coche-dessin {
+  from {
+    stroke-dashoffset: 24;
+  }
+}
+@keyframes validation-pop {
+  40% {
+    transform: scale(1.18);
+  }
+}
+.bouton-valider-ok {
+  animation: validation-pop 0.35s ease-out;
+}
+.bouton-valider-ok svg path,
+.bouton-valider-ok svg polyline {
+  stroke-dasharray: 24;
+  animation: coche-dessin 0.4s ease-out 0.05s backwards;
+}
+.espace > .carte-graphique {
+  animation: apparition 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+.espace > .carte-graphique:nth-of-type(3) {
+  animation-delay: 0.05s;
+}
+.espace > .carte-graphique:nth-of-type(4) {
+  animation-delay: 0.09s;
+}
+.espace > .carte-graphique:nth-of-type(n + 5) {
+  animation-delay: 0.12s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bouton-valider-ok,
+  .bouton-valider-ok svg path,
+  .bouton-valider-ok svg polyline,
+  .espace > .carte-graphique {
+    animation: none;
+  }
+}
+
+/* Graphique des séances : le chiffre de la semaine en grand. */
+.graphique-tete {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 2px 0 4px;
+}
+.graphique-tete strong {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 30px;
+  line-height: 1;
+}
+.graphique-tete span {
+  color: var(--texte-doux);
+  font-size: var(--t-petit);
+}
+
+/* Réciter : le nom de la sourate en calligraphie */
+.reciter-sourate {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.reciter-nom-ar {
+  font-family: "KFGQPC Hafs", var(--font-arabe), serif;
+  font-size: 26px;
+  line-height: 1.2;
+  color: var(--or-texte);
+}
+
+/* Écran d'ouverture : le même motif que l'en-tête, en fondu vers la page */
+html[data-ouverture] .ouverture {
+  background:
+    radial-gradient(70% 50% at 50% 45%, rgba(233, 200, 115, 0.12), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23e9c873' stroke-opacity='0.1' stroke-width='1.3'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3C/g%3E%3C/svg%3E"),
+    #1d5c47;
+  background-size:
+    auto,
+    72px 72px,
+    auto;
+}

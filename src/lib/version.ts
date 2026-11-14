@@ -4,6 +4,7 @@
  */
 export const VERSION = process.env.NEXT_PUBLIC_VERSION ?? "dev";
 export const COMMIT = process.env.NEXT_PUBLIC_COMMIT || null;
+export const MISE_EN_LIGNE = process.env.NEXT_PUBLIC_MISE_EN_LIGNE || null;
 
 /** « Version 1.2.0 » */
 export const LIBELLE_VERSION = `Version ${VERSION}`;

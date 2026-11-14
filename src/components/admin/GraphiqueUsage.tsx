@@ -20,14 +20,14 @@ function libelle(date: string): string {
   return `${j} ${MOIS[(m ?? 1) - 1]}`;
 }
 
-/** Séances saisies par semaine (12 semaines), avec le nombre d'élèves actifs. */
+/** Séances saisies par semaine (jusqu'à 12 semaines), avec le nombre d'élèves actifs. */
 export function GraphiqueUsage({ semaines }: { semaines: SemaineUsage[] }) {
   const L = 600;
   const H = 200;
   const marge = { haut: 18, droite: 8, bas: 26, gauche: 8 };
   const max = Math.max(1, ...semaines.map((s) => s.seances));
   const pas = (L - marge.gauche - marge.droite) / semaines.length;
-  const largeur = Math.min(30, pas * 0.62);
+  const largeur = Math.min(56, pas * 0.62);
   const base = H - marge.bas;
   const h = (v: number) => (v / max) * (base - marge.haut);
 
@@ -65,7 +65,7 @@ export function GraphiqueUsage({ semaines }: { semaines: SemaineUsage[] }) {
                 {s.seances}
               </text>
             ) : null}
-            {i % 2 === semaines.length % 2 || courante ? (
+            {semaines.length <= 6 || i % 2 === semaines.length % 2 || courante ? (
               <text x={x + largeur / 2} y={H - 8} textAnchor="middle" fontSize="10.5" fill="#7a827d">
                 {libelle(s.debut)}
               </text>

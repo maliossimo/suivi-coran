@@ -155,3 +155,10 @@ export async function changerLecture(eleveId: string, lecture: Lecture): Promise
   const { error } = await supabase.rpc("changer_lecture", { p_eleve: eleveId, p_lecture: lecture });
   if (error) throw new Error(`Changement de lecture impossible : ${error.message}`);
 }
+
+/** La personne connectée écrit son prénom et son nom (les règles d'accès le lui permettent). */
+export async function changerMonNom(id: string, prenom: string, nom: string): Promise<void> {
+  const supabase = await creerClientServeur();
+  const { error } = await supabase.from("profils").update({ prenom, nom }).eq("id", id);
+  if (error) throw new Error(`Enregistrement du nom impossible : ${error.message}`);
+}

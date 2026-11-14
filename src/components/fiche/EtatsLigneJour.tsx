@@ -3,6 +3,7 @@
 import { Check } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { actionEnregistrerSeanceFond, actionValiderSeance } from "@/app/actions/fiche";
+import { retourSensoriel } from "@/components/retourSensoriel";
 import { memeContenuSeance, type ContenuSeance, type Seance } from "@/domain/fiche";
 import { effacerBrouillon, envoiInterrompu, type Brouillon } from "./brouillon";
 import { lireCleSeance } from "./cleSeance";
@@ -98,6 +99,7 @@ export function BoutonValider({ seanceId, eleveId }: { seanceId: string; eleveId
       title="Tout est bon : valider"
       onClick={() => {
         setValide(true); // affichage immédiat, la base suit
+        retourSensoriel("succes");
         demarrer(async () => {
           const form = new FormData();
           form.set("seanceId", seanceId);
