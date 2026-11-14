@@ -31,41 +31,13 @@ test.describe("Coran (admin)", () => {
 
   test("appui long sur un verset : son explication directement", async ({ page }) => {
     await page.goto("/admin/coran?lecture=hafs&sourate=18");
-    // L'appli doit être prête (scripts chargés) avant le geste.
+    // L'appli doit être prête (texte du Coran interactif) avant le geste.
     await page.waitForLoadState("networkidle");
+    await expect(page.locator(".coran-page[data-pret]")).toBeVisible();
     const verset = page.locator('.coran-verset[data-cle="18:10"]');
     await verset.scrollIntoViewIfNeeded();
     // Au milieu d'un mot du verset (un verset peut s'étaler sur plusieurs lignes).
-    await page.evaluate(() => {
-      (window as unknown as { __ev: string[] }).__ev = [];
-      for (const t of ["pointerdown", "pointercancel", "pointerup", "pointerleave", "contextmenu", "touchstart"])
-        window.addEventListener(t, (e) => (window as unknown as { __ev: string[] }).__ev.push(`${t}:${(e.target as Element)?.className}`), true);
-    });
-    const boite = await verset.locator(".mot").nth(1).boundingBox();
-    console.log(
-      "DIAG0",
-      boite,
-      await page.evaluate(
-        (b) => {
-          const el = b ? document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2) : null;
-          return el ? `${el.tagName}.${el.className}` : "rien";
-        },
-        boite,
-      ),
-    );
     await appuiLong(page, verset.locator(".mot").nth(1));
-    console.log("DIAG1", await page.evaluate(() => (window as unknown as { __ev: string[] }).__ev));
-    // DIAGNOSTIC temporaire
-    await page.waitForTimeout(800);
-    console.log(
-      "DIAG",
-      await page.evaluate(() => ({
-        dialogues: [...document.querySelectorAll("dialog")].map((d) => [d.open, d.getAttribute("aria-labelledby"), d.textContent?.slice(0, 40)]),
-        mots: document.querySelectorAll('.coran-verset[data-cle="18:10"] .mot').length,
-        y: window.scrollY,
-      })),
-    );
-
     const feuille = page.getByRole("dialog", { name: "Verset 10" });
     await expect(feuille).toBeVisible();
     // Le doigt relevé sur le voile ne referme pas la feuille.

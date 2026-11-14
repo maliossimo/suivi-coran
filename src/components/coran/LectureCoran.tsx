@@ -159,7 +159,11 @@ export function LectureCoran({
    */
   const aLancer = useRef<string | null | undefined>(undefined);
 
-  useEffect(() => setReglages(lireReglages()), []);
+  const [pret, setPret] = useState(false);
+  useEffect(() => {
+    setReglages(lireReglages());
+    setPret(true);
+  }, []);
   const modifier = useCallback((m: Partial<Reglages>) => {
     setReglages((r) => {
       const n = { ...r, ...m };
@@ -825,6 +829,8 @@ export function LectureCoran({
           passage ? "avec-passage" : "",
           reglages.theme !== "auto" ? `theme-${reglages.theme}` : "",
         ].join(" ")}
+        // Texte interactif (toucher, appui long) : posé une fois la page prête dans le navigateur.
+        data-pret={pret ? "" : undefined}
         lang="ar"
         dir="rtl"
         style={{ "--taille-coran": `${TAILLES[reglages.taille]}px` } as CSSProperties}
