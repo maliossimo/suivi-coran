@@ -30,3 +30,4 @@ e2e-serveur.log
 # Python (moteur tajwid)
 __pycache__/
 .pytest_cache/
+api/_tajwid/modeles/

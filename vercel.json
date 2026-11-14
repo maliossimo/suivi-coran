@@ -16,7 +16,8 @@
   "functions": {
     "api/moteur_tajwid.py": {
       "maxDuration": 60,
-      "excludeFiles": "{node_modules,.next,src,e2e,supabase,public,docs,tests_python,.github}/**"
+      "excludeFiles": "{node_modules,.next,src,e2e,supabase,public,docs,tests_python,.github,scripts}/**",
+      "includeFiles": "api/_tajwid/modeles/*.onnx"
     }
   }
 }

@@ -5,7 +5,8 @@ import { Selecteur } from "@/components/Selecteur";
 import { depuisQuand, ELEMENTS, grouperParJour, phraseAudit } from "@/domain/journal";
 import { exigerEspace } from "@/services/acces";
 import { chargerJournal } from "@/services/admin";
-import { chargerSignalementsTajwid } from "@/services/tajwid";
+import { CorrectionsApprises } from "@/components/admin/CorrectionsApprises";
+import { chargerCorrectionsTajwid, chargerSignalementsTajwid } from "@/services/tajwid";
 import { dateHeure, heure } from "@/domain/format";
 import { LIBELLE_ROLE } from "@/domain/roles";
 
@@ -34,7 +35,10 @@ export default async function PageJournal({
     profil,
     await searchParams,
   );
-  const signalements = await chargerSignalementsTajwid(profil);
+  const [signalements, corrections] = await Promise.all([
+    chargerSignalementsTajwid(profil),
+    chargerCorrectionsTajwid(profil),
+  ]);
   const filtre = Object.values(filtres).some(Boolean);
   const maintenant = new Date();
   const jours = grouperParJour(evenements, maintenant);
@@ -210,6 +214,12 @@ export default async function PageJournal({
                 </details>
               </>
             )}
+            {corrections ? (
+              <details className="admin-repli" open={corrections.length > 0}>
+                <summary>Corrections apprises ({corrections.filter((c) => !c.refusee).length})</summary>
+                <CorrectionsApprises corrections={corrections} />
+              </details>
+            ) : null}
           </section>
         ) : null}
       </main>

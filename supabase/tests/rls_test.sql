@@ -772,9 +772,50 @@ select pg_temp.attendu((select count(*) from public.signalements_tajwid) = 0,
 select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
 select pg_temp.attendu((select count(*) from public.signalements_tajwid) = 1,
   'signalements tajwid : l''admin les voit');
+-- Corrections apprises : un seul élève ne suffit pas ; deux élèves, ou un Cheikh, oui.
+select pg_temp.attendu((select count(*) from public.corrections_tajwid('hafs', 5, 109, 109)) = 0,
+  'corrections apprises : le signalement d''un seul élève ne suffit pas');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
+insert into public.signalements_tajwid (sourate, verset, mot, regles)
+  values (5, 109, 'لَنَآ', '{MonfaselMaddRule}');
+select pg_temp.attendu(
+  (select count(*) from public.corrections_tajwid('hafs', 5, 100, 110) where regle = 'MonfaselMaddRule') = 1,
+  'corrections apprises : deux élèves différents suffisent');
+select pg_temp.attendu((select count(*) from public.corrections_tajwid('warsh', 5, 100, 110)) = 0,
+  'corrections apprises : propres à la lecture');
+select pg_temp.attendu((select count(*) from public.corrections_tajwid('hafs', 1, 1, 286)) = 0,
+  'corrections apprises : 41 versets au plus par demande');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+insert into public.signalements_tajwid (sourate, verset, mot, regles)
+  values (1, 2, 'رَبِّ', '{shadda:x}');
+select pg_temp.attendu(
+  (select regle from public.corrections_tajwid('hafs', 1, 1, 7)) = 'shadda',
+  'corrections apprises : un Cheikh suffit, règle sans sa précision');
+select pg_temp.doit_echouer(
+  $q$insert into public.corrections_tajwid_refusees (lecture, sourate, verset, mot, regle)
+     values ('hafs', 1, 2, 'رَبِّ', 'shadda')$q$,
+  'corrections apprises : seul l''admin peut en refuser');
+select pg_temp.doit_echouer($q$select * from public._corrections_tajwid()$q$,
+  'corrections apprises : la fonction interne n''est pas appelable');
+select pg_temp.attendu((select count(*) from public.corrections_tajwid_admin()) = 0,
+  'corrections apprises : la liste complète est réservée à l''admin');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+insert into public.corrections_tajwid_refusees (lecture, sourate, verset, mot, regle)
+  values ('hafs', 1, 2, 'رَبِّ', 'shadda');
+select pg_temp.attendu(
+  (select count(*) from public.corrections_tajwid_admin() where refusee) = 1
+  and (select count(*) from public.corrections_tajwid('hafs', 1, 1, 7)) = 0,
+  'corrections apprises : une correction refusée par l''admin n''est plus appliquée');
+delete from public.corrections_tajwid_refusees;
+select pg_temp.attendu((select count(*) from public.corrections_tajwid('hafs', 1, 1, 7)) = 1,
+  'corrections apprises : l''admin peut la rétablir');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu((select count(*) from public.corrections_tajwid_refusees) = 0,
+  'corrections apprises : un élève ne lit pas les refus');
+
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
 do $$ begin
-  for i in 1..30 loop
+  for i in 1..29 loop  -- + 1 plus haut (corrections apprises)
     insert into public.signalements_tajwid (sourate, verset, mot) values (1, 2, 'رَبِّ');
   end loop;
 end $$;

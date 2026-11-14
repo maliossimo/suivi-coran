@@ -27,13 +27,13 @@ FREQ = 16_000
 LEAD = int(FREQ * 0.4)  # les extraits d'entraînement commencent et finissent par un silence
 DUREE_MIN, DUREE_MAX = 0.5, 30.0  # secondes (le modèle prend une phrase ou un verset, 30 s au plus)
 
-# Modèle téléchargé au premier appel puis gardé en mémoire. Révision et empreintes figées :
-# un fichier différent est refusé. « int8 » : 23 Mo ; « fp32 » : 83 Mo, le même sans compression.
-REVISION = os.environ.get("TAJWID_REVISION", "b3b0503d32b4d9a8a0447880b4564fd3e9d69c15")
-VARIANTES = {
-    "int8": ("onnx/model-int8.onnx", "79cca1a2fc7ef81e325a3071a5f26cfec69203ef2c63177549065cdc1022c373"),
-    "fp32": ("onnx/model-fp32.onnx", ""),
-}
+# Modèle embarqué dans la fonction (téléchargé au déploiement par scripts/modeles-tajwid.mjs), sinon téléchargé
+# au premier appel puis gardé en mémoire. Révision et empreintes figées (modeles.json) : un fichier différent
+# est refusé. « int8 » : 23 Mo ; « fp32 » : 83 Mo, le même sans compression.
+_modeles = json.load(open(os.path.join(ICI, "modeles.json"), encoding="utf-8"))
+REVISION = os.environ.get("TAJWID_REVISION", _modeles["revision"])
+VARIANTES = {k: (v["fichier"], v["sha256"]) for k, v in _modeles["variantes"].items()}
+EMBARQUES = os.path.join(ICI, "modeles")
 MODELE = os.environ.get("TAJWID_MODELE", "int8")
 
 
@@ -54,6 +54,11 @@ class Reglages:
     # Double écoute : le morceau est aussi écouté par l'autre version du modèle, et une remarque
     # n'est gardée que si les deux la font (moins de remarques fausses ou changeantes).
     consensus: bool = True
+    # Madd naturel mesuré à l'horloge (voir _mesurer_madds) : None = pas de mesure. Un « madd oublié »
+    # tenu au moins `madd_tenu` voyelles brèves n'est pas reproché ; un madd tenu `madd_trop_long` ou plus l'est.
+    # Banc : 10 % de fausses remarques en moins, et 21 madd naturels fautifs repérés sur 27 (au lieu de 7).
+    madd_tenu: float | None = 1.25
+    madd_trop_long: float | None = 3.5
 
 
 REGLAGES = Reglages()
@@ -70,6 +75,9 @@ class ErreurSaisie(ValueError):
 
 def _chemin_modele(variante: str = MODELE) -> str:
     fichier, empreinte = VARIANTES[variante]
+    embarque = os.path.join(EMBARQUES, f"{variante}.onnx")
+    if REVISION == _modeles["revision"] and os.path.exists(embarque):
+        return embarque  # vérifié au déploiement
     chemin = os.path.join(tempfile.gettempdir(), f"tajwid-{REVISION}-{variante}.onnx")
     if not os.path.exists(chemin):
         url = f"https://huggingface.co/Hisnlabs/tajweed-v2/resolve/{REVISION}/{fichier}"
@@ -91,6 +99,7 @@ def session(variante: str = MODELE):
 
             options = ort.SessionOptions()
             options.intra_op_num_threads = 2
+            options.use_deterministic_compute = True  # même son → même verdict, à chaque fois
             _sessions[variante] = ort.InferenceSession(
                 _chemin_modele(variante), options, providers=["CPUExecutionProvider"]
             )
@@ -178,6 +187,65 @@ def _situer(
     return meilleur[1], meilleur[2]
 
 
+def _mesurer_madds(ref, entendu: str, bornes: list[int], instants: list[float]) -> dict[int, list[dict]]:
+    """Chaque madd naturel du morceau, mesuré à l'horloge : sa durée rapportée à celle d'une voyelle brève
+    de la même personne dans le même morceau (1 temps). Le modèle écrit parfois une voyelle allongée sans
+    son signe de madd (ou l'inverse) : l'horloge départage. → {mot du morceau : [{symboles, temps}]}"""
+    if not instants or len(instants) != len(entendu) + 1:
+        return {}
+    longues = set(imam.LONG)
+    breves = sorted(
+        d
+        for k in range(len(entendu) - 1)
+        if entendu[k] in imam.HARAKAT and entendu[k + 1] not in longues
+        for d in [instants[k + 1] - instants[k]]
+        if 0.02 < d < 0.6
+    )
+    if len(breves) < 3:
+        return {}
+    breve = breves[len(breves) // 2]
+    fins = set(ref.ends or [len(ref.words) - 1])
+    mesures: dict[int, list[dict]] = {}
+    for u in ref.units:
+        if u.kind != "madd" or u.rule != "NormalMaddRule" or u.word in fins:
+            continue  # en fin de souffle, le madd peut être tenu comme ʿarid
+        hs, he = bornes[u.s], bornes[u.e]
+        n, rs, re_ = imam._run(entendu, max(0, hs - 1), min(len(entendu), he + 1), u.char)
+        if n:
+            duree = imam._dur(entendu, instants, rs, re_)
+        else:  # pas de signe de madd : la voyelle brève entendue à cet endroit
+            ks = [k for k in range(max(0, hs - 2), min(len(entendu), he + 1)) if entendu[k] in imam.HARAKAT]
+            if not ks:
+                continue
+            duree = instants[ks[-1] + 1] - instants[ks[-1]]
+        mesures.setdefault(u.word, []).append({"pos": u.s, "symboles": n, "temps": round(duree / breve, 2)})
+    return mesures
+
+
+def _madd_tenu(note: dict, mesures: list[dict] | None, reglages: Reglages) -> bool:
+    """Un « madd naturel oublié » alors que l'horloge dit que la voyelle a bien été tenue : remarque retirée."""
+    if reglages.madd_tenu is None or note["rule"] != "NormalMaddRule" or note["heard"] != 0 or not mesures:
+        return False
+    return any(m["pos"] == note.get("pos") and m["symboles"] == 0 and m["temps"] >= reglages.madd_tenu for m in mesures)
+
+
+def _madd_trop_long(notes: list, mesures: list[dict] | None, reglages: Reglages) -> dict | None:
+    """Un madd naturel tenu nettement plus de 2 temps à l'horloge (le modèle n'écrit pas cette longueur)."""
+    if reglages.madd_trop_long is None or not mesures or any(n["rule"] == "NormalMaddRule" for n in notes):
+        return None
+    longs = [m for m in mesures if m["symboles"] > 0 and m["temps"] >= reglages.madd_trop_long]
+    if not longs:
+        return None
+    return {
+        "rule": "NormalMaddRule",
+        "severity": "khafi",
+        "expected": [2],
+        "heard": 4,
+        "pos": longs[0]["pos"],
+        "msg": {"fr": "Madd naturel trop long : 2 temps seulement"},
+    }
+
+
 def _etat(notes: list) -> str:
     if any(n["rule"] == "word" for n in notes):
         return "oublie"
@@ -223,6 +291,7 @@ def analyser_passage(
     tempo: list[float] | None = None,
     reglages: Reglages = REGLAGES,
     avec_passage: bool = False,
+    diagnostic: bool = False,
 ) -> dict:
     """Un morceau (≤ 30 s) d'une récitation des versets du..au : il est situé dans le passage, à partir du mot
     « depuis », puis jugé mot par mot. tempo : les madd naturels déjà entendus dans la séance (le rythme de
@@ -269,6 +338,7 @@ def analyser_passage(
                 confirmees |= {(a + m2["index"], n["rule"].split(":")[0]) for n in m2["notes"]}
     ref = imam.recited(list(mots[a:b]), entendu, riwaya=riwaya)
     bornes = imam._boundaries(ref.phonemes, entendu)
+    mesures = _mesurer_madds(ref, entendu, bornes, instants)
     resultat = []
     for k, m in enumerate(
         imam.listen(
@@ -288,7 +358,11 @@ def analyser_passage(
             for n in m["notes"]
             if (reglages.madd_naturel or not (n["rule"] == "NormalMaddRule" and n["severity"] == "khafi"))
             and (confirmees is None or (g, n["rule"].split(":")[0]) in confirmees)
+            and not _madd_tenu(n, mesures.get(k), reglages)
         ]
+        trop_long = _madd_trop_long(notes, mesures.get(k), reglages)
+        if trop_long:
+            notes.append(trop_long)
         s0, s1 = ref.spans[k]
         h0, h1 = bornes[s0], bornes[s1]
         resultat.append(
@@ -303,6 +377,7 @@ def analyser_passage(
                 # où entendre ce mot dans le morceau (secondes)
                 "debut": round(max(0.0, instants[min(h0, len(instants) - 1)] - 0.15), 2),
                 "fin": round(instants[min(max(h1, h0 + 1), len(instants) - 1)] + 0.1, 2),
+                **({"mesures_madd": mesures.get(k, [])} if diagnostic else {}),
             }
         )
     return {"entendu": entendu, "mots": resultat, "couverts": [a, b], "tempo": tempo, "passage": passage}

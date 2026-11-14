@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  appliquerCorrections,
   assemblerPassage,
   bilanPassage,
   bilanTajwid,
@@ -101,5 +102,46 @@ describe("assemblerPassage", () => {
     const mots = assemblerPassage(passage, [[vu(0), vu(2)]]);
     expect(mots.map((m) => m.etat)).toEqual(["juste", "oublie", "juste", "non_recite", "non_recite"]);
     expect(bilanPassage(mots)).toMatchObject({ total: 3, score: 67 });
+  });
+});
+
+describe("appliquerCorrections", () => {
+  const mot = (remarques: MotAnalyse["remarques"], etat: MotAnalyse["etat"] = "erreur"): MotAnalyse => ({
+    mot: "لَنَآ",
+    verset: 109,
+    etat,
+    remarques,
+    madd: [],
+  });
+
+  it("retire la remarque apprise et recalcule l'état", () => {
+    const [m] = appliquerCorrections(
+      [
+        mot([
+          { gravite: "jali", regle: "MonfaselMaddRule:x", texte: "a" },
+          { gravite: "khafi", regle: "ghunnah", texte: "b" },
+        ]),
+      ],
+      [{ verset: 109, mot: "لَنَآ", regle: "MonfaselMaddRule" }],
+    );
+    expect(m?.remarques.map((r) => r.texte)).toEqual(["b"]);
+    expect(m?.etat).toBe("a_revoir");
+  });
+
+  it("un mot sans plus aucune remarque devient juste", () => {
+    const [m] = appliquerCorrections(
+      [mot([{ gravite: "khafi", regle: "ghunnah", texte: "b" }], "a_revoir")],
+      [{ verset: 109, mot: "لَنَآ", regle: "ghunnah" }],
+    );
+    expect(m?.etat).toBe("juste");
+  });
+
+  it("ne touche ni un autre verset ni un mot oublié", () => {
+    const r = [{ gravite: "khafi" as const, regle: "ghunnah", texte: "b" }];
+    const c = [{ verset: 110, mot: "لَنَآ", regle: "ghunnah" }];
+    expect(appliquerCorrections([mot(r, "a_revoir")], c)[0]?.etat).toBe("a_revoir");
+    expect(
+      appliquerCorrections([mot([], "oublie")], [{ verset: 109, mot: "لَنَآ", regle: "word" }])[0]?.etat,
+    ).toBe("oublie");
   });
 });
