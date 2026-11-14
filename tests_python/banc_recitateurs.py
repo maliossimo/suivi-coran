@@ -37,9 +37,8 @@ VERSETS = (
 )
 
 CONFIGS = [
-    ("1.24 (double écoute, 0,3 / 0,7)", Reglages(madd_tenu=None, madd_trop_long=None)),
-    ("madd tenu ≥ 1,25, trop long ≥ 3,2", Reglages(madd_tenu=1.25, madd_trop_long=3.2)),
-    ("madd tenu ≥ 1,25, trop long ≥ 3,5", Reglages(madd_tenu=1.25, madd_trop_long=3.5)),
+    ("actuel (madd à l'horloge 1,25 / 3,5)", Reglages()),
+    ("1.24 (sans horloge)", Reglages(madd_tenu=None, madd_trop_long=None)),
 ]
 
 

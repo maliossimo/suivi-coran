@@ -56,8 +56,9 @@ class Reglages:
     consensus: bool = True
     # Madd naturel mesuré à l'horloge (voir _mesurer_madds) : None = pas de mesure. Un « madd oublié »
     # tenu au moins `madd_tenu` voyelles brèves n'est pas reproché ; un madd tenu `madd_trop_long` ou plus l'est.
-    madd_tenu: float | None = None
-    madd_trop_long: float | None = None
+    # Banc : 10 % de fausses remarques en moins, et 21 madd naturels fautifs repérés sur 27 (au lieu de 7).
+    madd_tenu: float | None = 1.25
+    madd_trop_long: float | None = 3.5
 
 
 REGLAGES = Reglages()
