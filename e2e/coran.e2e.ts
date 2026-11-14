@@ -170,10 +170,16 @@ test.describe("Vérifier ma récitation", () => {
     });
     // Le moteur (fonction Python sur Vercel) ne tourne pas ici : sa réponse est simulée.
     let envois = 0;
+    let suivis = 0;
     await page.route("**/api/moteur_tajwid**", async (route) => {
       if (route.request().method() === "GET") return route.fulfill({ json: { pret: true } });
-      envois++;
       const url = new URL(route.request().url());
+      if (url.searchParams.has("suivi")) {
+        // Suivi en direct : seulement jusqu'où l'élève est arrivé.
+        suivis++;
+        return route.fulfill({ json: { couverts: [0, 2] } });
+      }
+      envois++;
       expect(route.request().headers()["authorization"]).toMatch(/^Jeton /);
       expect(url.searchParams.get("du")).toBe("2");
       expect((route.request().postDataBuffer()?.length ?? 0) % 2).toBe(0);
@@ -226,7 +232,8 @@ test.describe("Vérifier ma récitation", () => {
     await expect(reciter).toBeVisible();
     await reciter.getByRole("button", { name: "Commencer la récitation" }).click();
     await expect(reciter.getByText("Son parfait")).toBeVisible({ timeout: 10_000 });
-    await page.waitForTimeout(1500);
+    // Le suivi en direct part toutes les 2 s.
+    await expect.poll(() => suivis, { timeout: 10_000 }).toBeGreaterThan(0);
     await reciter.getByRole("button", { name: "J’ai fini" }).click();
 
     await expect(reciter.getByText("50 %")).toBeVisible({ timeout: 15_000 });

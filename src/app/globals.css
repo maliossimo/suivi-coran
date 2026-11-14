@@ -8329,3 +8329,23 @@ button.reciter-mot {
   flex: 1;
   min-height: 50px;
 }
+.reciter-mot.entendu {
+  color: var(--vert-texte);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--vert) 40%, transparent);
+  text-underline-offset: 8px;
+}
+.tajwid-regles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.tajwid-regles li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--ligne);
+  font-size: 14px;
+}

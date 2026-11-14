@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.23.0] — 2026-11-14
+
+### Nouveautés
+
+- Mode Réciter : suivi en direct. Toutes les 2 secondes, les mots déjà récités s'allument ; le jugement du tajwid arrive toujours à chaque pause, sur le morceau entier.
+- Administration (Journal) : les signalements « L’appli s’est trompée », classés par règle, pour régler la vérification en priorité là où elle se trompe le plus.
+
+### Amélioré
+
+- Précision : le son du micro est ramené à 16 kHz par le navigateur (conversion de qualité) au lieu d'un filtre simple qui pouvait déformer certaines lettres.
+
 ## [1.22.0] — 2026-11-14
 
 ### Nouveautés

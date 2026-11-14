@@ -131,3 +131,37 @@ def test_passage_refuse_une_plage_impossible():
 
     with pytest.raises(ErreurSaisie):
         analyser_passage(UNE_SECONDE, 1, 5, 2, "hafs")
+
+
+def mulaw(pcm: bytes) -> bytes:
+    """Encodeur G.711 μ-law (comme versMulaw côté navigateur)."""
+    sortie = bytearray()
+    for s in np.frombuffer(pcm, "<i2").astype(int):
+        signe = 0x80 if s < 0 else 0
+        s = min(abs(s), 32635) + 0x84
+        exposant, masque = 7, 0x4000
+        while exposant > 0 and not (s & masque):
+            exposant -= 1
+            masque >>= 1
+        sortie.append(~(signe | (exposant << 4) | ((s >> (exposant + 3)) & 0x0F)) & 0xFF)
+    return bytes(sortie)
+
+
+def test_mulaw_relu_fidelement():
+    x = np.array([0, 100, -100, 1000, -1000, 8000, -8000, 32000], "<i2")
+    relu = moteur._mulaw(mulaw(x.tobytes())) * 32768
+    assert np.all(np.abs(relu - x) <= np.maximum(8, np.abs(x) * 0.04))
+
+
+@reel
+def test_suivi_en_direct_situe_les_dernieres_secondes():
+    from _tajwid.moteur import suivre
+
+    v2, v3 = (recitation("Husary_128kbps", 1, v) for v in (2, 3))
+    tout = v2 + v3
+    fenetre = tout[-16000 * 2 * 8 :]  # 8 dernières secondes
+    debut = time.time()
+    r = suivre(mulaw(fenetre), 1, 2, 4, "hafs", depuis=2, avec_passage=True)
+    print("\nsuivi :", r["couverts"], f"{time.time() - debut:.2f} s")
+    assert r["couverts"][1] == 6  # arrivé à la fin du verset 3
+    assert len(r["passage"]) == 9
