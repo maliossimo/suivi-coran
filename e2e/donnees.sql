@@ -55,6 +55,13 @@ insert into public.seances (id, eleve_id, date, type, duree_min) values
    (now() at time zone 'Europe/Paris')::date - 1, 'revision', 20);
 insert into public.passages (seance_id, sourate_debut, verset_debut, sourate_fin, verset_fin) values
   ('e2e00000-0000-0000-0000-0000000005e1', 67, 1, 67, 10);
+-- La même pour aujourd'hui : si les tests commencent après minuit (heure de Paris),
+-- leur « hier » est le jour de la préparation et la séance existe quand même.
+insert into public.seances (id, eleve_id, date, type, duree_min) values
+  ('e2e00000-0000-0000-0000-0000000005e2', 'e2e00000-0000-0000-0000-0000000000e1',
+   (now() at time zone 'Europe/Paris')::date, 'revision', 20);
+insert into public.passages (seance_id, sourate_debut, verset_debut, sourate_fin, verset_fin) values
+  ('e2e00000-0000-0000-0000-0000000005e2', 67, 1, 67, 10);
 
 -- Présences : une classe de la mosquée A, cours tous les jours (l'appel du jour est possible).
 insert into public.classes (id, etablissement_id, nom, jours) values
