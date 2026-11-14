@@ -45,7 +45,7 @@ export function erreurDeVersion(nom: string, message: string): boolean {
   return (
     nom === "ChunkLoadError" ||
     /^\w{1,3}\[\w{1,3}\] is not a function$/.test(message) ||
-    /Loading (CSS )?chunk [\w-]+ failed/i.test(message) ||
+    /Loading (CSS )?chunk [\w/.-]+ failed/i.test(message) ||
     /reading 'call'/.test(message) ||
     /dynamically imported module/i.test(message) ||
     /Failed to find Server Action/i.test(message)
