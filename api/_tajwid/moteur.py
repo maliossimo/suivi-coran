@@ -14,6 +14,8 @@ import tempfile
 import threading
 import urllib.request
 
+from dataclasses import dataclass
+
 import numpy as np
 
 from . import imam, warsh
@@ -24,16 +26,29 @@ FREQ = 16_000
 LEAD = int(FREQ * 0.4)  # les extraits d'entraînement commencent et finissent par un silence
 DUREE_MIN, DUREE_MAX = 0.5, 30.0  # secondes (le modèle prend une phrase ou un verset, 30 s au plus)
 
-# Modèle int8 (23 Mo), téléchargé au premier appel puis gardé en mémoire. Révision et empreinte figées :
-# un fichier différent est refusé.
+# Modèle téléchargé au premier appel puis gardé en mémoire. Révision et empreintes figées :
+# un fichier différent est refusé. « int8 » : 23 Mo ; « fp32 » : 83 Mo, le même sans compression.
 REVISION = os.environ.get("TAJWID_REVISION", "b3b0503d32b4d9a8a0447880b4564fd3e9d69c15")
-EMPREINTE = os.environ.get(
-    "TAJWID_SHA256", "79cca1a2fc7ef81e325a3071a5f26cfec69203ef2c63177549065cdc1022c373"
-)
-URL_MODELE = f"https://huggingface.co/Hisnlabs/tajweed-v2/resolve/{REVISION}/onnx/model-int8.onnx"
+VARIANTES = {
+    "int8": ("onnx/model-int8.onnx", "79cca1a2fc7ef81e325a3071a5f26cfec69203ef2c63177549065cdc1022c373"),
+    "fp32": ("onnx/model-fp32.onnx", ""),
+}
+MODELE = os.environ.get("TAJWID_MODELE", "int8")
+
+
+@dataclass(frozen=True)
+class Reglages:
+    """Seuils de confiance : une remarque sur un son dont le modèle doute est tue."""
+
+    modele: str = MODELE
+    min_prob: float = 0.3  # finesses de tajwid (madd, ghunna…)
+    min_prob_jali: float = 0.7  # fautes nettes (lettre, voyelle, son)
+
+
+REGLAGES = Reglages()
 
 _verrou = threading.Lock()
-_session = None
+_sessions: dict = {}
 _meta = json.load(open(os.path.join(ICI, "config.json"), encoding="utf-8"))
 _mel = FeatureExtractor(feature_size=80)
 
@@ -42,12 +57,14 @@ class ErreurSaisie(ValueError):
     """Requête invalide : message montrable à l'utilisateur."""
 
 
-def _chemin_modele() -> str:
-    chemin = os.path.join(tempfile.gettempdir(), f"tajwid-{REVISION}.onnx")
+def _chemin_modele(variante: str = MODELE) -> str:
+    fichier, empreinte = VARIANTES[variante]
+    chemin = os.path.join(tempfile.gettempdir(), f"tajwid-{REVISION}-{variante}.onnx")
     if not os.path.exists(chemin):
-        with urllib.request.urlopen(URL_MODELE, timeout=20) as r:  # noqa: S310 (adresse fixe)
+        url = f"https://huggingface.co/Hisnlabs/tajweed-v2/resolve/{REVISION}/{fichier}"
+        with urllib.request.urlopen(url, timeout=30) as r:  # noqa: S310 (adresse fixe)
             donnees = r.read()
-        if EMPREINTE and hashlib.sha256(donnees).hexdigest() != EMPREINTE:
+        if empreinte and hashlib.sha256(donnees).hexdigest() != empreinte:
             raise RuntimeError("empreinte du modèle inattendue")
         tmp = chemin + ".part"
         with open(tmp, "wb") as f:
@@ -56,24 +73,25 @@ def _chemin_modele() -> str:
     return chemin
 
 
-def session():
-    global _session
+def session(variante: str = MODELE):
     with _verrou:
-        if _session is None:
+        if variante not in _sessions:
             import onnxruntime as ort
 
             options = ort.SessionOptions()
             options.intra_op_num_threads = 2
-            _session = ort.InferenceSession(_chemin_modele(), options, providers=["CPUExecutionProvider"])
-    return _session
+            _sessions[variante] = ort.InferenceSession(
+                _chemin_modele(variante), options, providers=["CPUExecutionProvider"]
+            )
+    return _sessions[variante]
 
 
-def entendre(audio: np.ndarray, riwaya: str):
+def entendre(audio: np.ndarray, riwaya: str, variante: str = MODELE):
     """Ce que le modèle entend : écriture phonétique, confiance et instant (s) de chaque symbole."""
     audio = np.concatenate([np.zeros(LEAD, np.float32), audio.astype(np.float32), np.zeros(LEAD, np.float32)])
     mel = _mel(audio, padding=0)
     mel = mel[:, : min(3000, mel.shape[1] // 2 * 2)]
-    lp = session().run(
+    lp = session(variante).run(
         None,
         {"mel": mel[None].astype(np.float32), "riwaya": np.array([_meta["riwayat"].index(riwaya)], np.int64)},
     )[0][0]
@@ -106,7 +124,14 @@ def mots_du_verset(sourate: int, verset: int, riwaya: str, texte_warsh: str | No
     return warsh.verse(sourate, verset, texte_warsh, hafs).split(" ")
 
 
-def analyser(pcm: bytes, sourate: int, verset: int, riwaya: str, texte_warsh: str | None = None) -> dict:
+def analyser(
+    pcm: bytes,
+    sourate: int,
+    verset: int,
+    riwaya: str,
+    texte_warsh: str | None = None,
+    reglages: Reglages = REGLAGES,
+) -> dict:
     """pcm : 16 kHz, mono, 16 bits (petit-boutiste). Renvoie les mots avec leurs remarques en français."""
     if riwaya not in ("hafs", "warsh"):
         raise ErreurSaisie("Lecture inconnue.")
@@ -128,14 +153,20 @@ def analyser(pcm: bytes, sourate: int, verset: int, riwaya: str, texte_warsh: st
     except Exception as e:  # noqa: BLE001
         raise ErreurSaisie("Verset inconnu.") from e
 
-    entendu, probs, instants = entendre(audio, riwaya)
+    entendu, probs, instants = entendre(audio, riwaya, reglages.modele)
     if not entendu:
         return {"entendu": "", "mots": [{"mot": m, "etat": "oublie", "remarques": [], "madd": []} for m in mots]}
 
     ref = imam.recited(mots, entendu, riwaya=riwaya)
     resultat = []
     for m in imam.listen(
-        ref, entendu, heard_probs=probs, min_prob=0.3, min_prob_jali=0.7, langs=("fr",), heard_times=instants
+        ref,
+        entendu,
+        heard_probs=probs,
+        min_prob=reglages.min_prob,
+        min_prob_jali=reglages.min_prob_jali,
+        langs=("fr",),
+        heard_times=instants,
     ):
         notes = m["notes"]
         if any(n["rule"] == "word" for n in notes):
@@ -150,7 +181,9 @@ def analyser(pcm: bytes, sourate: int, verset: int, riwaya: str, texte_warsh: st
             {
                 "mot": m["word"],
                 "etat": etat,
-                "remarques": [{"gravite": n["severity"], "texte": n["msg"]["fr"]} for n in notes],
+                "remarques": [
+                    {"gravite": n["severity"], "regle": n["rule"], "texte": n["msg"]["fr"]} for n in notes
+                ],
                 "madd": [{"nom": d["name"]["fr"], "temps": d["heard"]} for d in m["madd"]],
             }
         )
