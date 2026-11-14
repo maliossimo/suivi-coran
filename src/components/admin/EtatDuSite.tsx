@@ -55,30 +55,17 @@ export async function EtatDuSite() {
         </li>
       </ul>
       {e.erreurs.length > 0 ? (
-        <div className="tableau-defilant">
-          <table className="tableau">
-            <thead>
-              <tr>
-                <th>Quand</th>
-                <th>Page</th>
-                <th>Message</th>
-                <th>Version</th>
-              </tr>
-            </thead>
-            <tbody>
-              {e.erreurs.map((x) => (
-                <tr key={x.id}>
-                  <td>{dateHeure(x.quand)}</td>
-                  <td>
-                    <code>{x.page}</code>
-                  </td>
-                  <td>{x.message}</td>
-                  <td>{x.version ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className="liste-erreurs">
+          {e.erreurs.map((x) => (
+            <li key={x.id}>
+              <span className="liste-erreurs-tete">
+                {dateHeure(x.quand)} · <code>{x.page}</code>
+              </span>
+              <span className="liste-erreurs-message">{x.message}</span>
+              <small>version en ligne {x.version ?? "—"}</small>
+            </li>
+          ))}
+        </ul>
       ) : null}
     </section>
   );
