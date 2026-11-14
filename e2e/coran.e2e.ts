@@ -60,7 +60,14 @@ test.describe("Coran (admin)", () => {
     });
     await appuiLong(page, verset.locator(".mot").nth(1));
     await page.waitForTimeout(500);
-    console.log("DIAG2", await page.evaluate(() => (window as unknown as { __log: string[] }).__log));
+    console.log(
+      "DIAG2",
+      await page.evaluate(() => [
+        (window as unknown as { __log: string[] }).__log,
+        "CloseWatcher" in window,
+        history.length,
+      ]),
+    );
     const feuille = page.getByRole("dialog", { name: "Verset 10" });
     await expect(feuille).toBeVisible();
     // Le doigt relevé sur le voile ne referme pas la feuille.
