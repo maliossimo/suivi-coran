@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.26.0] — 2026-11-14
+
+### Amélioré
+
+- Mode Réciter : quand l'appli n'est pas sûre d'une remarque, elle le dit. Le mot est souligné en pointillés (« à vérifier »), à part des fautes sûres, avec le conseil d'écouter et de comparer avec le récitateur.
+- Mode Réciter : un résultat qui guide. On voit d'abord le nombre de mots à reprendre, puis on peut les réécouter à la suite avec sa propre voix, ou reprendre directement le verset où il y a le plus de fautes.
+- Mode Réciter : on sait toujours ce que fait l'appli (préparation, écoute, analyse, réseau lent, connexion perdue). Un envoi qui échoue est réessayé tout seul quand le réseau revient : la récitation n'est plus perdue.
+
 ## [1.25.0] — 2026-11-14
 
 ### Nouveautés

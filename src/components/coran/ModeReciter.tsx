@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Eye, EyeOff, Mic, Play, Square, X } from "lucide-react";
+import { Check, Eye, EyeOff, Headphones, Mic, Play, RotateCcw, Square, X } from "lucide-react";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { actionCorrectionsTajwid, actionSignalerTajwid } from "@/app/actions/tajwid";
 import { bloquerDefilement } from "@/components/Feuille";
@@ -10,6 +10,8 @@ import { LIBELLE_AVIS } from "@/domain/decoupage";
 import {
   appliquerCorrections,
   assemblerPassage,
+  estIncertain,
+  guiderResultat,
   bilanPassage,
   LIBELLE_ETAT,
   lireAnalyse,
@@ -18,6 +20,7 @@ import {
   type MotAnalyse,
 } from "@/domain/tajwid";
 import { extraitWav, useCaptureReciter } from "./captureReciter";
+import { envoyerAvecEssais, type EtatReseau } from "./reseau";
 
 type Etape = "pret" | "ecoute" | "fin" | "resultat";
 
@@ -93,6 +96,11 @@ export function ModeReciter({
   const [signale, setSignale] = useState<Set<number>>(new Set());
   /** Remarques que l'appli a appris à ne plus faire sur ces versets (signalements). */
   const [corrections, setCorrections] = useState<CorrectionApprise[]>([]);
+  /** Ce que fait l'appli, toujours visible : moteur prêt, réseau lent ou coupé, réécoute en cours. */
+  const [moteurPret, setMoteurPret] = useState(false);
+  const [reseau, setReseau] = useState<EtatReseau>("ok");
+  const [reecoute, setReecoute] = useState(false);
+  const suite = useRef<string[]>([]);
   /** Suivi en direct : jusqu'où l'élève est arrivé (mots), avant même l'analyse de la pause. */
   const [suiviFin, setSuiviFin] = useState(0);
   const suivi = useRef({ fin: 0, passage: false });
@@ -117,7 +125,9 @@ export function ModeReciter({
     const d = dialogue.current;
     if (d && !d.open) d.showModal();
     const debloquer = bloquerDefilement();
-    void fetch("/api/moteur_tajwid?prechauffer=1").catch(() => undefined);
+    void fetch("/api/moteur_tajwid?prechauffer=1")
+      .catch(() => undefined)
+      .finally(() => setMoteurPret(true));
     try {
       setMasquer(localStorage.getItem(CLE_MASQUER) === "1");
     } catch {
@@ -127,6 +137,7 @@ export function ModeReciter({
       debloquer();
       audio.current?.pause();
       if (urlAudio.current) URL.revokeObjectURL(urlAudio.current);
+      for (const u of suite.current) URL.revokeObjectURL(u);
     };
   }, []);
 
@@ -149,15 +160,19 @@ export function ModeReciter({
           });
           if (index === 0) q.set("liste", "1");
           if (lecture === "warsh") for (const v of versetsChoisis) q.append("texte", v.texte);
-          const r = await fetch(`/api/moteur_tajwid?${q}`, {
-            method: "POST",
-            headers: {
-              Authorization: `Jeton ${jeton}`,
-              "Content-Type": "application/octet-stream",
-              "X-Tempo": JSON.stringify(f.tempo),
+          const r = await envoyerAvecEssais(
+            `/api/moteur_tajwid?${q}`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Jeton ${jeton}`,
+                "Content-Type": "application/octet-stream",
+                "X-Tempo": JSON.stringify(f.tempo),
+              },
+              body: pcm.buffer as ArrayBuffer,
             },
-            body: pcm.buffer as ArrayBuffer,
-          });
+            (etat) => seance === file.current.seance && setReseau(etat),
+          );
           const corps: unknown = await r.json().catch(() => null);
           if (!r.ok) {
             const m = (corps as { erreur?: unknown } | null)?.erreur;
@@ -258,6 +273,8 @@ export function ModeReciter({
     setChoisi(null);
     setSignale(new Set());
     setErreur(null);
+    setReseau("ok");
+    arreterReecoute();
   };
 
   const commencer = async () => {
@@ -300,6 +317,7 @@ export function ModeReciter({
     [passage, resultats, corrections],
   );
   const bilan = useMemo(() => bilanPassage(mots), [mots]);
+  const guide = useMemo(() => guiderResultat(mots), [mots]);
   const derniersVersets = useMemo(() => {
     const couverts = new Set<number>();
     for (const m of mots) if (m.etat !== "non_recite") couverts.add(m.verset);
@@ -309,8 +327,7 @@ export function ModeReciter({
   useEffect(() => {
     if (etape !== "resultat") return;
     retourSensoriel(bilan.score === 100 ? "succes" : "leger");
-    const premier = mots.find((m) => m.etat === "erreur" || m.etat === "oublie" || m.etat === "a_revoir");
-    setChoisi(premier ? premier.indice : null);
+    setChoisi(guide.aReprendre[0] ?? guide.aVerifier[0] ?? null);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- une seule fois, à l'arrivée du résultat
   }, [etape]);
 
@@ -319,6 +336,8 @@ export function ModeReciter({
     const a = audio.current ?? new Audio();
     audio.current = a;
     a.pause();
+    a.onended = null;
+    setReecoute(false);
     a.src = url;
     a.currentTime = debut;
     a.ontimeupdate = fin === undefined ? null : () => a.currentTime >= fin && a.pause();
@@ -332,6 +351,57 @@ export function ModeReciter({
     if (urlAudio.current) URL.revokeObjectURL(urlAudio.current);
     urlAudio.current = URL.createObjectURL(extraitWav(pcm, m.analyse.debut ?? 0, m.analyse.fin ?? Infinity));
     jouer(urlAudio.current);
+  };
+
+  /** Réécoute, à la suite, des mots à reprendre (la voix de l'élève), chacun montré pendant qu'il passe. */
+  function arreterReecoute() {
+    const a = audio.current;
+    if (a) {
+      a.onended = null;
+      a.pause();
+    }
+    for (const u of suite.current) URL.revokeObjectURL(u);
+    suite.current = [];
+    setReecoute(false);
+  }
+
+  const reecouter = (indices: number[]) => {
+    arreterReecoute();
+    const liste = indices.flatMap((i) => {
+      const m = mots[i];
+      const pcm = m?.morceau !== undefined ? file.current.pcm[m.morceau] : undefined;
+      if (!m?.analyse || !pcm) return [];
+      return [
+        { i, url: URL.createObjectURL(extraitWav(pcm, m.analyse.debut ?? 0, m.analyse.fin ?? Infinity)) },
+      ];
+    });
+    if (!liste.length) return;
+    suite.current = liste.map((x) => x.url);
+    onAvantEcoute();
+    const a = audio.current ?? new Audio();
+    audio.current = a;
+    a.ontimeupdate = null;
+    let k = 0;
+    const suivant = () => {
+      const x = liste[k++];
+      if (!x) {
+        arreterReecoute();
+        return;
+      }
+      setChoisi(x.i);
+      a.src = x.url;
+      a.onended = () => setTimeout(suivant, 500);
+      void a.play().catch(() => arreterReecoute());
+    };
+    setReecoute(true);
+    suivant();
+  };
+
+  const reprendreVerset = (v: number) => {
+    setDu(v);
+    setAu(v);
+    recommencer();
+    setEtape("pret");
   };
 
   const signaler = async (indice: number) => {
@@ -377,6 +447,27 @@ export function ModeReciter({
   };
 
   const motChoisi = choisi !== null ? mots[choisi] : undefined;
+  const choisiIncertain = estIncertain(motChoisi?.analyse);
+  const statut =
+    reseau === "coupe" && (etape === "ecoute" || etape === "fin")
+      ? "Connexion perdue : ta récitation est gardée, je réessaie dès que le réseau revient."
+      : reseau === "lent" && (etape === "ecoute" || etape === "fin")
+        ? "Réseau lent : l’analyse prend du retard, tu peux continuer."
+        : etape === "pret"
+          ? moteurPret
+            ? "Prêt : touche le micro et récite."
+            : "Préparation de la vérification…"
+          : etape === "ecoute"
+            ? enCours > 0
+              ? "Je t’écoute · j’analyse ta dernière pause…"
+              : "Je t’écoute."
+            : etape === "fin"
+              ? enCours > 1
+                ? `J’analyse les ${enCours} derniers passages…`
+                : "J’analyse la fin de ta récitation…"
+              : reecoute
+                ? "Réécoute de tes mots à reprendre…"
+                : null;
   const optionsVersets = versets.map((v) => ({ valeur: String(v.n), libelle: `Verset ${v.n}` }));
 
   const texte = (
@@ -416,6 +507,11 @@ export function ModeReciter({
           </span>
         )}
       </header>
+      {statut ? (
+        <p className={`reciter-statut ${reseau}`} role="status" aria-live="polite">
+          {statut}
+        </p>
+      ) : null}
 
       {etape === "pret" ? (
         <div className="reciter-choix">
@@ -455,16 +551,16 @@ export function ModeReciter({
 
       {etape === "resultat" ? (
         <section className="reciter-bilan" aria-label="Bilan">
-          <strong>{bilan.score} %</strong>
-          <span className="pastille juste">{bilan.compte.juste} justes</span>
-          {bilan.compte.a_revoir ? (
-            <span className="pastille a_revoir">{bilan.compte.a_revoir} à revoir</span>
-          ) : null}
-          {bilan.compte.erreur + bilan.compte.oublie ? (
-            <span className="pastille erreur">
-              {bilan.compte.erreur + bilan.compte.oublie} erreur
-              {bilan.compte.erreur + bilan.compte.oublie > 1 ? "s" : ""}
-            </span>
+          <strong>
+            {guide.aReprendre.length === 0
+              ? guide.aVerifier.length
+                ? "Presque tout est juste"
+                : "Tout est juste"
+              : `${guide.aReprendre.length} mot${guide.aReprendre.length > 1 ? "s" : ""} à reprendre`}
+          </strong>
+          <span className="reciter-score">{bilan.score} % de mots justes</span>
+          {guide.aVerifier.length ? (
+            <span className="pastille incertain">{guide.aVerifier.length} à vérifier (l’appli hésite)</span>
           ) : null}
         </section>
       ) : null}
@@ -476,8 +572,8 @@ export function ModeReciter({
               <Fragment key={m.indice}>
                 <button
                   type="button"
-                  className={`reciter-mot ${m.etat}${m.indice === choisi ? " choisi" : ""}`}
-                  aria-label={`${m.mot} : ${LIBELLE_AFFICHE[m.etat]}`}
+                  className={`reciter-mot ${m.etat}${estIncertain(m.analyse) ? " incertain" : ""}${m.indice === choisi ? " choisi" : ""}`}
+                  aria-label={`${m.mot} : ${estIncertain(m.analyse) ? "à vérifier" : LIBELLE_AFFICHE[m.etat]}`}
                   aria-pressed={m.indice === choisi}
                   onClick={() => setChoisi(m.indice)}
                 >
@@ -505,17 +601,28 @@ export function ModeReciter({
       </main>
 
       {etape === "resultat" && motChoisi ? (
-        <section className={`reciter-detail ${motChoisi.etat}`} aria-live="polite">
+        <section
+          className={`reciter-detail ${motChoisi.etat}${choisiIncertain ? " incertain" : ""}`}
+          aria-live="polite"
+        >
           <div className="reciter-detail-tete">
             <span lang="ar" dir="rtl">
               {motChoisi.mot}
             </span>
-            <b>{LIBELLE_AFFICHE[motChoisi.etat]}</b>
+            <b>{choisiIncertain ? "À vérifier" : LIBELLE_AFFICHE[motChoisi.etat]}</b>
           </div>
+          {choisiIncertain ? (
+            <p className="reciter-doute">
+              L’appli n’est pas sûre : écoute-toi, puis le récitateur, et compare.
+            </p>
+          ) : null}
           {motChoisi.analyse?.remarques.length ? (
             <ul>
               {motChoisi.analyse.remarques.map((r, i) => (
-                <li key={i}>{r.texte.charAt(0).toUpperCase() + r.texte.slice(1)}.</li>
+                <li key={i} className={r.sure ? undefined : "incertaine"}>
+                  {r.sure || choisiIncertain ? "" : "Peut-être : "}
+                  {r.sure || choisiIncertain ? r.texte.charAt(0).toUpperCase() + r.texte.slice(1) : r.texte}.
+                </li>
               ))}
             </ul>
           ) : (
@@ -597,27 +704,63 @@ export function ModeReciter({
         {etape === "fin" ? (
           <div className="tajwid-action" role="status">
             <span className="tajwid-attente" aria-hidden="true" />
-            <span className="tajwid-consigne">Encore un instant…</span>
+            <span className="tajwid-consigne">Presque fini…</span>
           </div>
         ) : null}
         {etape === "resultat" ? (
-          <div className="reciter-actions">
-            <button
-              type="button"
-              className="bouton-secondaire"
-              onClick={() => {
-                recommencer();
-                setEtape("pret");
-              }}
-            >
-              Réessayer
-            </button>
-            {au < dernierVerset ? (
-              <button type="button" className="bouton" onClick={versetsSuivants}>
-                Versets suivants
-              </button>
+          <>
+            {guide.aReprendre.length ? (
+              <div className="reciter-guide">
+                <button
+                  type="button"
+                  className="bouton"
+                  aria-pressed={reecoute}
+                  onClick={() => (reecoute ? arreterReecoute() : reecouter(guide.aReprendre))}
+                >
+                  {reecoute ? (
+                    <Square size={16} aria-hidden="true" />
+                  ) : (
+                    <Headphones size={16} aria-hidden="true" />
+                  )}
+                  {reecoute
+                    ? "Arrêter"
+                    : guide.aReprendre.length > 1
+                      ? `Réécouter mes ${guide.aReprendre.length} mots`
+                      : "Réécouter ce mot"}
+                </button>
+                {guide.verset !== null && (du !== au || guide.verset !== du) ? (
+                  <button
+                    type="button"
+                    className="bouton-secondaire"
+                    onClick={() => reprendreVerset(guide.verset!)}
+                  >
+                    <RotateCcw size={16} aria-hidden="true" /> Reprendre le verset {guide.verset}
+                  </button>
+                ) : null}
+              </div>
             ) : null}
-          </div>
+            <div className="reciter-actions">
+              <button
+                type="button"
+                className="bouton-secondaire"
+                onClick={() => {
+                  recommencer();
+                  setEtape("pret");
+                }}
+              >
+                {guide.aReprendre.length && du === au ? "Reprendre ce verset" : "Réessayer"}
+              </button>
+              {au < dernierVerset ? (
+                <button
+                  type="button"
+                  className={guide.aReprendre.length ? "bouton-secondaire" : "bouton"}
+                  onClick={versetsSuivants}
+                >
+                  Versets suivants
+                </button>
+              ) : null}
+            </div>
+          </>
         ) : null}
         <p className="tajwid-note">
           Analyse sur notre serveur, sans rien enregistrer (modèle ouvert HisnLabs Tajweed v2). C’est une aide

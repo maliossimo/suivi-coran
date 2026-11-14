@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   appliquerCorrections,
   assemblerPassage,
+  estIncertain,
+  guiderResultat,
   bilanPassage,
   bilanTajwid,
   lireAnalyse,
@@ -30,7 +32,16 @@ describe("lireAnalyse", () => {
       ],
     });
     expect(a?.mots[0]?.remarques[0]?.gravite).toBe("khafi");
+    expect(a?.mots[0]?.remarques[0]?.sure).toBe(true);
     expect(a?.mots[0]?.madd[0]?.temps).toBe(2);
+  });
+
+  it("lit l'hésitation du moteur", () => {
+    const a = lireAnalyse({
+      entendu: "",
+      mots: [{ mot: "x", etat: "a_revoir", remarques: [{ gravite: "khafi", texte: "t", sure: false }] }],
+    });
+    expect(a?.mots[0]?.remarques[0]?.sure).toBe(false);
   });
 
   it("refuse une réponse inattendue", () => {
@@ -118,8 +129,8 @@ describe("appliquerCorrections", () => {
     const [m] = appliquerCorrections(
       [
         mot([
-          { gravite: "jali", regle: "MonfaselMaddRule:x", texte: "a" },
-          { gravite: "khafi", regle: "ghunnah", texte: "b" },
+          { gravite: "jali", regle: "MonfaselMaddRule:x", texte: "a", sure: true },
+          { gravite: "khafi", regle: "ghunnah", texte: "b", sure: true },
         ]),
       ],
       [{ verset: 109, mot: "لَنَآ", regle: "MonfaselMaddRule" }],
@@ -130,18 +141,62 @@ describe("appliquerCorrections", () => {
 
   it("un mot sans plus aucune remarque devient juste", () => {
     const [m] = appliquerCorrections(
-      [mot([{ gravite: "khafi", regle: "ghunnah", texte: "b" }], "a_revoir")],
+      [mot([{ gravite: "khafi", regle: "ghunnah", texte: "b", sure: true }], "a_revoir")],
       [{ verset: 109, mot: "لَنَآ", regle: "ghunnah" }],
     );
     expect(m?.etat).toBe("juste");
   });
 
   it("ne touche ni un autre verset ni un mot oublié", () => {
-    const r = [{ gravite: "khafi" as const, regle: "ghunnah", texte: "b" }];
+    const r = [{ gravite: "khafi" as const, regle: "ghunnah", texte: "b", sure: true }];
     const c = [{ verset: 110, mot: "لَنَآ", regle: "ghunnah" }];
     expect(appliquerCorrections([mot(r, "a_revoir")], c)[0]?.etat).toBe("a_revoir");
     expect(
       appliquerCorrections([mot([], "oublie")], [{ verset: 109, mot: "لَنَآ", regle: "word" }])[0]?.etat,
     ).toBe("oublie");
+  });
+});
+
+describe("guiderResultat", () => {
+  const r = (sure: boolean) => ({ gravite: "khafi" as const, regle: "ghunnah", texte: "t", sure });
+  const m = (indice: number, verset: number, etat: MotAnalyse["etat"], sure = true): MotAnalyse => ({
+    mot: `m${indice}`,
+    verset,
+    indice,
+    etat,
+    remarques: etat === "juste" || etat === "oublie" ? [] : [r(sure)],
+    madd: [],
+  });
+
+  it("sépare les fautes sûres des hésitations et choisit le verset à reprendre", () => {
+    const mots = assemblerPassage(
+      [
+        [1, 0, "m0"],
+        [1, 1, "m1"],
+        [2, 0, "m2"],
+        [2, 1, "m3"],
+        [2, 2, "m4"],
+      ],
+      [
+        [
+          m(0, 1, "a_revoir", false),
+          m(1, 1, "juste"),
+          m(2, 2, "erreur"),
+          m(3, 2, "oublie"),
+          m(4, 2, "juste"),
+        ],
+      ],
+    );
+    expect(guiderResultat(mots)).toEqual({ aReprendre: [2, 3], aVerifier: [0], verset: 2 });
+  });
+
+  it("rien à reprendre", () => {
+    const mots = assemblerPassage([[1, 0, "m0"]], [[m(0, 1, "juste")]]);
+    expect(guiderResultat(mots)).toEqual({ aReprendre: [], aVerifier: [], verset: null });
+  });
+
+  it("un mot oublié n'est jamais une hésitation", () => {
+    expect(estIncertain(m(0, 1, "oublie"))).toBe(false);
+    expect(estIncertain(m(0, 1, "a_revoir", false))).toBe(true);
   });
 });
