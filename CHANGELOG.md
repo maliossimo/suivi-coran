@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.28.1] — 2026-11-14
+
+### Corrigé
+
+- Journal et liste des utilisateurs : la dernière visite donne l'heure (« hier à 21:14 », « lundi à 09:05 », « aujourd’hui à 18:00 ») au lieu d'un simple « hier » ou « il y a 4 j ».
+
 ## [1.28.0] — 2026-11-14
 
 ### Nouveautés
