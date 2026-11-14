@@ -5,6 +5,7 @@ import { Selecteur } from "@/components/Selecteur";
 import { depuisQuand, ELEMENTS, grouperParJour, phraseAudit } from "@/domain/journal";
 import { exigerEspace } from "@/services/acces";
 import { chargerJournal } from "@/services/admin";
+import { chargerSignalementsTajwid } from "@/services/tajwid";
 import { dateHeure, heure } from "@/domain/format";
 import { LIBELLE_ROLE } from "@/domain/roles";
 
@@ -33,6 +34,7 @@ export default async function PageJournal({
     profil,
     await searchParams,
   );
+  const signalements = await chargerSignalementsTajwid(profil);
   const filtre = Object.values(filtres).some(Boolean);
   const maintenant = new Date();
   const jours = grouperParJour(evenements, maintenant);
@@ -170,6 +172,46 @@ export default async function PageJournal({
           )}
           <p className="admin-note">Rempli par la base elle-même, ce journal ne peut pas être modifié.</p>
         </section>
+        {signalements ? (
+          <section className="carte-graphique">
+            <div className="admin-titre">
+              <h2>Vérification tajwid : « L’appli s’est trompée »</h2>
+              <span className="admin-compte">{signalements.total}</span>
+            </div>
+            {signalements.total === 0 ? (
+              <p className="carte-graphique-sous">Aucun signalement pour l’instant.</p>
+            ) : (
+              <>
+                <p className="carte-graphique-sous">Les règles les plus signalées, à régler en priorité.</p>
+                <ul className="tajwid-regles">
+                  {signalements.parRegle.map((r) => (
+                    <li key={r.regle}>
+                      <span>{r.nom}</span>
+                      <b>{r.nombre}</b>
+                    </li>
+                  ))}
+                </ul>
+                <details className="admin-repli">
+                  <summary>Derniers signalements</summary>
+                  <ul className="fil-journal">
+                    {signalements.derniers.map((s, i) => (
+                      <li key={i}>
+                        <time dateTime={s.quand}>{dateHeure(s.quand)}</time>
+                        <span>
+                          <b>{s.auteur}</b> · {s.sourate}:{s.verset}{" "}
+                          <span lang="ar" dir="rtl">
+                            {s.mot}
+                          </span>
+                          {s.remarque ? <small> · {s.remarque}</small> : null}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </>
+            )}
+          </section>
+        ) : null}
       </main>
     </>
   );
