@@ -7757,79 +7757,6 @@ html.defilement-bloque {
   color: var(--or-texte);
 }
 
-/* Vérifier ma récitation */
-.verifier-recitation {
-  display: grid;
-  gap: 10px;
-  padding-top: 14px;
-  border-top: 1px solid var(--ligne);
-}
-.verifier-recitation h3 {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--texte-doux);
-}
-.verifier-accord {
-  display: grid;
-  gap: 10px;
-}
-.verifier-accord p,
-.verifier-legende {
-  margin: 0;
-  font-size: 13px;
-  color: var(--texte-doux);
-}
-.verifier-entendu {
-  margin: 0;
-  min-height: 1.8em;
-  font-family: var(--font-arabe), serif;
-  font-size: 20px;
-  color: var(--texte-doux);
-}
-.verifier-resultat {
-  display: grid;
-  gap: 8px;
-}
-.verifier-score {
-  margin: 0;
-  font-size: 15px;
-}
-.verifier-score strong {
-  font-size: 20px;
-  color: var(--vert-texte);
-}
-.verifier-mots {
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: var(--fond);
-  font-family: var(--font-arabe), serif;
-  font-size: 26px;
-  line-height: 2;
-}
-.verif-juste {
-  color: var(--vert-texte);
-}
-.verif-different {
-  color: var(--or-texte);
-  background: var(--or-clair);
-  border-radius: 6px;
-}
-.verif-oublie {
-  color: var(--texte-doux);
-  text-decoration: line-through;
-  text-decoration-color: var(--rouge);
-}
-.verifier-legende .verif-different {
-  padding: 0 4px;
-}
-
 /* Doigts : les commandes touchées souvent font au moins 44 px de haut (recommandation d'accessibilité). */
 @media (pointer: coarse) {
   .choix-statut button,
@@ -7845,4 +7772,253 @@ html.defilement-bloque {
   .bouton-lien-texte {
     min-height: 44px;
   }
+}
+
+/* Vérifier ma récitation (moteur tajwid) */
+.tajwid {
+  display: grid;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ligne);
+}
+.tajwid-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tajwid-entete h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+}
+.tajwid-masquer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--or);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--or-texte);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tajwid-masquer[aria-pressed="true"] {
+  background: var(--or-clair);
+}
+.tajwid-texte {
+  margin: 0;
+  font-family: var(--font-arabe), serif;
+  font-size: 24px;
+  line-height: 2;
+  text-align: center;
+}
+.tajwid-texte.masque {
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--texte-doux);
+}
+.tajwid-action {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.tajwid-micro {
+  width: 72px;
+  height: 72px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--vert);
+  color: #fff;
+  cursor: pointer;
+  transition: box-shadow 80ms linear;
+}
+.tajwid-micro.actif {
+  background: var(--rouge);
+}
+.tajwid-chrono {
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  font-weight: 600;
+}
+.tajwid-consigne {
+  font-size: 13px;
+  color: var(--texte-doux);
+  text-align: center;
+}
+.tajwid-attente {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--ligne);
+  border-top-color: var(--vert);
+  border-radius: 50%;
+  animation: tajwid-tourne 0.8s linear infinite;
+}
+@keyframes tajwid-tourne {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tajwid-attente {
+    animation-duration: 2.4s;
+  }
+}
+.tajwid-resultat {
+  display: grid;
+  gap: 12px;
+}
+.tajwid-score {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.tajwid-score strong {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 34px;
+  color: var(--or-texte);
+}
+.tajwid-score span {
+  color: var(--texte-doux);
+}
+.tajwid-compteurs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tajwid-compteurs li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--fond);
+  font-size: 13px;
+}
+.tajwid-compteurs b {
+  margin-left: 2px;
+}
+.tajwid-compteurs .tajwid-juste b {
+  color: var(--vert-texte);
+}
+.tajwid-compteurs .tajwid-a_revoir b {
+  color: var(--or-texte);
+}
+.tajwid-compteurs .tajwid-erreur b,
+.tajwid-compteurs .tajwid-oublie b {
+  color: var(--rouge);
+}
+.tajwid-mots {
+  margin: 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--fond);
+  line-height: 2.4;
+  text-align: center;
+}
+.tajwid-mot {
+  margin: 2px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--font-arabe), serif;
+  font-size: 26px;
+  cursor: pointer;
+}
+.tajwid-mot.tajwid-juste {
+  color: var(--vert-texte);
+}
+.tajwid-mot.tajwid-a_revoir {
+  color: var(--or-texte);
+  background: var(--or-clair);
+}
+.tajwid-mot.tajwid-erreur {
+  color: var(--rouge);
+  background: color-mix(in srgb, var(--rouge) 12%, transparent);
+}
+.tajwid-mot.tajwid-oublie {
+  color: var(--texte-doux);
+  text-decoration: line-through;
+  text-decoration-color: var(--rouge);
+}
+.tajwid-mot.choisi {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+.tajwid-detail {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border-left: 0;
+  background: var(--fond);
+}
+.tajwid-detail-tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tajwid-detail-tete span {
+  font-family: var(--font-arabe), serif;
+  font-size: 24px;
+}
+.tajwid-detail-tete b {
+  font-size: 13px;
+}
+.tajwid-detail.tajwid-a_revoir .tajwid-detail-tete b {
+  color: var(--or-texte);
+}
+.tajwid-detail.tajwid-erreur .tajwid-detail-tete b,
+.tajwid-detail.tajwid-oublie .tajwid-detail-tete b {
+  color: var(--rouge);
+}
+.tajwid-detail ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+.tajwid-detail p {
+  margin: 0;
+  font-size: 14px;
+}
+.tajwid-madd {
+  color: var(--texte-doux);
+  font-size: 13px !important;
+}
+.tajwid-bravo {
+  margin: 0;
+  color: var(--vert-texte);
+  font-weight: 600;
+}
+.tajwid-boutons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tajwid-boutons button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tajwid-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--texte-doux);
 }

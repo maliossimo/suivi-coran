@@ -1,183 +1,220 @@
 "use client";
 
-import { AudioLines, Square } from "lucide-react";
+import { Eye, EyeOff, Mic, Pause, Play, RotateCcw, Square } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { verifierRecitation, type Verification } from "@/domain/recitation";
 import { retourSensoriel } from "@/components/retourSensoriel";
+import {
+  bilanTajwid,
+  LIBELLE_ETAT,
+  lireAnalyse,
+  premierMotARevoir,
+  type AnalyseTajwid,
+  type EtatMot,
+} from "@/domain/tajwid";
+import { DUREE_MAX_S, useEnregistrement, versPcm16k } from "./enregistrementTajwid";
 
-/* Reconnaissance vocale du navigateur (Chrome, Safari) : types minimaux, absents de TypeScript. */
-interface ResultatVocal {
-  isFinal: boolean;
-  0: { transcript: string };
-}
-interface EvenementVocal {
-  resultIndex: number;
-  results: ArrayLike<ResultatVocal>;
-}
-interface Reconnaissance {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  onresult: ((e: EvenementVocal) => void) | null;
-  onerror: ((e: { error: string }) => void) | null;
-  onend: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-}
-type ConstructeurReconnaissance = new () => Reconnaissance;
+type Etape = "pret" | "ecoute" | "analyse" | "resultat";
 
-function constructeur(): ConstructeurReconnaissance | null {
-  if (typeof window === "undefined") return null;
-  const w = window as unknown as {
-    SpeechRecognition?: ConstructeurReconnaissance;
-    webkitSpeechRecognition?: ConstructeurReconnaissance;
-  };
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+const CLE_MASQUER = "tajwid-masquer-texte";
+const ORDRE: EtatMot[] = ["juste", "a_revoir", "erreur", "oublie"];
+
+const chrono = (s: number) => `0:${String(Math.floor(s)).padStart(2, "0")}`;
+
+async function analyser(
+  pcm: ArrayBuffer,
+  sourate: number,
+  verset: number,
+  lecture: "hafs" | "warsh",
+  texte: string,
+): Promise<AnalyseTajwid> {
+  const r = await fetch("/api/tajwid/jeton", { method: "POST" });
+  const { jeton } = (await r.json().catch(() => ({}))) as { jeton?: string };
+  if (!r.ok || !jeton) throw new Error("La vérification n’est pas disponible pour ton compte.");
+  const q = new URLSearchParams({ sourate: String(sourate), verset: String(verset), riwaya: lecture });
+  if (lecture === "warsh") q.set("texte", texte);
+  const reponse = await fetch(`/api/moteur_tajwid?${q}`, {
+    method: "POST",
+    headers: { Authorization: `Jeton ${jeton}`, "Content-Type": "application/octet-stream" },
+    body: pcm,
+  });
+  const corps: unknown = await reponse.json().catch(() => null);
+  if (!reponse.ok) {
+    const message = (corps as { erreur?: unknown } | null)?.erreur;
+    throw new Error(typeof message === "string" ? message : "L’analyse a échoué. Réessaie dans un instant.");
+  }
+  const analyse = lireAnalyse(corps);
+  if (!analyse) throw new Error("Réponse inattendue du serveur. Réessaie.");
+  return analyse;
 }
-
-const CLE_ACCORD = "verification-voix-accord";
-const ERREURS: Record<string, string> = {
-  "not-allowed": "Le micro est refusé : autorise-le dans les réglages du navigateur.",
-  "service-not-allowed": "La reconnaissance vocale est désactivée sur ce téléphone.",
-  "no-speech": "Je n’ai rien entendu. Rapproche-toi du téléphone et réessaie.",
-  network: "La reconnaissance vocale a besoin d’Internet.",
-  "language-not-supported": "L’arabe n’est pas disponible dans la reconnaissance vocale de ce téléphone.",
-  "audio-capture": "Aucun micro trouvé.",
-};
-
-type Etat = "pret" | "ecoute" | "resultat";
 
 /**
- * « Vérifier ma récitation » : le téléphone transcrit la voix (service vocal du système),
- * puis chaque mot du verset est marqué juste, différent ou oublié.
+ * « Vérifier ma récitation » : l'élève récite le verset, le moteur tajwid (modèle ouvert HisnLabs Tajweed v2,
+ * sur notre serveur, sans rien garder) dit pour chaque mot s'il est juste, à revoir, faux ou oublié, et pourquoi.
  */
 export function VerifierRecitation({
+  sourate,
+  verset,
+  lecture,
   texteVerset,
   onAvantEcoute,
 }: {
+  sourate: number;
+  verset: number;
+  lecture: "hafs" | "warsh";
   texteVerset: string;
-  /** Met la récitation en pause avant d'ouvrir le micro. */
+  /** Met la récitation du récitateur en pause avant d'ouvrir le micro. */
   onAvantEcoute: () => void;
 }) {
+  const micro = useEnregistrement();
   const [possible, setPossible] = useState(false);
-  const [accord, setAccord] = useState(false);
-  const [etat, setEtat] = useState<Etat>("pret");
-  const [entendu, setEntendu] = useState("");
-  const [resultat, setResultat] = useState<Verification | null>(null);
+  const [etape, setEtape] = useState<Etape>("pret");
+  const [masquer, setMasquer] = useState(false);
+  const [analyse, setAnalyse] = useState<AnalyseTajwid | null>(null);
+  const [choisi, setChoisi] = useState<number | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
-  const reco = useRef<Reconnaissance | null>(null);
-  const texte = useRef("");
+  const [voix, setVoix] = useState<string | null>(null);
+  const [lecteurActif, setLecteurActif] = useState(false);
+  const lecteur = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    setPossible(constructeur() !== null);
+    setPossible("MediaRecorder" in window && Boolean(navigator.mediaDevices?.getUserMedia));
     try {
-      setAccord(localStorage.getItem(CLE_ACCORD) === "1");
+      setMasquer(localStorage.getItem(CLE_MASQUER) === "1");
     } catch {
-      // stockage indisponible : l'avertissement s'affiche à chaque fois
+      // stockage indisponible : texte affiché
     }
-    return () => reco.current?.abort();
   }, []);
+
+  useEffect(
+    () => () => {
+      if (voix) URL.revokeObjectURL(voix);
+    },
+    [voix],
+  );
 
   if (!possible) return null;
 
-  const commencer = () => {
-    const Reco = constructeur();
-    if (!Reco) return;
+  const basculerMasquer = () => {
+    setMasquer((m) => {
+      try {
+        localStorage.setItem(CLE_MASQUER, m ? "0" : "1");
+      } catch {
+        // sans stockage : le choix vaut pour cette fois
+      }
+      return !m;
+    });
+  };
+
+  const commencer = async () => {
     onAvantEcoute();
+    lecteur.current?.pause();
     setErreur(null);
-    setResultat(null);
-    setEntendu("");
-    texte.current = "";
-    const r = new Reco();
-    r.lang = "ar-SA";
-    r.continuous = true;
-    r.interimResults = true;
-    r.onresult = (e) => {
-      let definitif = "";
-      let provisoire = "";
-      for (let i = 0; i < e.results.length; i++) {
-        const res = e.results[i]!;
-        if (res.isFinal) definitif += ` ${res[0].transcript}`;
-        else provisoire += ` ${res[0].transcript}`;
-      }
-      texte.current = `${definitif} ${provisoire}`.trim();
-      setEntendu(`${definitif} ${provisoire}`.trim());
-    };
-    r.onerror = (e) => {
-      if (e.error !== "aborted")
-        setErreur(ERREURS[e.error] ?? "La reconnaissance vocale a échoué. Réessaie.");
-    };
-    r.onend = () => {
-      reco.current = null;
-      const transcription = texte.current || "";
-      if (!transcription) {
-        setEtat("pret");
-        return;
-      }
-      const v = verifierRecitation(texteVerset, transcription);
-      setResultat(v);
-      setEtat("resultat");
-      retourSensoriel(v.score === 100 ? "succes" : "leger");
-    };
-    reco.current = r;
+    setAnalyse(null);
+    setChoisi(null);
+    let blob: Blob | null;
     try {
-      r.start();
-      setEtat("ecoute");
+      const enCours = micro.demarrer();
+      setEtape("ecoute");
+      blob = await enCours;
     } catch {
-      setErreur("La reconnaissance vocale n’a pas pu démarrer. Réessaie.");
+      setEtape("pret");
+      setErreur("Le micro est refusé : autorise-le dans les réglages du navigateur.");
+      return;
+    }
+    if (!blob) {
+      setEtape("pret");
+      return;
+    }
+    setVoix(URL.createObjectURL(blob));
+    setEtape("analyse");
+    try {
+      const resultat = await analyser(await versPcm16k(blob), sourate, verset, lecture, texteVerset);
+      setAnalyse(resultat);
+      setChoisi(premierMotARevoir(resultat.mots));
+      setEtape("resultat");
+      retourSensoriel(bilanTajwid(resultat.mots).score === 100 ? "succes" : "leger");
+    } catch (e) {
+      setErreur(e instanceof Error ? e.message : "L’analyse a échoué. Réessaie dans un instant.");
+      setEtape("pret");
     }
   };
 
-  const arreter = () => reco.current?.stop();
+  const reecouter = () => {
+    if (!voix) return;
+    if (lecteurActif) {
+      lecteur.current?.pause();
+      return;
+    }
+    onAvantEcoute();
+    const audio = lecteur.current ?? new Audio();
+    lecteur.current = audio;
+    audio.src = voix;
+    audio.onplay = () => setLecteurActif(true);
+    audio.onpause = () => setLecteurActif(false);
+    audio.onended = () => setLecteurActif(false);
+    void audio.play().catch(() => setLecteurActif(false));
+  };
+
+  const bilan = analyse ? bilanTajwid(analyse.mots) : null;
+  const motChoisi = analyse && choisi !== null ? analyse.mots[choisi] : undefined;
 
   return (
-    <section className="verifier-recitation" aria-label="Vérifier ma récitation">
-      <h3>
-        <AudioLines size={16} aria-hidden="true" />
-        Vérifier ma récitation
-      </h3>
+    <section className="tajwid" aria-label="Vérifier ma récitation">
+      <div className="tajwid-entete">
+        <h3>
+          <Mic size={16} strokeWidth={1.8} aria-hidden="true" />
+          Vérifier ma récitation
+        </h3>
+        {etape !== "resultat" ? (
+          <button type="button" className="tajwid-masquer" aria-pressed={masquer} onClick={basculerMasquer}>
+            {masquer ? <Eye size={16} aria-hidden="true" /> : <EyeOff size={16} aria-hidden="true" />}
+            {masquer ? "Montrer le texte" : "Masquer le texte"}
+          </button>
+        ) : null}
+      </div>
 
-      {!accord ? (
-        <div className="verifier-accord">
-          <p>
-            Le téléphone écoute ta récitation et l’écrit, puis l’appli la compare au texte, mot à mot. La
-            transcription est faite par le service vocal du téléphone (Google ou Apple) : ta voix lui est
-            envoyée. Rien n’est gardé dans l’appli.
-          </p>
+      {etape !== "resultat" ? (
+        <p className={masquer ? "tajwid-texte masque" : "tajwid-texte"} lang="ar" dir="rtl">
+          {masquer ? "Récite de mémoire…" : texteVerset}
+        </p>
+      ) : null}
+
+      {etape === "pret" ? (
+        <div className="tajwid-action">
+          <button type="button" className="tajwid-micro" onClick={() => void commencer()}>
+            <Mic size={26} aria-hidden="true" />
+            <span className="visuellement-cache">Commencer la récitation</span>
+          </button>
+          <span className="tajwid-consigne">
+            Touche le micro et récite le verset ({DUREE_MAX_S} s au plus).
+          </span>
+        </div>
+      ) : null}
+
+      {etape === "ecoute" ? (
+        <div className="tajwid-action">
           <button
             type="button"
-            className="reciter-bouton principal"
-            onClick={() => {
-              setAccord(true);
-              try {
-                localStorage.setItem(CLE_ACCORD, "1");
-              } catch {
-                // sans stockage : on redemandera la prochaine fois
-              }
-              commencer();
-            }}
+            className="tajwid-micro actif"
+            style={{ boxShadow: `0 0 0 ${4 + Math.round(micro.niveau * 14)}px var(--vert-clair)` }}
+            onClick={micro.arreter}
           >
-            <AudioLines size={18} aria-hidden="true" />
-            <span>J’ai compris, commencer</span>
+            <Square size={22} aria-hidden="true" />
+            <span className="visuellement-cache">J’ai fini</span>
           </button>
+          <span className="tajwid-chrono">
+            {chrono(micro.secondes)} / {chrono(DUREE_MAX_S)}
+          </span>
+          <span className="tajwid-consigne">Je t’écoute… touche le carré quand tu as fini.</span>
         </div>
-      ) : etat === "ecoute" ? (
-        <>
-          <button type="button" className="reciter-bouton enregistre" onClick={arreter}>
-            <Square size={18} aria-hidden="true" />
-            <span>J’ai fini</span>
-          </button>
-          <p className="verifier-entendu" lang="ar" dir="rtl" aria-live="polite">
-            {entendu || "…"}
-          </p>
-        </>
-      ) : (
-        <button type="button" className="reciter-bouton principal" onClick={commencer}>
-          <AudioLines size={18} aria-hidden="true" />
-          <span>{resultat ? "Réessayer" : "Réciter ce verset"}</span>
-        </button>
-      )}
+      ) : null}
+
+      {etape === "analyse" ? (
+        <div className="tajwid-action" role="status">
+          <span className="tajwid-attente" aria-hidden="true" />
+          <span className="tajwid-consigne">Analyse de ta récitation…</span>
+        </div>
+      ) : null}
 
       {erreur ? (
         <p className="message-erreur" role="alert">
@@ -185,40 +222,85 @@ export function VerifierRecitation({
         </p>
       ) : null}
 
-      {resultat && etat === "resultat" ? (
-        <div className="verifier-resultat" aria-live="polite">
-          <p className="verifier-score">
-            <strong>
-              {resultat.justes} / {resultat.mots.length}
-            </strong>{" "}
-            mots justes
-            {resultat.score === 100 ? " · bravo" : ""}
-            {resultat.ajoutes ? ` · ${resultat.ajoutes} mot${resultat.ajoutes > 1 ? "s" : ""} en trop` : ""}
-          </p>
-          <p className="verifier-mots" lang="ar" dir="rtl">
-            {resultat.mots.map((m, i) => (
-              <span
+      {analyse && bilan && etape === "resultat" ? (
+        <div className="tajwid-resultat">
+          <div className="tajwid-score">
+            <strong>{bilan.score} %</strong>
+            <span>{bilan.score === 100 ? "Tout est juste" : "de mots justes"}</span>
+          </div>
+          <ul className="tajwid-compteurs" aria-label="Bilan">
+            {ORDRE.map((etat) => (
+              <li key={etat} className={`tajwid-${etat}`}>
+                {LIBELLE_ETAT[etat]} <b>{bilan.compte[etat]}</b>
+              </li>
+            ))}
+          </ul>
+
+          <p className="tajwid-mots" lang="ar" dir="rtl">
+            {analyse.mots.map((m, i) => (
+              <button
                 key={i}
-                className={`verif-${m.statut}`}
-                title={
-                  m.statut === "oublie"
-                    ? "Oublié"
-                    : m.statut === "different"
-                      ? `Entendu : ${m.entendu ?? ""}`
-                      : undefined
-                }
+                type="button"
+                className={`tajwid-mot tajwid-${m.etat}${i === choisi ? " choisi" : ""}`}
+                aria-label={`${m.mot} : ${LIBELLE_ETAT[m.etat]}`}
+                aria-pressed={i === choisi}
+                onClick={() => setChoisi(i)}
               >
-                {m.texte}{" "}
-              </span>
+                {m.mot}
+              </button>
             ))}
           </p>
-          <p className="verifier-legende">
-            <span className="verif-juste">vert</span> juste · <span className="verif-different">doré</span>{" "}
-            différent · <span className="verif-oublie">barré</span> oublié. La reconnaissance peut se tromper
-            : fie-toi aussi à l’écoute du Cheikh.
-          </p>
+
+          {motChoisi ? (
+            <div className={`tajwid-detail tajwid-${motChoisi.etat}`} aria-live="polite">
+              <div className="tajwid-detail-tete">
+                <span lang="ar" dir="rtl">
+                  {motChoisi.mot}
+                </span>
+                <b>{LIBELLE_ETAT[motChoisi.etat]}</b>
+              </div>
+              {motChoisi.remarques.length ? (
+                <ul>
+                  {motChoisi.remarques.map((r, i) => (
+                    <li key={i}>{r.texte}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Rien à reprendre sur ce mot.</p>
+              )}
+              {motChoisi.madd.length ? (
+                <p className="tajwid-madd">
+                  Entendu : {motChoisi.madd.map((d) => `${d.nom} ${d.temps} temps`).join(" · ")}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <p className="tajwid-bravo">Aucune remarque de tajwid sur cette récitation.</p>
+          )}
+
+          <div className="tajwid-boutons">
+            {voix ? (
+              <button type="button" className="bouton-secondaire bouton-auto" onClick={reecouter}>
+                {lecteurActif ? (
+                  <Pause size={16} aria-hidden="true" />
+                ) : (
+                  <Play size={16} aria-hidden="true" />
+                )}
+                {lecteurActif ? "Pause" : "Réécouter ma récitation"}
+              </button>
+            ) : null}
+            <button type="button" className="bouton bouton-auto" onClick={() => void commencer()}>
+              <RotateCcw size={16} aria-hidden="true" />
+              Réessayer
+            </button>
+          </div>
         </div>
       ) : null}
+
+      <p className="tajwid-note">
+        Analyse sur notre serveur, sans rien enregistrer, par un modèle ouvert (HisnLabs Tajweed v2). C’est
+        une aide : elle peut se tromper, ton Cheikh reste juge.
+      </p>
     </section>
   );
 }

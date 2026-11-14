@@ -1,0 +1,5 @@
+# Fonction Python « api/moteur_tajwid.py » (analyse tajwid). Le reste de l'appli est en Node.
+numpy>=2.2.6,<3
+onnxruntime>=1.20,<2
+quran-transcript==0.6.4
+levenshtein>=0.27.1,<1
