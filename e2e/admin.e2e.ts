@@ -18,6 +18,11 @@ test.describe("Administration", () => {
     await expect(page.getByRole("heading", { name: "Qui utilise l’appli" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Journal des actions" })).toBeVisible();
     await capture(page, "41-admin-journal");
+
+    // Ce qui a changé, version par version.
+    await page.goto("/admin/nouveautes");
+    await expect(page.getByRole("heading", { name: /^Version \d+\.\d+\.\d+$/ }).first()).toBeVisible();
+    await capture(page, "42-admin-nouveautes");
   });
 });
 

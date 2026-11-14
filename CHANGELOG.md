@@ -9,6 +9,22 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.29.0] — 2026-11-14
+
+### Nouveautés
+
+- Administration : page « Nouveautés » qui raconte ce qui a changé, version par version.
+- Un compte sans prénom (« Sans nom ») est invité une fois à l'écrire.
+
+### Amélioré
+
+- Administration : la version en ligne s'affiche clairement (« 1.29.0 · mise en ligne aujourd’hui à 23:10 ») au lieu du message technique.
+- Journal : les ouvertures successives d'une même personne sont regroupées (« a ouvert l’appli 6 fois », de 16:35 à 19:46).
+- Graphique des séances : il commence à la première semaine active, avec le chiffre de la semaine en grand.
+- Titres des cartes : ils ne se cassent plus sur téléphone ; le compteur passe dessous si besoin.
+- Beauté : motif géométrique discret dans l'en-tête et l'écran d'ouverture, nom de la sourate en calligraphie dans le mode Réciter, une seule échelle de tailles de texte, mode sombre plus doux (moins noir, alertes moins criardes).
+- Animations légères : les cartes glissent en place, la coche se dessine et le téléphone vibre quand le Cheikh valide une séance.
+
 ## [1.28.3] — 2026-11-14
 
 ### Corrigé

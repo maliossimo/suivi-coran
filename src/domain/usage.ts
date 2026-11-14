@@ -136,3 +136,13 @@ export function calculerStatsUsage(
     parEtablissement,
   };
 }
+
+/**
+ * Les semaines à montrer : à partir de la première semaine avec une séance (au moins `minimum`
+ * semaines, pour garder une échelle), pour que les semaines vides d'avant n'écrasent pas le graphique.
+ */
+export function semainesUtiles(semaines: readonly SemaineUsage[], minimum = 4): SemaineUsage[] {
+  const premiere = semaines.findIndex((s) => s.seances > 0);
+  const debut = premiere < 0 ? semaines.length - minimum : Math.min(premiere, semaines.length - minimum);
+  return semaines.slice(Math.max(0, debut));
+}

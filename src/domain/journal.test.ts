@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { depuisQuand, grouperParJour, phraseAudit } from "./journal";
+import { depuisQuand, grouperParJour, phraseAudit, regrouperOuvertures } from "./journal";
 
 describe("phraseAudit", () => {
   it("écrit une phrase simple", () => {
@@ -50,5 +50,23 @@ describe("grouperParJour", () => {
     expect(groupes[1]?.titre).toBe("Aujourd’hui");
     expect(groupes[2]?.titre).toBe("Hier");
     expect(groupes[3]?.titre).toBe("mardi 10 novembre");
+  });
+});
+
+describe("regrouperOuvertures", () => {
+  it("regroupe les ouvertures successives d'une personne le même jour", () => {
+    const g = regrouperOuvertures([
+      { id: "1", quand: "2026-11-14T18:46:00Z", personneId: "a" },
+      { id: "2", quand: "2026-11-14T17:05:00Z", personneId: "b" },
+      { id: "3", quand: "2026-11-14T16:32:00Z", personneId: "a" },
+      { id: "4", quand: "2026-11-14T15:35:00Z", personneId: "a" },
+      { id: "5", quand: "2026-11-13T20:00:00Z", personneId: "a" },
+    ]);
+    expect(g.map((x) => [x.id, x.nombre, x.premiere])).toEqual([
+      ["1", 1, "2026-11-14T18:46:00Z"],
+      ["2", 1, "2026-11-14T17:05:00Z"],
+      ["3", 2, "2026-11-14T15:35:00Z"],
+      ["5", 1, "2026-11-13T20:00:00Z"],
+    ]);
   });
 });

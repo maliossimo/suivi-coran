@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculerStatsUsage, lundiDe, type SeanceUsage, type UtilisateurStat } from "./usage";
+import { calculerStatsUsage, lundiDe, semainesUtiles, type SeanceUsage, type UtilisateurStat } from "./usage";
 
 const utilisateurs: UtilisateurStat[] = [
   { id: "m1", role: "maitre", actif: true, etablissementId: "A" },
@@ -95,5 +95,23 @@ describe("calculerStatsUsage", () => {
         sansLecture: 1,
       },
     ]);
+  });
+});
+
+describe("semainesUtiles", () => {
+  const s = (seances: number, i: number) => ({
+    debut: `2026-09-${String(i + 1).padStart(2, "0")}`,
+    seances,
+    eleves: 0,
+  });
+  it("commence à la première semaine avec des séances", () => {
+    const r = semainesUtiles([0, 0, 0, 0, 0, 0, 2, 0, 8].map(s));
+    expect(r.map((x) => x.seances)).toEqual([0, 2, 0, 8]);
+  });
+  it("garde au moins quatre semaines", () => {
+    expect(semainesUtiles([0, 0, 0, 0, 0, 0, 0, 0, 0, 1].map(s))).toHaveLength(4);
+  });
+  it("garde tout quand l'activité est ancienne", () => {
+    expect(semainesUtiles([1, 0, 0, 0, 0, 0].map(s))).toHaveLength(6);
   });
 });

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { accueilDuRole, LIBELLE_ROLE_LONG, type Role } from "@/domain/roles";
 import { Avatar } from "./Avatar";
+import { DemandePrenom } from "./DemandePrenom";
 import { LogoAccueil } from "./logo/LogoAccueil";
 import { NavigationEspace } from "./NavigationEspace";
 import { SignalerOuverture } from "./SignalerOuverture";
@@ -14,6 +15,7 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
   return (
     <header className="barre">
       <SignalerOuverture />
+      {nom ? null : <DemandePrenom />}
       <div className="barre-contenu">
         <LogoAccueil accueil={accueilDuRole(role)} label="Accueil — Suivi cours Coran">
           <div className="barre-titres" aria-hidden="true">
