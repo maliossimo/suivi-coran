@@ -2,16 +2,18 @@
 
 import { Check, Eye, EyeOff, Mic, Play, Square, X } from "lucide-react";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { actionSignalerTajwid } from "@/app/actions/tajwid";
+import { actionCorrectionsTajwid, actionSignalerTajwid } from "@/app/actions/tajwid";
 import { bloquerDefilement } from "@/components/Feuille";
 import { retourSensoriel } from "@/components/retourSensoriel";
 import { Selecteur } from "@/components/Selecteur";
 import { LIBELLE_AVIS } from "@/domain/decoupage";
 import {
+  appliquerCorrections,
   assemblerPassage,
   bilanPassage,
   LIBELLE_ETAT,
   lireAnalyse,
+  type CorrectionApprise,
   type EtatAffiche,
   type MotAnalyse,
 } from "@/domain/tajwid";
@@ -89,6 +91,8 @@ export function ModeReciter({
   const [enCours, setEnCours] = useState(0);
   const [choisi, setChoisi] = useState<number | null>(null);
   const [signale, setSignale] = useState<Set<number>>(new Set());
+  /** Remarques que l'appli a appris à ne plus faire sur ces versets (signalements). */
+  const [corrections, setCorrections] = useState<CorrectionApprise[]>([]);
   /** Suivi en direct : jusqu'où l'élève est arrivé (mots), avant même l'analyse de la pause. */
   const [suiviFin, setSuiviFin] = useState(0);
   const suivi = useRef({ fin: 0, passage: false });
@@ -262,6 +266,9 @@ export function ModeReciter({
     recommencer();
     file.current.jeton = demanderJeton();
     file.current.jeton.catch(() => undefined);
+    void actionCorrectionsTajwid({ lecture, sourate, du, au })
+      .then(setCorrections)
+      .catch(() => setCorrections([]));
     try {
       await micro.demarrer();
       setEtape("ecoute");
@@ -282,7 +289,16 @@ export function ModeReciter({
     if (!passage && !erreur) setErreur("Je n’ai rien entendu. Rapproche-toi du téléphone et réessaie.");
   }, [etape, enCours, passage, erreur]);
 
-  const mots = useMemo(() => (passage ? assemblerPassage(passage, resultats) : []), [passage, resultats]);
+  const mots = useMemo(
+    () =>
+      passage
+        ? assemblerPassage(
+            passage,
+            resultats.map((ms) => appliquerCorrections(ms ?? [], corrections)),
+          )
+        : [],
+    [passage, resultats, corrections],
+  );
   const bilan = useMemo(() => bilanPassage(mots), [mots]);
   const derniersVersets = useMemo(() => {
     const couverts = new Set<number>();
@@ -322,6 +338,12 @@ export function ModeReciter({
     const m = mots[indice];
     if (!m) return;
     setSignale((s) => new Set(s).add(indice));
+    // La remarque disparaît tout de suite pour celui qui la signale ; pour tous, une fois confirmée.
+    const regles = (m.analyse?.remarques ?? []).map((r) => r.regle.split(":")[0] ?? r.regle);
+    if (m.verset !== undefined) {
+      const verset = m.verset;
+      setCorrections((c) => [...c, ...regles.map((regle) => ({ verset, mot: m.mot, regle }))]);
+    }
     await actionSignalerTajwid({
       lecture,
       sourate,
@@ -525,7 +547,7 @@ export function ModeReciter({
               </button>
             ) : null}
           </div>
-          {motChoisi.analyse?.remarques.length ? (
+          {motChoisi.analyse?.remarques.length || signale.has(motChoisi.indice) ? (
             signale.has(motChoisi.indice) ? (
               <p className="reciter-merci">Merci, c’est noté : ça nous aide à améliorer la vérification.</p>
             ) : (

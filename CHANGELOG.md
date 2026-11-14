@@ -9,6 +9,19 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.25.0] — 2026-11-14
+
+### Nouveautés
+
+- Vérification du tajwid : l'appli apprend des signalements « L’appli s’est trompée ». Une remarque signalée par un Cheikh, par l'admin ou par deux élèves n'est plus faite sur ce mot. L'admin voit ces corrections apprises dans le Journal et peut en refuser une.
+- Madd naturel mesuré à l'horloge, au rythme de chaque élève : beaucoup moins de « madd oublié » à tort, et un madd tenu trop longtemps est désormais signalé. Sur le banc d'essai : 10 % de fausses remarques en moins, et 21 madd naturels fautifs repérés sur 27, au lieu de 7.
+
+### Amélioré
+
+- Le modèle est installé avec l'appli : la première vérification démarre plus vite (plus de téléchargement à froid).
+- Même enregistrement, même verdict : les calculs du modèle sont rendus reproductibles.
+- Banc d'essai élargi : 58 versets récités par 3 récitateurs de référence, en plus des 159 élèves annotés.
+
 ## [1.24.0] — 2026-11-14
 
 ### Amélioré
