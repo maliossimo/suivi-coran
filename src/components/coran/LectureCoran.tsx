@@ -719,6 +719,7 @@ export function LectureCoran({
         <ModeReciter
           sourate={blocReciter.sourate}
           nomSourate={blocReciter.nomLatin}
+          nomArabe={blocReciter.nomAr}
           versets={blocReciter.versets}
           depart={reciter.depart}
           lecture={lecture === "warsh" ? "warsh" : "hafs"}

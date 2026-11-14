@@ -1,6 +1,8 @@
 import { exigerEspace } from "@/services/acces";
 import { chargerEtatSite } from "@/services/admin";
+import Link from "next/link";
 import { dateHeure } from "@/domain/format";
+import { depuisQuand } from "@/domain/journal";
 
 function taille(octets: number | null): string {
   if (octets === null) return "";
@@ -23,14 +25,12 @@ export async function EtatDuSite() {
           <span className="etat-site-titre">Version en ligne</span>
           <span>
             <b>{e.version.numero}</b>
-            {e.version.commit ? (
-              <>
-                {" · "}
-                <code>{e.version.commit}</code>
-              </>
-            ) : null}
-            {e.version.message ? ` · ${e.version.message}` : ""}
+            {e.version.miseEnLigne
+              ? ` · mise en ligne ${depuisQuand(e.version.miseEnLigne, new Date())}`
+              : ""}
             {e.version.environnement !== "production" ? ` · ${e.version.environnement}` : ""}
+            {" · "}
+            <Link href="/admin/nouveautes">voir les nouveautés</Link>
           </span>
         </li>
         <li className={sauvegardeOk ? undefined : "etat-site-alerte"}>

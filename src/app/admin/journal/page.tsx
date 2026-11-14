@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Avatar } from "@/components/Avatar";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { Selecteur } from "@/components/Selecteur";
-import { depuisQuand, ELEMENTS, grouperParJour, phraseAudit } from "@/domain/journal";
+import { depuisQuand, ELEMENTS, grouperParJour, phraseAudit, regrouperOuvertures } from "@/domain/journal";
 import { exigerEspace } from "@/services/acces";
 import { chargerJournal } from "@/services/admin";
 import { CorrectionsApprises } from "@/components/admin/CorrectionsApprises";
@@ -74,11 +74,14 @@ export default async function PageJournal({
               {ouvertures.length ? `Dernières ouvertures (${ouvertures.length})` : "Aucune ouverture notée"}
             </summary>
             <ul className="fil-journal">
-              {ouvertures.map((o) => (
+              {regrouperOuvertures(ouvertures).map((o) => (
                 <li key={o.id}>
-                  <time dateTime={o.quand}>{dateHeure(o.quand)}</time>
+                  <time dateTime={o.derniere}>
+                    {o.nombre > 1 ? `${dateHeure(o.premiere)} → ${heure(o.derniere)}` : dateHeure(o.derniere)}
+                  </time>
                   <span>
                     <b>{noms.get(o.personneId) ?? "Compte supprimé"}</b> a ouvert l’appli
+                    {o.nombre > 1 ? ` ${o.nombre} fois` : ""}
                   </span>
                 </li>
               ))}

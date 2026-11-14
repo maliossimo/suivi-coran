@@ -30,7 +30,7 @@ import {
   type Sauvegarde,
   type Utilisateur,
 } from "@/repositories/admin";
-import { VERSION } from "@/lib/version";
+import { MISE_EN_LIGNE, VERSION } from "@/lib/version";
 import { renvoyerInvitation } from "@/repositories/invitations";
 import { seancesSuiviDepuis } from "@/repositories/seances";
 import type { Profil } from "@/repositories/profils";
@@ -307,7 +307,7 @@ export async function renvoyerUneInvitation(acteur: Profil, idBrut: unknown): Pr
 // ---------- État du site ---------------------------------------------------
 
 export interface EtatSite {
-  version: { numero: string; commit: string | null; message: string | null; environnement: string };
+  version: { numero: string; commit: string | null; miseEnLigne: string | null; environnement: string };
   sauvegarde: Sauvegarde | null;
   erreurs: ErreurSignalee[];
   erreurs7j: number;
@@ -324,7 +324,7 @@ export async function chargerEtatSite(acteur: Profil): Promise<EtatSite> {
     version: {
       numero: VERSION,
       commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
-      message: process.env.VERCEL_GIT_COMMIT_MESSAGE?.split("\n")[0]?.slice(0, 120) ?? null,
+      miseEnLigne: MISE_EN_LIGNE,
       environnement: process.env.VERCEL_ENV ?? "local",
     },
     sauvegarde,

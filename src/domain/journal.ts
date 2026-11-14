@@ -97,3 +97,36 @@ export function grouperParJour<T extends { quand: string }>(
     evenements: liste,
   }));
 }
+
+export interface OuvertureGroupee {
+  id: string | number;
+  personneId: string;
+  /** La plus récente, puis la plus ancienne du groupe. */
+  derniere: string;
+  premiere: string;
+  nombre: number;
+}
+
+/**
+ * Ouvertures (de la plus récente à la plus ancienne) regroupées quand la même personne ouvre l'appli
+ * plusieurs fois de suite le même jour : « Malek a ouvert l'appli 6 fois, de 16:35 à 19:46 ».
+ */
+export function regrouperOuvertures(
+  ouvertures: readonly { id: string | number; quand: string; personneId: string }[],
+): OuvertureGroupee[] {
+  const groupes: OuvertureGroupee[] = [];
+  for (const o of ouvertures) {
+    const g = groupes.at(-1);
+    if (
+      g &&
+      g.personneId === o.personneId &&
+      jourParis(new Date(g.premiere)) === jourParis(new Date(o.quand))
+    ) {
+      g.premiere = o.quand;
+      g.nombre++;
+    } else {
+      groupes.push({ id: o.id, personneId: o.personneId, derniere: o.quand, premiere: o.quand, nombre: 1 });
+    }
+  }
+  return groupes;
+}

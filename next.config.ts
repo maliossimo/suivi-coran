@@ -18,8 +18,12 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_VERSION: version,
     NEXT_PUBLIC_COMMIT: (process.env.VERCEL_GIT_COMMIT_SHA ?? "").slice(0, 7),
+    // Date de la mise en ligne (construction du site), affichée dans l'administration.
+    NEXT_PUBLIC_MISE_EN_LIGNE: new Date().toISOString(),
   },
   reactStrictMode: true,
+  // La page « Nouveautés » lit l'historique des versions sur le serveur.
+  outputFileTracingIncludes: { "/admin/nouveautes": ["./CHANGELOG.md"] },
   experimental: {
     // Une page déjà vue (ex. la fiche) se rouvre instantanément pendant 30 s ;
     // tout enregistrement la rafraîchit (revalidation), elle n'est jamais périmée.

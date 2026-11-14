@@ -9,6 +9,7 @@ import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireEtablissement } from "@/components/FormulaireEtablissement";
 import { FormulaireInvitation } from "@/components/FormulaireInvitation";
 import { GraphiqueUsage } from "@/components/admin/GraphiqueUsage";
+import { semainesUtiles } from "@/domain/usage";
 import { formaterDuree } from "@/domain/fiche";
 import { exigerEspace } from "@/services/acces";
 import { chargerTableauAdmin } from "@/services/admin";
@@ -67,10 +68,17 @@ export default async function PageAdmin() {
 
         <section className="carte-graphique">
           <div className="admin-titre">
-            <h2>Séances par semaine</h2>
+            <h2>Séances</h2>
             <span className="admin-compte">{st.seances30j} sur 30 jours</span>
           </div>
-          <GraphiqueUsage semaines={st.semaines} />
+          <p className="graphique-tete">
+            <strong>{st.semaines.at(-1)?.seances ?? 0}</strong>
+            <span>
+              cette semaine
+              {st.semaines.length > 1 ? ` · ${st.semaines.at(-2)?.seances ?? 0} la semaine dernière` : ""}
+            </span>
+          </p>
+          <GraphiqueUsage semaines={semainesUtiles(st.semaines)} />
         </section>
 
         <section className="carte-graphique">

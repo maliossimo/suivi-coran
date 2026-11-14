@@ -87,6 +87,7 @@ async function demanderJeton(): Promise<string> {
 export function ModeReciter({
   sourate,
   nomSourate,
+  nomArabe,
   versets,
   depart,
   lecture,
@@ -100,6 +101,8 @@ export function ModeReciter({
 }: {
   sourate: number;
   nomSourate: string;
+  /** Nom de la sourate en arabe, écrit en calligraphie dans le titre. */
+  nomArabe?: string;
   /** Versets de la sourate affichée. */
   versets: readonly VersetReciter[];
   depart: number;
@@ -599,7 +602,14 @@ export function ModeReciter({
 
       {etape === "pret" ? (
         <div className="reciter-choix">
-          <span>{nomSourate}</span>
+          <span className="reciter-sourate">
+            {nomArabe ? (
+              <span className="reciter-nom-ar" lang="ar" dir="rtl">
+                {nomArabe}
+              </span>
+            ) : null}
+            {nomSourate}
+          </span>
           <Selecteur
             titre="Du verset"
             compact
