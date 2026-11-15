@@ -30,10 +30,10 @@ test.describe("Présences (admin)", () => {
     await capture(page, "33-rapport");
   });
 
-  test("aperçu du responsable : pas d'appel, mais le rapport", async ({ page }) => {
+  test("aperçu du responsable : il fait l'appel de sa mosquée, avec le rapport", async ({ page }) => {
     await page.goto(`/presences/${IDS.classe}?vue=responsable`);
     await expect(page.getByText("Aperçu du responsable")).toBeVisible();
-    await expect(page.getByRole("link", { name: "Faire l’appel" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Faire l’appel" })).toBeVisible();
     await capture(page, "34-apercu-responsable");
   });
 
