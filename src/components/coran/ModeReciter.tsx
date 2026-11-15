@@ -95,6 +95,7 @@ export function ModeReciter({
   sourate,
   nomSourate,
   nomArabe,
+  finInitiale,
   recitateur = null,
   recitateurs = [],
   onRecitateur,
@@ -113,6 +114,8 @@ export function ModeReciter({
   nomSourate: string;
   /** Nom de la sourate en arabe, écrit en calligraphie dans le titre. */
   nomArabe?: string;
+  /** Dernier verset proposé (sinon, cinq versets à partir de `depart`). */
+  finInitiale?: number;
   /** Récitateur de référence (« Récitateur » dans le détail d'un mot), choisi ici ou dans la lecture. */
   recitateur?: string | null;
   recitateurs?: { valeur: string; libelle: string }[];
@@ -134,7 +137,7 @@ export function ModeReciter({
   useFermerAuRetour(true, onFermer);
   const dernierVerset = versets.at(-1)?.n ?? depart;
   const [du, setDu] = useState(depart);
-  const [au, setAu] = useState(Math.min(depart + 4, dernierVerset));
+  const [au, setAu] = useState(Math.min(finInitiale ?? depart + 4, dernierVerset));
   const [etape, setEtape] = useState<Etape>("pret");
   const [masquer, setMasquer] = useState(false);
   /** Couleurs du tajwid sur le texte (Hafs) ; l'élève peut les masquer, choix retenu sur l'appareil. */
