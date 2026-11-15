@@ -2,7 +2,8 @@ import { exigerEspace } from "@/services/acces";
 import { chargerEtatSite } from "@/services/admin";
 import Link from "next/link";
 import { dateHeure } from "@/domain/format";
-import { depuisQuand } from "@/domain/journal";
+import { depuisQuand, regrouperErreurs } from "@/domain/journal";
+import { actionReglerErreur } from "@/app/actions/admin";
 
 function taille(octets: number | null): string {
   if (octets === null) return "";
@@ -63,18 +64,28 @@ export async function EtatDuSite() {
               ? "aucune"
               : `${e.erreurs7j} erreur${e.erreurs7j > 1 ? "s" : ""} rencontrée${e.erreurs7j > 1 ? "s" : ""}`}
             {e.sentryConfigure ? " · détail aussi dans Sentry" : ""}
+            {e.erreurs7j ? " · bug corrigé ? touche « Réglé » pour la retirer" : ""}
           </span>
         </li>
       </ul>
       {e.erreurs.length > 0 ? (
         <ul className="liste-erreurs">
-          {e.erreurs.map((x) => (
-            <li key={x.id}>
+          {regrouperErreurs(e.erreurs).map((g) => (
+            <li key={g.message}>
               <span className="liste-erreurs-tete">
-                {dateHeure(x.quand)} · <code>{x.page}</code>
+                {dateHeure(g.quand)}
+                {g.nombre > 1 ? ` · ${g.nombre} fois` : ""} · <code>{g.pages.join(", ")}</code>
               </span>
-              <span className="liste-erreurs-message">{x.message}</span>
-              <small>version en ligne {x.version ?? "—"}</small>
+              <span className="liste-erreurs-message">{g.message}</span>
+              <span className="liste-erreurs-pied">
+                <small>version en ligne {g.versions.join(", ") || "—"}</small>
+                <form action={actionReglerErreur}>
+                  <input type="hidden" name="message" value={g.message} />
+                  <button type="submit" className="liste-erreurs-reglee">
+                    ✓ Réglé
+                  </button>
+                </form>
+              </span>
             </li>
           ))}
         </ul>

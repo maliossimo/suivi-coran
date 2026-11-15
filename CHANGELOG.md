@@ -9,6 +9,13 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.33.0] — 2026-11-15
+
+### Ajouté
+
+- Administration, état du site : un bouton « Réglé » sur chaque erreur. Une fois le bug corrigé, l'erreur quitte le tableau ; si le bug revient, elle réapparaît.
+- Les erreurs identiques sont réunies (« 3 fois »), avec les pages concernées.
+
 ## [1.32.0] — 2026-11-15
 
 ### Amélioré

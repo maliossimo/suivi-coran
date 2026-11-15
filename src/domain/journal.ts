@@ -130,3 +130,37 @@ export function regrouperOuvertures(
   }
   return groupes;
 }
+
+/** Une erreur telle que le tableau de l'admin la montre : les mêmes messages réunis. */
+export interface GroupeErreurs {
+  message: string;
+  nombre: number;
+  /** La plus récente (les erreurs arrivent de la plus récente à la plus ancienne). */
+  quand: string;
+  pages: string[];
+  versions: string[];
+}
+
+/** Réunit les erreurs au même message (un même bug vu plusieurs fois), de la plus récente à la plus ancienne. */
+export function regrouperErreurs(
+  erreurs: readonly { quand: string; page: string; message: string; version: string | null }[],
+): GroupeErreurs[] {
+  const groupes = new Map<string, GroupeErreurs>();
+  for (const e of erreurs) {
+    const g = groupes.get(e.message);
+    if (!g) {
+      groupes.set(e.message, {
+        message: e.message,
+        nombre: 1,
+        quand: e.quand,
+        pages: [e.page],
+        versions: e.version ? [e.version] : [],
+      });
+      continue;
+    }
+    g.nombre++;
+    if (!g.pages.includes(e.page)) g.pages.push(e.page);
+    if (e.version && !g.versions.includes(e.version)) g.versions.push(e.version);
+  }
+  return [...groupes.values()];
+}
