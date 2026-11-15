@@ -23,7 +23,14 @@ export type MessageVersSuivi =
 export type MessageDuSuivi =
   | { type: "pret" }
   | { type: "echec"; raison: string }
-  | { type: "couverts"; id: number; couverts: [number, number] | null; ms: number; ok: boolean };
+  | {
+      type: "couverts";
+      id: number;
+      couverts: [number, number] | null;
+      ms: number;
+      ok: boolean;
+      raison?: string;
+    };
 
 let session: ort.InferenceSession | null = null;
 let chargement: Promise<void> | null = null;
@@ -103,6 +110,14 @@ self.onmessage = (e: MessageEvent<MessageVersSuivi>) => {
   const debut = performance.now();
   suivre(m.son, m.reference, m.depuis, m.riwaya).then(
     (c) => envoyer({ type: "couverts", id: m.id, couverts: c, ms: performance.now() - debut, ok: true }),
-    () => envoyer({ type: "couverts", id: m.id, couverts: null, ms: performance.now() - debut, ok: false }),
+    (err: unknown) =>
+      envoyer({
+        type: "couverts",
+        id: m.id,
+        couverts: null,
+        ms: performance.now() - debut,
+        ok: false,
+        raison: err instanceof Error ? err.message : String(err),
+      }),
   );
 };

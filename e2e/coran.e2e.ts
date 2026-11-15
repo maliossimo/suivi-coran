@@ -342,12 +342,19 @@ test.describe("Coran (élève)", () => {
 test.describe("Suivi sur le téléphone", () => {
   test("le modèle compressé se charge dans le navigateur et écoute sans le serveur", async ({ page }) => {
     test.setTimeout(180_000);
+    const journal: string[] = [];
+    page.on("console", (m) => journal.push(`${m.type()}: ${m.text()}`));
+    page.on("pageerror", (e) => journal.push(`erreur : ${e.message}`));
     await page.addInitScript(() => {
       navigator.mediaDevices.getUserMedia = async () => {
         const ctx = new AudioContext();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        gain.gain.value = 0.3;
+        // Comme une voix qui respire : 1,2 s de son, 0,5 s de silence.
+        for (let t = 0; t < 120; t += 1.7) {
+          gain.gain.setValueAtTime(0.3, ctx.currentTime + t);
+          gain.gain.setValueAtTime(0, ctx.currentTime + t + 1.2);
+        }
         const dest = ctx.createMediaStreamDestination();
         osc.connect(gain).connect(dest);
         osc.start();
@@ -390,7 +397,7 @@ test.describe("Suivi sur le téléphone", () => {
     await expect(reciter).toHaveAttribute("data-suivi", "pret", { timeout: 120_000 });
     await reciter.getByRole("button", { name: "Commencer la récitation" }).click();
     // Le modèle a écouté sur place, et le passage vient de l'écriture attendue.
-    await expect(reciter).toHaveAttribute("data-suivi-essai", "ok", { timeout: 30_000 });
+    await expect(reciter, journal.join("\n")).toHaveAttribute("data-suivi-essai", "ok", { timeout: 30_000 });
     expect(references).toBe(1);
     expect(suivisServeur).toBe(0);
     await expect(reciter.locator(".reciter-mot")).toHaveCount(3);

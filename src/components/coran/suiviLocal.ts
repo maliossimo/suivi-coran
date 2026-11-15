@@ -45,11 +45,16 @@ export function useSuiviLocal(actif: boolean) {
     w.onmessage = (e: MessageEvent<MessageDuSuivi>) => {
       const m = e.data;
       if (m.type === "pret") setEtat("pret");
-      else if (m.type === "echec") setEtat("indisponible");
-      else {
+      else if (m.type === "echec") {
+        console.warn("[suivi] modèle indisponible sur ce téléphone :", m.raison);
+        setEtat("indisponible");
+      } else {
         if (m.ok) setEssaiReussi(true);
-        // Le modèle échoue à répétition : le serveur reprend le suivi.
-        else if (++echecs.current >= 3) setEtat("indisponible");
+        else {
+          console.warn("[suivi] écoute impossible sur le téléphone :", m.raison);
+          // Le modèle échoue à répétition : le serveur reprend le suivi.
+          if (++echecs.current >= 3) setEtat("indisponible");
+        }
         const d = durees.current;
         d.push(m.ms);
         if (d.length > 5) d.shift();
