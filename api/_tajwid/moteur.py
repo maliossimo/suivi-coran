@@ -440,6 +440,22 @@ def suivre(
     return {"couverts": [a, b], "passage": passage}
 
 
+def reference(sourate: int, du: int, au: int, riwaya: str, textes_warsh: list[str] | None = None) -> dict:
+    """Pour le suivi sur le téléphone : l'écriture phonétique attendue du passage, la place de chaque mot dans
+    cette écriture, et les mots du passage (verset, place, mot) — le téléphone situe alors l'élève lui-même."""
+    if riwaya not in ("hafs", "warsh"):
+        raise ErreurSaisie("Lecture inconnue.")
+    if not (1 <= sourate <= 114) or du < 1 or au < du or au - du > 40:
+        raise ErreurSaisie("Verset inconnu.")
+    mots, places = _mots_passage(sourate, du, au, riwaya, tuple(textes_warsh) if textes_warsh else None)
+    phonemes, spans = _reference(mots, riwaya)
+    return {
+        "phonemes": phonemes,
+        "spans": [list(x) for x in spans],
+        "passage": [[v, p, w] for (v, p), w in zip(places, mots)],
+    }
+
+
 def analyser(
     pcm: bytes,
     sourate: int,

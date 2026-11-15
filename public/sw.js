@@ -21,10 +21,12 @@ const AUDIO = "suivi-coran-audio-v1";
 const HORS_LIGNE = "suivi-coran-hors-ligne-v1";
 // « Me réciter » : enregistrements de l'élève, seulement sur le téléphone.
 const VOIX = "suivi-coran-voix-v1";
+// Suivi de récitation sur le téléphone : le modèle (23 Mo), rangé par le fil de suivi lui-même.
+const MODELE = "suivi-coran-modele-v1";
 const PAGE_HORS_LIGNE = "/hors-ligne.html";
 const ACCUEIL = "/__accueil";
 const MAX_PAGES = 40;
-const CACHES_CONNUS = [STATIQUE, PAGES, CORAN, AUDIO, HORS_LIGNE, VOIX];
+const CACHES_CONNUS = [STATIQUE, PAGES, CORAN, AUDIO, HORS_LIGNE, VOIX, MODELE];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(HORS_LIGNE).then((cache) => cache.add(PAGE_HORS_LIGNE)));

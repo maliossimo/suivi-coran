@@ -211,6 +211,9 @@ test.describe("Vérifier ma récitation", () => {
     await page.route("**/api/moteur_tajwid**", async (route) => {
       if (route.request().method() === "GET") return route.fulfill({ json: { pret: true } });
       const url = new URL(route.request().url());
+      // Ici, le suivi passe par le serveur (celui du téléphone est testé à part).
+      if (url.searchParams.has("reference"))
+        return route.fulfill({ status: 503, json: { erreur: "Indisponible." } });
       if (url.searchParams.has("suivi")) {
         // Suivi en direct : seulement jusqu'où l'élève est arrivé.
         suivis++;
@@ -333,5 +336,70 @@ test.describe("Coran (élève)", () => {
     await seConnecter(page, COMPTES.eleveA, /\/eleve/);
     await page.goto("/eleve/coran/lire?sourate=1&du=2&au=4&reciter=1");
     await expect(page.getByRole("dialog", { name: "Réciter" })).toBeVisible();
+  });
+});
+
+test.describe("Suivi sur le téléphone", () => {
+  test("le modèle compressé se charge dans le navigateur et écoute sans le serveur", async ({ page }) => {
+    test.setTimeout(180_000);
+    const journal: string[] = [];
+    page.on("console", (m) => journal.push(`${m.type()}: ${m.text()}`));
+    page.on("pageerror", (e) => journal.push(`erreur : ${e.message}`));
+    await page.addInitScript(() => {
+      navigator.mediaDevices.getUserMedia = async () => {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        // Comme une voix qui respire : 1,2 s de son, 0,5 s de silence.
+        for (let t = 0; t < 120; t += 1.7) {
+          gain.gain.setValueAtTime(0.3, ctx.currentTime + t);
+          gain.gain.setValueAtTime(0, ctx.currentTime + t + 1.2);
+        }
+        const dest = ctx.createMediaStreamDestination();
+        osc.connect(gain).connect(dest);
+        osc.start();
+        return dest.stream;
+      };
+    });
+    let suivisServeur = 0;
+    let references = 0;
+    await page.route("**/api/moteur_tajwid**", async (route) => {
+      if (route.request().method() === "GET") return route.fulfill({ json: { pret: true } });
+      const url = new URL(route.request().url());
+      if (url.searchParams.has("reference")) {
+        references++;
+        // Écriture attendue (simulée) : trois mots.
+        return route.fulfill({
+          json: {
+            phonemes: "ٱلحَمدُلِلّاهِرَببِ",
+            spans: [
+              [0, 7],
+              [7, 15],
+              [15, 20],
+            ],
+            passage: [
+              [2, 0, "ٱلْحَمْدُ"],
+              [2, 1, "لِلَّهِ"],
+              [2, 2, "رَبِّ"],
+            ],
+          },
+        });
+      }
+      if (url.searchParams.has("suivi")) suivisServeur++;
+      return route.fulfill({ status: 503, json: { erreur: "Indisponible." } });
+    });
+    await seConnecter(page, COMPTES.admin, /\/admin/);
+    await page.goto("/admin/coran?lecture=hafs&sourate=1");
+    await page.locator('.coran-verset[data-cle="1:2"]').click();
+    await page.getByRole("button", { name: "Vérifier ma récitation à partir d’ici" }).click();
+    const reciter = page.getByRole("dialog", { name: "Réciter" });
+    // Téléchargé, vérifié (empreinte) et prêt.
+    await expect(reciter).toHaveAttribute("data-suivi", "pret", { timeout: 120_000 });
+    await reciter.getByRole("button", { name: "Commencer la récitation" }).click();
+    // Le modèle a écouté sur place, et le passage vient de l'écriture attendue.
+    await expect(reciter, journal.join("\n")).toHaveAttribute("data-suivi-essai", "ok", { timeout: 30_000 });
+    expect(references).toBe(1);
+    expect(suivisServeur).toBe(0);
+    await expect(reciter.locator(".reciter-mot")).toHaveCount(3);
   });
 });

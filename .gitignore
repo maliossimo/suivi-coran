@@ -31,3 +31,6 @@ e2e-serveur.log
 __pycache__/
 .pytest_cache/
 api/_tajwid/modeles/
+
+# Suivi sur le téléphone : modèle et moteur WebAssembly copiés au build (scripts/modeles-tajwid.mjs)
+public/tajwid/

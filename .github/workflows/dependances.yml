@@ -1,0 +1,37 @@
+name: Ajout de dépendances
+
+# Le poste de travail n'a pas accès au registre npm : pour ajouter une dépendance, on écrit
+# « paquet@version » (une par ligne) dans .github/dependances-demandees.txt sur une branche de travail.
+# Ce workflow l'installe (package.json et package-lock.json), retire la demande et enregistre le tout.
+
+on:
+  push:
+    branches-ignore: [main, prod]
+    paths: [".github/dependances-demandees.txt"]
+
+permissions:
+  contents: read
+
+jobs:
+  ajouter:
+    name: Installer les dépendances demandées
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - name: Installer et enregistrer
+        run: |
+          test -f .github/dependances-demandees.txt || exit 0
+          paquets=$(grep -v '^\s*#' .github/dependances-demandees.txt | xargs)
+          test -n "$paquets" || exit 0
+          npm install $paquets --save-exact --no-audit --no-fund
+          git rm -q .github/dependances-demandees.txt
+          git config user.name "maliossimo"
+          git config user.email "55502349+maliossimo@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "Ajoute les dépendances : $paquets"
+          git push
