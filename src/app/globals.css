@@ -9445,3 +9445,32 @@ fieldset.vue-admin-modifiable {
 .coran-bouton.coran-bouton-reciter:hover:not(:disabled) {
   background: var(--vert-fonce);
 }
+
+/* Téléphone : la barre de lecture tient dans son cadre malgré le libellé « Réciter » */
+@media (max-width: 430px) {
+  .coran-barre-ligne {
+    gap: 2px;
+  }
+  .coran-barre-ligne > .coran-bouton:not(.coran-lecture):not(.coran-bouton-reciter) {
+    width: 38px;
+  }
+  .coran-bouton.coran-bouton-reciter {
+    gap: 4px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 350px) {
+  .coran-bouton.coran-bouton-reciter {
+    width: 42px;
+    padding: 0;
+  }
+  .coran-bouton.coran-bouton-reciter span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
