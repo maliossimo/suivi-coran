@@ -9276,3 +9276,42 @@ fieldset.vue-admin-modifiable {
 .commentaire-en-envoi small {
   color: var(--texte-doux);
 }
+
+/* Ma mosquée (responsable) */
+.liste-mosquee {
+  display: grid;
+  gap: 2px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.liste-mosquee a {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  align-items: center;
+  min-height: 56px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--ligne);
+  color: inherit;
+  text-decoration: none;
+}
+.liste-mosquee a span {
+  color: var(--texte-doux);
+  font-size: var(--t-petit);
+}
+.liste-mosquee a svg {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  color: var(--texte-doux);
+}
+.liste-noms li {
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--ligne);
+}
+.actions-mosquee {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { accueilDuRole, LIBELLE_ROLE_LONG, type Role } from "@/domain/roles";
+import { compteConnecte } from "@/services/acces";
 import { Avatar } from "./Avatar";
 import { DemandePrenom } from "./DemandePrenom";
 import { LogoAccueil } from "./logo/LogoAccueil";
@@ -11,7 +12,10 @@ import { TitreBarre } from "./Salutation";
  * Barre du haut des espaces élève, maître et admin : logo (retour à l'accueil),
  * navigation principale et accès au compte.
  */
-export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string; role: Role }) {
+export async function EnteteEspace({ titre, nom, role }: { titre: string; nom: string; role: Role }) {
+  // Même lecture que la page (mise en cache pour la requête) : aucun aller-retour de plus.
+  const compte = await compteConnecte();
+  const responsable = role === "maitre" && Boolean(compte?.responsable);
   return (
     <header className="barre">
       <SignalerOuverture />
@@ -23,7 +27,7 @@ export function EnteteEspace({ titre, nom, role }: { titre: string; nom: string;
             <TitreBarre titre={titre} prenom={nom.split(/\s+/)[0] ?? ""} />
           </div>
         </LogoAccueil>
-        <NavigationEspace role={role} />
+        <NavigationEspace role={role} responsable={responsable} />
         <Link href="/compte" className="barre-identite" aria-label="Mon compte">
           <Avatar prenom={nom} cle={nom} role={role} taille="petit" surBarre />
           <span className="barre-nom">

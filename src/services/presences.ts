@@ -50,7 +50,9 @@ import { aujourdhuiParis, type ResultatSaisie } from "./fiche";
  */
 function vueDuCompte(profil: Profil): PointDeVue | null {
   if (!profil.actif) return null;
-  return profil.role === "admin" ? "admin" : null;
+  if (profil.role === "admin") return "admin";
+  // Le Cheikh responsable de sa mosquée (la base limite tout à sa mosquée).
+  return profil.role === "maitre" && profil.responsable ? "responsable" : null;
 }
 
 export function peutVoirPresences(profil: Profil): boolean {

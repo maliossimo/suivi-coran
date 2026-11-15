@@ -35,7 +35,8 @@ export function capacites(vue: PointDeVue): Capacites {
     case "admin":
       return { appel: true, organiser: true, eleves: true, rapport: true };
     case "responsable":
-      return { appel: false, organiser: true, eleves: true, rapport: true };
+      // Le responsable est aussi Cheikh : il fait l'appel de ses classes (la base le vérifie).
+      return { appel: true, organiser: true, eleves: true, rapport: true };
     case "cheikh":
       return { appel: true, organiser: false, eleves: true, rapport: false };
   }
