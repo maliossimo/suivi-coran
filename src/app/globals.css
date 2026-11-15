@@ -9262,3 +9262,17 @@ fieldset.vue-admin-modifiable {
   min-width: 0;
   display: contents;
 }
+
+/* Commentaire affiché tout de suite, pendant son envoi */
+.commentaire-en-envoi {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--vert-clair);
+  animation: apparition 0.2s ease-out;
+}
+.commentaire-en-envoi small {
+  color: var(--texte-doux);
+}

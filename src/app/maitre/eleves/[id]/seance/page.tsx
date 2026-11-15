@@ -13,18 +13,23 @@ export default async function PageSeanceMaitre({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ date?: string; type?: string; passage?: string }>;
 }) {
-  const profil = await exigerEspace("maitre");
-  const { id } = await params;
-  const query = await searchParams;
-  const eleve = /^[0-9a-f-]{36}$/i.test(id) ? await chargerEleve(id) : null;
+  const [{ id }, query] = await Promise.all([params, searchParams]);
+  const idValide = /^[0-9a-f-]{36}$/i.test(id);
+  const date = lireDateSaisissable(query.date);
+  const type = lireType(query.type);
+  // Droits, élève et séance demandés en même temps (la base filtre de toute façon selon les droits) :
+  // un seul aller-retour au lieu de trois à la suite.
+  const [profil, eleve, donneesEnAvance] = await Promise.all([
+    exigerEspace("maitre"),
+    idValide ? chargerEleve(id) : null,
+    idValide && date ? chargerSeance(id, date, type, query.passage).catch(() => null) : null,
+  ]);
   if (!eleve) notFound();
 
   const base = `/maitre/eleves/${eleve.id}`;
-  const date = lireDateSaisissable(query.date);
-  const type = lireType(query.type);
   if (!date) redirect(base);
-
-  const donnees = await chargerSeance(eleve.id, date, type, query.passage);
+  // En cas d'échec de la lecture anticipée, on recommence (et une vraie erreur s'affiche).
+  const donnees = donneesEnAvance ?? (await chargerSeance(eleve.id, date, type, query.passage));
 
   return (
     <>

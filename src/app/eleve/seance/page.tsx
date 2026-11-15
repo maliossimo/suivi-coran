@@ -11,8 +11,7 @@ export default async function PageSeance({
 }: {
   searchParams: Promise<{ date?: string; type?: string; passage?: string }>;
 }) {
-  const profil = await exigerEleveAvecLecture();
-  const params = await searchParams;
+  const [profil, params] = await Promise.all([exigerEleveAvecLecture(), searchParams]);
   const date = lireDateSaisissable(params.date);
   const type = lireType(params.type);
   if (!date) redirect(`/eleve?type=${type}`);

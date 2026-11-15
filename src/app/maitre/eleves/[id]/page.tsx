@@ -20,10 +20,12 @@ export default async function PageEleveMaitre({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ mois?: string; type?: string }>;
 }) {
-  const profil = await exigerEspace("maitre");
-  const { id } = await params;
-  const { mois, type } = await searchParams;
-  const eleve = /^[0-9a-f-]{36}$/i.test(id) ? await chargerEleve(id) : null;
+  const [{ id }, { mois, type }] = await Promise.all([params, searchParams]);
+  // Droits et élève demandés en même temps : un aller-retour de moins.
+  const [profil, eleve] = await Promise.all([
+    exigerEspace("maitre"),
+    /^[0-9a-f-]{36}$/i.test(id) ? chargerEleve(id) : null,
+  ]);
   if (!eleve) notFound();
 
   const base = `/maitre/eleves/${eleve.id}`;
