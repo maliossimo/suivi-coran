@@ -8,6 +8,7 @@ import {
   ajouterEtablissement,
   basculerUtilisateur,
   nommerResponsable,
+  reglerErreur,
   deplacerUnUtilisateur,
   renommerUnEtablissement,
   renvoyerUneInvitation,
@@ -45,6 +46,13 @@ export async function actionNommerResponsable(form: FormData): Promise<void> {
   const responsable = form.get("responsable") === "true";
   await nommerResponsable(profil, form.get("id"), responsable);
   await notifier(responsable ? "Responsable de la mosquée nommé" : "Responsable retiré");
+  revalidatePath("/admin");
+}
+
+export async function actionReglerErreur(form: FormData): Promise<void> {
+  const profil = await admin();
+  await reglerErreur(profil, form.get("message"));
+  await notifier("Erreur marquée comme réglée");
   revalidatePath("/admin");
 }
 
