@@ -41,7 +41,6 @@ import {
   validerSeance,
   marquerPassages,
   aDejaUneSeance,
-  nombreSeancesParType,
 } from "@/repositories/seances";
 import { lectureEleve } from "@/repositories/profils";
 import { listerSourates } from "@/repositories/sourates";
@@ -73,8 +72,6 @@ export interface Fiche {
   lecture: Lecture;
   /** Aucune séance encore, tous mois et types confondus : on accueille l'élève. */
   premiereFois: boolean;
-  /** Séances du mois de chaque type : affiché sur les onglets Apprentissage / Révision. */
-  nombreParType: Record<TypeSeance, number>;
 }
 
 export async function chargerFiche(eleveId: string, moisParam?: string, typeParam?: string): Promise<Fiche> {
@@ -82,14 +79,11 @@ export async function chargerFiche(eleveId: string, moisParam?: string, typePara
   const mois = lireMois(moisParam, aujourdhui);
   const position = positionDuMois(mois, aujourdhui);
   const type = lireType(typeParam);
-  const [seances, objectifs, lecture, dejaCommence, nombreParType] = await Promise.all([
+  const [seances, objectifs, lecture, dejaCommence] = await Promise.all([
     position === "futur" ? [] : seancesEntre(eleveId, type, premierJour(mois), dernierJour(mois)),
     objectifsDuMois(eleveId, type, premierJour(mois)),
     lectureEleve(eleveId),
     aDejaUneSeance(eleveId),
-    position === "futur"
-      ? { apprentissage: 0, revision: 0 }
-      : nombreSeancesParType(eleveId, premierJour(mois), dernierJour(mois)).catch(() => null),
   ]);
   // Les passages sont dans la numérotation de la lecture de l'élève (Hafs ou Warsh).
   const sourates = await listerSourates(lecture);
@@ -110,8 +104,6 @@ export async function chargerFiche(eleveId: string, moisParam?: string, typePara
     sourates,
     lecture,
     premiereFois: !dejaCommence,
-    // En cas d'échec du comptage, celui de la fiche ouverte reste juste ; l'autre est inconnu (0, non affiché).
-    nombreParType: nombreParType ?? { apprentissage: 0, revision: 0, [type]: seances.length },
   };
 }
 

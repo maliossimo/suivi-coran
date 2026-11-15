@@ -1,4 +1,4 @@
-import { BookOpen, ChevronLeft, ChevronRight, Download, MessageCircle, Repeat } from "lucide-react";
+import { BookPlus, ChevronLeft, ChevronRight, Download, MessageCircle, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
@@ -129,19 +129,11 @@ export function FicheMois({
             scroll={false}
           >
             {t === "apprentissage" ? (
-              <BookOpen size={17} aria-hidden="true" />
+              <BookPlus size={18} aria-hidden="true" />
             ) : (
-              <Repeat size={17} aria-hidden="true" />
+              <RotateCcw size={18} aria-hidden="true" />
             )}
             {LIBELLE_TYPE[t]}
-            {fiche.nombreParType[t] > 0 ? (
-              <span
-                className="onglet-nombre"
-                aria-label={`${fiche.nombreParType[t]} séance${fiche.nombreParType[t] > 1 ? "s" : ""} ce mois-ci`}
-              >
-                {fiche.nombreParType[t]}
-              </span>
-            ) : null}
             <IndicateurLien />
           </Link>
         ))}
