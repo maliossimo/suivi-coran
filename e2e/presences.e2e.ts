@@ -33,7 +33,7 @@ test.describe("Présences (admin)", () => {
   test("aperçu du responsable : il fait l'appel de sa mosquée, avec le rapport", async ({ page }) => {
     await page.goto(`/presences/${IDS.classe}?vue=responsable`);
     await expect(page.getByText("Aperçu du responsable")).toBeVisible();
-    await expect(page.getByRole("link", { name: "Faire l’appel" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Faire l’appel" }).first()).toBeVisible();
     await capture(page, "34-apercu-responsable");
   });
 
