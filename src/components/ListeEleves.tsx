@@ -53,9 +53,11 @@ export function ListeEleves({
       ) : null}
 
       <ul className="liste-eleves">
-        {visibles.map((r) => (
+        {visibles.map((r, i) => (
           <li key={r.eleve.id}>
             <Link
+              // Les premières fiches sont préparées d'avance : elles s'ouvrent sans attendre.
+              prefetch={i < 8 ? true : null}
               href={
                 r.premiereAVoir
                   ? `/maitre/eleves/${r.eleve.id}?mois=${r.premiereAVoir.date.slice(0, 7)}&type=${r.premiereAVoir.type}`
