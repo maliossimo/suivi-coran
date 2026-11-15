@@ -666,6 +666,10 @@ a:hover {
   gap: 6px;
   border: 1.5px solid transparent;
 }
+.onglet-apprentissage svg,
+.onglet-revision svg {
+  flex-shrink: 0;
+}
 .onglet-apprentissage svg {
   color: var(--vert);
 }
@@ -681,27 +685,6 @@ a:hover {
   border-color: var(--or);
   background: var(--or-clair);
   color: var(--or-texte);
-}
-.onglet-nombre {
-  min-width: 22px;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--surface-3);
-  color: var(--texte-doux);
-  font-size: 12px;
-  font-weight: 700;
-  text-align: center;
-}
-.onglet-apprentissage .onglet-nombre {
-  background: var(--vert-clair);
-  color: var(--vert-texte);
-}
-.onglet-revision .onglet-nombre {
-  background: var(--or-clair);
-  color: var(--or-texte);
-}
-.onglet[aria-current="page"] .onglet-nombre {
-  background: var(--carte);
 }
 .resume-mois {
   margin: 0;
@@ -5426,7 +5409,8 @@ html[data-ouverture] .ouverture-version {
 }
 /* Place pour le lecteur sous le dernier verset. */
 .espace-coran {
-  padding-bottom: calc(200px + env(safe-area-inset-bottom));
+  /* Le lecteur et le bouton « Réciter » au-dessus : le dernier verset reste lisible. */
+  padding-bottom: calc(260px + env(safe-area-inset-bottom));
 }
 .coran-lecteur-passage {
   display: flex;
@@ -9510,50 +9494,33 @@ fieldset.vue-admin-modifiable {
   text-decoration: none;
 }
 
-/* Lecture du Coran : le bouton « Réciter » se voit (libellé, pas seulement un micro) */
-.coran-bouton.coran-bouton-reciter {
+/* Lecture du Coran : « Réciter » flotte au-dessus de la barre d'écoute, à droite : toujours visible,
+   et la barre garde la place pour le nom du récitateur et ce qu'elle fait. */
+.coran-reciter-flottant {
+  position: absolute;
+  right: 6px;
+  bottom: calc(100% + 10px);
   display: inline-flex;
-  gap: 6px;
-  width: auto;
-  padding: 0 12px;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 0;
   border-radius: 999px;
   background: var(--vert);
   color: #fff;
   font: inherit;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
 }
-.coran-bouton.coran-bouton-reciter:hover:not(:disabled) {
+.coran-reciter-flottant:hover {
   background: var(--vert-fonce);
 }
-
-/* Téléphone : la barre de lecture tient dans son cadre malgré le libellé « Réciter » */
-@media (max-width: 430px) {
-  .coran-barre-ligne {
-    gap: 2px;
-  }
-  .coran-barre-ligne > .coran-bouton:not(.coran-lecture):not(.coran-bouton-reciter) {
-    width: 38px;
-  }
-  .coran-bouton.coran-bouton-reciter {
-    gap: 4px;
-    padding: 0 10px;
-    font-size: 13px;
-  }
-}
-@media (max-width: 350px) {
-  .coran-bouton.coran-bouton-reciter {
-    width: 42px;
-    padding: 0;
-  }
-  .coran-bouton.coran-bouton-reciter span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
+.coran-reciter-flottant:focus-visible {
+  outline: 3px solid var(--or);
+  outline-offset: 2px;
 }
 
 /* Réciter, pendant l'écoute : ce qui est entendu se voit d'un coup d'œil.
