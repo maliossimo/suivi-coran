@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.31.1] — 2026-11-15
+
+### Corrigé
+
+- Lecture du Coran sur téléphone : la barre du bas (lecture, « Réciter », réglages) dépassait de son cadre depuis l'ajout du libellé « Réciter ». Elle tient de nouveau entière à l'écran.
+
 ## [1.31.0] — 2026-11-15
 
 ### Ajouté
