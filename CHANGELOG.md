@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.30.3] — 2026-11-15
+
+### Amélioré
+
+- Pages instantanées et toujours à jour : une page déjà vue s'affiche tout de suite, puis se met à jour toute seule en arrière-plan. Ce qu'une autre personne a changé entre-temps apparaît en moins d'une seconde, sans rien toucher. Pareil en revenant sur l'appli après 30 secondes ailleurs.
+
 ## [1.30.2] — 2026-11-15
 
 ### Amélioré
