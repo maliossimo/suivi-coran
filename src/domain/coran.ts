@@ -40,6 +40,7 @@ export const CODES_TAJWID = [
   "b",
   "i",
   "q",
+  "z",
 ] as const;
 export type CodeTajwid = (typeof CODES_TAJWID)[number];
 
@@ -64,6 +65,7 @@ export const FAMILLES_TAJWID: readonly FamilleTajwid[] = [
   { cle: "idgham", libelle: "Idghâm avec ghunna", arabe: "إدغام بغنة", codes: ["d", "f"] },
   { cle: "idgham-sans", libelle: "Idghâm sans ghunna", arabe: "إدغام بلا غنة", codes: ["n", "j", "b"] },
   { cle: "iqlab", libelle: "Iqlâb", arabe: "إقلاب", codes: ["i"] },
+  { cle: "izhar", libelle: "Izhâr (nûn prononcé clairement)", arabe: "إظهار", codes: ["z"] },
   { cle: "qalqala", libelle: "Qalqala", arabe: "قلقلة", codes: ["q"] },
   { cle: "muette", libelle: "Lettre non prononcée", arabe: "لا يُلفظ", codes: ["h", "l", "e"] },
 ];
@@ -75,6 +77,69 @@ const FAMILLE_PAR_CODE = new Map<string, string>(
 /** Famille (et donc couleur) d'une règle ; null si le code est inconnu. */
 export function familleTajwid(code: string): string | null {
   return FAMILLE_PAR_CODE.get(code) ?? null;
+}
+
+const SUKUN = "\u06e1";
+const TANWINS = new Set(["\u064b", "\u064c", "\u064d"]);
+const VOYELLES = new Set(["\u064e", "\u064f", "\u0650", "\u0651"]);
+/** Lettres de la gorge : après elles, le nûn sakin et le tanwîn se prononcent clairement (izhâr halqî). */
+const GORGE = new Set(["ء", "أ", "إ", "ؤ", "ئ", "ه", "ع", "ح", "غ", "خ"]);
+const HAMZA_PORTEE = new Set(["\u0654", "\u0655"]);
+const estSigne = (c: string) => /\p{Mn}/u.test(c);
+
+/**
+ * Ajoute l'izhâr halqî (code « z ») : nûn sakin (نۡ) ou tanwîn suivi d'une lettre de la gorge,
+ * dans le mot ou au début du mot suivant. Les données ne le marquent pas (planches classiques) :
+ * il est calculé ici, sans toucher aux lettres déjà colorées.
+ */
+export function marquerIzhar(segments: readonly SegmentTajwid[]): SegmentTajwid[] {
+  const lettres: string[] = [];
+  const codes: (CodeTajwid | null)[] = [];
+  for (const s of segments) {
+    const [code, texte] = typeof s === "string" ? [null, s] : s;
+    for (const c of texte) {
+      lettres.push(c);
+      codes.push(code);
+    }
+  }
+  const n = lettres.length;
+  const finSignes = (i: number) => {
+    let j = i + 1;
+    while (j < n && estSigne(lettres[j]!)) j++;
+    return j;
+  };
+  let change = false;
+  for (let i = 0; i < n; i++) {
+    const c = lettres[i]!;
+    if (c === " " || estSigne(c)) continue;
+    const j = finSignes(i);
+    const signes = lettres.slice(i + 1, j);
+    const tanwin = signes.some((x) => TANWINS.has(x));
+    const nunSakin = c === "ن" && signes.includes(SUKUN) && !signes.some((x) => VOYELLES.has(x));
+    if (!tanwin && !nunSakin) continue;
+    // Lettre suivante : après un tanwîn, l'alif ou l'alif maqsûra qui le porte ne compte pas.
+    let k = j;
+    if (tanwin) while (k < n && (lettres[k] === "ا" || lettres[k] === "ى" || estSigne(lettres[k]!))) k++;
+    while (k < n && (lettres[k] === " " || estSigne(lettres[k]!))) k++;
+    if (k >= n) continue; // fin du verset : on s'arrête, pas d'izhâr à montrer
+    const suivante = lettres[k]!;
+    const gorge =
+      GORGE.has(suivante) || (suivante === "ا" && HAMZA_PORTEE.has(lettres[k + 1] ?? ""));
+    if (!gorge || codes.slice(i, j).some((x) => x !== null)) continue;
+    for (let x = i; x < j; x++) codes[x] = "z";
+    change = true;
+  }
+  if (!change) return [...segments];
+  const sortie: SegmentTajwid[] = [];
+  let debut = 0;
+  for (let i = 1; i <= n; i++) {
+    if (i < n && codes[i] === codes[debut]) continue;
+    const texte = lettres.slice(debut, i).join("");
+    const code = codes[debut];
+    sortie.push(code ? [code, texte] : texte);
+    debut = i;
+  }
+  return sortie;
 }
 
 /** Texte brut d'un verset découpé pour le tajwid. */

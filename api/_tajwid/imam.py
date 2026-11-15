@@ -19,6 +19,7 @@ LONG = {'ا': 'alif', 'ۥ': 'waw', 'ۦ': 'yaa'}
 ONSET = 3  # symbols at the start of a breath where "another letter / dropped sound" is not judged
 HARAKAT = set('َُِ')
 NASAL = set('نم')
+THROAT = set('ءهعحغخ')  # izhar halqi: a nun sakin / tanween before them is pronounced clearly, no ghunnah
 SIFAT = ['hams_or_jahr', 'shidda_or_rakhawa', 'tafkheem_or_taqeeq', 'itbaq', 'safeer', 'qalqla', 'tikraar', 'tafashie',
          'istitala', 'ghonna']
 
@@ -145,6 +146,8 @@ def expected(words, moshaf=None, riwaya='hafs'):
         if i not in ruled:
             if c == 'ں': units.append(Unit(i, j, 'ikhfa', w, golden=n, char=c))
             elif c == '۾': units.append(Unit(i, j, 'iqlab', w, golden=n, char=c))
+            elif c == 'ن' and n == 1 and i and ph[i - 1] in HARAKAT and j < len(ph) and ph[j] in THROAT:
+                units.append(Unit(i, j, 'izhar', w, golden=1, char=c))  # مِنۡ عِلۡمٍ, عَذَابٌ أَلِيمٌ
             elif c in NASAL and n >= 3:  # ننننَ / ممممِ : nun / mim with shadda, or a nun merged into ن / م
                 prev_w = word_at(i - 1) if i else w
                 kind = 'idgham_ghunnah' if (prev_w != w and vanishing[prev_w]) else 'ghunnah'
@@ -266,6 +269,12 @@ def _msg(kind, lang, **k):
         'ikhfa_izhar': {'ar': 'إخفاء: أظهرتَ النون، والصواب إخفاؤها مع الغنة', 'en': 'ikhfaʾ: the nun was pronounced clearly; hide it with ghunnah',
                         'fr': 'ikhfaʾ : le noun a été prononcé clairement ; il faut le cacher avec la ghunna'},
         'ikhfa_short': {'ar': 'إخفاء: الغنة قصيرة', 'en': 'ikhfaʾ: the ghunnah is too short', 'fr': 'ikhfaʾ : la ghunna est trop courte'},
+        'izhar_ikhfa': {'ar': 'إظهار: أخفيتَ النون، والصواب إظهارها بلا غنة', 'en': 'izhar: the nun was hidden; pronounce it clearly, without ghunnah',
+                        'fr': 'izhâr : le noun a été caché ; prononce-le clairement, sans ghunna'},
+        'izhar_ghunnah': {'ar': 'إظهار: لا غنة هنا، تُظهر النون بلا إطالة', 'en': 'izhar: no ghunnah here; the nun is short and clear',
+                          'fr': 'izhâr : pas de ghunna ici ; le noun se prononce court et net'},
+        'izhar_missing': {'ar': 'إظهار: لم تظهر النون', 'en': 'izhar: the nun was not heard; pronounce it clearly',
+                          'fr': 'izhâr : le noun n’a pas été entendu ; prononce-le clairement'},
         'iqlab_missed': {'ar': 'إقلاب: تُقلب النون ميمًا مخفاة مع الغنة', 'en': 'iqlab: the nun becomes a hidden mim with ghunnah before ب',
                          'fr': 'iqlab : le noun devient un mim caché avec ghunna devant ب'},
         'idgham_missed': {'ar': 'إدغام: أظهرتَ النون، والصواب إدغامها في {letter}', 'en': 'idgham: the nun was pronounced; merge it into {letter}',
@@ -370,6 +379,12 @@ def listen(ref, heard, heard_sifat=None, langs=('ar', 'en', 'fr'), heard_probs=N
             n, _, _ = _run(heard, hs, max(he, hs + 1), 'ں')
             if n == 0 and 'ن' in heard[hs:he + 1]: add(u.word, 'ikhfa', 'khafi', u.golden, 0, 'ikhfa_izhar')
             elif n and n < u.golden - 1: add(u.word, 'ikhfa', 'khafi', u.golden, n, 'ikhfa_short')
+        elif u.kind == 'izhar':
+            seg = heard[max(0, hs - 1):min(len(heard), he + 1)]
+            n, _, _ = _run(heard, max(0, hs - 1), min(len(heard), he + 1), 'ن')
+            if 'ں' in seg: add(u.word, 'izhar', 'khafi', 1, 0, 'izhar_ikhfa')
+            elif n >= 3: add(u.word, 'izhar', 'khafi', 1, n, 'izhar_ghunnah')
+            elif n == 0: add(u.word, 'izhar', 'khafi', 1, 0, 'izhar_missing')
         elif u.kind == 'iqlab':
             if '۾' not in heard[max(0, hs - 1):he + 1]: add(u.word, 'iqlab', 'khafi', u.golden, 0, 'iqlab_missed')
         elif u.kind in ('ghunnah', 'idgham_ghunnah'):

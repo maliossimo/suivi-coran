@@ -163,6 +163,27 @@ def test_mulaw_relu_fidelement():
     assert np.all(np.abs(relu - x) <= np.maximum(8, np.abs(x) * 0.04))
 
 
+def test_reference_pour_le_suivi_sur_le_telephone():
+    from _tajwid.moteur import reference
+
+    r = reference(1, 2, 4, "hafs")
+    assert len(r["spans"]) == len(r["passage"]) == 9
+    assert r["spans"][0][0] == 0 and r["spans"][-1][1] <= len(r["phonemes"])
+    with pytest.raises(ErreurSaisie):
+        reference(1, 4, 2, "hafs")
+
+
+def test_izhar_attendu_devant_une_lettre_de_la_gorge():
+    from _tajwid import imam
+
+    ref = imam.expected("صِرَٰطَ ٱلَّذِينَ أَنۡعَمۡتَ عَلَيۡهِمۡ".split(" "))
+    izhar = [u for u in ref.units if u.kind == "izhar"]
+    assert len(izhar) == 1 and ref.words[izhar[0].word] == "أَنۡعَمۡتَ"
+    # Devant une autre lettre (ikhfaʾ, idghâm) : pas d'izhâr.
+    ref = imam.expected("مِن كُلِّ".split(" "))
+    assert not [u for u in ref.units if u.kind == "izhar"]
+
+
 @reel
 def test_suivi_en_direct_situe_les_dernieres_secondes():
     from _tajwid.moteur import suivre

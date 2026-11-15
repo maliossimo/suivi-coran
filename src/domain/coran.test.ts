@@ -20,6 +20,7 @@ import {
   estMarque,
   libelleMinuterie,
   lireMarquePages,
+  marquerIzhar,
   volumeMinuterie,
   resumeMemoriser,
 } from "./coran";
@@ -34,7 +35,23 @@ describe("tajwid", () => {
   it("trouve la famille d'une règle", () => {
     expect(familleTajwid("q")).toBe("qalqala");
     expect(familleTajwid("t")).toBe("madd-45");
-    expect(familleTajwid("z")).toBeNull();
+    expect(familleTajwid("z")).toBe("izhar");
+    expect(familleTajwid("y")).toBeNull();
+  });
+
+  it("marque l'izhâr : nûn sakin ou tanwîn devant une lettre de la gorge", () => {
+    // « أَنۡعَمۡتَ » (Al-Fatiha 7) : nûn sakin devant ع.
+    expect(marquerIzhar(["لَّذِينَ أَنۡعَمۡتَ عَلَيۡهِمۡ"])).toEqual(["لَّذِينَ أَ", ["z", "نۡ"], "عَمۡتَ عَلَيۡهِمۡ"]);
+    // Tanwîn porté par un alif, devant le hamza du mot suivant.
+    expect(marquerIzhar(["عَلِيمًا حَكِيمًا"])).toEqual(["عَلِي", ["z", "مً"], "ا حَكِيمًا"]);
+    // Nûn sakin devant une autre lettre : pas d'izhâr ; fin du verset : rien.
+    expect(marquerIzhar(["مِن رَّبِّهِمۡ"])).toEqual(["مِن رَّبِّهِمۡ"]);
+    expect(marquerIzhar(["عَلِيمٌ"])).toEqual(["عَلِيمٌ"]);
+    // Déjà colorée (autre règle) : on n'y touche pas.
+    expect(marquerIzhar([["k", "نۡ"], "خَ"])).toEqual([["k", "نۡ"], "خَ"]);
+    // Le texte reste le même.
+    const v = ["مَنۡ ءَامَنَ ", ["h", "ٱ"], "للَّهَ"] as const;
+    expect(texteDesSegments(marquerIzhar([...v]))).toBe(texteDesSegments([...v]));
   });
 
   it("recompose le texte d'un verset", () => {

@@ -1,6 +1,6 @@
 import "server-only";
 import { z } from "zod";
-import { BASMALA, aBasmala, juzDePage, type SegmentTajwid } from "@/domain/coran";
+import { BASMALA, aBasmala, juzDePage, marquerIzhar, type SegmentTajwid } from "@/domain/coran";
 import { lireLecture, type Lecture } from "@/domain/lectures";
 import type { Sourate } from "@/domain/versets";
 import {
@@ -71,7 +71,11 @@ async function bloc(lecture: Lecture, s: Sourate, debut: number, fin: number): P
     nbVersets: s.nbVersets,
     debut: debut === 1,
     basmala: debut === 1 && aBasmala(s.numero) ? BASMALA[lecture] : null,
-    versets: numeros.map((n) => ({ n, texte: versets[n - 1] ?? "", tajwid: tajwid?.[n - 1] ?? null })),
+    versets: numeros.map((n) => ({
+      n,
+      texte: versets[n - 1] ?? "",
+      tajwid: tajwid?.[n - 1] ? marquerIzhar(tajwid[n - 1]!) : null,
+    })),
   };
 }
 

@@ -164,6 +164,11 @@ export function ModeReciter({
   const suite = useRef<string[]>([]);
   /** Suivi en direct : jusqu'où l'élève est arrivé (mots), avant même l'analyse de la pause. */
   const [suiviFin, setSuiviFin] = useState(0);
+  /** Le mot que l'appli vient d'entendre : gardé à l'écran pendant que l'élève avance. */
+  const motCourant = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    motCourant.current?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
+  }, [suiviFin]);
   const suivi = useRef({ fin: 0, passage: false });
   const dialogue = useRef<HTMLDialogElement>(null);
   const audio = useRef<HTMLAudioElement | null>(null);
@@ -610,6 +615,8 @@ export function ModeReciter({
     return FAMILLES_TAJWID.filter((f) => cles.has(f.cle));
   }, [versetsChoisis]);
   const classeTexte = `reciter-texte${colorer ? " avec-couleurs" : ""}`;
+  /** Pendant l'écoute : le mot que l'appli vient d'entendre et le suivant sont montrés. */
+  const enDirect = etape === "ecoute";
 
   const optionsVersets = versets.map((v) => ({ valeur: String(v.n), libelle: `Verset ${v.n}` }));
 
@@ -621,7 +628,11 @@ export function ModeReciter({
               <span
                 className={`reciter-mot ${classeEnDirect(m.analyse?.etat, m.indice < suiviFin)}${
                   reveler && !m.analyse && m.indice >= suiviFin ? " cache" : ""
+                }${enDirect && !m.analyse && m.indice === suiviFin - 1 ? " courant" : ""}${
+                  enDirect && m.indice === suiviFin && !reveler ? " prochain" : ""
                 }`}
+                ref={enDirect && m.indice === suiviFin - 1 ? motCourant : undefined}
+                aria-current={enDirect && m.indice === suiviFin - 1 ? "true" : undefined}
               >
                 {motAffiche(m)}{" "}
               </span>
