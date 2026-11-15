@@ -1,8 +1,6 @@
-import { Eye, PencilLine } from "lucide-react";
-import Link from "next/link";
 import type { ReactNode } from "react";
-import { actionModeVueAdmin } from "@/app/actions/admin";
 import { modeVueAdmin } from "@/services/vueAdmin";
+import { ZoneVueAdmin } from "./ZoneVueAdmin";
 
 /**
  * L'admin regarde l'espace d'un Cheikh. Deux modes, au choix dans le bandeau :
@@ -20,32 +18,9 @@ export async function VueAdmin({
 }) {
   if (!actif) return <>{children}</>;
   const mode = await modeVueAdmin();
-  const modification = mode === "modification";
-
   return (
-    <>
-      <div className={modification ? "bandeau-vue-admin modification" : "bandeau-vue-admin"} role="status">
-        <p>
-          {modification ? <PencilLine size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
-          <span>Vue du Cheikh{classe ? ` · ${classe}` : ""}</span>
-          <Link href="/admin">Administration</Link>
-        </p>
-        <form action={actionModeVueAdmin} className="choix-mode-admin" aria-label="Mode">
-          <button type="submit" name="mode" value="lecture" aria-pressed={!modification}>
-            Lecture seule
-          </button>
-          <button type="submit" name="mode" value="modification" aria-pressed={modification}>
-            Modifier
-          </button>
-        </form>
-      </div>
-      {modification ? (
-        children
-      ) : (
-        <fieldset disabled className="lecture-seule">
-          {children}
-        </fieldset>
-      )}
-    </>
+    <ZoneVueAdmin modificationInitiale={mode === "modification"} classe={classe}>
+      {children}
+    </ZoneVueAdmin>
   );
 }

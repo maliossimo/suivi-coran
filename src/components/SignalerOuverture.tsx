@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { actionAppareil } from "@/app/actions/mesures";
-import { actionOuverture } from "@/app/actions/ouverture";
 
 const CLE = "derniere-ouverture";
 const INTERVALLE = 15 * 60 * 1000;
@@ -22,18 +20,24 @@ export function SignalerOuverture() {
       } catch {
         // stockage indisponible : la base limite de toute façon à une ouverture par quart d'heure
       }
-      actionOuverture().catch(() => undefined);
-      // L'appareil (identifiant tiré au hasard, gardé sur le téléphone) : un nouveau est signalé à l'admin.
+      // Avec l'appareil (identifiant tiré au hasard, gardé sur le téléphone) : un nouveau est signalé
+      // à l'admin. En arrière-plan, hors de la file de navigation.
+      let appareil: string | null = null;
       try {
-        let appareil = localStorage.getItem("appareil-id");
+        appareil = localStorage.getItem("appareil-id");
         if (!appareil) {
           appareil = crypto.randomUUID();
           localStorage.setItem("appareil-id", appareil);
         }
-        actionAppareil(appareil).catch(() => undefined);
       } catch {
         // stockage indisponible : pas de suivi d'appareil
       }
+      void fetch("/api/ouverture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appareil }),
+        keepalive: true,
+      }).catch(() => undefined);
     };
     signaler();
     document.addEventListener("visibilitychange", signaler);
