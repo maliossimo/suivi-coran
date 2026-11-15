@@ -32,7 +32,8 @@ export default async function PageInviter({
   const { classe, cours } = await searchParams;
   const [classes, sesClasses] = await Promise.all([
     admin ? listerClasses(profil) : Promise.resolve([]),
-    classesDuCheikh(profil),
+    // Le responsable invite dans n'importe quelle classe de sa mosquée.
+    classesDuCheikh(profil, { touteLaMosquee: true }),
   ]);
   // L'admin choisit l'établissement ; le Cheikh invite dans sa classe (au choix s'il en a plusieurs).
   const classeChoisie = admin ? classes.find((c) => c.id === classe) : undefined;

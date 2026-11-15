@@ -9276,3 +9276,172 @@ fieldset.vue-admin-modifiable {
 .commentaire-en-envoi small {
   color: var(--texte-doux);
 }
+
+/* Ma mosquée (responsable) */
+.liste-mosquee {
+  display: grid;
+  gap: 2px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.liste-mosquee a {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  align-items: center;
+  min-height: 56px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--ligne);
+  color: inherit;
+  text-decoration: none;
+}
+.liste-mosquee a span {
+  color: var(--texte-doux);
+  font-size: var(--t-petit);
+}
+.liste-mosquee a svg {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  color: var(--texte-doux);
+}
+.liste-noms li {
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--ligne);
+}
+.actions-mosquee {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Séance de l'élève : « Réciter » à côté de chaque passage */
+.ecouter-passages li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+}
+.ecouter-passages a.ecouter-reciter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--vert);
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+/* Onglet Coran de l'élève : deux cartes, « Réciter » et « Lire et écouter » */
+.accueil-coran {
+  display: grid;
+  gap: 14px;
+}
+.carte-coran {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--ligne);
+  border-radius: 16px;
+  background: var(--carte);
+  box-shadow: var(--ombre);
+}
+.carte-reciter {
+  border-color: var(--vert);
+  background: linear-gradient(180deg, var(--vert-clair), var(--carte) 70%);
+}
+.carte-coran h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 19px;
+  color: var(--vert-texte);
+}
+.carte-coran p {
+  margin: 0;
+}
+.carte-coran-texte,
+.carte-coran-scores,
+.carte-coran-note {
+  color: var(--texte-doux);
+  font-size: 15px;
+}
+.carte-coran-note {
+  font-size: 13px;
+}
+.carte-coran-passage {
+  display: grid;
+  gap: 2px;
+}
+.carte-coran-quand {
+  color: var(--texte-doux);
+  font-size: 14px;
+}
+.carte-coran-passage strong {
+  font-size: 18px;
+}
+.score-pastille {
+  display: inline-block;
+  min-width: 34px;
+  margin-inline-end: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--texte);
+  font-weight: 600;
+  text-align: center;
+}
+.carte-coran-difficiles {
+  display: grid;
+  gap: 6px;
+  color: var(--texte-doux);
+  font-size: 14px;
+}
+.carte-coran-difficiles ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carte-coran-difficiles li {
+  padding: 2px 10px;
+  border: 1px solid var(--bord-or);
+  border-radius: 10px;
+  background: var(--or-clair);
+  color: var(--or-texte);
+  font-family: var(--font-arabe), serif;
+  font-size: 20px;
+}
+.carte-coran-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  text-decoration: none;
+}
+
+/* Lecture du Coran : le bouton « Réciter » se voit (libellé, pas seulement un micro) */
+.coran-bouton.coran-bouton-reciter {
+  display: inline-flex;
+  gap: 6px;
+  width: auto;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--vert);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+.coran-bouton.coran-bouton-reciter:hover:not(:disabled) {
+  background: var(--vert-fonce);
+}

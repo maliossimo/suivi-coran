@@ -144,7 +144,13 @@ export async function inviterMaitre(
   acteur: Profil,
   brut: { prenom: unknown; nom: unknown; email: unknown; etablissementId: unknown; classe?: unknown },
 ): Promise<ResultatSaisie> {
-  if (acteur.role !== "admin" || !acteur.actif) return { ok: false, erreur: "Réservé à l'administrateur." };
+  const responsable =
+    acteur.actif && acteur.role === "maitre" && acteur.responsable && acteur.etablissementId;
+  if (!(acteur.role === "admin" && acteur.actif) && !responsable) {
+    return { ok: false, erreur: "Réservé à l’administrateur et au responsable de la mosquée." };
+  }
+  // Le responsable invite dans SA mosquée, quel que soit le choix envoyé.
+  if (responsable) brut = { ...brut, etablissementId: acteur.etablissementId };
   const saisie = schemaInvitation
     .extend({
       etablissementId: z.string().uuid("Choisis un établissement."),
@@ -223,11 +229,20 @@ export interface ClasseDuCheikh {
   eleveIds: string[];
 }
 
-/** Classes (en cours) dont l'acteur est Cheikh, avec leurs élèves ; vide pour les autres rôles. */
-export async function classesDuCheikh(acteur: Profil): Promise<ClasseDuCheikh[]> {
+/**
+ * Classes (en cours) dont l'acteur est Cheikh, avec leurs élèves ; vide pour les autres rôles.
+ * `touteLaMosquee` : pour le responsable, toutes les classes de sa mosquée (inviter, placer un élève).
+ */
+export async function classesDuCheikh(
+  acteur: Profil,
+  options: { touteLaMosquee?: boolean } = {},
+): Promise<ClasseDuCheikh[]> {
   if (!acteur.actif || acteur.role !== "maitre") return [];
+  const toutes = options.touteLaMosquee && acteur.responsable;
   const classes = (await listerClassesPresences()).filter(
-    (c) => !c.archivee && c.cheikhs.some((ch) => ch.id === acteur.id),
+    (c) =>
+      !c.archivee &&
+      (toutes ? c.etablissementId === acteur.etablissementId : c.cheikhs.some((ch) => ch.id === acteur.id)),
   );
   return Promise.all(
     classes.map(async (c) => ({
@@ -240,7 +255,7 @@ export async function classesDuCheikh(acteur: Profil): Promise<ClasseDuCheikh[]>
 
 /** Classe où entre un élève invité par ce Cheikh : celle choisie, ou la seule qu'il a. */
 async function classeInvitation(acteur: Profil, choixBrut?: unknown): Promise<string | null> {
-  const classes = await classesDuCheikh(acteur);
+  const classes = await classesDuCheikh(acteur, { touteLaMosquee: true });
   const choix = z.string().uuid().safeParse(choixBrut);
   if (choix.success && classes.some((c) => c.id === choix.data)) return choix.data;
   return classes.length === 1 ? classes[0]!.id : null;

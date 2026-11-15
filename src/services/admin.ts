@@ -11,6 +11,7 @@ import {
   type UtilisationAppli,
   creerEtablissement,
   definirActifUtilisateur,
+  definirResponsable,
   deplacerUtilisateur,
   derniereSauvegarde,
   enregistrerErreur,
@@ -143,6 +144,18 @@ export async function basculerUtilisateur(acteur: Profil, idBrut: unknown, actif
   const id = z.string().uuid().safeParse(idBrut);
   if (!id.success || id.data === acteur.id) return; // on ne se désactive pas soi-même
   await definirActifUtilisateur(id.data, actif);
+}
+
+/** Nommer (ou retirer) un Cheikh responsable de sa mosquée. */
+export async function nommerResponsable(
+  acteur: Profil,
+  idBrut: unknown,
+  responsable: boolean,
+): Promise<void> {
+  exigerAdmin(acteur);
+  const id = z.string().uuid().safeParse(idBrut);
+  if (!id.success) return;
+  await definirResponsable(id.data, responsable);
 }
 
 const schemaFiltres = z.object({

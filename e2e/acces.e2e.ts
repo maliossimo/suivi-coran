@@ -23,9 +23,11 @@ test.describe("Connexion et droits", () => {
     }
   });
 
-  test("l'élève n'ouvre ni l'espace du Cheikh, ni l'administration, ni les présences", async ({ page }) => {
+  test("l'élève n'ouvre ni l'espace du Cheikh, ni l'administration, ni les présences, ni Ma mosquée", async ({
+    page,
+  }) => {
     await seConnecter(page, COMPTES.eleveA, /\/eleve/);
-    for (const interdit of ["/maitre", "/admin", "/presences", "/admin/coran"]) {
+    for (const interdit of ["/maitre", "/admin", "/presences", "/admin/coran", "/mosquee"]) {
       await page.goto(interdit);
       await expect(page, `${interdit} doit renvoyer l'élève chez lui`).toHaveURL(/\/eleve/);
     }

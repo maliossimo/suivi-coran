@@ -2,7 +2,11 @@
 
 import { Ellipsis, Search } from "lucide-react";
 import { useMemo, useState } from "react";
-import { actionBasculerUtilisateur, actionDeplacerUtilisateur } from "@/app/actions/admin";
+import {
+  actionBasculerUtilisateur,
+  actionNommerResponsable,
+  actionDeplacerUtilisateur,
+} from "@/app/actions/admin";
 import { Avatar } from "@/components/Avatar";
 import { Selecteur } from "@/components/Selecteur";
 import { EtiquetteLecture } from "@/components/ChoixLecture";
@@ -24,6 +28,7 @@ export interface LigneUtilisateur {
   derniereConnexion: string | null;
   derniereUtilisation: string | null;
   lecture: Lecture | null;
+  responsable?: boolean;
 }
 
 /** Liste des comptes avec recherche et filtres (rôle, établissement, statut), et leurs actions. */
@@ -134,7 +139,10 @@ export function TableauUtilisateurs({
               <span className="compte-identite">
                 <span className="compte-nom">
                   <b>{nomComplet}</b>
-                  <span className={`pastille-role pastille-${u.role}`}>{LIBELLE_ROLE[u.role]}</span>
+                  <span className={`pastille-role pastille-${u.role}`}>
+                    {LIBELLE_ROLE[u.role]}
+                    {u.responsable ? " · Responsable" : ""}
+                  </span>
                   {u.role === "eleve" ? <EtiquetteLecture lecture={u.lecture} /> : null}
                 </span>
                 <small suppressHydrationWarning>
@@ -170,6 +178,22 @@ export function TableauUtilisateurs({
                           soumettre
                           compact
                         />
+                      </form>
+                    ) : null}
+                    {u.role === "maitre" ? (
+                      <form action={actionNommerResponsable}>
+                        <input type="hidden" name="id" value={u.id} />
+                        <input type="hidden" name="responsable" value={u.responsable ? "false" : "true"} />
+                        <button type="submit" className="menu-plus-item">
+                          {u.responsable
+                            ? "Retirer « responsable de la mosquée »"
+                            : "Nommer responsable de la mosquée"}
+                          <small>
+                            {u.responsable
+                              ? "Il redevient un Cheikh comme les autres."
+                              : "Il gère sa mosquée : classes, Cheikhs, élèves."}
+                          </small>
+                        </button>
                       </form>
                     ) : null}
                     <form action={actionBasculerUtilisateur}>

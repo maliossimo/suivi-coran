@@ -13,6 +13,7 @@ const schemaProfil = z.object({
   nom: z.string(),
   actif: z.boolean(),
   lecture: z.enum(["hafs", "warsh"]).nullable(),
+  responsable: z.boolean().default(false),
 });
 
 export interface Profil {
@@ -24,6 +25,8 @@ export interface Profil {
   actif: boolean;
   /** Lecture de l'élève ; null tant qu'il ne l'a pas choisie (Hafs en attendant). */
   lecture: Lecture | null;
+  /** Responsable de sa mosquée (casquette donnée par l'admin à un Cheikh). */
+  responsable: boolean;
 }
 
 /**
@@ -40,7 +43,7 @@ export const profilConnecte = cache(async (): Promise<Profil | null> => {
 
   const { data, error } = await supabase
     .from("profils")
-    .select("id, role, etablissement_id, prenom, nom, actif, lecture")
+    .select("id, role, etablissement_id, prenom, nom, actif, lecture, responsable")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(`Lecture du profil impossible : ${error.message}`);
@@ -55,6 +58,7 @@ export const profilConnecte = cache(async (): Promise<Profil | null> => {
     nom: p.nom,
     actif: p.actif,
     lecture: p.lecture,
+    responsable: p.responsable && p.role === "maitre",
   };
 });
 

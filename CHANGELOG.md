@@ -9,6 +9,21 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.31.0] — 2026-11-15
+
+### Ajouté
+
+- **Responsable de mosquée** : une casquette en plus sur un compte de Cheikh, donnée (ou retirée) par l'administrateur depuis le menu ⋯ d'un utilisateur. Dans sa mosquée seulement, le responsable invite des Cheikhs et des élèves, crée les classes, y place les élèves et fait l'appel. Nouvel onglet « Mosquée » : classes, Cheikhs et élèves sans classe en un coup d'œil. L'administrateur garde la main sur tout.
+- **Onglet « Coran » pour les élèves**, avec deux cartes :
+  - « Réciter » : le passage de la dernière séance, les derniers scores et les mots à revoir, et un bouton pour le réciter tout de suite ;
+  - « Lire et écouter » : le Coran dans la lecture de l'élève (Hafs ou Warsh), avec le récitateur de son choix, la répétition et l'écoute hors connexion.
+- Séance de l'élève : un bouton « Réciter » à côté de chaque passage.
+- La voix n'est jamais enregistrée : seuls le score et les mots à revoir sont gardés.
+
+### Amélioré
+
+- Lecture du Coran : le bouton du micro s'appelle maintenant « Réciter », pour qu'on le trouve.
+
 ## [1.30.3] — 2026-11-15
 
 ### Amélioré

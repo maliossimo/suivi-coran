@@ -52,7 +52,7 @@ function estAccueil(url) {
   return ["/eleve", "/maitre", "/admin"].includes(url.pathname) && !url.search.includes("classe=");
 }
 
-const estCoran = (url) => url.pathname === "/admin/coran";
+const estCoran = (url) => url.pathname === "/admin/coran" || url.pathname === "/eleve/coran/lire";
 
 function estConnexion(url) {
   return url.pathname === "/connexion" || url.pathname.startsWith("/connexion/");
