@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.30.1] — 2026-11-15
+
+### Corrigé
+
+- Réactivité retrouvée : les mesures de vitesse et le signalement de l'appareil, ajoutés en 1.30.0, passaient dans la même file d'attente que la navigation et retardaient chaque changement de page. Ils partent maintenant à côté, sans rien retarder.
+- Vue du Cheikh (admin) : le passage de « Lecture seule » à « Modifier » est immédiat.
+- Séance : « + Ajouter une note » et « Le passage continue sur la sourate suivante ? » ont retrouvé une vraie apparence (ils s'affichaient en gros boutons gris).
+
 ## [1.30.0] — 2026-11-15
 
 ### Nouveautés

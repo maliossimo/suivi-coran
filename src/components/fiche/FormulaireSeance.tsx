@@ -278,7 +278,7 @@ export function FormulaireSeance({
       {brouillonRetrouve ? (
         <div className="bandeau-brouillon" role="status">
           <span>Brouillon retrouvé : ta saisie précédente n’était pas enregistrée.</span>
-          <button type="button" className="bouton-lien" onClick={oublierBrouillon}>
+          <button type="button" className="bouton-lien-texte" onClick={oublierBrouillon}>
             Effacer
           </button>
         </div>
@@ -443,7 +443,7 @@ export function FormulaireSeance({
                 ) : p.sourateDebut < 114 ? (
                   <button
                     type="button"
-                    className="bouton-lien passage-plusieurs"
+                    className="passage-plusieurs"
                     onClick={() => {
                       modifier(i, "sourateFin", p.sourateDebut + 1);
                       modifier(i, "versetFin", 1);
@@ -508,7 +508,7 @@ export function FormulaireSeance({
       ) : (
         <>
           <input type="hidden" name="noteLibre" value="" />
-          <button type="button" className="bouton-lien note-ajout" onClick={() => setNoteOuverte(true)}>
+          <button type="button" className="note-ajout" onClick={() => setNoteOuverte(true)}>
             + Ajouter une note
           </button>
         </>
