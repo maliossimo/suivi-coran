@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Download, MessageCircle } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Download, MessageCircle, Repeat } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
@@ -121,14 +121,27 @@ export function FicheMois({
           <Link
             key={t}
             href={lien(cle, t)}
-            className="onglet"
+            className={`onglet onglet-${t}`}
             // L'autre onglet est préparé : le changement est un simple remplacement.
             prefetch={t === fiche.type ? null : true}
             aria-current={t === fiche.type ? "page" : undefined}
             data-sens={t === fiche.type ? undefined : t === "revision" ? "gauche" : "droite"}
             scroll={false}
           >
+            {t === "apprentissage" ? (
+              <BookOpen size={17} aria-hidden="true" />
+            ) : (
+              <Repeat size={17} aria-hidden="true" />
+            )}
             {LIBELLE_TYPE[t]}
+            {fiche.nombreParType[t] > 0 ? (
+              <span
+                className="onglet-nombre"
+                aria-label={`${fiche.nombreParType[t]} séance${fiche.nombreParType[t] > 1 ? "s" : ""} ce mois-ci`}
+              >
+                {fiche.nombreParType[t]}
+              </span>
+            ) : null}
             <IndicateurLien />
           </Link>
         ))}
