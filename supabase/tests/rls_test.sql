@@ -462,6 +462,18 @@ select pg_temp.attendu(
   (select count(*) from public.erreurs where message = 'Erreur de test') = 1
   and (select count(*) from public.sauvegardes) = 1,
   'erreurs et sauvegardes : l''admin les lit');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select pg_temp.doit_echouer(
+  $q$select public.marquer_erreur_reglee('Erreur de test')$q$,
+  'erreurs réglées : un élève ne les marque pas');
+select pg_temp.doit_echouer(
+  $q$update public.erreurs set reglee_le = now()$q$,
+  'erreurs réglées : pas de modification directe');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu(public.marquer_erreur_reglee('Erreur de test') = 1, 'erreurs réglées : l''admin les marque');
+select pg_temp.attendu(
+  (select count(*) from public.erreurs where message = 'Erreur de test' and reglee_le is not null) = 1,
+  'erreurs réglées : marquée');
 select pg_temp.console();
 
 -- ---------- Présences (classes et appel) -----------------------------

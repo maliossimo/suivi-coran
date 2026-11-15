@@ -8807,6 +8807,31 @@ button.reciter-mot {
 .liste-erreurs small {
   color: var(--texte-doux);
 }
+.liste-erreurs-pied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.liste-erreurs-pied form {
+  margin: 0;
+}
+.liste-erreurs-reglee {
+  min-height: 36px;
+  padding: 4px 14px;
+  border: 1px solid var(--vert);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--vert-texte);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.liste-erreurs-reglee:hover {
+  background: var(--vert-clair);
+}
 
 /* Nouveautés (historique des versions) */
 .nouveautes-rubrique h3 {

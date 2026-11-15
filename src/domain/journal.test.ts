@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { depuisQuand, grouperParJour, phraseAudit, regrouperOuvertures } from "./journal";
+import { depuisQuand, grouperParJour, phraseAudit, regrouperErreurs, regrouperOuvertures } from "./journal";
 
 describe("phraseAudit", () => {
   it("écrit une phrase simple", () => {
@@ -67,6 +67,42 @@ describe("regrouperOuvertures", () => {
       ["2", 1, "2026-11-14T17:05:00Z"],
       ["3", 2, "2026-11-14T15:35:00Z"],
       ["5", 1, "2026-11-13T20:00:00Z"],
+    ]);
+  });
+});
+
+describe("regrouperErreurs", () => {
+  it("réunit les erreurs au même message, de la plus récente à la plus ancienne", () => {
+    const g = regrouperErreurs([
+      {
+        quand: "2026-11-14T16:36:00Z",
+        page: "/admin/coran",
+        message: "e[o] is not a function",
+        version: "edcce02",
+      },
+      { quand: "2026-11-14T16:35:00Z", page: "/eleve", message: "Autre", version: null },
+      {
+        quand: "2026-11-14T16:35:00Z",
+        page: "/admin/coran",
+        message: "e[o] is not a function",
+        version: "edcce02",
+      },
+      {
+        quand: "2026-11-14T16:34:00Z",
+        page: "/admin",
+        message: "e[o] is not a function",
+        version: "abc1234",
+      },
+    ]);
+    expect(g).toEqual([
+      {
+        message: "e[o] is not a function",
+        nombre: 3,
+        quand: "2026-11-14T16:36:00Z",
+        pages: ["/admin/coran", "/admin"],
+        versions: ["edcce02", "abc1234"],
+      },
+      { message: "Autre", nombre: 1, quand: "2026-11-14T16:35:00Z", pages: ["/eleve"], versions: [] },
     ]);
   });
 });

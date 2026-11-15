@@ -254,9 +254,15 @@ export async function erreursRecentes(limite = 10): Promise<{ erreurs: ErreurSig
     supabase
       .from("erreurs")
       .select("id, quand, utilisateur_id, page, message, version")
+      .is("reglee_le", null)
+      .gte("quand", depuis)
       .order("quand", { ascending: false })
       .limit(limite),
-    supabase.from("erreurs").select("id", { count: "exact", head: true }).gte("quand", depuis),
+    supabase
+      .from("erreurs")
+      .select("id", { count: "exact", head: true })
+      .is("reglee_le", null)
+      .gte("quand", depuis),
   ]);
   if (liste.error) throw new Error(`Lecture des erreurs impossible : ${liste.error.message}`);
   const erreurs = z
@@ -280,6 +286,14 @@ export async function erreursRecentes(limite = 10): Promise<{ erreurs: ErreurSig
       version: e.version,
     }));
   return { erreurs, total7j: compte.count ?? 0 };
+}
+
+/** Bug corrigé : toutes les erreurs reçues avec ce message quittent le tableau (elles reviennent si le bug revient). */
+export async function marquerErreurReglee(message: string): Promise<number> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("marquer_erreur_reglee", { p_message: message });
+  if (error) throw new Error(error.message);
+  return typeof data === "number" ? data : 0;
 }
 
 /** Suppression définitive d'un élève ou d'un maître (règles vérifiées par la base). */

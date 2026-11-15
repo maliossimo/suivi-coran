@@ -16,6 +16,7 @@ import {
   derniereSauvegarde,
   enregistrerErreur,
   erreursRecentes,
+  marquerErreurReglee,
   journalRecent,
   listerEtablissements,
   listerUtilisateurs,
@@ -331,7 +332,7 @@ export async function chargerEtatSite(acteur: Profil): Promise<EtatSite> {
   exigerAdmin(acteur);
   const [sauvegarde, { erreurs, total7j }] = await Promise.all([
     derniereSauvegarde().catch(() => null),
-    erreursRecentes(8).catch(() => ({ erreurs: [], total7j: 0 })),
+    erreursRecentes(100).catch(() => ({ erreurs: [], total7j: 0 })),
   ]);
   return {
     version: {
@@ -345,6 +346,14 @@ export async function chargerEtatSite(acteur: Profil): Promise<EtatSite> {
     erreurs7j: total7j,
     sentryConfigure: Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN),
   };
+}
+
+/** Le bug est corrigé : ses erreurs quittent le tableau de bord (elles reviennent s'il revient). */
+export async function reglerErreur(acteur: Profil, messageBrut: unknown): Promise<void> {
+  exigerAdmin(acteur);
+  const message = z.string().min(1).max(500).safeParse(messageBrut);
+  if (!message.success) return;
+  await marquerErreurReglee(message.data);
 }
 
 /** Établissements, pour que l'admin choisisse une classe (invitation, QR code). */
