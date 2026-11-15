@@ -123,8 +123,7 @@ export function marquerIzhar(segments: readonly SegmentTajwid[]): SegmentTajwid[
     while (k < n && (lettres[k] === " " || estSigne(lettres[k]!))) k++;
     if (k >= n) continue; // fin du verset : on s'arrête, pas d'izhâr à montrer
     const suivante = lettres[k]!;
-    const gorge =
-      GORGE.has(suivante) || (suivante === "ا" && HAMZA_PORTEE.has(lettres[k + 1] ?? ""));
+    const gorge = GORGE.has(suivante) || (suivante === "ا" && HAMZA_PORTEE.has(lettres[k + 1] ?? ""));
     if (!gorge || codes.slice(i, j).some((x) => x !== null)) continue;
     for (let x = i; x < j; x++) codes[x] = "z";
     change = true;

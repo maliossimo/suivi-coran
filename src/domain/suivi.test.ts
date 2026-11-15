@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { couverts, decoderCtc, distance, PHONEMES, RIWAYAT, situer } from "./suivi";
+import { couverts, decoderCtc, distance, EMPREINTE_MODELE, PHONEMES, RIWAYAT, situer } from "./suivi";
 
 describe("suivi sur le téléphone", () => {
   it("connaît les mêmes symboles que le modèle", () => {
@@ -11,6 +11,10 @@ describe("suivi sur le téléphone", () => {
     };
     expect([...PHONEMES]).toEqual(config.phonemes);
     expect([...RIWAYAT]).toEqual(config.riwayat);
+    const modeles = JSON.parse(readFileSync(join(process.cwd(), "api/_tajwid/modeles.json"), "utf8")) as {
+      variantes: { int8: { sha256: string } };
+    };
+    expect(EMPREINTE_MODELE).toBe(modeles.variantes.int8.sha256);
   });
 
   it("décode le meilleur chemin CTC (blancs retirés, répétitions fusionnées)", () => {

@@ -5,9 +5,56 @@
 
 /** Symboles du modèle, dans l'ordre de sa sortie (api/_tajwid/config.json ; 0 = blanc). */
 export const PHONEMES = [
-  "ء", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق",
-  "ك", "ل", "م", "ن", "ه", "و", "ي", "ا", "ۦ", "ۥ", "َ", "ُ", "ِ", "۪", "ـ", "ٲ", "ڇ", "ں", "۾", "ۜ", "ؙ",
+  "ء",
+  "ب",
+  "ت",
+  "ث",
+  "ج",
+  "ح",
+  "خ",
+  "د",
+  "ذ",
+  "ر",
+  "ز",
+  "س",
+  "ش",
+  "ص",
+  "ض",
+  "ط",
+  "ظ",
+  "ع",
+  "غ",
+  "ف",
+  "ق",
+  "ك",
+  "ل",
+  "م",
+  "ن",
+  "ه",
+  "و",
+  "ي",
+  "ا",
+  "ۦ",
+  "ۥ",
+  "َ",
+  "ُ",
+  "ِ",
+  "۪",
+  "ـ",
+  "ٲ",
+  "ڇ",
+  "ں",
+  "۾",
+  "ۜ",
+  "ؙ",
 ] as const;
+
+/**
+ * Le modèle compressé (int8, 23 Mo), servi par l'appli et gardé dans le téléphone : son empreinte est
+ * vérifiée avant usage (la même que celle du serveur, api/_tajwid/modeles.json).
+ */
+export const EMPREINTE_MODELE = "79cca1a2fc7ef81e325a3071a5f26cfec69203ef2c63177549065cdc1022c373";
+export const ADRESSE_MODELE = `/tajwid/modele-${EMPREINTE_MODELE.slice(0, 12)}.onnx`;
 
 /** Lectures connues du modèle (entrée « riwaya »). */
 export const RIWAYAT = ["hafs", "warsh"] as const;

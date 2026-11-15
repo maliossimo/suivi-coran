@@ -110,7 +110,10 @@ function tf(
 
 function hann(): Float32Array {
   // np.hanning(401)[:-1] : fenêtre de Hann « périodique »
-  return (fenetre ??= Float32Array.from({ length: N_FFT }, (_, n) => 0.5 - 0.5 * Math.cos((2 * Math.PI * n) / N_FFT)));
+  return (fenetre ??= Float32Array.from(
+    { length: N_FFT },
+    (_, n) => 0.5 - 0.5 * Math.cos((2 * Math.PI * n) / N_FFT),
+  ));
 }
 
 /**

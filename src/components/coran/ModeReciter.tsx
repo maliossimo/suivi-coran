@@ -29,6 +29,7 @@ import {
 } from "@/domain/tajwid";
 import { extraitWav, useCaptureReciter } from "./captureReciter";
 import { envoyerAvecEssais, type EtatReseau } from "./reseau";
+import { chargerReference, useSuiviLocal } from "./suiviLocal";
 
 type Etape = "pret" | "ecoute" | "fin" | "resultat";
 
@@ -271,33 +272,73 @@ export function ModeReciter({
   );
 
   const micro = useCaptureReciter(envoyer);
-  const { dernieresSecondes } = micro;
+  const { dernieresSecondes, dernieresSecondesPcm } = micro;
 
-  // Suivi en direct : toutes les 2 s, les dernières secondes sont situées dans le passage
-  // et les mots déjà récités s'allument (le jugement, lui, arrive à la pause).
+  // Suivi en direct : les dernières secondes sont situées dans le passage et les mots déjà récités
+  // s'allument (le jugement, lui, arrive à la pause). Sur le téléphone quand il le peut (toutes les 0,5 s,
+  // sans réseau) ; sinon par le serveur, toutes les 2 s.
+  const suiviLocal = useSuiviLocal(true);
+  const surTelephone = suiviLocal.etat === "pret";
+  const suivreLocalement = suiviLocal.suivre;
+  const referenceLocale = useRef<{ cle: string; ref: Awaited<ReturnType<typeof chargerReference>> } | null>(
+    null,
+  );
   useEffect(() => {
     if (etape !== "ecoute") return;
     const seance = file.current.seance;
+    const cle = `${lecture}|${sourate}|${du}|${au}`;
     let occupe = false;
-    const minuteur = setInterval(() => {
+    let dernierServeur = 0;
+    const avancer = (c: readonly [number, number] | undefined | null) => {
+      if (c && c[1] > suivi.current.fin) {
+        suivi.current.fin = c[1];
+        setSuiviFin(c[1]);
+      }
+    };
+    const tour = () => {
       if (occupe) return;
-      const son = dernieresSecondes();
-      if (!son) return;
       occupe = true;
       void (async () => {
         try {
           const f = file.current;
           const jeton = await (f.jeton ?? (f.jeton = demanderJeton()));
-          const q = new URLSearchParams({
-            suivi: "1",
+          const base = new URLSearchParams({
             sourate: String(sourate),
             du: String(du),
             au: String(au),
-            depuis: String(Math.max(suivi.current.fin, f.depuis)),
             riwaya: lecture,
           });
+          if (lecture === "warsh") for (const v of versetsChoisis) base.append("texte", v.texte);
+          const depuis = Math.max(suivi.current.fin, f.depuis);
+          if (surTelephone) {
+            if (referenceLocale.current?.cle !== cle)
+              referenceLocale.current = {
+                cle,
+                ref: await chargerReference(jeton, new URLSearchParams(base)),
+              };
+            const ref = referenceLocale.current?.ref ?? null;
+            if (ref) {
+              if (seance !== file.current.seance) return;
+              if (!suivi.current.passage) {
+                suivi.current.passage = true;
+                setPassage(ref.passage);
+              }
+              const son = dernieresSecondesPcm(6);
+              if (!son) return;
+              const c = await suivreLocalement(son, ref, depuis, lecture);
+              if (seance === file.current.seance) avancer(c);
+              return;
+            }
+          }
+          // Par le serveur : toutes les 2 s au plus.
+          if (Date.now() - dernierServeur < 1900) return;
+          const son = dernieresSecondes();
+          if (!son) return;
+          dernierServeur = Date.now();
+          const q = new URLSearchParams(base);
+          q.set("suivi", "1");
+          q.set("depuis", String(depuis));
           if (!suivi.current.passage) q.set("liste", "1");
-          if (lecture === "warsh") for (const v of versetsChoisis) q.append("texte", v.texte);
           const r = await fetch(`/api/moteur_tajwid?${q}`, {
             method: "POST",
             headers: { Authorization: `Jeton ${jeton}`, "Content-Type": "application/octet-stream" },
@@ -310,19 +351,28 @@ export function ModeReciter({
             suivi.current.passage = true;
             setPassage(a.passage);
           }
-          if (a.couverts && a.couverts[1] > suivi.current.fin) {
-            suivi.current.fin = a.couverts[1];
-            setSuiviFin(a.couverts[1]);
-          }
+          avancer(a.couverts);
         } catch {
           // le suivi est un plus : l'analyse à la pause suffit
         } finally {
           occupe = false;
         }
       })();
-    }, 2000);
+    };
+    const minuteur = setInterval(tour, surTelephone ? 500 : 2000);
     return () => clearInterval(minuteur);
-  }, [etape, dernieresSecondes, sourate, du, au, lecture, versetsChoisis]);
+  }, [
+    etape,
+    dernieresSecondes,
+    dernieresSecondesPcm,
+    surTelephone,
+    suivreLocalement,
+    sourate,
+    du,
+    au,
+    lecture,
+    versetsChoisis,
+  ]);
 
   const recommencer = () => {
     file.current = {
@@ -673,6 +723,8 @@ export function ModeReciter({
       ref={dialogue}
       className="reciter"
       aria-label="Réciter"
+      data-suivi={suiviLocal.etat}
+      data-suivi-essai={suiviLocal.essaiReussi ? "ok" : undefined}
       onCancel={onFermer}
       style={{ "--taille-reciter": `${taille}px` } as CSSProperties}
     >
