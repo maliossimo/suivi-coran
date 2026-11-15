@@ -30,7 +30,16 @@ const nextConfig: NextConfig = {
     staleTimes: { dynamic: 120 },
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // Suivi de récitation sur le téléphone : le modèle porte son empreinte dans son nom (jamais périmé) ;
+      // le moteur WebAssembly change avec la version d'onnxruntime-web.
+      {
+        source: "/tajwid/modele-:empreinte.onnx",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      { source: "/tajwid/ort/:fichier", headers: [{ key: "Cache-Control", value: "public, max-age=86400" }] },
+    ];
   },
 };
 

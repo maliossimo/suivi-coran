@@ -7,6 +7,8 @@ Requête : en-tête « Authorization: Jeton … » (délivré par /api/tajwid/je
 plus texte (répété, un par verset) pour Warsh. En-tête facultatif X-Tempo : JSON, le rythme rendu par le morceau
 précédent. Réponse : JSON {entendu, mots[], couverts, tempo} ou {erreur}.
 Avec suivi=1 : suivi en direct, corps = dernières secondes en μ-law 8 bits ; réponse {couverts} seulement.
+Avec reference=1 (sans corps) : l'écriture phonétique attendue du passage, pour le suivi sur le téléphone ;
+réponse {phonemes, spans, passage}.
 GET : préchauffe le moteur (modèle chargé) et dit s'il est prêt.
 """
 
@@ -19,7 +21,17 @@ from urllib.parse import parse_qs, urlparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from _tajwid import jeton  # noqa: E402
-from _tajwid.moteur import DUREE_MAX, FREQ, REGLAGES, ErreurSaisie, analyser, analyser_passage, session, suivre  # noqa: E402
+from _tajwid.moteur import (  # noqa: E402
+    DUREE_MAX,
+    FREQ,
+    REGLAGES,
+    ErreurSaisie,
+    analyser,
+    analyser_passage,
+    reference,
+    session,
+    suivre,
+)
 
 TAILLE_MAX = int((DUREE_MAX + 0.5) * FREQ * 2)
 
@@ -52,11 +64,21 @@ class handler(BaseHTTPRequestHandler):  # noqa: N801 (nom imposé par Vercel)
         if not auth.startswith("Jeton ") or not jeton.verifier(auth[6:].strip()):
             self._repondre(401, {"erreur": "Connecte-toi pour utiliser la vérification."})
             return
+        q = parse_qs(urlparse(self.path).query)
+        if "reference" in q:
+            try:
+                du, au = int(q.get("du", ["0"])[0]), int(q.get("au", ["0"])[0])
+                sourate = int(q.get("sourate", ["0"])[0])
+                self._repondre(200, reference(sourate, du, au, q.get("riwaya", ["hafs"])[0], q.get("texte") or None))
+            except (ValueError, ErreurSaisie) as e:
+                self._repondre(400, {"erreur": str(e) if isinstance(e, ErreurSaisie) else "Verset inconnu."})
+            except Exception:  # noqa: BLE001
+                self._repondre(500, {"erreur": "Passage indisponible."})
+            return
         taille = int(self.headers.get("Content-Length") or 0)
         if taille <= 0 or taille > TAILLE_MAX:
             self._repondre(413, {"erreur": "30 secondes au plus : récite un verset à la fois."})
             return
-        q = parse_qs(urlparse(self.path).query)
         entier = lambda nom: int(q.get(nom, ["0"])[0])  # noqa: E731
         try:
             sourate, verset, du, au, depuis = (entier(n) for n in ("sourate", "verset", "du", "au", "depuis"))

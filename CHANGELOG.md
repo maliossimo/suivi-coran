@@ -9,6 +9,19 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.32.0] — 2026-11-15
+
+### Amélioré
+
+- Mode Réciter, suivi en direct beaucoup plus rapide : le téléphone écoute lui-même où en est l'élève (un modèle de 23 Mo, téléchargé une fois puis gardé), environ une demi-seconde après chaque mot au lieu de 2 à 4 secondes. Le jugement (fautes, madd, ghunna…) reste fait par le serveur, avec la double écoute. Si le téléphone est trop lent, ou avec l'économiseur de données, le serveur continue de suivre comme avant.
+- On voit mieux où on en est : les mots déjà dits sur fond vert pâle, le mot que l'appli vient d'entendre encadré en vert, le mot suivant souligné en doré qui clignote ; le texte défile tout seul.
+- Couleurs du tajwid : l'idghâm sans ghunna a une couleur bien distincte de l'idghâm avec ghunna.
+
+### Ajouté
+
+- Izhâr en couleur (lecture et mode Réciter, Hafs) : le nûn sakin et le tanwîn devant une lettre de la gorge (ء ه ع ح غ خ).
+- Détection de l'izhâr dans le mode Réciter : noun caché (ikhfâ' à tort), noun nasalisé (ghunna à tort) ou noun non prononcé.
+
 ## [1.31.1] — 2026-11-15
 
 ### Corrigé

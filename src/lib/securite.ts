@@ -4,7 +4,8 @@
  * attaquant (dans un nom, une note…) est donc refusé.
  *
  * - scripts : jeton + 'strict-dynamic' (les scripts chargés par un script de confiance,
- *   comme Next ou Cloudflare Turnstile, sont admis) ;
+ *   comme Next ou Cloudflare Turnstile, sont admis) ; 'wasm-unsafe-eval' : le moteur WebAssembly
+ *   du suivi de récitation sur le téléphone (il ne permet pas d'exécuter du JavaScript arbitraire) ;
  * - connexions : l'appli, Sentry (erreurs), Cloudflare Turnstile (anti-robots) et les repères
  *   mot par mot des récitations (jsDelivr) ;
  * - sons : l'appli et les récitations (EveryAyah, mp3quran.net) ;
@@ -13,7 +14,7 @@
 export function politiqueContenu(nonce: string, developpement = false, httpsSeulement = true): string {
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${developpement ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${developpement ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",

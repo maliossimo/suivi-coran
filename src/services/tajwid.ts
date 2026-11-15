@@ -59,6 +59,7 @@ export const NOM_REGLE: Record<string, string> = {
   qalqalah: "Qalqala",
   ikhfa: "Ikhfaʾ",
   iqlab: "Iqlab",
+  izhar: "Izhâr",
   idgham: "Idgham",
   idgham_ghunnah: "Idgham avec ghunna",
   ghunnah: "Ghunna",

@@ -23,7 +23,7 @@ RECITATEURS = ["Husary_128kbps", "Alafasy_128kbps", "Minshawy_Murattal_128kbps"]
 # lazim, ʿarid), ghunna, ikhfaʾ, iqlab, idgham, qalqala, tafkhim…
 VERSETS = (
     [(1, v) for v in range(1, 8)]
-    + [(2, 2), (2, 5), (2, 1)]
+    + [(2, 2), (2, 5), (2, 1), (2, 6), (2, 7)]  # 2:6-7 : izhâr (سَوَآءٌ عَلَيۡهِمۡ, عَذَابٌ عَظِيمٌ)
     + [(36, v) for v in range(1, 6)]
     + [(55, v) for v in range(1, 9)]
     + [(67, 1), (67, 2)]

@@ -199,7 +199,23 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
     return sortie;
   }, []);
 
-  return { actif, niveau, secondes, avis, demarrer, arreter, dernieresSecondes };
+  /** Les dernières secondes (au plus `duree`), entre -1 et 1, pour le suivi sur le téléphone ; null sans voix. */
+  const dernieresSecondesPcm = useCallback((duree: number): Float32Array | null => {
+    const e = etat.current;
+    const bruit = estimerBruit(e.toutes);
+    const trames = e.toutes.slice(-e.recentes.length);
+    if (!ressources.current || !contientParole(trames.slice(-8), bruit)) return null;
+    const n = e.recentes.reduce((t, x) => t + x.length, 0);
+    const garde = Math.min(n, Math.round(duree * FREQ));
+    const sortie = new Float32Array(garde);
+    let o = garde - n; // on saute le début : seules les `duree` dernières secondes
+    for (const bloc of e.recentes) {
+      for (let i = 0; i < bloc.length; i++, o++) if (o >= 0) sortie[o] = bloc[i]! / 32768;
+    }
+    return sortie;
+  }, []);
+
+  return { actif, niveau, secondes, avis, demarrer, arreter, dernieresSecondes, dernieresSecondesPcm };
 }
 
 /** Un échantillon 16 bits en μ-law 8 bits (G.711). */
