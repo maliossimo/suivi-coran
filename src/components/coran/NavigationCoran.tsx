@@ -23,6 +23,7 @@ type Onglet = "sourates" | "juz" | "page" | "marques";
  */
 export function NavigationCoran({
   lecture,
+  base = "/admin/coran",
   vue,
   sourate,
   page,
@@ -33,6 +34,8 @@ export function NavigationCoran({
   suivant,
 }: {
   lecture: "hafs" | "warsh";
+  /** Adresse de la page Coran (admin ou élève). */
+  base?: string;
   vue: "sourate" | "page";
   sourate: number;
   page: number;
@@ -48,8 +51,8 @@ export function NavigationCoran({
   const [recherche, setRecherche] = useState("");
   const [numeroPage, setNumeroPage] = useState(String(page));
 
-  const lienSourate = (n: number) => `/admin/coran?lecture=${lecture}&sourate=${n}`;
-  const lienPage = (n: number) => `/admin/coran?lecture=${lecture}&vue=page&page=${n}`;
+  const lienSourate = (n: number) => `${base}?lecture=${lecture}&sourate=${n}`;
+  const lienPage = (n: number) => `${base}?lecture=${lecture}&vue=page&page=${n}`;
   const actuelle = sourates.find((s) => s.numero === sourate);
 
   const marquePages = useMarquePages();

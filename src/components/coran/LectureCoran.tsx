@@ -109,6 +109,8 @@ export function LectureCoran({
   bibliothequeDisponible,
   titre,
   liensLecture,
+  base = "/admin/coran",
+  reciterInitial = null,
   pagePrecedente,
   pageSuivante,
   piedDePage,
@@ -121,8 +123,12 @@ export function LectureCoran({
   recitations: RecitationAffichee[];
   bibliothequeDisponible: boolean;
   titre: string;
-  /** Même endroit, l'autre lecture (Hafs / Warsh). */
-  liensLecture: Record<"hafs" | "warsh", string>;
+  /** Même endroit, l'autre lecture (Hafs / Warsh) ; null : lecture imposée (l'élève lit dans la sienne). */
+  liensLecture: Record<"hafs" | "warsh", string> | null;
+  /** Adresse de la page Coran (admin ou élève), pour la garde hors ligne. */
+  base?: string;
+  /** Ouvrir le mode Réciter dès l'arrivée, sur ce passage (depuis la carte « Réciter »). */
+  reciterInitial?: { du: number; au: number } | null;
   pagePrecedente: string | null;
   pageSuivante: string | null;
   piedDePage: ReactNode;
@@ -133,7 +139,11 @@ export function LectureCoran({
   /** Verset touché (actions) ou appuyé longuement (explication) : sa feuille est ouverte. */
   const [choix, setChoix] = useState<{ cle: string; mode: ModeVerset } | null>(null);
   /** Mode « Réciter » ouvert : sourate et verset de départ. */
-  const [reciter, setReciter] = useState<{ sourate: number; depart: number } | null>(null);
+  const [reciter, setReciter] = useState<{ sourate: number; depart: number; fin?: number } | null>(() =>
+    reciterInitial && vue === "sourate" && blocs[0]
+      ? { sourate: blocs[0].sourate, depart: reciterInitial.du, fin: reciterInitial.au }
+      : null,
+  );
   const versetChoisi = choix?.cle ?? null;
   /** Arrêt automatique : heure de fin, « à la fin du passage », ou rien. */
   const [minuterie, setMinuterie] = useState<{ fin: number; choix: ChoixMinuterie } | "fin" | null>(null);
@@ -187,9 +197,9 @@ export function LectureCoran({
   const numeroSourate = sourateUnique?.sourate;
   useEffect(() => {
     if (!numeroSourate) return;
-    const t = setTimeout(() => garderSourateOuverte(lecture, numeroSourate), 3000);
+    const t = setTimeout(() => garderSourateOuverte(lecture, numeroSourate, base), 3000);
     return () => clearTimeout(t);
-  }, [lecture, numeroSourate]);
+  }, [lecture, numeroSourate, base]);
   const avecTajwid = lecture === "hafs" && reglages.tajwid;
   const motsActifs = Boolean(recitation?.mots && reglages.motParMot);
 
@@ -224,6 +234,7 @@ export function LectureCoran({
     alignement: recitation?.alignement ?? null,
     lecture,
     pistes: pistesCompletes,
+    base,
   });
   const { telecharges } = horsLigne;
   /** Adresse d'un fichier : sur le téléphone s'il est téléchargé, sinon chez EveryAyah. */
@@ -651,7 +662,7 @@ export function LectureCoran({
           {blocs[0] ? (
             <button
               type="button"
-              className="coran-bouton"
+              className="coran-bouton coran-bouton-reciter"
               onClick={() => {
                 audio.current?.pause();
                 setReciter({
@@ -660,9 +671,10 @@ export function LectureCoran({
                 });
               }}
               aria-haspopup="dialog"
-              aria-label="Réciter et vérifier mon tajwid"
+              title="Réciter : l’appli t’écoute et te montre les mots à revoir"
             >
-              <Mic size={20} aria-hidden="true" />
+              <Mic size={18} aria-hidden="true" />
+              <span>Réciter</span>
             </button>
           ) : null}
           <button
@@ -739,6 +751,7 @@ export function LectureCoran({
           onRecitateur={(id) => modifier({ recitation: { ...reglages.recitation, [lecture]: id } })}
           versets={blocReciter.versets}
           depart={reciter.depart}
+          finInitiale={reciter.fin}
           lecture={lecture === "warsh" ? "warsh" : "hafs"}
           adresseVerset={(n) => adresseVerset(blocReciter.sourate, n)}
           onAvantEcoute={() => audio.current?.pause()}

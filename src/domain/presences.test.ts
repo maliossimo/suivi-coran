@@ -72,8 +72,8 @@ describe("présences", () => {
 });
 
 describe("qui fait quoi", () => {
-  it("le responsable organise mais ne fait pas l'appel", () => {
-    expect(capacites("responsable")).toEqual({ appel: false, organiser: true, eleves: true, rapport: true });
+  it("le responsable (aussi Cheikh) organise et fait l'appel de ses classes", () => {
+    expect(capacites("responsable")).toEqual({ appel: true, organiser: true, eleves: true, rapport: true });
   });
   it("le Cheikh fait l'appel et gère ses élèves, sans créer de classe", () => {
     expect(capacites("cheikh")).toEqual({ appel: true, organiser: false, eleves: true, rapport: false });

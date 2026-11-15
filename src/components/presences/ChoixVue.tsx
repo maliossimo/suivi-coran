@@ -11,7 +11,7 @@ const APERCUS: { vue: PointDeVue | null; libelle: string }[] = [
 const EXPLICATION: Record<"cheikh" | "responsable", string> = {
   cheikh: "Il fait l’appel et ajoute les élèves arrivés en cours d’année, sans créer de classe.",
   responsable:
-    "Il organise les classes et sort le rapport des présences ; il ne fait pas l’appel et ne voit pas le Coran.",
+    "Cheikh nommé responsable : il organise les classes de sa mosquée, fait l’appel des siennes et sort le rapport.",
 };
 
 /**

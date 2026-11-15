@@ -171,10 +171,18 @@ test.describe("Vérifier ma récitation", () => {
     expect((await r.json()).jeton).toMatch(/^[\w-]+\.[0-9a-f]{64}$/);
   });
 
-  test("un élève sans accès au Coran n'a pas de jeton", async ({ page }) => {
-    await seConnecter(page, COMPTES.eleveA, /\/eleve/);
-    const r = await page.request.post("/api/tajwid/jeton");
-    expect(r.status()).toBe(403);
+  test("l'élève a son jeton ; un Cheikh, qui n'ouvre pas le Coran, n'en a pas", async ({ browser }) => {
+    for (const [compte, arrivee, statut] of [
+      [COMPTES.eleveA, /\/eleve/, 200],
+      [COMPTES.cheikhA, /\/maitre/, 403],
+    ] as const) {
+      const contexte = await browser.newContext();
+      const page = await contexte.newPage();
+      await seConnecter(page, compte, arrivee);
+      const r = await page.request.post("/api/tajwid/jeton");
+      expect(r.status(), compte).toBe(statut);
+      await contexte.close();
+    }
   });
 
   test("mode Réciter : la récitation est analysée par morceaux, chaque mot coloré, avec ses remarques", async ({
@@ -297,5 +305,33 @@ test.describe("Vérifier ma récitation", () => {
     await page.goto("/admin/journal");
     await expect(page.getByText("Corrections apprises (1)")).toBeVisible();
     await expect(page.getByText(/Madd ʿarid/).first()).toBeVisible();
+  });
+});
+
+test.describe("Coran (élève)", () => {
+  test("l'onglet Coran : les cartes « Réciter » et « Lire et écouter », la lecture dans la sienne", async ({
+    page,
+  }) => {
+    await seConnecter(page, COMPTES.eleveA, /\/eleve/);
+    await page.getByRole("link", { name: "Coran", exact: true }).first().click();
+    await expect(page).toHaveURL(/\/eleve\/coran$/);
+    await expect(page.getByRole("heading", { name: "Réciter" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Lire et écouter" })).toBeVisible();
+    await expect(page.getByText("Ta voix n’est jamais enregistrée")).toBeVisible();
+    await capture(page, "44-coran-eleve");
+
+    await page.getByRole("link", { name: "Ouvrir le Coran" }).click();
+    await expect(page).toHaveURL(/\/eleve\/coran\/lire/);
+    await expect(page.locator(".coran-page[data-pret]")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Réciter", exact: true })).toBeVisible();
+    // L'élève lit dans sa lecture : pas de choix Hafs / Warsh dans les réglages.
+    await page.getByRole("button", { name: "Réglages" }).click();
+    await expect(page.getByRole("navigation", { name: "Lecture" })).toHaveCount(0);
+  });
+
+  test("un lien « Réciter » ouvre directement le mode Réciter sur le passage", async ({ page }) => {
+    await seConnecter(page, COMPTES.eleveA, /\/eleve/);
+    await page.goto("/eleve/coran/lire?sourate=1&du=2&au=4&reciter=1");
+    await expect(page.getByRole("dialog", { name: "Réciter" })).toBeVisible();
   });
 });

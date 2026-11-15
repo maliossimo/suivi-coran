@@ -824,6 +824,39 @@ select pg_temp.doit_echouer(
   'signalements tajwid : 30 par jour au plus');
 select pg_temp.console();
 
+-- ---------- Responsable de mosquée (casquette d'un Cheikh) ---------------
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.doit_echouer(
+  $q$update public.profils set responsable = true where id = 'b0000000-0000-0000-0000-00000000000b'$q$,
+  'responsable : un Cheikh ne se nomme pas lui-même');
+select pg_temp.doit_echouer(
+  $q$insert into public.classes (etablissement_id, nom) values ('bbbbbbbb-0000-0000-0000-000000000000', 'Avant')$q$,
+  'responsable : sans la casquette, un Cheikh n''organise pas les classes');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+update public.profils set responsable = true where id = 'b0000000-0000-0000-0000-00000000000b';
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+insert into public.classes (etablissement_id, nom) values ('bbbbbbbb-0000-0000-0000-000000000000', 'Classe du responsable');
+select pg_temp.attendu(
+  (select count(*) from public.classes where nom = 'Classe du responsable') = 1,
+  'responsable : crée une classe dans sa mosquée');
+select pg_temp.doit_echouer(
+  $q$insert into public.classes (etablissement_id, nom) values ('aaaaaaaa-0000-0000-0000-000000000000', 'Chez les autres')$q$,
+  'responsable : pas dans une autre mosquée');
+select pg_temp.attendu(
+  public.est_responsable_de_eleve('b0000000-0000-0000-0000-000000000001')
+  and not public.est_responsable_de_eleve('a0000000-0000-0000-0000-000000000001'),
+  'responsable : suit les élèves de sa mosquée seulement');
+select pg_temp.attendu(
+  (select count(*) from public.seances where eleve_id = 'a0000000-0000-0000-0000-000000000001') = 0,
+  'responsable : ne voit pas les séances d''une autre mosquée');
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-000000000001');
+select pg_temp.doit_echouer(
+  $q$update public.profils set responsable = true where id = 'b0000000-0000-0000-0000-000000000001'$q$,
+  'responsable : un élève ne se nomme pas');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+update public.profils set responsable = false where id = 'b0000000-0000-0000-0000-00000000000b';
+delete from public.classes where nom = 'Classe du responsable';
+
 -- ---------- Essais du mode Réciter, sécurité, vitesse -------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 insert into public.essais_recitation (sourate, du, au, score, fautes)

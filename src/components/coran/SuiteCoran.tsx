@@ -25,7 +25,15 @@ function lireReglages(): { taille: number; tajwid: boolean } {
  * Lecture en continu : arrivé à la fin d'une sourate, la suivante s'affiche dessous, sans changer de page
  * (trois d'affilée, puis un bouton). Chaque sourate ajoutée s'ouvre en entier (écoute, Réciter) d'un appui.
  */
-export function SuiteCoran({ lecture, sourate }: { lecture: "hafs" | "warsh"; sourate: number }) {
+export function SuiteCoran({
+  lecture,
+  sourate,
+  base = "/admin/coran",
+}: {
+  lecture: "hafs" | "warsh";
+  sourate: number;
+  base?: string;
+}) {
   const [suite, setSuite] = useState<BlocAffiche[]>([]);
   const [charge, setCharge] = useState(false);
   const [reglages, setReglages] = useState({ taille: 2, tajwid: false });
@@ -76,7 +84,7 @@ export function SuiteCoran({ lecture, sourate }: { lecture: "hafs" | "warsh"; so
             </p>
             <span>
               {b.sourate}. {b.nomLatin} · {b.nbVersets} versets ·{" "}
-              <Link href={`/admin/coran?lecture=${lecture}&sourate=${b.sourate}`}>écouter, réciter</Link>
+              <Link href={`${base}?lecture=${lecture}&sourate=${b.sourate}`}>écouter, réciter</Link>
             </span>
           </header>
           <article

@@ -61,13 +61,15 @@ export interface Utilisateur {
   etablissementId: string | null;
   creeLe: string;
   lecture: Lecture | null;
+  /** Cheikh nommé responsable de sa mosquée. */
+  responsable: boolean;
 }
 
 export async function listerUtilisateurs(): Promise<Utilisateur[]> {
   const supabase = await creerClientServeur();
   const { data, error } = await supabase
     .from("profils")
-    .select("id, role, prenom, nom, actif, etablissement_id, cree_le, lecture")
+    .select("id, role, prenom, nom, actif, etablissement_id, cree_le, lecture, responsable")
     .order("cree_le", { ascending: false });
   if (error) throw new Error(`Lecture des utilisateurs impossible : ${error.message}`);
   return z
@@ -81,6 +83,7 @@ export async function listerUtilisateurs(): Promise<Utilisateur[]> {
         etablissement_id: z.string().uuid().nullable(),
         cree_le: z.string(),
         lecture: z.enum(["hafs", "warsh"]).nullable(),
+        responsable: z.boolean().default(false),
       }),
     )
     .parse(data)
@@ -93,7 +96,15 @@ export async function listerUtilisateurs(): Promise<Utilisateur[]> {
       etablissementId: u.etablissement_id,
       creeLe: u.cree_le,
       lecture: u.lecture,
+      responsable: u.responsable,
     }));
+}
+
+/** L'admin nomme (ou retire) le responsable d'une mosquée : un Cheikh seulement. */
+export async function definirResponsable(id: string, responsable: boolean): Promise<void> {
+  const supabase = await creerClientServeur();
+  const { error } = await supabase.from("profils").update({ responsable }).eq("id", id).eq("role", "maitre");
+  if (error) throw new Error(`Modification impossible : ${error.message}`);
 }
 
 export async function definirActifUtilisateur(id: string, actif: boolean): Promise<void> {

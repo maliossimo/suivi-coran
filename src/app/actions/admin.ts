@@ -7,6 +7,7 @@ import { choisirModeVueAdmin } from "@/services/vueAdmin";
 import {
   ajouterEtablissement,
   basculerUtilisateur,
+  nommerResponsable,
   deplacerUnUtilisateur,
   renommerUnEtablissement,
   renvoyerUneInvitation,
@@ -36,6 +37,14 @@ export async function actionBasculerUtilisateur(form: FormData): Promise<void> {
   const actif = form.get("actif") === "true";
   await basculerUtilisateur(profil, form.get("id"), actif);
   await notifier(actif ? "Compte réactivé" : "Compte désactivé");
+  revalidatePath("/admin");
+}
+
+export async function actionNommerResponsable(form: FormData): Promise<void> {
+  const profil = await admin();
+  const responsable = form.get("responsable") === "true";
+  await nommerResponsable(profil, form.get("id"), responsable);
+  await notifier(responsable ? "Responsable de la mosquée nommé" : "Responsable retiré");
   revalidatePath("/admin");
 }
 

@@ -75,21 +75,20 @@ async function bloc(lecture: Lecture, s: Sourate, debut: number, fin: number): P
   };
 }
 
-/**
- * Qui ouvre la page Coran. Version de test : l'administrateur seulement ;
- * à terme les élèves (lien « Écouter dans le Coran » depuis leurs séances).
- */
+/** Lecture du Coran et mode Réciter : l'administrateur et les élèves (dans leur lecture). */
 export function peutOuvrirCoran(profil: Profil): boolean {
-  return profil.actif && profil.role === "admin";
+  return profil.actif && (profil.role === "admin" || profil.role === "eleve");
 }
 
-/** Lecture du Coran : pour l'instant réservée à l'administrateur. */
+/** Lecture du Coran (l'élève lit toujours dans sa lecture, Hafs ou Warsh). */
 export async function chargerPageCoran(
   acteur: Profil,
   parametres: Record<string, string | undefined>,
 ): Promise<PageCoran> {
-  if (!peutOuvrirCoran(acteur)) throw new Error("Réservé à l'administrateur.");
-  const p = schemaParametres.parse(parametres);
+  if (!peutOuvrirCoran(acteur)) throw new Error("Lecture du Coran non disponible pour ce compte.");
+  const p = schemaParametres.parse(
+    acteur.role === "eleve" ? { ...parametres, lecture: acteur.lecture ?? "hafs" } : parametres,
+  );
   const lecture = lireLecture(p.lecture);
   const [sourates, mushaf, correspondance] = await Promise.all([
     listerSourates(lecture),

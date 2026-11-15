@@ -56,7 +56,7 @@ export function ReglagesCoran({
   ouverte: boolean;
   onFermer: () => void;
   lecture: "hafs" | "warsh";
-  liensLecture: Record<"hafs" | "warsh", string>;
+  liensLecture: Record<"hafs" | "warsh", string> | null;
   vue: "sourate" | "page";
   reglages: Reglages;
   modifier: (m: Partial<Reglages>) => void;
@@ -71,22 +71,24 @@ export function ReglagesCoran({
 
   return (
     <Feuille ouverte={ouverte} onFermer={onFermer} titre="Réglages">
-      <section className="feuille-section">
-        <h3>Lecture</h3>
-        <nav className="coran-segments" aria-label="Lecture">
-          {(["hafs", "warsh"] as const).map((l) => (
-            <Link
-              key={l}
-              href={liensLecture[l]}
-              aria-current={l === lecture ? "page" : undefined}
-              scroll={false}
-              replace
-            >
-              {LIBELLE_LECTURE[l]}
-            </Link>
-          ))}
-        </nav>
-      </section>
+      {liensLecture ? (
+        <section className="feuille-section">
+          <h3>Lecture</h3>
+          <nav className="coran-segments" aria-label="Lecture">
+            {(["hafs", "warsh"] as const).map((l) => (
+              <Link
+                key={l}
+                href={liensLecture[l]}
+                aria-current={l === lecture ? "page" : undefined}
+                scroll={false}
+                replace
+              >
+                {LIBELLE_LECTURE[l]}
+              </Link>
+            ))}
+          </nav>
+        </section>
+      ) : null}
 
       <section className="feuille-section">
         <h3>Récitation</h3>

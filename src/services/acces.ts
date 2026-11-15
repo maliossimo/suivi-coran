@@ -52,3 +52,8 @@ export async function chargerCompte(): Promise<{ profil: Profil; email: string |
 export async function profilOptionnel(): Promise<Profil | null> {
   return profilConnecte();
 }
+
+/** Le compte connecté (ou null), pour adapter la navigation (ex. responsable de mosquée). */
+export async function compteConnecte(): Promise<Profil | null> {
+  return profilConnecte().catch(() => null);
+}

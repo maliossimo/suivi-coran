@@ -26,7 +26,9 @@ export function FormulaireInvitation({
     {},
   );
   const formulaire = useRef<HTMLFormElement>(null);
-  const [etab, setEtab] = useState("");
+  // Une seule mosquée possible (responsable) : elle est choisie d'office.
+  const seule = etablissements.length === 1 ? etablissements[0]!.id : "";
+  const [etab, setEtab] = useState(seule);
   const [classe, setClasse] = useState("");
   const classesEtab = classes.filter((c) => c.etablissementId === etab);
 
@@ -67,7 +69,8 @@ export function FormulaireInvitation({
         </label>
         <input id="email" name="email" type="email" autoComplete="off" required />
       </div>
-      {cible === "maitre" ? (
+      {cible === "maitre" && seule ? <input type="hidden" name="etablissementId" value={seule} /> : null}
+      {cible === "maitre" && !seule ? (
         <div className="champ">
           <label htmlFor="etablissementId">Établissement</label>
           <Selecteur
@@ -101,7 +104,7 @@ export function FormulaireInvitation({
             />
           ) : (
             <p className="carte-graphique-sous">
-              Pas encore de classe dans cet établissement : crée-la depuis sa carte, plus haut.
+              Pas encore de classe dans cette mosquée : crée-la d’abord dans Présences.
             </p>
           )}
         </div>
