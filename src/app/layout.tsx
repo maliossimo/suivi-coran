@@ -5,6 +5,7 @@ import Script from "next/script";
 import { Suspense } from "react";
 import { BandeauNotification } from "@/components/BandeauNotification";
 import { BarreNavigation } from "@/components/BarreNavigation";
+import { RafraichirCopies } from "@/components/RafraichirCopies";
 import { MesureVitesse } from "@/components/MesureVitesse";
 import { EtatReseau } from "@/components/EtatReseau";
 import { MiseAJourAuto } from "@/components/MiseAJourAuto";
@@ -140,6 +141,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <Suspense fallback={null}>
           <BarreNavigation />
+          <RafraichirCopies />
         </Suspense>
         <MesureVitesse />
         <OuvertureAppli />
