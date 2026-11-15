@@ -146,7 +146,7 @@ def expected(words, moshaf=None, riwaya='hafs'):
         if i not in ruled:
             if c == 'ں': units.append(Unit(i, j, 'ikhfa', w, golden=n, char=c))
             elif c == '۾': units.append(Unit(i, j, 'iqlab', w, golden=n, char=c))
-            elif c == 'ن' and n == 1 and i and ph[i - 1] in HARAKAT and j < len(ph) and ph[j] in THROAT:
+            elif c == 'ن' and n == 1 and i and ph[i - 1] in HARAKAT and ph[j + (ph[j:j + 1] == 'ۡ'):][:1] in THROAT:
                 units.append(Unit(i, j, 'izhar', w, golden=1, char=c))  # مِنۡ عِلۡمٍ, عَذَابٌ أَلِيمٌ
             elif c in NASAL and n >= 3:  # ننننَ / ممممِ : nun / mim with shadda, or a nun merged into ن / م
                 prev_w = word_at(i - 1) if i else w
