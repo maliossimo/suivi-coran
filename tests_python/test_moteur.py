@@ -178,6 +178,7 @@ def test_izhar_attendu_devant_une_lettre_de_la_gorge():
 
     ref = imam.expected("صِرَٰطَ ٱلَّذِينَ أَنۡعَمۡتَ عَلَيۡهِمۡ".split(" "))
     izhar = [u for u in ref.units if u.kind == "izhar"]
+    print("\nécriture :", ref.phonemes, [(u.kind, ref.phonemes[u.s : u.e]) for u in ref.units])
     assert len(izhar) == 1 and ref.words[izhar[0].word] == "أَنۡعَمۡتَ"
     # Devant une autre lettre (ikhfaʾ, idghâm) : pas d'izhâr.
     ref = imam.expected("مِن كُلِّ".split(" "))

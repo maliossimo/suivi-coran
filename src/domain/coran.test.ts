@@ -21,6 +21,7 @@ import {
   libelleMinuterie,
   lireMarquePages,
   marquerIzhar,
+  type SegmentTajwid,
   volumeMinuterie,
   resumeMemoriser,
 } from "./coran";
@@ -54,8 +55,8 @@ describe("tajwid", () => {
     // Déjà colorée (autre règle) : on n'y touche pas.
     expect(marquerIzhar([["k", "نۡ"], "خَ"])).toEqual([["k", "نۡ"], "خَ"]);
     // Le texte reste le même.
-    const v = ["مَنۡ ءَامَنَ ", ["h", "ٱ"], "للَّهَ"] as const;
-    expect(texteDesSegments(marquerIzhar([...v]))).toBe(texteDesSegments([...v]));
+    const v: SegmentTajwid[] = ["مَنۡ ءَامَنَ ", ["h", "ٱ"], "للَّهَ"];
+    expect(texteDesSegments(marquerIzhar(v))).toBe(texteDesSegments(v));
   });
 
   it("recompose le texte d'un verset", () => {
