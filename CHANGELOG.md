@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.30.2] — 2026-11-15
+
+### Amélioré
+
+- Plus de fluidité : une page déjà vue se rouvre instantanément pendant 2 minutes (au lieu de 30 s), et les fiches des premiers élèves de la liste sont préparées d'avance.
+- Écran d'une séance et fiche d'un élève (Cheikh) : les droits, l'élève et la séance sont demandés en même temps à la base, au lieu de l'un après l'autre.
+- Commentaire du Cheikh : il s'affiche tout de suite, pendant son envoi.
+
 ## [1.30.1] — 2026-11-15
 
 ### Corrigé
