@@ -75,6 +75,26 @@ export async function seancesEntre(
   return z.array(schemaLigne).parse(data).map(versSeance);
 }
 
+/** Nombre de séances de chaque type entre deux dates (les onglets de la fiche l'affichent). */
+export async function nombreSeancesParType(
+  eleveId: string,
+  debut: DateISO,
+  fin: DateISO,
+): Promise<Record<TypeSeance, number>> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("seances")
+    .select("type")
+    .eq("eleve_id", eleveId)
+    .gte("date", debut)
+    .lte("date", fin);
+  if (error) throw new Error(`Lecture des séances impossible : ${error.message}`);
+  const nombres: Record<TypeSeance, number> = { apprentissage: 0, revision: 0 };
+  for (const { type } of z.array(z.object({ type: z.enum(["apprentissage", "revision"]) })).parse(data))
+    nombres[type] += 1;
+  return nombres;
+}
+
 export async function seanceDuJour(eleveId: string, type: TypeSeance, date: DateISO): Promise<Seance | null> {
   const supabase = await creerClientServeur();
   const { data, error } = await supabase

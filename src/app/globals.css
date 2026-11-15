@@ -656,6 +656,53 @@ a:hover {
   font-weight: 700;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+/* Fiche : Apprentissage (vert) et Révision (or), chacun avec son icône et ses séances du mois,
+   pour qu'on voie qu'il y a deux fiches et laquelle est ouverte. */
+.onglet.onglet-apprentissage,
+.onglet.onglet-revision {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px solid transparent;
+}
+.onglet-apprentissage svg {
+  color: var(--vert);
+}
+.onglet-revision svg {
+  color: var(--or);
+}
+.onglet.onglet-apprentissage[aria-current="page"] {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.onglet.onglet-revision[aria-current="page"] {
+  border-color: var(--or);
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.onglet-nombre {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--texte-doux);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+.onglet-apprentissage .onglet-nombre {
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.onglet-revision .onglet-nombre {
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.onglet[aria-current="page"] .onglet-nombre {
+  background: var(--carte);
+}
 .resume-mois {
   margin: 0;
   color: var(--texte-doux);

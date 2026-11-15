@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.33.1] — 2026-11-15
+
+### Amélioré
+
+- Fiche : la fiche de révision se remarque. Les onglets « Apprentissage » et « Révision » ont chacun leur icône et leur couleur (vert, or) ; celui qui est ouvert est coloré, et chacun montre le nombre de séances du mois.
+
 ## [1.33.0] — 2026-11-15
 
 ### Ajouté
