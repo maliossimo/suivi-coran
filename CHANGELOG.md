@@ -9,6 +9,18 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.36.0] — 2026-11-16
+
+### Corrigé
+
+- Passage apprentissage ↔ révision : plus d'attente de plusieurs secondes ni d'écran figé. Au toucher, toute l'appli prend la nouvelle couleur tout de suite (vague depuis le doigt) et l'onglet choisi s'allume aussitôt ; la fiche se charge en même temps.
+- Plus de rectangle bleu d'Android sur les onglets et les jours : l'élément touché réagit lui-même (il s'enfonce légèrement et s'éclaire).
+- La flèche des semaines passe aussi à l'or en révision (elle restait verte).
+
+### Amélioré
+
+- Appuis plus vivants : onglets, jours de la fiche, liens ; l'icône de l'onglet du bas fait un petit rebond en arrivant sur la page ; les cartes des semaines arrivent l'une après l'autre.
+
 ## [1.35.0] — 2026-11-16
 
 ### Amélioré
