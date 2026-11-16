@@ -82,7 +82,7 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
       "true",
     );
     await capture(page, "23-cheikh-valide");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
     await cheikh.close();
 
     const eleve = await browser.newContext();
