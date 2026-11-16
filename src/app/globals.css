@@ -709,6 +709,19 @@ a:hover {
   background-color: var(--barre-revision);
 }
 @media (prefers-color-scheme: dark) {
+  /* En sombre, les cartes, les liens et la barre du bas prennent aussi la teinte chaude de l'or. */
+  :root:where(:not([data-theme="clair"])):has(.mode-revision) {
+    --carte: #221d14;
+    --surface-2: #272118;
+    --surface-3: #30291d;
+    --ligne: #3b3325;
+  }
+  :root:where(:not([data-theme="clair"])):has(.mode-revision) .lien-pdf,
+  :root:where(:not([data-theme="clair"])):has(.mode-revision) .bouton-lien-texte,
+  :root:where(:not([data-theme="clair"])):has(.mode-revision) .lien-action,
+  :root:where(:not([data-theme="clair"])):has(.mode-revision) .lien-retour {
+    color: var(--revision-texte);
+  }
   @media (max-width: 760px) {
     :root:where(:not([data-theme="clair"])):has(.mode-revision) .nav-espace {
       background: rgba(30, 26, 17, 0.94);
@@ -716,6 +729,18 @@ a:hover {
   }
 }
 /* Même chose quand le thème sombre est choisi à la main. */
+:root:where([data-theme="sombre"]):has(.mode-revision) {
+  --carte: #221d14;
+  --surface-2: #272118;
+  --surface-3: #30291d;
+  --ligne: #3b3325;
+}
+:root:where([data-theme="sombre"]):has(.mode-revision) .lien-pdf,
+:root:where([data-theme="sombre"]):has(.mode-revision) .bouton-lien-texte,
+:root:where([data-theme="sombre"]):has(.mode-revision) .lien-action,
+:root:where([data-theme="sombre"]):has(.mode-revision) .lien-retour {
+  color: var(--revision-texte);
+}
 @media (max-width: 760px) {
   :root:where([data-theme="sombre"]):has(.mode-revision) .nav-espace {
     background: rgba(30, 26, 17, 0.94);
