@@ -19,7 +19,14 @@ export interface Trame {
 
 /** Seuil de voix : au-dessus du bruit de fond mesuré (les trames les plus calmes), jamais trop bas. */
 export function seuilVoix(bruit: number): number {
-  return Math.max(0.015, bruit * 3);
+  // Assez bas pour une voix douce ou un téléphone qui capte faiblement (avant : 0,015 et 3 × le bruit,
+  // des morceaux entiers étaient pris pour du silence et jamais analysés).
+  return Math.max(0.008, bruit * 2.5);
+}
+
+/** Seuil du silence, plus bas que celui de la voix : une fin de mot douce n'est pas prise pour une pause. */
+export function seuilSilence(bruit: number): number {
+  return seuilVoix(bruit) * 0.7;
 }
 
 /**
@@ -34,7 +41,8 @@ export function pointDeCoupe(trames: readonly Trame[], bruit: number): number | 
   const pause = Math.ceil(PAUSE_S / DUREE_TRAME_S);
   const parole = trames.some((t) => t.rms >= seuil);
   if (!parole) return null;
-  if (duree >= MORCEAU_MIN_S && n >= pause && trames.slice(n - pause).every((t) => t.rms < seuil)) {
+  const silence = seuilSilence(bruit);
+  if (duree >= MORCEAU_MIN_S && n >= pause && trames.slice(n - pause).every((t) => t.rms < silence)) {
     return n - pause + 1; // on garde un petit bout de silence après le dernier mot
   }
   if (duree >= MORCEAU_MAX_S) {
@@ -78,4 +86,41 @@ export function avisSon(trames: readonly Trame[], bruit: number): AvisSon {
   if (!voix.length) return trames.length < 8 ? "attente" : "bas";
   const moyenne = voix.reduce((s, t) => s + t.rms, 0) / voix.length;
   return moyenne < 0.03 ? "bas" : "bon";
+}
+
+/** Volume visé pour le moteur (RMS de la voix), et gain maximal (au-delà, on amplifierait le bruit). */
+const RMS_VISE = 0.1;
+const GAIN_MAX = 8;
+
+/**
+ * Ramène une voix faible à un volume confortable pour le moteur de reconnaissance, sans jamais saturer :
+ * le gain est calculé sur les passages où l'on parle (pas sur les silences) et plafonné par le pic.
+ * Une voix déjà assez forte n'est pas touchée.
+ */
+export function normaliserVolume(pcm: Int16Array): Int16Array {
+  if (!pcm.length) return pcm;
+  const fenetre = 1600; // 0,1 s à 16 kHz
+  const niveaux: number[] = [];
+  let pic = 0;
+  for (let debut = 0; debut < pcm.length; debut += fenetre) {
+    const fin = Math.min(pcm.length, debut + fenetre);
+    let somme = 0;
+    for (let i = debut; i < fin; i++) {
+      const v = pcm[i]! / 32768;
+      somme += v * v;
+      pic = Math.max(pic, Math.abs(v));
+    }
+    niveaux.push(Math.sqrt(somme / (fin - debut)));
+  }
+  // Niveau de la voix : moyenne de la moitié la plus forte des fenêtres.
+  const forts = [...niveaux].sort((a, b) => b - a).slice(0, Math.max(1, Math.ceil(niveaux.length / 2)));
+  const voix = forts.reduce((s, x) => s + x, 0) / forts.length;
+  if (voix <= 0 || pic <= 0) return pcm;
+  const gain = Math.min(RMS_VISE / voix, 0.95 / pic, GAIN_MAX);
+  if (gain <= 1.15) return pcm;
+  const sortie = new Int16Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) {
+    sortie[i] = Math.max(-32768, Math.min(32767, Math.round(pcm[i]! * gain)));
+  }
+  return sortie;
 }

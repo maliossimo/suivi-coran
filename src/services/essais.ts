@@ -2,6 +2,7 @@ import "server-only";
 import { z } from "zod";
 import { essaisDuPassage, motsDifficiles, type MotDifficile } from "@/domain/essais";
 import { enregistrerEssai, listerMesEssais } from "@/repositories/essais";
+import { noterUsageCoran } from "@/repositories/usagesCoran";
 import type { Profil } from "@/repositories/profils";
 import { peutOuvrirCoran } from "@/services/coran";
 
@@ -35,6 +36,8 @@ export async function garderEssai(profil: Profil | null, brut: unknown): Promise
   const e = schemaEssai.safeParse(brut);
   if (!e.success) return;
   await enregistrerEssai(e.data).catch(() => undefined);
+  // Compteur « qui utilise le Coran » (administration).
+  await noterUsageCoran("recitation", e.data.sourate).catch(() => undefined);
 }
 
 export interface HistoriquePassage {

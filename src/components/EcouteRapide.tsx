@@ -3,9 +3,10 @@
 import { Check, ChevronRight, Headphones } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { actionMarquerAcquis } from "@/app/actions/acquis";
 import { actionMarquerPassages, actionSeancesAEcouter } from "@/app/actions/fiche";
 import { formaterDuree, libelleJourCourt, libelleJourSemaine, LIBELLE_TYPE } from "@/domain/fiche";
-import type { SeanceAEcouter } from "@/services/fiche";
+import type { AEcouter, SeanceAEcouter } from "@/services/fiche";
 import { Feuille } from "./Feuille";
 import { retoursActives } from "./retourSensoriel";
 
@@ -21,20 +22,21 @@ export function EcouteRapide({
   eleve: { id: string; prenom: string; nom: string } | null;
   onFermer: () => void;
 }) {
-  const [seances, setSeances] = useState<SeanceAEcouter[] | null>(null);
+  const [donnees, setDonnees] = useState<AEcouter | null>(null);
+  const seances = donnees?.seances ?? null;
   const [erreur, setErreur] = useState<string | null>(null);
   const [faites, setFaites] = useState<Record<string, "ecoute" | "valide">>({});
 
   useEffect(() => {
     if (!eleve) return;
     let annule = false;
-    setSeances(null);
+    setDonnees(null);
     setErreur(null);
     setFaites({});
     actionSeancesAEcouter(eleve.id)
       .then((r) => {
         if (annule) return;
-        if (r) setSeances(r);
+        if (r) setDonnees(r);
         else setErreur("Les séances n’ont pas pu être chargées. Réessaie.");
       })
       .catch(() => !annule && setErreur("Pas de réseau : réessaie dans un instant."));
@@ -60,7 +62,28 @@ export function EcouteRapide({
       });
   };
 
-  const restantes = seances?.filter((s) => !faites[s.id]) ?? [];
+  /** Partie « déjà connue » : marquée tout de suite, revient avec un message si l'enregistrement échoue. */
+  const marquerAcquis = (id: string, etat: "ecoute" | "valide") => {
+    if (!eleve) return;
+    if (retoursActives()) navigator.vibrate?.(8);
+    setErreur(null);
+    setFaites((f) => ({ ...f, [id]: etat }));
+    actionMarquerAcquis(eleve.id, id, etat)
+      .then((r) => {
+        if (r.ok) return;
+        setFaites((f) => sans(f, id));
+        setErreur(r.erreur);
+      })
+      .catch(() => {
+        setFaites((f) => sans(f, id));
+        setErreur("Pas de réseau : le changement n’a pas été enregistré.");
+      });
+  };
+
+  const restantes = [
+    ...(seances?.filter((s) => !faites[s.id]) ?? []),
+    ...(donnees?.acquis.filter((a) => !faites[a.id]) ?? []),
+  ];
   return (
     <Feuille
       ouverte={eleve !== null}
@@ -116,6 +139,33 @@ export function EcouteRapide({
                   >
                     <ChevronRight size={20} aria-hidden="true" />
                   </Link>
+                </div>
+              </li>
+            ),
+          )}
+        </ul>
+      ) : null}
+      {donnees?.acquis.length ? (
+        <ul className="ecoute-rapide">
+          {donnees.acquis.map((a) =>
+            faites[a.id] ? null : (
+              <li key={a.id} className="ecoute-rapide-seance seance-acquis">
+                <div className="ecoute-rapide-tete">
+                  <b>Déjà connu</b>
+                  <span className="ecoute-rapide-type">Déclaré par l’élève</span>
+                </div>
+                <p className="ecoute-rapide-passages">{a.libelle}</p>
+                <div className="ecoute-rapide-actions">
+                  <button
+                    type="button"
+                    className="bouton-secondaire"
+                    onClick={() => marquerAcquis(a.id, "ecoute")}
+                  >
+                    <Headphones size={17} aria-hidden="true" /> Écouté
+                  </button>
+                  <button type="button" className="bouton" onClick={() => marquerAcquis(a.id, "valide")}>
+                    <Check size={17} aria-hidden="true" /> Validé
+                  </button>
                 </div>
               </li>
             ),

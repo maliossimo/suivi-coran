@@ -54,6 +54,7 @@ export const COMPTES = {
   cheikhB: "cheikh.b@bout-en-bout.test",
   eleveA: "eleve.a@bout-en-bout.test",
   eleveB: "eleve.b@bout-en-bout.test",
+  eleveSoir: "eleve.a2@bout-en-bout.test",
 } as const;
 
 export const IDS = {

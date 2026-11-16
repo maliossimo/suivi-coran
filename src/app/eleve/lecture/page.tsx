@@ -19,7 +19,7 @@ export default async function PageLectureEleve() {
           </Link>
         ) : (
           <p className="choix-lecture-bienvenue">
-            Bienvenue{profil.prenom ? ` ${profil.prenom}` : ""} ! Une seule question avant de commencer.
+            Bienvenue{profil.prenom ? ` ${profil.prenom}` : ""} ! Deux petites questions avant de commencer.
           </p>
         )}
         <ChoixLecture

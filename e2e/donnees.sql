@@ -49,6 +49,11 @@ update public.profils set lecture = 'hafs'
   where id in ('e2e00000-0000-0000-0000-0000000000e1', 'e2e00000-0000-0000-0000-0000000000e2',
                'e2e00000-0000-0000-0000-0000000000e3');
 
+-- « Ce que tu connais déjà » : déjà répondu pour Inès et Bilal (les autres tests vont droit à la fiche) ;
+-- Sami (classe du soir) le verra à sa prochaine ouverture, comme un élève déjà inscrit.
+update public.profils set acquis_repondu = true
+  where id in ('e2e00000-0000-0000-0000-0000000000e1', 'e2e00000-0000-0000-0000-0000000000e2');
+
 -- Une séance de révision d'hier, à corriger par le Cheikh.
 insert into public.seances (id, eleve_id, date, type, duree_min) values
   ('e2e00000-0000-0000-0000-0000000005e1', 'e2e00000-0000-0000-0000-0000000000e1',

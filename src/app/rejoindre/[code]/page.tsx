@@ -3,6 +3,7 @@ import { CadreAuth } from "@/components/CadreAuth";
 import { FormulaireRejoindre } from "@/components/FormulaireRejoindre";
 import { profilOptionnel } from "@/services/acces";
 import { lireInvitation } from "@/services/rejoindre";
+import { actionDeconnexionPourRejoindre } from "@/app/actions/auth";
 
 export const metadata = { title: "Rejoindre la classe — Suivi cours Coran" };
 
@@ -10,12 +11,23 @@ export default async function PageRejoindre({ params }: { params: Promise<{ code
   const { code } = await params;
   const [invitation, profil] = await Promise.all([lireInvitation(code), profilOptionnel()]);
 
-  if (profil) {
+  // Téléphone déjà connecté (le Cheikh qui teste son lien, un parent…) : on propose de créer
+  // le compte élève quand même, au lieu de laisser croire que le lien ne marche pas.
+  if (profil && invitation.etat === "valide") {
     return (
-      <CadreAuth titre="Tu es déjà connecté" sousTitre="Ce QR code sert à créer un nouveau compte élève.">
-        <Link href="/" className="bouton bouton-auto">
-          Aller à mon espace
-        </Link>
+      <CadreAuth
+        titre="Rejoindre la classe"
+        sousTitre={`Ce téléphone est connecté au compte de ${profil.prenom || "quelqu’un"}. Pour créer un compte élève dans ${invitation.etablissementNom}, déconnecte-toi d’abord.`}
+      >
+        <form action={actionDeconnexionPourRejoindre}>
+          <input type="hidden" name="code" value={code} />
+          <button type="submit" className="bouton bouton-auto">
+            Me déconnecter et créer un compte élève
+          </button>
+        </form>
+        <p className="auth-bas">
+          <Link href="/">Non, aller à mon espace</Link>
+        </p>
       </CadreAuth>
     );
   }

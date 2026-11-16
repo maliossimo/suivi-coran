@@ -9,6 +9,26 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.42.0] — 2026-11-16
+
+### Ajouté
+
+- « Ce que tu connais déjà » : l'élève indique ce qu'il sait par cœur (par juz, ou de sourate à sourate) et choisit s'il veut le faire écouter à son Cheikh. Proposé une fois juste après l'inscription, et une fois aux élèves déjà inscrits ; modifiable ensuite depuis la Progression. Rien de ce qui existait n'est modifié : ces parties s'ajoutent aux séances.
+- Le Cheikh voit ces parties sur la progression de l'élève et dans l'écoute rapide de sa classe (« Écouté », « Validé ») quand l'élève veut les lui faire écouter.
+- Inviter : « Partager le lien d'inscription » (le lien est écrit dans le message, pour WhatsApp, SMS…), « Partager l'image du QR » et « Copier le lien ». L'invitation des élèves par e-mail est retirée.
+- Administration : « Qui utilise le Coran » (lectures, écoutes et récitations de chacun sur 7 jours, sourates les plus ouvertes).
+
+### Amélioré
+
+- Progression comptée en pages du mushaf de Médine (604 pages, une page commencée compte en partie), avec les juz complets.
+- Réciter : l'appli entend mieux les voix douces et les téléphones qui captent faiblement (seuil de voix plus bas, volume remonté avant l'analyse, grondement de fond filtré, début des mots mieux gardé).
+- Réciter : en-tête, choix du passage et micro plus compacts ; l'historique des essais se replie : plus de versets visibles.
+
+### Corrigé
+
+- Le lien d'inscription utilise l'adresse du site réellement ouverte ; ouvert sur un téléphone déjà connecté, il propose de se déconnecter pour créer le compte élève (au lieu de sembler ne pas marcher).
+- Progression : la liste des sourates ne dépasse plus de l'écran (texte agrandi compris).
+
 ## [1.41.0] — 2026-11-16
 
 ### Amélioré

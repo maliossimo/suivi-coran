@@ -12653,3 +12653,457 @@ textarea:focus-visible {
   border-color: var(--vert);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--vert) 16%, transparent);
 }
+.ecoute-rapide-seance.seance-acquis {
+  border-left-color: var(--or);
+}
+
+/* ---------- Progression, liste des sourates : rien ne dépasse de l'écran (texte agrandi compris) ---------- */
+.liste-sourates-ligne {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.liste-sourates-ligne > span:first-child {
+  flex: 1 1 auto;
+  min-width: min(100%, 9em);
+}
+.liste-sourates-ligne b {
+  white-space: nowrap;
+}
+.liste-sourates-info {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px 6px;
+  margin-left: auto;
+  max-width: 100%;
+  white-space: normal;
+}
+.liste-sourates-info .pastille-a-faire-voir,
+.liste-sourates-info .pastille-or {
+  margin-left: 0;
+}
+.liste-sourates li {
+  min-width: 0;
+}
+
+/* ---------- Inviter : partager le lien, l'image du QR, ou copier le lien ---------- */
+.partage-invitation {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+.partage-invitation .bouton,
+.partage-invitation .bouton-secondaire {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+}
+.partage-secondaires {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+@media (max-width: 380px) {
+  .partage-secondaires {
+    grid-template-columns: 1fr;
+  }
+}
+.partage-lien {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px dashed var(--ligne);
+  color: var(--texte-doux);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+  text-align: center;
+  user-select: all;
+}
+
+/* ---------- « Ce que tu connais déjà » ---------- */
+.acquis {
+  display: grid;
+  gap: 14px;
+}
+.acquis-entete h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+}
+.acquis-entete p,
+.acquis-aide {
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 14px;
+}
+.acquis-aide {
+  margin-bottom: 8px;
+}
+.acquis-modes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--surface-3);
+}
+.acquis-mode {
+  min-height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--texte-doux);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.acquis-mode.actif {
+  background: var(--carte);
+  color: var(--vert-texte);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.acquis-juz {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.acquis-case {
+  min-height: 44px;
+  border: 1px solid var(--champ);
+  border-radius: 12px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    transform 0.1s ease;
+}
+.acquis-case:active {
+  transform: scale(0.92);
+}
+.acquis-case.choisie {
+  background: var(--vert);
+  border-color: var(--vert);
+  color: #fff;
+}
+.acquis-case.deja {
+  background: var(--vert-clair);
+  border-color: transparent;
+  color: var(--vert-texte);
+  cursor: default;
+}
+.acquis-sourates {
+  display: grid;
+  gap: 8px;
+}
+.acquis-partie {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-3);
+}
+.acquis-partie label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+.acquis-partie select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--champ);
+  border-radius: 10px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+  font-size: max(16px, 1em);
+  padding: 0 8px;
+}
+.acquis-partie-arabe {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-family: var(--font-arabe), serif;
+  color: var(--vert-texte);
+  font-size: 18px;
+}
+.acquis-retirer {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-3);
+  color: var(--texte-doux);
+  cursor: pointer;
+}
+.acquis-ajouter {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.acquis-resume {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--or-clair);
+  color: var(--or-texte);
+  font-weight: 600;
+}
+.acquis-ecoute {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.acquis-ecoute legend {
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.acquis-choix {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1.5px solid var(--champ);
+  border-radius: 14px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.acquis-choix.actif {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.acquis-valider {
+  min-height: 50px;
+}
+.acquis-passer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.acquis-liste h2 {
+  margin: 8px 0;
+  font-size: 18px;
+}
+.acquis-liste ul,
+.acquis-progression-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.acquis-liste li,
+.acquis-progression-liste li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-3);
+}
+.acquis-liste-libelle {
+  flex: 1 1 12em;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.acquis-liste-actions,
+.acquis-progression-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.acquis-progression-actions .bouton,
+.acquis-progression-actions .bouton-secondaire {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0 12px;
+}
+.pastille-etat.acquis-declare {
+  background: var(--surface-3);
+  color: var(--texte-doux);
+}
+.acquis-progression-tete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.acquis-invitation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--or-clair);
+  border: 1px solid var(--bord-or);
+  color: var(--texte);
+  text-decoration: none;
+}
+.acquis-invitation > svg:first-child {
+  color: var(--or);
+  flex: none;
+}
+.acquis-invitation span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.acquis-invitation small {
+  color: var(--texte-doux);
+}
+.progression-entete-texte .progression-pages {
+  font-size: 14px;
+  color: var(--texte);
+}
+
+/* ---------- Réciter : un haut et un bas plus compacts, plus de place pour les versets ---------- */
+.reciter-entete {
+  gap: 4px;
+  padding: max(6px, env(safe-area-inset-top)) 8px 2px;
+}
+.reciter-entete h2 {
+  font-size: 19px;
+}
+.reciter-fermer {
+  width: 40px;
+  height: 40px;
+}
+.reciter .tajwid-masquer {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+.reciter-statut {
+  margin-block: 0;
+  font-size: 12.5px;
+}
+.reciter-choix {
+  gap: 6px;
+  margin: 4px 12px 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.reciter-choix > span:first-child {
+  flex: 0 1 auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-right: auto;
+}
+.reciter-nom-ar {
+  font-size: 18px;
+}
+.reciter-historique {
+  margin: 4px 12px 0;
+  gap: 6px;
+}
+.reciter-historique > summary {
+  cursor: pointer;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  font-size: 13px;
+}
+.reciter-historique > summary::-webkit-details-marker {
+  display: none;
+}
+.reciter-historique > summary::after {
+  content: "›";
+  margin-left: 4px;
+  font-size: 16px;
+  transition: transform 0.15s ease;
+}
+.reciter-historique[open] > summary::after {
+  transform: rotate(90deg);
+}
+.reciter-difficile {
+  min-height: 34px;
+  padding: 2px 10px;
+}
+.reciter-difficile span {
+  font-size: 17px;
+}
+.reciter-corps {
+  padding: 8px 16px;
+}
+.reciter-taille {
+  gap: 4px;
+  margin-bottom: 2px;
+}
+.reciter-taille button {
+  min-width: 38px;
+  min-height: 32px;
+  font-size: 13px;
+}
+.reciter-pied {
+  gap: 4px;
+  padding: 6px 16px max(8px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--ligne);
+}
+.reciter-pied .tajwid-micro {
+  width: 60px;
+  height: 60px;
+}
+.reciter-lancer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.reciter-lancer .tajwid-consigne {
+  text-align: left;
+  max-width: 14em;
+}
+.reciter-pied .tajwid-note {
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: center;
+  opacity: 0.85;
+}
+
+/* ---------- Administration : qui utilise le Coran ---------- */
+.usage-coran-compteurs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 2px 10px;
+  font-size: 13px;
+  color: var(--texte-doux);
+  text-align: right;
+}
+.usage-coran-compteurs b {
+  color: var(--texte);
+}
+.usage-coran-compteurs small {
+  flex-basis: 100%;
+}
