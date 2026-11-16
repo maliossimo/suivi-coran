@@ -63,7 +63,7 @@ export function OuvertureEnPage() {
         retourDemande = Date.now();
       const lien =
         e.target instanceof Element ? e.target.closest<HTMLAnchorElement>("a[data-ouvre-en-page]") : null;
-      if (!lien) return;
+      if (!lien || (e.target as Element).closest("[data-sans-navigation]")) return;
       const cible = new URL(lien.href, location.href);
       if (cible.origin !== location.origin || cible.pathname === location.pathname) return;
       const v = creerVoile(lien.getBoundingClientRect(), getComputedStyle(lien).borderRadius);

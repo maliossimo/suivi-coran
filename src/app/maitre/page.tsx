@@ -9,6 +9,7 @@ import { ListeEleves } from "@/components/ListeEleves";
 import { VueAdmin } from "@/components/admin/VueAdmin";
 import { AppelDuJour } from "@/components/presences/AppelDuJour";
 import { exigerEspace } from "@/services/acces";
+import { CHOIX, RetenirChoix } from "@/components/RetenirChoix";
 import { listerClasses } from "@/services/admin";
 import { chargerClasse, classesDuCheikh } from "@/services/classe";
 import { aujourdhuiParis } from "@/services/fiche";
@@ -134,6 +135,7 @@ export default async function PageClasse({
 
         {sesClasses.length > 1 ? (
           <nav className="puces-periode" aria-label="Classe">
+            <RetenirChoix nom={CHOIX.classeCheikh} valeur={groupe?.id ?? ""} />
             <Link
               href={`/maitre?mois=${cleMois(mois)}`}
               className={groupe ? "puce-periode" : "puce-periode actif"}

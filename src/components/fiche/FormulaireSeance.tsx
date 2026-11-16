@@ -343,6 +343,8 @@ export function FormulaireSeance({
                 autoComplete="off"
                 value={duree ? String(duree) : ""}
                 placeholder="0"
+                enterKeyHint="done"
+                onFocus={(e) => e.currentTarget.select()}
                 onChange={(e) => setDuree(Math.min(600, lireNombre(e.target.value)))}
               />
               <span aria-hidden="true">min</span>
@@ -416,6 +418,8 @@ export function FormulaireSeance({
                       inputMode="numeric"
                       pattern="[0-9]*"
                       autoComplete="off"
+                      enterKeyHint="next"
+                      onFocus={(e) => e.currentTarget.select()}
                       value={p.versetDebut ? String(p.versetDebut) : ""}
                       onChange={(e) => modifier(i, "versetDebut", lireNombre(e.target.value))}
                     />
@@ -427,6 +431,8 @@ export function FormulaireSeance({
                       inputMode="numeric"
                       pattern="[0-9]*"
                       autoComplete="off"
+                      enterKeyHint="done"
+                      onFocus={(e) => e.currentTarget.select()}
                       value={p.versetFin ? String(p.versetFin) : ""}
                       onChange={(e) => modifier(i, "versetFin", lireNombre(e.target.value))}
                     />

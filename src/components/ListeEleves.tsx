@@ -6,7 +6,15 @@ import { Avatar } from "./Avatar";
 import { EtiquetteLecture } from "./ChoixLecture";
 import { EtatVide } from "./EtatVide";
 import { SousTitreEntete } from "./SousTitreEntete";
-import { useState, type CSSProperties } from "react";
+import { EcouteRapide } from "./EcouteRapide";
+import { CHOIX, useChoix } from "./RetenirChoix";
+import {
+  useState,
+  type CSSProperties,
+  type MouseEvent as SourisReact,
+  type TouchEvent as ToucherReact,
+} from "react";
+import { retoursActives } from "./retourSensoriel";
 import { actionArchiverEleve } from "@/app/actions/classe";
 import { correspondARecherche, JOURS_A_VOIR, phraseEleve, type ResumeEleve } from "@/domain/classe";
 import { formaterDuree } from "@/domain/fiche";
@@ -25,10 +33,14 @@ export function ListeEleves({
   cleMois: string;
 }) {
   const [recherche, setRecherche] = useState("");
+  /** Élève dont les séances à écouter sont ouvertes dans la feuille du bas. */
+  const [ecoute, setEcoute] = useState<{ id: string; prenom: string; nom: string } | null>(null);
   const visibles = actifs.filter((r) => correspondARecherche(r.eleve, recherche));
   const archivesVisibles = archives.filter((r) => correspondARecherche(r.eleve, recherche));
 
   const aEcouter = actifs.reduce((t, r) => t + r.aVoir, 0);
+  // La fiche s'ouvre sur l'onglet choisi la dernière fois (apprentissage ou révision).
+  const onglet = useChoix(CHOIX.ongletFiche) === "revision" ? "&type=revision" : "";
   return (
     <>
       <SousTitreEntete
@@ -68,21 +80,25 @@ export function ListeEleves({
               href={
                 r.premiereAVoir
                   ? `/maitre/eleves/${r.eleve.id}?mois=${r.premiereAVoir.date.slice(0, 7)}&type=${r.premiereAVoir.type}`
-                  : `/maitre/eleves/${r.eleve.id}?mois=${cleMois}`
+                  : `/maitre/eleves/${r.eleve.id}?mois=${cleMois}${onglet}`
               }
               className="carte-eleve"
               data-ouvre-en-page
+              {...(r.aVoir > 0 ? appuiLong(() => setEcoute(r.eleve)) : {})}
             >
               <Avatar prenom={r.eleve.prenom} nom={r.eleve.nom} cle={r.eleve.id} />
               <span className="carte-eleve-nom">
                 {r.eleve.prenom} {r.eleve.nom}
                 <EtiquetteLecture lecture={r.eleve.lecture ?? null} />
                 {r.aVoir > 0 ? (
+                  // Toucher la pastille : les séances s'ouvrent ici, dans une feuille, sans quitter la liste.
                   <span
-                    className="pastille-or pastille-a-voir"
+                    className="pastille-or pastille-a-voir pastille-touchable"
                     title={`Séances des ${JOURS_A_VOIR} derniers jours pas encore vues`}
+                    data-sans-navigation
                   >
                     {r.aVoir} séance{r.aVoir > 1 ? "s" : ""} à écouter
+                    <ChevronRight size={14} strokeWidth={2.6} aria-hidden="true" />
                   </span>
                 ) : null}
                 <small
@@ -98,9 +114,16 @@ export function ListeEleves({
                 <ChevronRight size={20} />
               </span>
             </Link>
+            {r.aVoir > 0 ? (
+              // Clavier et lecteurs d'écran : la même écoute rapide, par un vrai bouton.
+              <button type="button" className="visuellement-cache" onClick={() => setEcoute(r.eleve)}>
+                Écouter les séances de {r.eleve.prenom} sans quitter la liste
+              </button>
+            ) : null}
           </li>
         ))}
       </ul>
+      <EcouteRapide eleve={ecoute} onFermer={() => setEcoute(null)} />
 
       {archivesVisibles.length > 0 ? (
         <details className="archives" open={recherche.trim() !== "" || undefined}>
@@ -229,4 +252,63 @@ function StatsEleve({ r }: { r: ResumeEleve }) {
       ))}
     </span>
   );
+}
+
+/** Durée d'appui pour ouvrir l'écoute rapide. */
+const APPUI_LONG_MS = 450;
+
+/**
+ * Écoute rapide d'un élève : appui long sur sa carte (ou toucher sa pastille « à écouter »).
+ * La carte reste un lien : un toucher simple ouvre la fiche comme avant.
+ * (État hors du rendu : la feuille qui s'ouvre fait un nouveau rendu pendant que le doigt est posé.)
+ */
+const appui: { minuteur?: number; depart: { x: number; y: number } | null; ouvert: boolean } = {
+  depart: null,
+  ouvert: false,
+};
+
+function arreterAppui() {
+  window.clearTimeout(appui.minuteur);
+  appui.depart = null;
+}
+
+function appuiLong(ouvrir: () => void) {
+  return {
+    onTouchStart: (e: ToucherReact) => {
+      appui.ouvert = false;
+      const t = e.touches[0];
+      if (!t || e.touches.length !== 1) return;
+      appui.depart = { x: t.clientX, y: t.clientY };
+      window.clearTimeout(appui.minuteur);
+      appui.minuteur = window.setTimeout(() => {
+        appui.ouvert = true;
+        if (retoursActives()) navigator.vibrate?.(12);
+        ouvrir();
+      }, APPUI_LONG_MS);
+    },
+    onTouchMove: (e: ToucherReact) => {
+      const t = e.touches[0];
+      const d = appui.depart;
+      if (d && t && Math.hypot(t.clientX - d.x, t.clientY - d.y) > 10) arreterAppui();
+    },
+    onTouchEnd: (e: ToucherReact) => {
+      arreterAppui();
+      // Feuille ouverte par l'appui : pas de « clic » qui ouvrirait aussi la fiche.
+      if (appui.ouvert) e.preventDefault();
+    },
+    onTouchCancel: arreterAppui,
+    onContextMenu: (e: SourisReact) => {
+      e.preventDefault();
+      if (!appui.ouvert) ouvrir();
+      appui.ouvert = true;
+    },
+    onClickCapture: (e: SourisReact) => {
+      const surPastille = e.target instanceof Element && e.target.closest("[data-sans-navigation]");
+      if (!appui.ouvert && !surPastille) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (surPastille && !appui.ouvert) ouvrir();
+      appui.ouvert = false;
+    },
+  };
 }

@@ -67,6 +67,8 @@ export function FormulaireObjectif({
         name="description"
         defaultValue={objectif?.description ?? ""}
         placeholder="ex. Apprendre Al-Mulk, versets 1 à 15"
+        enterKeyHint="done"
+        autoCapitalize="sentences"
         maxLength={300}
         required
       />
