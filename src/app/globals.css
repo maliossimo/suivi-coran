@@ -13399,3 +13399,132 @@ html[data-plein-ecran] .espace-coran {
 .espace-coran > * {
   animation: none;
 }
+
+/* ---------- Page du Mushaf de Médine : 15 lignes, coupées comme dans le livre ---------- */
+.coran-lignes {
+  font-size: var(--taille-mushaf, var(--taille-coran, 30px));
+}
+.coran-vue-page .coran-lignes {
+  text-align: justify;
+}
+.coran-ligne {
+  display: block;
+  white-space: nowrap;
+  /* Chaque ligne s'étire d'un bord à l'autre (la dernière ligne d'un bloc aussi). */
+  text-align: justify;
+  text-align-last: justify;
+}
+/* Lignes courtes (pages 1-2, fin de sourate) : centrées, jamais étirées sur quatre mots. */
+.coran-ligne.centree {
+  text-align: center;
+  text-align-last: center;
+}
+/* Mesure de la ligne la plus longue (un instant, invisible) : sans étirement. */
+.mesure-lignes .coran-ligne {
+  display: inline-block;
+  width: max-content;
+  text-align: start;
+  text-align-last: auto;
+}
+html[data-plein-ecran] .coran-vue-page .coran-lignes {
+  font-size: var(--taille-mushaf, var(--taille-coran, 30px));
+}
+
+/* ---------- Tajwid : chaque règle s'allume ou s'éteint depuis la légende ---------- */
+.coran-page.sans-tj-madd-2 .tj-madd-2,
+.coran-page.sans-tj-madd-246 .tj-madd-246,
+.coran-page.sans-tj-madd-45 .tj-madd-45,
+.coran-page.sans-tj-madd-6 .tj-madd-6,
+.coran-page.sans-tj-ghunna .tj-ghunna,
+.coran-page.sans-tj-ikhfa .tj-ikhfa,
+.coran-page.sans-tj-idgham .tj-idgham,
+.coran-page.sans-tj-idgham-sans .tj-idgham-sans,
+.coran-page.sans-tj-iqlab .tj-iqlab,
+.coran-page.sans-tj-izhar .tj-izhar,
+.coran-page.sans-tj-qalqala .tj-qalqala,
+.coran-page.sans-tj-muette .tj-muette {
+  color: inherit;
+}
+.coran-legende-aide {
+  margin: 8px 0 0;
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.coran-regle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--texte);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease;
+}
+.coran-regle > span:nth-child(2) {
+  flex: 1;
+}
+.coran-regle > span[lang="ar"] {
+  color: var(--texte-doux);
+  font-family: var(--font-arabe), serif;
+}
+.coran-regle.eteinte {
+  background: transparent;
+  opacity: 0.55;
+}
+.coran-regle.eteinte .tj-pastille {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+.coran-legende-tout {
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* ---------- Mode caché (révision) : seul le premier mot de chaque ligne ou verset reste lisible ---------- */
+.coran-cache .mot {
+  filter: blur(0.3em);
+  opacity: 0.75;
+  transition:
+    filter 0.25s ease,
+    opacity 0.25s ease;
+}
+/* Page du Mushaf : le premier mot de chaque ligne. */
+.coran-cache .coran-ligne > .coran-verset:first-child > :nth-child(1 of .mot),
+.coran-cache .coran-ligne > .coran-verset:first-child:not(:has(.mot)) + .coran-verset > :nth-child(1 of .mot),
+/* Texte suivi (sourate) : le premier mot de chaque verset. */
+.coran-cache .coran-versets:not(.coran-lignes) .coran-verset > :nth-child(1 of .mot),
+.coran-cache .coran-basmala .mot,
+.coran-cache .devoile .mot,
+.coran-cache .coran-verset.actif .mot {
+  filter: none;
+  opacity: 1;
+}
+.coran-cache-aide {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--texte-doux);
+  font-size: 13.5px;
+}
+.coran-cache-aide svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--vert);
+}
+@media (prefers-reduced-motion: reduce) {
+  .coran-cache .mot {
+    transition: none;
+  }
+}

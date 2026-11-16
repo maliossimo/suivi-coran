@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import {
   BookOpenText,
+  Eye,
+  EyeOff,
   Mic,
   Moon,
   Pause,
@@ -24,6 +26,7 @@ import {
   useState,
   type CSSProperties,
   type ReactNode,
+  type RefObject,
 } from "react";
 import {
   FAMILLES_TAJWID,
@@ -46,6 +49,7 @@ import {
   type Repetition,
   type SegmentTajwid,
 } from "@/domain/coran";
+import { fragmentsDesLignes, garderFragment, type FragmentLigne, type LigneMushaf } from "@/domain/mushaf";
 import { ActionsVerset, type ModeVerset } from "./ActionsVerset";
 import { retenirLecture } from "./derniereLecture";
 import { noterUneFois } from "./usage";
@@ -73,6 +77,7 @@ const DEFAUT: Reglages = {
   taille: 2,
   favoris: [],
   theme: "auto",
+  tajwidEteintes: [],
 };
 
 function lireReglages(): Reglages {
@@ -107,6 +112,7 @@ export function LectureCoran({
   lecture,
   vue,
   blocs,
+  lignes = null,
   passageInitial,
   correspondance,
   recitations,
@@ -122,6 +128,8 @@ export function LectureCoran({
   lecture: "hafs" | "warsh";
   vue: "sourate" | "page";
   blocs: BlocAffiche[];
+  /** Vue page (Hafs) : début de chaque ligne du Mushaf de Médine ; null : le texte s'écoule librement. */
+  lignes?: LigneMushaf[] | null;
   passageInitial: Passage | null;
   correspondance: Record<string, number[][]> | null;
   recitations: RecitationAffichee[];
@@ -143,12 +151,21 @@ export function LectureCoran({
   /** Verset touché (actions) ou appuyé longuement (explication) : sa feuille est ouverte. */
   const [choix, setChoix] = useState<{ cle: string; mode: ModeVerset } | null>(null);
   /** Mode « Réciter » ouvert : sourate et verset de départ. */
-  const [reciter, setReciter] = useState<{ sourate: number; depart: number; fin?: number } | null>(() =>
+  const [reciter, setReciter] = useState<{
+    sourate: number;
+    depart: number;
+    fin?: number;
+    reveler?: boolean;
+  } | null>(() =>
     reciterInitial && vue === "sourate" && blocs[0]
       ? { sourate: blocs[0].sourate, depart: reciterInitial.du, fin: reciterInitial.au }
       : null,
   );
   const versetChoisi = choix?.cle ?? null;
+  /** Mode caché (mémoriser) : seul le premier mot de chaque ligne (ou verset) reste lisible. */
+  const [cache, setCache] = useState(false);
+  /** Lignes (« l3 ») ou versets (« 2:255 ») dévoilés d'un toucher en mode caché. */
+  const [devoiles, setDevoiles] = useState<ReadonlySet<string>>(new Set());
   /** Arrêt automatique : heure de fin, « à la fin du passage », ou rien. */
   const [minuterie, setMinuterie] = useState<{ fin: number; choix: ChoixMinuterie } | "fin" | null>(null);
   const [maintenant, setMaintenant] = useState(0);
@@ -265,6 +282,24 @@ export function LectureCoran({
 
   const piste = position ? pistes[position.piste] : undefined;
   const clesActives = useMemo(() => new Set(piste?.cles ?? []), [piste]);
+
+  // Page du Mushaf : les lignes du livre, chacune avec ses morceaux de versets.
+  const versetsParCle = useMemo(
+    () => new Map(blocs.flatMap((b) => b.versets.map((v) => [cleVerset(b.sourate, v.n), v] as const))),
+    [blocs],
+  );
+  const lignesParSourate = useMemo(() => {
+    if (vue !== "page" || !lignes?.length) return null;
+    const derniers = new Map(blocs.map((b) => [b.sourate, b.versets.at(-1)?.n ?? 0]));
+    const fragments = fragmentsDesLignes(lignes, (s) => derniers.get(s) ?? 0);
+    const parSourate = new Map<number, { ligne: LigneMushaf; fragments: FragmentLigne[]; rang: number }[]>();
+    lignes.forEach((ligne, i) => {
+      const liste = parSourate.get(ligne.sourate) ?? [];
+      liste.push({ ligne, fragments: fragments[i]!, rang: i + 1 });
+      parSourate.set(ligne.sourate, liste);
+    });
+    return parSourate;
+  }, [vue, lignes, blocs]);
 
   const arreter = useCallback(() => {
     audio.current?.pause();
@@ -491,6 +526,7 @@ export function LectureCoran({
   const depart = useRef<{ x: number; y: number; t: number; suit: boolean } | null>(null);
   /** La carte de la page : déplacée directement pendant le glissement (sans recalculer le texte). */
   const cartePage = useRef<HTMLElement>(null);
+  useAjusterLignes(cartePage, lignesParSourate !== null, avecTajwid);
   const suivreDoigt = (dx: number | null) => {
     const el = cartePage.current;
     if (!el) return;
@@ -702,6 +738,9 @@ export function LectureCoran({
                 setReciter({
                   sourate: blocs[0]!.sourate,
                   depart: passage?.du ?? blocs[0]!.versets[0]?.n ?? 1,
+                  // Page du Mushaf : toute la page (de la première sourate) ; texte caché : il se dévoile en récitant.
+                  fin: passage?.au ?? (vue === "page" ? blocs[0]!.versets.at(-1)?.n : undefined),
+                  reveler: cache,
                 });
               }}
               aria-haspopup="dialog"
@@ -714,6 +753,21 @@ export function LectureCoran({
               </span>
             </button>
           ) : null}
+          <button
+            type="button"
+            className={cache ? "coran-bouton coran-bouton-actif" : "coran-bouton"}
+            onClick={() => {
+              setCache((c) => !c);
+              setDevoiles(new Set());
+            }}
+            aria-pressed={cache}
+            aria-label={cache ? "Montrer tout le texte" : "Cacher le texte pour réviser"}
+            title={
+              cache ? "Montrer tout le texte" : "Cacher le texte : seul le premier mot de chaque ligne reste"
+            }
+          >
+            {cache ? <Eye size={20} aria-hidden="true" /> : <EyeOff size={20} aria-hidden="true" />}
+          </button>
           {memorisation ? (
             <button
               type="button"
@@ -807,6 +861,7 @@ export function LectureCoran({
           adresseVerset={(n) => adresseVerset(blocReciter.sourate, n)}
           onAvantEcoute={() => audio.current?.pause()}
           onFermer={() => setReciter(null)}
+          reveler={reciter.reveler}
           taille={TAILLES[reglages.taille] ?? 30}
           peutAgrandir={reglages.taille < TAILLES.length - 1}
           peutReduire={reglages.taille > 0}
@@ -871,6 +926,15 @@ export function LectureCoran({
         }}
       />
 
+      {cache ? (
+        <p className="coran-cache-aide" role="status">
+          <EyeOff size={16} aria-hidden="true" />
+          <span>
+            Texte caché : touche une ligne pour la dévoiler. <b>Réciter</b> dévoile les mots au fil de ta
+            récitation.
+          </span>
+        </p>
+      ) : null}
       {astuce ? (
         <p className="coran-astuce" role="note">
           <span>
@@ -889,6 +953,8 @@ export function LectureCoran({
           `coran-${lecture}`,
           vue === "page" ? "coran-vue-page" : "",
           avecTajwid ? "coran-tajwid" : "",
+          cache ? "coran-cache" : "",
+          ...(avecTajwid ? reglages.tajwidEteintes.map((f) => `sans-tj-${f}`) : []),
           "cliquable",
           passage ? "avec-passage" : "",
           reglages.theme !== "auto" ? `theme-${reglages.theme}` : "",
@@ -943,7 +1009,26 @@ export function LectureCoran({
           suivreDoigt(null);
         }}
       >
-        <div ref={texte} {...appui}>
+        <div
+          ref={texte}
+          {...appui}
+          onClick={(e) => {
+            if (!cache) return appui.onClick(e);
+            // Texte caché : un toucher dévoile la ligne (ou le verset), un second la recache.
+            const cible = e.target instanceof Element ? e.target : null;
+            const ligne = cible?.closest<HTMLElement>("[data-ligne]");
+            const cle = ligne
+              ? `l${ligne.dataset.ligne}`
+              : cible?.closest("[data-cle]")?.getAttribute("data-cle");
+            if (!cle) return;
+            setDevoiles((d) => {
+              const n = new Set(d);
+              if (n.has(cle)) n.delete(cle);
+              else n.add(cle);
+              return n;
+            });
+          }}
+        >
           {blocs.map((b) => (
             <section key={b.sourate} className="coran-bloc">
               {vue === "page" && b.debut ? (
@@ -960,25 +1045,63 @@ export function LectureCoran({
                   horsPassage={Boolean(passage && passage.du !== 1)}
                 />
               ) : null}
-              <p className="coran-versets">
-                {b.versets.map((v) => {
-                  const cle = cleVerset(b.sourate, v.n);
-                  const actif = clesActives.has(cle);
-                  return (
-                    <Verset
-                      key={cle}
-                      cle={cle}
-                      n={v.n}
-                      texte={v.texte}
-                      tajwid={avecTajwid ? v.tajwid : null}
-                      actif={actif}
-                      mot={actif && motsActifs && clesActives.size === 1 ? mot : null}
-                      horsPassage={Boolean(passage && (v.n < passage.du || v.n > passage.au))}
-                      marque={marques.has(cle)}
-                    />
-                  );
-                })}
-              </p>
+              {lignesParSourate?.has(b.sourate) ? (
+                <div className="coran-versets coran-lignes">
+                  {lignesParSourate.get(b.sourate)!.map(({ ligne, fragments, rang }) => (
+                    <span
+                      key={rang}
+                      data-ligne={rang}
+                      className={[
+                        "coran-ligne",
+                        ligne.centree ? "centree" : "",
+                        devoiles.has(`l${rang}`) ? "devoile" : "",
+                      ].join(" ")}
+                    >
+                      {fragments.map((f) => {
+                        const v = versetsParCle.get(cleVerset(f.sourate, f.verset));
+                        if (!v) return null;
+                        const cle = cleVerset(f.sourate, f.verset);
+                        const actif = clesActives.has(cle);
+                        return (
+                          <Verset
+                            key={cle}
+                            cle={cle}
+                            n={f.verset}
+                            texte={v.texte}
+                            tajwid={avecTajwid ? v.tajwid : null}
+                            actif={actif}
+                            mot={actif && motsActifs && clesActives.size === 1 ? mot : null}
+                            horsPassage={Boolean(passage && (f.verset < passage.du || f.verset > passage.au))}
+                            marque={marques.has(cle)}
+                            fragment={f}
+                          />
+                        );
+                      })}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="coran-versets">
+                  {b.versets.map((v) => {
+                    const cle = cleVerset(b.sourate, v.n);
+                    const actif = clesActives.has(cle);
+                    return (
+                      <Verset
+                        key={cle}
+                        cle={cle}
+                        n={v.n}
+                        texte={v.texte}
+                        tajwid={avecTajwid ? v.tajwid : null}
+                        actif={actif}
+                        mot={actif && motsActifs && clesActives.size === 1 ? mot : null}
+                        horsPassage={Boolean(passage && (v.n < passage.du || v.n > passage.au))}
+                        marque={marques.has(cle)}
+                        devoile={devoiles.has(cle)}
+                      />
+                    );
+                  })}
+                </p>
+              )}
             </section>
           ))}
         </div>
@@ -991,21 +1114,93 @@ export function LectureCoran({
             <BookOpenText size={16} aria-hidden="true" />
             Couleurs du tajwid
           </summary>
+          <p className="coran-legende-aide">Touche une règle pour l’allumer ou l’éteindre sur la page.</p>
           <ul>
-            {FAMILLES_TAJWID.map((f) => (
-              <li key={f.cle}>
-                <span className={`tj-pastille tj-${f.cle}`} aria-hidden="true" />
-                <span>{f.libelle}</span>
-                <span lang="ar" dir="rtl">
-                  {f.arabe}
-                </span>
-              </li>
-            ))}
+            {FAMILLES_TAJWID.map((f) => {
+              const allumee = !reglages.tajwidEteintes.includes(f.cle);
+              return (
+                <li key={f.cle}>
+                  <button
+                    type="button"
+                    className={allumee ? "coran-regle" : "coran-regle eteinte"}
+                    aria-pressed={allumee}
+                    onClick={() =>
+                      modifier({
+                        tajwidEteintes: allumee
+                          ? [...reglages.tajwidEteintes, f.cle]
+                          : reglages.tajwidEteintes.filter((c) => c !== f.cle),
+                      })
+                    }
+                  >
+                    <span className={`tj-pastille tj-${f.cle}`} aria-hidden="true" />
+                    <span>{f.libelle}</span>
+                    <span lang="ar" dir="rtl">
+                      {f.arabe}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
+          {reglages.tajwidEteintes.length ? (
+            <div className="coran-legende-tout">
+              <button type="button" className="lien-discret" onClick={() => modifier({ tajwidEteintes: [] })}>
+                Tout rallumer
+              </button>
+            </div>
+          ) : null}
         </details>
       ) : null}
     </>
   );
+}
+
+/**
+ * Page du Mushaf : chaque ligne tient sur la largeur, comme dans le livre. La taille du texte se règle sur la
+ * ligne la plus longue de la page (mesurée sans étirement), puis chaque ligne s'étire jusqu'aux bords.
+ */
+function useAjusterLignes(carte: RefObject<HTMLElement | null>, actif: boolean, tajwid: boolean) {
+  useLayoutEffect(() => {
+    const page = carte.current;
+    if (!actif || !page) return;
+    let image = 0;
+    const ajuster = () => {
+      const blocs = [...page.querySelectorAll<HTMLElement>(".coran-lignes")];
+      if (!blocs.length) return;
+      const largeur = blocs[0]!.clientWidth;
+      if (!largeur) return;
+      page.classList.add("mesure-lignes");
+      const taille = parseFloat(getComputedStyle(blocs[0]!).fontSize) || 30;
+      let plusLongue = 0;
+      for (const l of page.querySelectorAll<HTMLElement>(".coran-ligne:not(.centree)"))
+        plusLongue = Math.max(plusLongue, l.getBoundingClientRect().width);
+      if (!plusLongue)
+        for (const l of page.querySelectorAll<HTMLElement>(".coran-ligne"))
+          plusLongue = Math.max(plusLongue, l.getBoundingClientRect().width);
+      page.classList.remove("mesure-lignes");
+      if (!plusLongue) return;
+      const nouvelle = Math.max(12, Math.min(60, (taille * largeur * 0.985) / plusLongue));
+      page.style.setProperty("--taille-mushaf", `${nouvelle.toFixed(2)}px`);
+    };
+    const planifier = () => {
+      cancelAnimationFrame(image);
+      image = requestAnimationFrame(ajuster);
+    };
+    ajuster();
+    void document.fonts?.ready.then(planifier);
+    let largeurVue = page.clientWidth;
+    const observateur = new ResizeObserver(() => {
+      // Seule la largeur compte (la hauteur change avec la taille du texte elle-même).
+      if (page.clientWidth === largeurVue) return;
+      largeurVue = page.clientWidth;
+      planifier();
+    });
+    observateur.observe(page);
+    return () => {
+      cancelAnimationFrame(image);
+      observateur.disconnect();
+    };
+  }, [carte, actif, tajwid]);
 }
 
 /** Un verset : texte du Complexe du Roi Fahd (rosace intégrée) ou texte coloré du tajwid. */
@@ -1018,6 +1213,8 @@ const Verset = memo(function Verset({
   mot,
   horsPassage,
   marque,
+  fragment = null,
+  devoile = false,
 }: {
   cle: string;
   n: number;
@@ -1027,9 +1224,14 @@ const Verset = memo(function Verset({
   mot: number | null;
   horsPassage: boolean;
   marque: boolean;
+  /** Page du Mushaf : seulement les mots de ce verset posés sur la ligne. */
+  fragment?: FragmentLigne | null;
+  /** Mode caché : verset dévoilé d'un toucher. */
+  devoile?: boolean;
 }) {
   const classes = [
     "coran-verset",
+    devoile ? "devoile" : "",
     actif ? "actif" : "",
     horsPassage ? "hors-passage" : "",
     marque ? "marque" : "",
@@ -1038,7 +1240,12 @@ const Verset = memo(function Verset({
     <span className={classes} data-cle={cle}>
       {tajwid ? (
         <>
-          {decouperMotsTajwid(tajwid).map((m, i) => (
+          {(fragment
+            ? garderFragment(decouperMotsTajwid(tajwid), fragment.deTajwid, fragment.aTajwid, false, (m) =>
+                m.segments.every((x) => typeof x === "string" && /^\s+$/.test(x)),
+              )
+            : decouperMotsTajwid(tajwid)
+          ).map((m, i) => (
             <span
               key={i}
               className={m.mot !== null && m.mot === mot ? "mot actif" : m.mot ? "mot" : undefined}
@@ -1055,10 +1262,15 @@ const Verset = memo(function Verset({
             </span>
           ))}
           {/* Numéro dessiné en rosace par la police du Complexe (espace insécable + chiffres). */}
-          {`\u00a0${chiffresArabes(n)}`}
+          {!fragment || fragment.fin ? `\u00a0${chiffresArabes(n)}` : null}
         </>
       ) : (
-        decouperMots(texte).map((m, i) =>
+        (fragment
+          ? garderFragment(decouperMots(texte), fragment.de, fragment.a, fragment.fin, (m) =>
+              /^\s+$/.test(m.texte),
+            )
+          : decouperMots(texte)
+        ).map((m, i) =>
           m.mot === null ? (
             m.texte
           ) : (

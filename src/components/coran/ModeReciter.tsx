@@ -110,6 +110,7 @@ export function ModeReciter({
   peutAgrandir = true,
   peutReduire = true,
   onTaille,
+  reveler: revelerImpose = false,
 }: {
   sourate: number;
   nomSourate: string;
@@ -134,6 +135,8 @@ export function ModeReciter({
   peutAgrandir?: boolean;
   peutReduire?: boolean;
   onTaille?: (pas: 1 | -1) => void;
+  /** Ouvert depuis la page cachée : les mots n'apparaissent qu'une fois récités. */
+  reveler?: boolean;
 }) {
   useFermerAuRetour(true, onFermer);
   const dernierVerset = versets.at(-1)?.n ?? depart;
@@ -144,7 +147,8 @@ export function ModeReciter({
   /** Couleurs du tajwid sur le texte (Hafs) ; l'élève peut les masquer, choix retenu sur l'appareil. */
   const [couleurs, setCouleurs] = useState(true);
   /** « Révéler en récitant » : chaque mot n'apparaît qu'une fois récité (tester sa mémoire). */
-  const [reveler, setReveler] = useState(false);
+  const [reveler, setReveler] = useState(revelerImpose);
+  const revelerDepart = useRef(revelerImpose);
   /** Essais précédents sur ce passage et mots difficiles de la sourate. */
   const [historique, setHistorique] = useState<{ scores: { score: number }[]; difficiles: MotDifficile[] }>({
     scores: [],
@@ -198,7 +202,7 @@ export function ModeReciter({
     try {
       setMasquer(localStorage.getItem(CLE_MASQUER) === "1");
       setCouleurs(localStorage.getItem(CLE_COULEURS) !== "1");
-      setReveler(localStorage.getItem(CLE_REVELER) === "1");
+      setReveler(revelerDepart.current || localStorage.getItem(CLE_REVELER) === "1");
     } catch {
       // stockage indisponible : texte affiché
     }

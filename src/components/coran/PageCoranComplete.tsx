@@ -87,6 +87,7 @@ export function PageCoranComplete({
           lecture={p.lecture}
           vue={p.vue}
           blocs={p.blocs}
+          lignes={p.lignes}
           passageInitial={p.passage}
           correspondance={p.correspondance}
           recitations={p.recitations}
@@ -117,6 +118,7 @@ export function PageCoranComplete({
         <p className="coran-source">
           Texte : Complexe du Roi Fahd (KFGQPC). Tajwid : texte Tanzil.net, règles cpfair/quran-tajweed (CC BY
           4.0). Récitations : EveryAyah et mp3quran.net ; repères mot par mot : quran-surah-reciter-audio.
+          Lignes des pages : Mushaf de Médine (Quran.com, via zonetecde/mushaf-layout).
         </p>
       </main>
     </>
