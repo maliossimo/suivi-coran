@@ -12097,3 +12097,24 @@ a.jour[data-etat="partielle"] {
   align-self: flex-start;
   text-align: left;
 }
+/* Tuiles : placement explicite (icône à gauche, valeur puis libellé à droite). */
+.resume-tuiles li,
+.bilan-tuiles li {
+  grid-template-areas:
+    "icone valeur"
+    "icone libelle";
+  align-content: center;
+}
+.resume-tuiles li > svg,
+.bilan-tuiles li > svg {
+  grid-area: icone;
+  align-self: center;
+}
+.resume-tuiles li > strong,
+.bilan-tuiles li > strong {
+  grid-area: valeur;
+}
+.resume-tuiles li > span,
+.bilan-tuiles li > span {
+  grid-area: libelle;
+}
