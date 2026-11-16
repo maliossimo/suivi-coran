@@ -4,20 +4,25 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { actionSourateSuivante } from "@/app/actions/coran";
 import { chiffresArabes, familleTajwid } from "@/domain/coran";
+import { LIBELLE_LECTURE } from "@/domain/lectures";
 import { TAILLES } from "./ReglagesCoran";
 import type { BlocAffiche } from "./types";
 
 const AUTOMATIQUES = 3;
 
-function lireReglages(): { taille: number; tajwid: boolean } {
+type Reglages = { taille: number; tajwid: boolean; theme: string };
+
+/** Mêmes réglages que la page lue (taille, tajwid, couleurs de la page) : la suite lui ressemble en tout. */
+function lireReglages(): Reglages {
   try {
     const r = JSON.parse(localStorage.getItem("coran-reglages") ?? "{}") as {
       taille?: number;
       tajwid?: boolean;
+      theme?: string;
     };
-    return { taille: r.taille ?? 2, tajwid: Boolean(r.tajwid) };
+    return { taille: r.taille ?? 2, tajwid: Boolean(r.tajwid), theme: r.theme ?? "auto" };
   } catch {
-    return { taille: 2, tajwid: false };
+    return { taille: 2, tajwid: false, theme: "auto" };
   }
 }
 
@@ -36,7 +41,7 @@ export function SuiteCoran({
 }) {
   const [suite, setSuite] = useState<BlocAffiche[]>([]);
   const [charge, setCharge] = useState(false);
-  const [reglages, setReglages] = useState({ taille: 2, tajwid: false });
+  const [reglages, setReglages] = useState<Reglages>({ taille: 2, tajwid: false, theme: "auto" });
   /** La suite ne vient que si l'on fait défiler (pas à l'ouverture d'une sourate courte). */
   const [defile, setDefile] = useState(false);
   const sentinelle = useRef<HTMLDivElement>(null);
@@ -82,13 +87,19 @@ export function SuiteCoran({
             <p lang="ar" dir="rtl">
               سورة {b.nomAr}
             </p>
+            {/* Même cartouche que la sourate ouverte ; le lien ouvre celle-ci (écoute, Réciter). */}
             <span>
-              {b.sourate}. {b.nomLatin} · {b.nbVersets} versets ·{" "}
-              <Link href={`${base}?lecture=${lecture}&sourate=${b.sourate}`}>écouter, réciter</Link>
+              {b.sourate}. {b.nomLatin} · {b.nbVersets} versets · {LIBELLE_LECTURE[lecture]} ·{" "}
+              <Link href={`${base}?lecture=${lecture}&sourate=${b.sourate}`}>ouvrir</Link>
             </span>
           </header>
           <article
-            className={`coran-page coran-${lecture}${reglages.tajwid ? " coran-tajwid" : ""}`}
+            className={[
+              "coran-page",
+              `coran-${lecture}`,
+              reglages.tajwid ? "coran-tajwid" : "",
+              reglages.theme !== "auto" ? `theme-${reglages.theme}` : "",
+            ].join(" ")}
             lang="ar"
             dir="rtl"
             style={{ "--taille-coran": `${TAILLES[reglages.taille] ?? 30}px` } as CSSProperties}
@@ -108,7 +119,8 @@ export function SuiteCoran({
                         ),
                       )
                     : v.texte}
-                  {reglages.tajwid && v.tajwid ? ` ﴿${chiffresArabes(v.n)}﴾` : ""}{" "}
+                  {/* Numéro en rosace, comme dans la page ouverte (police du Complexe). */}
+                  {reglages.tajwid && v.tajwid ? `\u00a0${chiffresArabes(v.n)}` : ""}{" "}
                 </span>
               ))}
             </p>

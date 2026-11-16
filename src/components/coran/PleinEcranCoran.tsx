@@ -9,7 +9,7 @@ type DocTransition = Document & {
   startViewTransition?: (maj: () => void) => { finished: Promise<void> };
 };
 
-/** Applique (ou retire) le plein écran : un repère sur <html>, et le vrai plein écran du navigateur s'il existe. */
+/** Applique (ou retire) le plein écran : un repère sur <html> (barres et outils s'effacent). */
 function appliquer(actif: boolean, anime: boolean) {
   const html = document.documentElement;
   const changer = () => {
@@ -30,14 +30,8 @@ function appliquer(actif: boolean, anime: boolean) {
       changer();
     }
   } else changer();
-  // Vrai plein écran (Android, ordinateur) : la barre d'état disparaît aussi. Pas sur iPhone : le mode suffit.
-  try {
-    if (actif && !document.fullscreenElement)
-      void html.requestFullscreen?.({ navigationUI: "hide" }).catch(() => undefined);
-    if (!actif && document.fullscreenElement) void document.exitFullscreen?.().catch(() => undefined);
-  } catch {
-    // navigateur sans plein écran : le mode de l'appli suffit
-  }
+  // (Pas le plein écran du navigateur : sur Android, il affiche à chaque fois un long message par-dessus le
+  // texte. Le mode de l'appli suffit : barres et outils s'effacent, l'heure du téléphone reste visible.)
 }
 
 /**
@@ -85,25 +79,32 @@ export function PleinEcranCoran() {
     };
   }, []);
 
-  // Le navigateur sort de son plein écran (geste retour, touche Échap) : l'appli aussi.
+  // Le bouton de sortie s'efface après 3 s de lecture ; un toucher sur l'écran le fait revenir.
+  const [discret, setDiscret] = useState(false);
   useEffect(() => {
-    const surChangement = () => {
-      if (!document.fullscreenElement && document.documentElement.hasAttribute("data-plein-ecran")) {
-        basculer(false);
-      }
+    if (!actif) return;
+    let minuteur = window.setTimeout(() => setDiscret(true), 3000);
+    const reveiller = () => {
+      setDiscret(false);
+      window.clearTimeout(minuteur);
+      minuteur = window.setTimeout(() => setDiscret(true), 3000);
     };
-    document.addEventListener("fullscreenchange", surChangement);
-    return () => document.removeEventListener("fullscreenchange", surChangement);
-  }, [basculer]);
+    document.addEventListener("pointerdown", reveiller, { passive: true });
+    return () => {
+      window.clearTimeout(minuteur);
+      document.removeEventListener("pointerdown", reveiller);
+    };
+  }, [actif]);
 
   return actif ? (
     <button
       type="button"
-      className="coran-sortir-plein-ecran"
+      className={discret ? "coran-sortir-plein-ecran discret" : "coran-sortir-plein-ecran"}
       onClick={() => basculer(false)}
       aria-label="Quitter le plein écran"
     >
-      <Minimize size={20} aria-hidden="true" />
+      <Minimize size={16} aria-hidden="true" />
+      <span aria-hidden="true">Quitter</span>
     </button>
   ) : (
     <button
