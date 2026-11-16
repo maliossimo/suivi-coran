@@ -21,6 +21,8 @@ export interface Reglages {
   favoris: string[];
   /** Couleurs de la page du Coran ; « auto » suit le téléphone. */
   theme: ThemeCoran;
+  /** Familles du tajwid éteintes (touchées dans la légende) : leurs lettres restent noires. */
+  tajwidEteintes: string[];
 }
 
 export type ThemeCoran = "auto" | "clair" | "sepia" | "sombre";

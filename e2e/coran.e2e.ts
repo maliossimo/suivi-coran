@@ -5,6 +5,34 @@ test.describe("Coran (admin)", () => {
     await seConnecter(page, COMPTES.admin, /\/admin/);
   });
 
+  test("page du Mushaf : les lignes du livre, sans débordement ; le texte caché se dévoile ligne par ligne", async ({
+    page,
+  }) => {
+    await page.goto("/admin/coran?lecture=hafs&vue=page&page=50");
+    const lignes = page.locator(".coran-ligne");
+    // Page 50 : titre, basmala et 13 lignes de versets, comme dans le Mushaf de Médine.
+    await expect(lignes).toHaveCount(13);
+    await expect(lignes.first()).toContainText("الٓمٓ");
+    await capture(page, "41-coran-page-mushaf");
+    // Chaque ligne tient sur la largeur de la page.
+    const deborde = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLElement>(".coran-ligne")].some(
+        (l) => l.scrollWidth > l.clientWidth + 2,
+      ),
+    );
+    expect(deborde).toBe(false);
+
+    await page.getByRole("button", { name: "Cacher le texte pour réviser" }).click();
+    await expect(page.locator(".coran-page")).toHaveClass(/coran-cache/);
+    await expect(page.getByText("Texte caché : touche une ligne pour la dévoiler.")).toBeVisible();
+    await lignes.nth(2).click();
+    await expect(lignes.nth(2)).toHaveClass(/devoile/);
+    // Un toucher en mode caché dévoile, il n'ouvre pas les actions du verset.
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await page.getByRole("button", { name: "Montrer tout le texte" }).click();
+    await expect(page.locator(".coran-page")).not.toHaveClass(/coran-cache/);
+  });
+
   test("toucher un verset ouvre ses actions, sans faire défiler la page", async ({ page }) => {
     await page.goto("/admin/coran?lecture=hafs&sourate=18");
     await capture(page, "40-coran");

@@ -97,6 +97,16 @@ export async function pagesMushaf(lecture: Lecture): Promise<z.infer<typeof sche
   return schemaPages.parse(donnees.default);
 }
 
+const schemaLignes = z.object({
+  pages: z.array(z.array(z.array(z.number().int()).min(3).max(5))).length(604),
+});
+
+/** Mushaf de Médine (Hafs) : début de chaque ligne de chaque page (voir scripts/lignes-mushaf.mjs). */
+export async function lignesMushafHafs(): Promise<number[][][]> {
+  const donnees: { default: unknown } = await import("@/donnees/coran/lignes-hafs.json");
+  return schemaLignes.parse(donnees.default).pages;
+}
+
 export interface Recitateur {
   /** Identifiant unique (récitateur + enregistrement). */
   id: string;
