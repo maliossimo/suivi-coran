@@ -12083,3 +12083,17 @@ a.jour[data-etat="partielle"] {
     justify-self: end;
   }
 }
+
+/* Bilan : deux tuiles par ligne sur téléphone, quatre sur grand écran. */
+.bilan-tuiles {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 640px) {
+  .bilan-tuiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.auth-hadith .arabe {
+  align-self: flex-start;
+  text-align: left;
+}
