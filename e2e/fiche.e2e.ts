@@ -108,9 +108,18 @@ test.describe("Mode révision", () => {
     await expect(page).toHaveURL(/type=revision/);
     await expect(page.locator(".mode-revision")).toHaveCount(1);
     await expect.poll(fond).not.toBe(vert);
+    // La couleur donnée au toucher laisse la main à la page une fois la fiche affichée.
+    await expect(page.locator("html")).not.toHaveAttribute("data-mode-force", /./);
+    await expect(page.locator('.onglet-revision[aria-current="page"]')).toBeVisible();
     await page.locator(".onglets .onglet-apprentissage").click();
     await expect(page).toHaveURL(/type=apprentissage/);
     await expect(page.locator(".mode-revision")).toHaveCount(0);
     await expect.poll(fond).toBe(vert);
+    await expect(page.locator("html")).not.toHaveAttribute("data-mode-force", /./);
+    // La barre d'état du téléphone suit la fiche.
+    await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute(
+      "content",
+      /^#(174D3B|0F3A2C)$/i,
+    );
   });
 });

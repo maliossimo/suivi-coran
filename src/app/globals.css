@@ -697,52 +697,144 @@ a:hover {
 /* ---------- Mode révision : toute l'appli passe à l'or -------------------------------
    Sur la fiche de révision et la saisie d'une séance de révision (repère .mode-revision dans
    la page, posé par le serveur : pas d'éclair vert au chargement). Le vert de l'appli devient
-   l'or : en-tête, fond, barre du bas, boutons, liens. Ailleurs, tout reste vert. */
-:root:has(.mode-revision) {
+   l'or : en-tête, fond, barre du bas, boutons, liens. Ailleurs, tout reste vert.
+   Au toucher d'un onglet, data-mode-force sur <html> donne la nouvelle couleur tout de suite,
+   sans attendre la page ; il est retiré dès que la nouvelle fiche est affichée (ModeFiche). */
+:root:is([data-mode-force="revision"], :has(.mode-revision):not([data-mode-force="apprentissage"])) {
   --vert: var(--revision);
   --vert-fonce: var(--revision-fonce);
   --vert-clair: var(--revision-clair);
   --vert-texte: var(--revision-texte);
   --fond: var(--fond-revision);
 }
-:root:has(.mode-revision) .barre {
+:root:is([data-mode-force="revision"], :has(.mode-revision):not([data-mode-force="apprentissage"])) .barre {
   background-color: var(--barre-revision);
+}
+/* La flèche des semaines (une image) a aussi sa version or. */
+:root:is([data-mode-force="revision"], :has(.mode-revision):not([data-mode-force="apprentissage"]))
+  .semaine-pliable
+  > summary::after {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a4f0e' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E")
+      center / 18px no-repeat,
+    var(--vert-clair);
+}
+/* Onglet touché : il devient l'onglet ouvert tout de suite, sans attendre la page. */
+:root[data-mode-force="revision"] .onglet.onglet-apprentissage[aria-current="page"],
+:root[data-mode-force="apprentissage"] .onglet.onglet-revision[aria-current="page"] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--texte-doux);
+}
+:root[data-mode-force="revision"] .onglet.onglet-revision,
+:root[data-mode-force="apprentissage"] .onglet.onglet-apprentissage {
+  border: 1.5px solid var(--vert);
+  background: var(--vert-clair);
+  color: var(--vert-texte);
 }
 @media (prefers-color-scheme: dark) {
   /* En sombre, les cartes, les liens et la barre du bas prennent aussi la teinte chaude de l'or. */
-  :root:where(:not([data-theme="clair"])):has(.mode-revision) {
+  :root:where(:not([data-theme="clair"])):is(
+      [data-mode-force="revision"],
+      :has(.mode-revision):not([data-mode-force="apprentissage"])
+    )
+    .semaine-pliable
+    > summary::after {
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e3c27a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E")
+        center / 18px no-repeat,
+      var(--vert-clair);
+  }
+  :root:where(:not([data-theme="clair"])):is(
+      [data-mode-force="revision"],
+      :has(.mode-revision):not([data-mode-force="apprentissage"])
+    ) {
     --carte: #221d14;
     --surface-2: #272118;
     --surface-3: #30291d;
     --ligne: #3b3325;
   }
-  :root:where(:not([data-theme="clair"])):has(.mode-revision) .lien-pdf,
-  :root:where(:not([data-theme="clair"])):has(.mode-revision) .bouton-lien-texte,
-  :root:where(:not([data-theme="clair"])):has(.mode-revision) .lien-action,
-  :root:where(:not([data-theme="clair"])):has(.mode-revision) .lien-retour {
+  :root:where(:not([data-theme="clair"])):is(
+      [data-mode-force="revision"],
+      :has(.mode-revision):not([data-mode-force="apprentissage"])
+    )
+    .lien-pdf,
+  :root:where(:not([data-theme="clair"])):is(
+      [data-mode-force="revision"],
+      :has(.mode-revision):not([data-mode-force="apprentissage"])
+    )
+    .bouton-lien-texte,
+  :root:where(:not([data-theme="clair"])):is(
+      [data-mode-force="revision"],
+      :has(.mode-revision):not([data-mode-force="apprentissage"])
+    )
+    .lien-action,
+  :root:where(:not([data-theme="clair"])):is(
+      [data-mode-force="revision"],
+      :has(.mode-revision):not([data-mode-force="apprentissage"])
+    )
+    .lien-retour {
     color: var(--revision-texte);
   }
   @media (max-width: 760px) {
-    :root:where(:not([data-theme="clair"])):has(.mode-revision) .nav-espace {
+    :root:where(:not([data-theme="clair"])):is(
+        [data-mode-force="revision"],
+        :has(.mode-revision):not([data-mode-force="apprentissage"])
+      )
+      .nav-espace {
       background: rgba(30, 26, 17, 0.94);
     }
   }
 }
 /* Même chose quand le thème sombre est choisi à la main. */
-:root:where([data-theme="sombre"]):has(.mode-revision) {
+:root:where([data-theme="sombre"]):is(
+    [data-mode-force="revision"],
+    :has(.mode-revision):not([data-mode-force="apprentissage"])
+  )
+  .semaine-pliable
+  > summary::after {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e3c27a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E")
+      center / 18px no-repeat,
+    var(--vert-clair);
+}
+:root:where([data-theme="sombre"]):is(
+    [data-mode-force="revision"],
+    :has(.mode-revision):not([data-mode-force="apprentissage"])
+  ) {
   --carte: #221d14;
   --surface-2: #272118;
   --surface-3: #30291d;
   --ligne: #3b3325;
 }
-:root:where([data-theme="sombre"]):has(.mode-revision) .lien-pdf,
-:root:where([data-theme="sombre"]):has(.mode-revision) .bouton-lien-texte,
-:root:where([data-theme="sombre"]):has(.mode-revision) .lien-action,
-:root:where([data-theme="sombre"]):has(.mode-revision) .lien-retour {
+:root:where([data-theme="sombre"]):is(
+    [data-mode-force="revision"],
+    :has(.mode-revision):not([data-mode-force="apprentissage"])
+  )
+  .lien-pdf,
+:root:where([data-theme="sombre"]):is(
+    [data-mode-force="revision"],
+    :has(.mode-revision):not([data-mode-force="apprentissage"])
+  )
+  .bouton-lien-texte,
+:root:where([data-theme="sombre"]):is(
+    [data-mode-force="revision"],
+    :has(.mode-revision):not([data-mode-force="apprentissage"])
+  )
+  .lien-action,
+:root:where([data-theme="sombre"]):is(
+    [data-mode-force="revision"],
+    :has(.mode-revision):not([data-mode-force="apprentissage"])
+  )
+  .lien-retour {
   color: var(--revision-texte);
 }
 @media (max-width: 760px) {
-  :root:where([data-theme="sombre"]):has(.mode-revision) .nav-espace {
+  :root:where([data-theme="sombre"]):is(
+      [data-mode-force="revision"],
+      :has(.mode-revision):not([data-mode-force="apprentissage"])
+    )
+    .nav-espace {
     background: rgba(30, 26, 17, 0.94);
   }
 }
@@ -2985,7 +3077,11 @@ button,
 .carte-eleve,
 .duree-rapide,
 .statut,
-.suggestion {
+.suggestion,
+.onglet,
+a.jour,
+.lien-pdf,
+.lien-action {
   transition:
     transform 0.1s ease,
     background-color 0.15s ease,
@@ -3006,6 +3102,56 @@ button:active:not(:disabled),
 }
 .carte-eleve:active {
   transform: scale(0.99);
+}
+/* Appui « comme une appli » : jamais le rectangle bleu d'Android, l'élément touché réagit lui-même. */
+a,
+summary,
+label,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+.onglet:active {
+  transform: scale(0.96);
+}
+.onglet:not([aria-current="page"]):active {
+  background: color-mix(in srgb, var(--vert-clair) 70%, transparent);
+  color: var(--vert-texte);
+}
+a.jour:active {
+  transform: scale(0.985);
+  background: var(--vert-clair);
+}
+.lien-pdf:active,
+.lien-action:active {
+  opacity: 0.7;
+}
+.nav-onglet:active svg {
+  transform: scale(0.9);
+}
+/* L'icône de l'onglet du bas fait un petit rebond en arrivant sur la page. */
+@keyframes rebond-icone {
+  40% {
+    transform: translateY(-3px) scale(1.14);
+  }
+}
+.nav-onglet[aria-current="page"] svg {
+  animation: rebond-icone 0.38s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+/* Les cartes des semaines arrivent l'une après l'autre, très vite. */
+.semaines > * {
+  animation: apparition 0.26s ease-out backwards;
+}
+.semaines > *:nth-child(2) {
+  animation-delay: 0.04s;
+}
+.semaines > *:nth-child(3) {
+  animation-delay: 0.08s;
+}
+.semaines > *:nth-child(4) {
+  animation-delay: 0.12s;
+}
+.semaines > *:nth-child(n + 5) {
+  animation-delay: 0.16s;
 }
 .carte-eleve:hover {
   box-shadow:
