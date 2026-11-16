@@ -614,25 +614,6 @@ export function LectureCoran({
   return (
     <>
       <section className="coran-lecteur" aria-label="Récitation">
-        {/* Réciter : à part de la barre d'écoute (qui garde la place pour le récitateur), toujours à portée. */}
-        {blocs[0] ? (
-          <button
-            type="button"
-            className="coran-reciter-flottant"
-            onClick={() => {
-              audio.current?.pause();
-              setReciter({
-                sourate: blocs[0]!.sourate,
-                depart: passage?.du ?? blocs[0]!.versets[0]?.n ?? 1,
-              });
-            }}
-            aria-haspopup="dialog"
-            title="Réciter : l’appli t’écoute et te montre les mots à revoir"
-          >
-            <Mic size={20} aria-hidden="true" />
-            <span>Réciter</span>
-          </button>
-        ) : null}
         {passage && sourateUnique ? (
           <div className="coran-lecteur-passage">
             <Repeat size={15} aria-hidden="true" />
@@ -711,6 +692,28 @@ export function LectureCoran({
             </strong>
             <span className={erreur ? "erreur" : undefined}>{etat}</span>
           </button>
+          {/* Réciter : dans la barre, à portée du pouce, sans jamais cacher de verset. */}
+          {blocs[0] ? (
+            <button
+              type="button"
+              className="coran-bouton coran-reciter-bouton"
+              onClick={() => {
+                audio.current?.pause();
+                setReciter({
+                  sourate: blocs[0]!.sourate,
+                  depart: passage?.du ?? blocs[0]!.versets[0]?.n ?? 1,
+                });
+              }}
+              aria-haspopup="dialog"
+              aria-label="Réciter"
+              title="Réciter : l’appli t’écoute et te montre les mots à revoir"
+            >
+              <Mic size={20} aria-hidden="true" />
+              <span className="coran-reciter-texte" aria-hidden="true">
+                Réciter
+              </span>
+            </button>
+          ) : null}
           {memorisation ? (
             <button
               type="button"
