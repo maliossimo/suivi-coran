@@ -9,6 +9,21 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.43.0] — 2026-11-16
+
+### Ajouté
+
+- Coran : lecture en plein écran (bouton à côté de Sourate / Mushaf). La barre du haut monte, celle du bas descend, le texte prend toute la place ; un bouton discret permet d'en sortir. Gardé en tournant les pages, quitté en sortant du Coran.
+
+### Amélioré
+
+- Progression : les pages du mushaf en grand (« 165,9 pages sur 604 »), les versets appris et les juz complets juste dessous.
+- Réciter, pendant l'écoute : l'avis sur le son, le bouton pour finir et le temps sur une seule rangée, plus petite ; « Parle un peu plus fort » seulement pour une voix vraiment faible.
+
+### Corrigé
+
+- Fiche PDF : la date du jour ne déborde plus sur la colonne voisine (le trait ne la coupe plus), et plus de barre grise de défilement sur téléphone.
+
 ## [1.42.0] — 2026-11-16
 
 ### Ajouté

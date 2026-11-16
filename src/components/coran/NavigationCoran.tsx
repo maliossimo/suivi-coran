@@ -1,6 +1,7 @@
 "use client";
 
 import { IndicateurGlissant } from "@/components/IndicateurGlissant";
+import { PleinEcranCoran } from "./PleinEcranCoran";
 import { annoncerTourDePage } from "./tourDePage";
 import { Bookmark, BookOpen, ChevronDown, ChevronLeft, ChevronRight, ScrollText, Search } from "lucide-react";
 import Link from "next/link";
@@ -98,6 +99,7 @@ export function NavigationCoran({
             Mushaf
           </Link>
         </nav>
+        <PleinEcranCoran />
         <div className="coran-navigation">
           {precedent ? (
             <Link

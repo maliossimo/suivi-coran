@@ -256,7 +256,7 @@ function MenuPlus({
 
 /** Éléments accrochés à l'écran (position fixe ou collante) : leur bloc ne glisse pas. */
 const ACCROCHES =
-  ".coran-lecteur, .coran-vue-page, .barre-enregistrer, .feuille-appel-resume, [data-accroche]";
+  ".coran-lecteur, .coran-vue-page, .coran-sortir-plein-ecran, .barre-enregistrer, .feuille-appel-resume, [data-accroche]";
 
 /** Côté d'où arrive la page ouverte depuis la barre (null : pas d'onglet touché). */
 let sensOnglet: "gauche" | "droite" | null = null;
