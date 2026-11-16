@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { LIBELLE_ETAT, type CarteDuCoran, type EtatSourate } from "@/domain/carte";
 import { ListeHizbARevoir } from "./ListeHizbARevoir";
 
@@ -37,7 +38,7 @@ export function CarteCoran({
       </ul>
 
       <ol className="carte-grille">
-        {carte.cases.map((c) => {
+        {carte.cases.map((c, i) => {
           const description = `${c.sourate.numero}. ${c.sourate.nomLatin} (${c.sourate.nomAr}) — ${LIBELLE_ETAT[c.etat]}${
             c.etat === "en_cours" ? `, ${c.pourcentage} %` : ""
           }${c.aFaireVoir ? ", pas encore écouté en entier par le Cheikh" : ""}`;
@@ -46,6 +47,8 @@ export function CarteCoran({
               key={c.sourate.numero}
               className={`carte-case carte-${c.etat}${c.aFaireVoir ? " carte-a-voir" : ""}`}
               title={description}
+              // Les 114 cases apparaissent en vague, d'Al-Fatiha à An-Nas.
+              style={{ "--i": i } as CSSProperties}
             >
               <span aria-hidden="true">{c.sourate.numero}</span>
               <span className="visuellement-cache">{description}</span>

@@ -7,10 +7,9 @@
 import type { TypeSeance } from "@/domain/fiche";
 
 /** Barre d'état du téléphone (theme-color) : la couleur de l'en-tête, en clair et en sombre. */
-const BARRE_ETAT: Record<TypeSeance, { clair: string; sombre: string }> = {
-  apprentissage: { clair: "#174D3B", sombre: "#0F3A2C" },
+const BARRE_ETAT = {
   revision: { clair: "#6B4A10", sombre: "#4A3410" },
-};
+} as const;
 
 /** Au-delà, la force est retirée quoi qu'il arrive (navigation annulée, page jamais arrivée). */
 const DUREE_MAX_FORCE_MS = 10_000;
@@ -21,10 +20,33 @@ function lireForce(): TypeSeance | null {
   return f === "revision" || f === "apprentissage" ? f : null;
 }
 
+/** Notre propre balise, placée en tête : le navigateur prend la première qui convient. */
+const ID_BALISE = "theme-color-fiche";
+
+function sombre(): boolean {
+  const theme = document.documentElement.dataset.theme;
+  return theme === "sombre" || (theme !== "clair" && matchMedia("(prefers-color-scheme: dark)").matches);
+}
+
+/**
+ * Barre d'état du téléphone. Les balises theme-color de Next sont réécrites par Next à chaque
+ * navigation : la révision ajoute donc sa propre balise, en tête du document, et l'apprentissage la
+ * retire (les balises de Next reprennent la main).
+ */
 export function colorerBarreEtat(type: TypeSeance): void {
-  for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) {
-    meta.content = meta.media.includes("dark") ? BARRE_ETAT[type].sombre : BARRE_ETAT[type].clair;
+  let balise = document.getElementById(ID_BALISE) as HTMLMetaElement | null;
+  if (type === "apprentissage") {
+    balise?.remove();
+    return;
   }
+  if (!balise) {
+    balise = document.createElement("meta");
+    balise.id = ID_BALISE;
+    balise.name = "theme-color";
+  }
+  // Toujours la première balise theme-color du document.
+  if (document.head.firstElementChild !== balise) document.head.prepend(balise);
+  balise.content = sombre() ? BARRE_ETAT.revision.sombre : BARRE_ETAT.revision.clair;
 }
 
 /** Au toucher : la couleur de la fiche choisie, tout de suite. */

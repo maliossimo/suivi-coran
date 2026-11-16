@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { formaterDuree, libelleJourCourt } from "@/domain/fiche";
 import type { BarreSemaine, CaseRegularite, PointMois } from "@/domain/progression";
 
@@ -46,9 +47,11 @@ export function GraphiqueCumul({ points }: { points: PointMois[] }) {
           </text>
         </g>
       ))}
-      <path d={aire} fill={VERT} opacity="0.1" />
+      <path d={aire} fill={VERT} opacity="0.1" className="graphique-aire" />
       <path
         d={ligne}
+        className="graphique-ligne"
+        pathLength={1}
         fill="none"
         stroke={VERT}
         strokeWidth="3"
@@ -57,7 +60,14 @@ export function GraphiqueCumul({ points }: { points: PointMois[] }) {
       />
       {points.map((p, i) => (
         <g key={p.cle}>
-          <circle cx={x(i)} cy={y(p.valeur)} r={i === points.length - 1 ? 5 : 3} fill={VERT} />
+          <circle
+            cx={x(i)}
+            cy={y(p.valeur)}
+            r={i === points.length - 1 ? 5 : 3}
+            fill={VERT}
+            className="graphique-point"
+            style={{ "--i": i } as CSSProperties}
+          />
           <text x={x(i)} y={H - 8} textAnchor="middle" fontSize="12" fill={TEXTE}>
             {p.libelle}
           </text>
@@ -119,7 +129,12 @@ export function GraphiqueSemaines({ barres }: { barres: BarreSemaine[] }) {
       {barres.map((b, i) => {
         const cx = marge.gauche + pas * i + pas / 2;
         return (
-          <g key={b.debut}>
+          <g
+            key={b.debut}
+            className="graphique-barre"
+            // La barre pousse depuis la ligne de base, les semaines l'une après l'autre.
+            style={{ transformOrigin: `${cx}px ${base}px`, "--i": i } as CSSProperties}
+          >
             <rect
               x={cx - largeur / 2}
               y={base - h(b.apprentissage)}
@@ -182,6 +197,7 @@ export function GrilleRegularite({ colonnes }: { colonnes: CaseRegularite[][] })
             height={C}
             rx="4"
             className={jour.futur ? "case-future" : `teinte-${jour.niveau}`}
+            style={{ "--i": c } as CSSProperties}
             fill={jour.futur ? "transparent" : TEINTES[jour.niveau]}
             stroke={jour.futur ? GRILLE : "none"}
             strokeDasharray={jour.futur ? "3 3" : undefined}
