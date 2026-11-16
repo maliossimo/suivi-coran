@@ -99,7 +99,11 @@ export function NavigationCoran({
             Mushaf
           </Link>
         </nav>
-        <PleinEcranCoran />
+        <div className="coran-outils">
+          {/* Le bouton « cacher le texte » de la lecture vient se poser ici. */}
+          <span id="coran-outil-cache" />
+          <PleinEcranCoran />
+        </div>
         <div className="coran-navigation">
           {precedent ? (
             <Link

@@ -2,11 +2,13 @@ import "server-only";
 import { z } from "zod";
 import { BASMALA, aBasmala, juzDePage, marquerIzhar, type SegmentTajwid } from "@/domain/coran";
 import { lireLecture, type Lecture } from "@/domain/lectures";
+import { lireLigne, type LigneMushaf } from "@/domain/mushaf";
 import type { Sourate } from "@/domain/versets";
 import {
   correspondanceWarsh,
   dossierConnu,
   fichierEveryAyah,
+  lignesMushafHafs,
   pagesMushaf,
   recitateurs,
   recitationsVersets,
@@ -40,6 +42,8 @@ export interface PageCoran {
   juz: number;
   debutsJuz: number[];
   blocs: BlocCoran[];
+  /** Vue page en Hafs : début de chaque ligne (15 lignes, comme le Mushaf de Médine) ; null sinon. */
+  lignes: LigneMushaf[] | null;
   /** Passage à mémoriser venu de l'adresse (ex. lien d'une séance) ; null sinon. */
   passage: { du: number; au: number } | null;
   /** Warsh : correspondance des fichiers audio (Hafs) pour les sourates affichées. */
@@ -155,6 +159,12 @@ export async function chargerPageCoran(
       : null,
     recitations: [...recitationsVersets(lecture), ...sourateEntiere],
     bibliothequeDisponible: bibliotheque !== null,
+    lignes:
+      p.vue === "page" && lecture === "hafs"
+        ? await lignesMushafHafs()
+            .then((pages) => pages[page - 1]!.map(lireLigne))
+            .catch(() => null)
+        : null,
   };
 }
 

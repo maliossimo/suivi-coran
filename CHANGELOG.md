@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.44.0] — 2026-11-16
+
+### Ajouté
+
+- Coran, vue page (Hafs) : les pages sont celles du Mushaf de Médine, ligne pour ligne (mêmes coupures que le livre). Chaque ligne tient sur la largeur de l'écran ; les lignes courtes (pages 1-2, fins de sourate) sont centrées au lieu d'être étirées. En vue page, la taille du texte s'ajuste d'elle-même à la largeur.
+- Coran : mode caché pour réviser (bouton œil du lecteur). Seul le premier mot de chaque ligne (ou de chaque verset) reste lisible ; un toucher dévoile une ligne. « Réciter » lancé depuis le mode caché dévoile les mots au fil de la récitation, et en vue page il propose toute la page.
+- Tajwid : chaque règle s'allume ou s'éteint d'un toucher dans la légende (par exemple seulement la qalqala) ; choix retenu sur l'appareil.
+
 ## [1.43.1] — 2026-11-16
 
 ### Corrigé
