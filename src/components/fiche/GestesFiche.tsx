@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { relancerEnAttente } from "./enregistrementsEnAttente";
+import { forcerMode } from "./modeRevision";
 import { retoursActives } from "@/components/retourSensoriel";
 
 /** Distance minimale (px) d'un glissement, et rapport horizontal / vertical exigé. */
@@ -63,40 +64,36 @@ export function GestesFiche({
   }, []);
 
   /**
-   * Apprentissage ↔ révision : la nouvelle couleur se répand en cercle depuis (x, y) sur tout l'écran
-   * (transition de vue du navigateur). Sans elle, ou avec « réduire les animations » : simple changement.
+   * Apprentissage ↔ révision. Au toucher, toute l'appli prend la couleur de la fiche choisie (forcerMode),
+   * en cercle depuis le doigt grâce à la transition de vue du navigateur : c'est immédiat, la page n'est
+   * pas attendue. La nouvelle fiche se charge en même temps et s'affiche dès qu'elle est prête.
+   * Sans transition de vue, ou avec « réduire les animations » : la couleur change d'un coup.
    */
   const basculer = useCallback(
     (cible: string, x: number, y: number) => {
+      const type =
+        new URL(cible, location.href).searchParams.get("type") === "revision" ? "revision" : "apprentissage";
       const doc = document as Document & {
-        startViewTransition?: (maj: () => Promise<void>) => { finished: Promise<void> };
+        startViewTransition?: (maj: () => void) => { ready: Promise<void>; finished: Promise<void> };
       };
-      const type = new URL(cible, location.href).searchParams.get("type") ?? "apprentissage";
-      if (!doc.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        router.push(cible, { scroll: false });
-        return;
-      }
-      const html = document.documentElement;
-      const rayon = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-      html.style.setProperty("--vague-x", `${x}px`);
-      html.style.setProperty("--vague-y", `${y}px`);
-      html.style.setProperty("--vague-r", `${Math.ceil(rayon)}px`);
-      html.classList.add("vague-fiche");
-      const transition = doc.startViewTransition(
-        () =>
-          new Promise<void>((pret) => {
-            router.push(cible, { scroll: false });
-            const debut = performance.now();
-            // La nouvelle fiche est affichée (son repère a le bon type) : la vague peut partir.
-            const attendre = () => {
-              const actuel = document.querySelector<HTMLElement>(".mode-fiche")?.dataset.type;
-              if (actuel === type || performance.now() - debut > 1500) pret();
-              else requestAnimationFrame(attendre);
-            };
-            attendre();
-          }),
-      );
-      transition.finished.finally(() => html.classList.remove("vague-fiche"));
+      if (doc.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const html = document.documentElement;
+        const rayon = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+        html.style.setProperty("--vague-x", `${Math.round(x)}px`);
+        html.style.setProperty("--vague-y", `${Math.round(y)}px`);
+        html.style.setProperty("--vague-r", `${Math.ceil(rayon)}px`);
+        html.classList.add("vague-fiche");
+        try {
+          const transition = doc.startViewTransition(() => forcerMode(type));
+          // Transition sautée (une autre a commencé) : ce n'est pas une erreur.
+          transition.ready.catch(() => undefined);
+          transition.finished.catch(() => undefined).finally(() => html.classList.remove("vague-fiche"));
+        } catch {
+          html.classList.remove("vague-fiche");
+          forcerMode(type);
+        }
+      } else forcerMode(type);
+      router.push(cible, { scroll: false });
     },
     [router],
   );
