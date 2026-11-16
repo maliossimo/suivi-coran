@@ -113,6 +113,9 @@ def main() -> None:
             except ErreurSaisie as e:
                 print("  ignoré", rec, s, v, e)
                 continue
+            except Exception as e:  # noqa: BLE001 (un verset que le moteur ne sait pas lire : signalé, pas bloquant)
+                print("  ÉCHEC du moteur", rec, s, v, type(e).__name__, e)
+                continue
             durees.append(time.time() - t)
             for m in r["mots"]:
                 mots += 1
