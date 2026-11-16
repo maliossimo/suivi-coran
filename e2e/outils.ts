@@ -78,6 +78,7 @@ export async function seConnecter(page: Page, email: string, arrivee: RegExp): P
 
 /** Capture d'écran pleine page, rangée dans les résultats du test. */
 export async function capture(page: Page, nom: string): Promise<void> {
-  await page.waitForLoadState("networkidle").catch(() => undefined);
+  // Attente bornée : une page qui garde une connexion ouverte (récitation, audio) ne bloque pas le test.
+  await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => undefined);
   await page.screenshot({ path: `e2e/resultats/captures/${nom}.png`, fullPage: true });
 }
