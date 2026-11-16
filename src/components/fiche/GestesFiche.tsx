@@ -1,8 +1,15 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useTransition, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { relancerEnAttente } from "./enregistrementsEnAttente";
 import { forcerMode } from "./modeRevision";
 import { retoursActives } from "@/components/retourSensoriel";
@@ -217,12 +224,25 @@ export function GestesFiche({
         aria-hidden={!rafraichit}
         role="status"
       >
-        <RefreshCw
-          size={18}
+        {/* L'étoile du logo se dessine à mesure qu'on tire, puis tourne pendant la mise à jour. */}
+        <svg
+          viewBox="0 0 200 200"
+          width="24"
+          height="24"
           aria-hidden="true"
-          className={rafraichit ? "tourne" : undefined}
-          style={rafraichit ? undefined : { transform: `rotate(${tire * 2.5}deg)` }}
-        />
+          className={rafraichit ? "tirer-etoile tourne" : "tirer-etoile"}
+          style={
+            rafraichit
+              ? undefined
+              : ({
+                  "--trace": Math.max(0, 1 - tire / SEUIL_TIRER),
+                  transform: `rotate(${tire * 1.5}deg)`,
+                } as CSSProperties)
+          }
+        >
+          <rect x="34" y="34" width="132" height="132" pathLength={1} />
+          <rect x="34" y="34" width="132" height="132" transform="rotate(45 100 100)" pathLength={1} />
+        </svg>
         {rafraichit ? <span className="visuellement-cache">Mise à jour…</span> : null}
       </div>
       <div

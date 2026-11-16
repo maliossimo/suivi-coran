@@ -122,3 +122,35 @@ test.describe("Mode révision", () => {
     await expect(page.locator("#theme-color-fiche")).toHaveCount(0);
   });
 });
+
+test.describe("Finitions de l'interface", () => {
+  test("le jour s'ouvre en page, l'en-tête compact apparaît, la pastille du bas est en place", async ({
+    page,
+  }) => {
+    await seConnecter(page, COMPTES.eleveA, /\/eleve/);
+    // Barre du bas : la pastille de l'onglet actif est posée.
+    await expect(page.locator(".nav-espace.avec-pastille .nav-pastille")).toBeVisible();
+    // En-tête compact : caché en haut de page, visible après défilement.
+    await expect(page.locator(".barre-compacte[data-visible]")).toHaveCount(0);
+    await page.mouse.wheel(0, 900);
+    await expect(page.locator(".barre-compacte[data-visible]")).toBeVisible();
+    await page.mouse.wheel(0, -2000);
+    await expect(page.locator(".barre-compacte[data-visible]")).toHaveCount(0);
+    // Un jour s'ouvre en page : le voile part une fois la séance affichée.
+    await page.locator("a.jour[data-ouvre-en-page]").first().click();
+    await expect(page).toHaveURL(/\/eleve\/seance/);
+    await expect(page.locator(".ouverture-page")).toHaveCount(0, { timeout: 4000 });
+  });
+
+  test("le choix du thème : le fond de l'option choisie glisse", async ({ page }) => {
+    await seConnecter(page, COMPTES.eleveA, /\/eleve/);
+    await page.goto("/compte");
+    const groupe = page.getByRole("radiogroup", { name: "Thème" });
+    await expect(groupe).toHaveClass(/avec-indicateur/);
+    const indicateur = groupe.locator(".indicateur-glissant");
+    const avant = await indicateur.evaluate((e) => e.style.transform);
+    await groupe.getByRole("radio", { name: "Sombre" }).click();
+    await expect.poll(() => indicateur.evaluate((e) => e.style.transform)).not.toBe(avant);
+    await groupe.getByRole("radio", { name: "Comme le téléphone" }).click();
+  });
+});

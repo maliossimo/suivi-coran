@@ -1,5 +1,6 @@
 "use client";
 
+import { IndicateurGlissant } from "@/components/IndicateurGlissant";
 import { CloudDownload, CloudOff, Minus, Palette, Plus, ScanEye, TextCursor, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Feuille } from "@/components/Feuille";
@@ -75,6 +76,7 @@ export function ReglagesCoran({
         <section className="feuille-section">
           <h3>Lecture</h3>
           <nav className="coran-segments" aria-label="Lecture">
+            <IndicateurGlissant id="coran-lecture" actif='[aria-current="page"]' valeur={lecture} />
             {(["hafs", "warsh"] as const).map((l) => (
               <Link
                 key={l}

@@ -372,7 +372,7 @@ function LigneJour({
   if (jour.futur) return <div className={classes}>{corps}</div>;
   return (
     // Aujourd'hui : séance préchargée en entier, elle s'ouvre sans attente.
-    <Link className={classes} href={lien} prefetch={precharger ? true : null}>
+    <Link className={classes} href={lien} prefetch={precharger ? true : null} data-ouvre-en-page>
       {corps}
     </Link>
   );

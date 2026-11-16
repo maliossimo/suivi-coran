@@ -3,6 +3,7 @@
 import { Check, RotateCcw } from "lucide-react";
 import { useActionState } from "react";
 import { actionEnregistrerBilan, type EtatSaisie } from "@/app/actions/fiche";
+import { ContenuBoutonEnregistrer } from "@/components/ContenuBoutonEnregistrer";
 import type { Bilan, TypeSeance } from "@/domain/fiche";
 
 /** Bilan de fin de mois : ce qui est acquis, ce qui reste à renforcer. */
@@ -65,7 +66,11 @@ export function FormulaireBilan({
 
       <div className="bilan-actions">
         <button type="submit" className="bouton-secondaire" disabled={enCours}>
-          {enCours ? "Enregistrement…" : bilan ? "Mettre à jour le bilan" : "Enregistrer le bilan"}
+          <ContenuBoutonEnregistrer
+            enCours={enCours}
+            echec={Boolean(etat.erreur)}
+            libelle={bilan ? "Mettre à jour le bilan" : "Enregistrer le bilan"}
+          />
         </button>
       </div>
     </form>

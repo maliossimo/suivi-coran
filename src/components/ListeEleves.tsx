@@ -64,6 +64,7 @@ export function ListeEleves({
                   : `/maitre/eleves/${r.eleve.id}?mois=${cleMois}`
               }
               className="carte-eleve"
+              data-ouvre-en-page
             >
               <Avatar prenom={r.eleve.prenom} nom={r.eleve.nom} cle={r.eleve.id} />
               <span className="carte-eleve-nom">

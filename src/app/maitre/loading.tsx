@@ -1,5 +1,5 @@
 import { Chargement } from "@/components/Chargement";
 
 export default function ChargementEspace() {
-  return <Chargement titre="Ma classe" />;
+  return <Chargement titre="Ma classe" forme="liste" />;
 }
