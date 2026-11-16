@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { LIBELLE_STATUT, STATUTS, libelleResume, resumeAppel, type StatutPresence } from "@/domain/presences";
 import { envoyerAppel } from "./appelsEnAttente";
-import { retourSensoriel } from "@/components/retourSensoriel";
+import { Avatar } from "@/components/Avatar";
+import { retoursActives, retourSensoriel } from "@/components/retourSensoriel";
 
 interface Membre {
   id: string;
@@ -58,7 +59,9 @@ export function FeuilleAppel({
     setNotes({});
   }, [dateFixe, datePage, membres]);
 
-  const resume = useMemo(() => libelleResume(resumeAppel(Object.values(statuts))), [statuts]);
+  const comptes = useMemo(() => resumeAppel(Object.values(statuts)), [statuts]);
+  const resume = libelleResume(comptes);
+  const partPresents = membres.length ? (comptes.present / membres.length) * 100 : 0;
 
   const enregistrer = async () => {
     setEnvoi("envoi");
@@ -101,6 +104,9 @@ export function FeuilleAppel({
       ) : null}
       <div className="feuille-appel-resume" role="status">
         <strong>{resume}</strong>
+        <span className="appel-jauge" aria-hidden="true">
+          <span style={{ width: `${partPresents}%` }} />
+        </span>
         <button
           type="button"
           className="puce-action"
@@ -116,6 +122,7 @@ export function FeuilleAppel({
           return (
             <li key={m.id} className={`ligne-appel statut-${statut}`}>
               <div className="ligne-appel-tete">
+                <Avatar prenom={m.prenom} nom={m.nom} cle={m.id} taille="petit" />
                 <button
                   type="button"
                   className="ligne-appel-nom"
@@ -140,9 +147,16 @@ export function FeuilleAppel({
                         aria-label={LIBELLE_STATUT[s]}
                         title={LIBELLE_STATUT[s]}
                         className={`statut-${s}`}
-                        onClick={() => setStatuts((x) => ({ ...x, [m.id]: s }))}
+                        onClick={() => {
+                          // Une vibration très courte (sans son) confirme le changement.
+                          if (statut !== s && retoursActives()) navigator.vibrate?.(8);
+                          setStatuts((x) => ({ ...x, [m.id]: s }));
+                        }}
                       >
                         <Icone size={20} strokeWidth={2.6} aria-hidden="true" />
+                        <span className="choix-statut-texte" aria-hidden="true">
+                          {LIBELLE_STATUT[s]}
+                        </span>
                       </button>
                     );
                   })}

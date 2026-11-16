@@ -16,6 +16,9 @@ import {
   lireMois,
   moisAutour,
   positionDuMois,
+  encouragement,
+  joursEcoules,
+  serieDeJours,
   type Seance,
 } from "./fiche";
 
@@ -189,5 +192,40 @@ describe("conflitDeSaisie", () => {
 
   it("n'y voit pas de conflit si la base a déjà exactement cette saisie", () => {
     expect(conflitDeSaisie(null, c(20), c(20))).toBe(false);
+  });
+});
+
+describe("serieDeJours", () => {
+  it("compte les jours d'affilée jusqu'à aujourd'hui", () => {
+    expect(serieDeJours(["2026-11-14", "2026-11-15", "2026-11-16"], "2026-11-16")).toBe(3);
+  });
+  it("un jour pas encore travaillé ne casse pas la série (elle compte jusqu'à hier)", () => {
+    expect(serieDeJours(["2026-11-14", "2026-11-15"], "2026-11-16")).toBe(2);
+  });
+  it("un trou casse la série", () => {
+    expect(serieDeJours(["2026-11-12", "2026-11-14", "2026-11-16"], "2026-11-16")).toBe(1);
+    expect(serieDeJours(["2026-11-13"], "2026-11-16")).toBe(0);
+    expect(serieDeJours([], "2026-11-16")).toBe(0);
+  });
+  it("passe d'un mois à l'autre et ignore les doublons", () => {
+    expect(serieDeJours(["2026-10-31", "2026-11-01", "2026-11-01"], "2026-11-01")).toBe(2);
+  });
+});
+
+describe("joursEcoules", () => {
+  it("compte les jours commencés du mois", () => {
+    const semaines = construireFiche({ annee: 2026, mois: 11 }, [], [], "2026-11-16");
+    expect(joursEcoules(semaines)).toBe(16);
+    expect(joursEcoules(construireFiche({ annee: 2026, mois: 10 }, [], [], "2026-11-16"))).toBe(31);
+    expect(joursEcoules(construireFiche({ annee: 2026, mois: 12 }, [], [], "2026-11-16"))).toBe(0);
+  });
+});
+
+describe("encouragement", () => {
+  it("donne une phrase selon l'avancement", () => {
+    expect(encouragement(0)).toMatch(/premier verset/);
+    expect(encouragement(2)).toMatch(/beau départ/);
+    expect(encouragement(60)).toMatch(/moitié/);
+    expect(encouragement(100)).toMatch(/Tout le Coran/);
   });
 });

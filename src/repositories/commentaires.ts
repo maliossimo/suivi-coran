@@ -66,3 +66,33 @@ export async function ajouterCommentaire(
     .insert({ eleve_id: eleveId, auteur_id: auteurId, ...colonneCible(cible), texte });
   if (error) throw new Error(`Commentaire impossible : ${error.message}`);
 }
+
+export interface DernierCommentaire extends Commentaire {
+  /** Séance commentée (absente pour un commentaire de bilan). */
+  seance: { date: string; type: "apprentissage" | "revision" } | null;
+}
+
+/** Le dernier commentaire du Cheikh pour un élève (séance ou bilan), ou null. */
+export async function dernierCommentaire(eleveId: string): Promise<DernierCommentaire | null> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("commentaires")
+    .select("texte, cree_le, seances(date, type)")
+    .eq("eleve_id", eleveId)
+    .order("cree_le", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(`Lecture des commentaires impossible : ${error.message}`);
+  if (!data) return null;
+  const ligne = z
+    .object({
+      texte: z.string(),
+      cree_le: z.string(),
+      seances: z
+        .object({ date: z.string(), type: z.enum(["apprentissage", "revision"]) })
+        .nullable()
+        .optional(),
+    })
+    .parse(data);
+  return { texte: ligne.texte, creeLe: ligne.cree_le, seance: ligne.seances ?? null };
+}

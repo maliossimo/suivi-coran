@@ -6,6 +6,7 @@ import { EnteteEspace } from "@/components/EnteteEspace";
 import { Selecteur } from "@/components/Selecteur";
 import { FormulaireInvitation } from "@/components/FormulaireInvitation";
 import { QrCode } from "@/components/QrCode";
+import { QrPleinEcran } from "@/components/QrPleinEcran";
 import { envPublic } from "@/lib/env";
 import { exigerEspace } from "@/services/acces";
 import { listerClasses } from "@/services/admin";
@@ -108,7 +109,9 @@ export default async function PageInviter({
                     Montre ce code à tes élèves : ils le scannent avec l’appareil photo de leur téléphone et
                     créent leur compte eux-mêmes. Ils arrivent directement dans ta classe.
                   </p>
-                  <QrCode texte={lien} libelle="QR code pour rejoindre la classe" />
+                  <QrPleinEcran lien={lien} classe={coursChoisi?.nom ?? classeChoisie?.nom ?? "Ma classe"}>
+                    <QrCode texte={lien} libelle="QR code pour rejoindre la classe" />
+                  </QrPleinEcran>
                   <p className="qr-infos">
                     Valable jusqu’au {dateHeure(qr.expireLe)}
                     <br />
@@ -117,7 +120,7 @@ export default async function PageInviter({
                       : `${qr.utilisations} élève${qr.utilisations > 1 ? "s" : ""} inscrit${qr.utilisations > 1 ? "s" : ""} avec ce code.`}
                   </p>
                   <div className="qr-actions">
-                    <CopierLien lien={lien} />
+                    <CopierLien lien={lien} classe={coursChoisi?.nom ?? classeChoisie?.nom} />
                     <form action={actionGenererQr}>
                       {champClasse}
                       <button type="submit" className="bouton-secondaire">

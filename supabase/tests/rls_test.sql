@@ -698,6 +698,20 @@ select pg_temp.console();
 delete from public.membres_classe where classe_id = 'c1a55e00-0000-0000-0000-000000000005';
 update public.membres_classe set actif = true where classe_id = 'c1a55e00-0000-0000-0000-000000000004';
 
+-- « Mon compte » : l'élève voit le nom de sa classe et de son Cheikh, rien de plus.
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
+select pg_temp.attendu(
+  (select count(*) from public.mes_classes()) = 1
+  and (select classe from public.mes_classes()) = 'Coran du soir'
+  and (select cheikhs from public.mes_classes()) = 'Maître A2',
+  'mon compte : l''élève voit sa classe et son Cheikh');
+select pg_temp.attendu(not exists (select 1 from public.classes),
+  'mon compte : l''élève ne lit toujours pas la table des classes');
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu(not exists (select 1 from public.mes_classes()),
+  'mon compte : un élève sans classe ne voit aucune classe');
+select pg_temp.console();
+
 -- Invitation avec une classe : l'élève y entre dès la création de son compte.
 insert into auth.users (id, email, raw_user_meta_data) values
   ('a0000000-0000-0000-0000-000000000003', 'eleve3.a@test.local',

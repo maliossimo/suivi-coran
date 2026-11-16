@@ -861,13 +861,6 @@ html.vague-fiche::view-transition-new(root) {
     clip-path: circle(var(--vague-r, 150vmax) at var(--vague-x, 50%) var(--vague-y, 30%));
   }
 }
-.resume-mois {
-  margin: 0;
-  color: var(--texte-doux);
-}
-.resume-mois strong {
-  color: var(--texte);
-}
 
 .semaines {
   display: grid;
@@ -10278,6 +10271,8 @@ html {
 
 /* ---------- Mushaf : la page suit le doigt, part, et la nouvelle arrive de l'autre côté ---------- */
 .coran-page.coran-vue-page {
+  /* Les glissements de côté tournent les pages ; le défilement vertical reste celui du navigateur. */
+  touch-action: pan-y;
   transform-origin: center center;
   transition:
     transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -10588,4 +10583,1540 @@ html {
   .ouverture-page {
     display: none !important;
   }
+}
+
+/* ---------- QR code de la classe : afficher en grand ---------- */
+.qr-zone {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.qr-agrandir {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.qr-plein-ecran {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #fff;
+  color: #123c2e;
+}
+.qr-plein-ecran::backdrop {
+  background: #fff;
+}
+.qr-plein-ecran[open] {
+  display: grid;
+  place-items: center;
+  animation: apparition 0.25s ease-out;
+}
+.qr-plein-ecran-contenu {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: calc(16px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom));
+  text-align: center;
+}
+.qr-plein-ecran-titre {
+  margin: 0;
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: clamp(22px, 5vw, 34px);
+  font-weight: 700;
+}
+.qr-plein-ecran-classe {
+  margin: 0;
+  color: #7a4f0e;
+  font-size: clamp(16px, 3.5vw, 22px);
+  font-weight: 700;
+}
+.qr-plein-ecran-code .qr-code {
+  width: min(88vw, 72dvh, 620px);
+  border: 2px solid #d6af5c;
+}
+.qr-plein-ecran-aide {
+  margin: 0;
+  color: #4b5a53;
+}
+.qr-plein-ecran .bouton-secondaire {
+  background: #fff;
+  color: #123c2e;
+  border-color: #c9d4ce;
+}
+
+/* =====================================================================
+   Fiche de l'élève (1.39) : la journée, le résumé du mois, les semaines
+   ===================================================================== */
+
+/* ---------- Aujourd'hui : les deux séances du jour, en grand ------------ */
+.carte-aujourdhui {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 20px;
+  background: var(--motif-doux), linear-gradient(160deg, var(--vert-clair) 0, var(--carte) 75%);
+  border: 1px solid var(--ligne);
+  box-shadow: var(--ombre);
+}
+.carte-aujourdhui h3 {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  font-size: 18px;
+}
+.carte-aujourdhui h3 time {
+  font-family: var(--font-texte), system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--texte-doux);
+}
+.aujourdhui-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.aujourdhui-action {
+  --teinte: var(--icone-apprentissage);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--carte);
+  border: 1.5px solid color-mix(in srgb, var(--teinte) 35%, var(--ligne));
+  color: var(--texte);
+  text-decoration: none;
+  overflow: hidden;
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.18s ease,
+    background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.aujourdhui-revision {
+  --teinte: var(--icone-revision);
+}
+.aujourdhui-action:hover {
+  color: var(--texte);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--teinte) 22%, transparent);
+}
+.aujourdhui-action:active {
+  transform: scale(0.97);
+}
+.aujourdhui-icone {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--teinte);
+  color: #fff;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--teinte) 35%, transparent);
+}
+.aujourdhui-texte {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.aujourdhui-texte b {
+  font-size: 15px;
+}
+.aujourdhui-texte small {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--teinte) 80%, var(--texte));
+}
+.aujourdhui-action.est-fait {
+  background: color-mix(in srgb, var(--teinte) 12%, var(--carte));
+  border-color: color-mix(in srgb, var(--teinte) 55%, transparent);
+}
+.aujourdhui-action.est-fait .aujourdhui-icone {
+  animation: coche-du-jour 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes coche-du-jour {
+  from {
+    transform: scale(0.6);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+/* Pas encore fait : un léger halo invite à saisir. */
+.aujourdhui-action:not(.est-fait)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--teinte) 45%, transparent);
+  opacity: 0;
+  animation: invite-du-jour 2.8s ease-in-out 1s infinite;
+  pointer-events: none;
+}
+@keyframes invite-du-jour {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (max-width: 380px) {
+  .aujourdhui-icone {
+    width: 36px;
+    height: 36px;
+  }
+  .aujourdhui-action {
+    gap: 8px;
+    padding: 10px;
+  }
+}
+
+/* ---------- Résumé du mois : anneau de régularité et tuiles ------------ */
+.resume-mois {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  padding: 14px;
+  border-radius: 20px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  box-shadow: var(--ombre);
+}
+.resume-anneau {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 200px;
+}
+.resume-anneau .anneau-texte {
+  font-size: 17px;
+}
+.resume-anneau-texte {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+.resume-anneau-texte b {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 17px;
+}
+.resume-anneau-texte small {
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.resume-tuiles,
+.bilan-tuiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 8px;
+  flex: 999 1 300px;
+}
+.resume-tuiles li,
+.bilan-tuiles li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-3);
+}
+.resume-tuiles svg,
+.bilan-tuiles svg {
+  grid-row: 1 / 3;
+  color: var(--vert-texte);
+}
+.resume-tuiles strong,
+.bilan-tuiles strong {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 17px;
+  line-height: 1.15;
+  color: var(--texte);
+}
+.resume-tuiles span,
+.bilan-tuiles span {
+  font-size: 12px;
+  color: var(--texte-doux);
+  line-height: 1.2;
+}
+/* Série : la flamme s'allume quand on travaille plusieurs jours d'affilée. */
+.tuile-serie svg {
+  color: var(--texte-doux);
+}
+.tuile-serie.est-allumee {
+  background: color-mix(in srgb, #e8833a 10%, var(--surface-2));
+  border-color: color-mix(in srgb, #e8833a 30%, transparent);
+}
+.tuile-serie.est-allumee svg {
+  color: #e2702a;
+  fill: color-mix(in srgb, #f4a640 55%, transparent);
+  transform-origin: 50% 90%;
+  animation: flamme 1.8s ease-in-out infinite;
+}
+@keyframes flamme {
+  0%,
+  100% {
+    transform: scale(1) rotate(-2deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(2deg);
+  }
+}
+
+/* ---------- Le dernier mot du Cheikh ------------------------------------ */
+.mot-cheikh {
+  position: relative;
+  margin: 0;
+  padding: 14px 16px 14px 52px;
+  border-radius: 20px;
+  background: linear-gradient(160deg, var(--or-clair) 0, var(--carte) 90%);
+  border: 1px solid var(--bord-or);
+  box-shadow: var(--ombre);
+  display: grid;
+  gap: 4px;
+}
+.mot-cheikh-icone {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--or);
+  color: #fff;
+}
+.mot-cheikh figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  align-items: baseline;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--or-texte);
+}
+.mot-cheikh figcaption time {
+  font-weight: 500;
+  color: var(--texte-doux);
+}
+.mot-cheikh blockquote {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.mot-cheikh-lien {
+  justify-self: start;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--or-texte);
+}
+
+/* ---------- Semaines : celle en cours ressort, les autres en 7 points ---- */
+.semaine-courante {
+  border-color: color-mix(in srgb, var(--vert) 45%, var(--ligne));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--vert) 10%, transparent),
+    var(--ombre);
+}
+.semaine-entete h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.semaine-entete .semaine-badge {
+  font-family: var(--font-texte), system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--vert);
+  color: #fff;
+}
+.semaine-points {
+  display: flex;
+  gap: 5px;
+  flex-basis: 100%;
+  order: 3;
+}
+.semaine-points i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  transition: transform 0.2s ease;
+}
+.semaine-points i.point-plein {
+  background: var(--teinte-2);
+}
+.semaine-points i.point-ecoute {
+  background: var(--etat-ecoute, var(--vert));
+}
+.semaine-points i.point-valide {
+  background: var(--etat-valide, var(--or));
+}
+.semaine-points i.point-aujourdhui {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--vert);
+}
+.semaine-points i.point-futur {
+  opacity: 0.45;
+}
+
+/* ---------- Jours : durée en pastille, liseré de l'état du Cheikh -------- */
+.jour-rempli .jour-duree {
+  justify-self: start;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+  font-size: 13px;
+  white-space: nowrap;
+}
+a.jour[data-etat] {
+  box-shadow: inset 3px 0 0 var(--teinte-2);
+}
+a.jour[data-etat="ecoute"] {
+  box-shadow: inset 3px 0 0 var(--etat-ecoute, var(--vert));
+}
+a.jour[data-etat="valide"] {
+  box-shadow: inset 3px 0 0 var(--etat-valide, var(--or));
+}
+a.jour[data-etat="partielle"] {
+  box-shadow: inset 3px 0 0 var(--texte-doux);
+}
+
+/* ---------- Objectif du mois et bilan ----------------------------------- */
+.objectif-du-mois {
+  border-color: var(--bord-or);
+}
+.objectif-du-mois h3 svg {
+  color: var(--or);
+}
+.bilan-tuiles li {
+  background: var(--carte);
+  border-color: var(--bord-or);
+}
+.bilan-tuiles svg {
+  color: var(--or);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aujourdhui-action.est-fait .aujourdhui-icone,
+  .aujourdhui-action:not(.est-fait)::after,
+  .tuile-serie.est-allumee svg {
+    animation: none;
+  }
+}
+
+/* Semaine repliée : titre et infos sur une ligne, les 7 points dessous, la flèche à droite. */
+.semaine-pliable > summary.semaine-entete {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "titre infos fleche"
+    "points points fleche";
+  row-gap: 6px;
+}
+.semaine-pliable > summary > h3 {
+  grid-area: titre;
+}
+.semaine-pliable > summary > span:not(.semaine-points) {
+  grid-area: infos;
+}
+.semaine-pliable > summary > .semaine-points {
+  grid-area: points;
+  margin-left: 0;
+  justify-self: start;
+}
+.semaine-pliable > summary::after {
+  grid-area: fleche;
+  align-self: center;
+}
+
+/* ---------- Connexion : une phrase qui inspire, des étincelles, la boîte qui arrive ---------- */
+.auth-hadith {
+  margin: 14px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.auth-hadith .arabe {
+  font-size: 24px;
+  line-height: 1.7;
+  color: #f0d796;
+}
+.auth-hadith small {
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+  font-style: italic;
+}
+.auth-atouts {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.auth-atouts li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.92);
+}
+.auth-atouts li::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  border-radius: 2px;
+  background: #d6af5c;
+  box-shadow: 0 0 10px rgba(214, 175, 92, 0.7);
+}
+.auth-etincelles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.auth-etincelles i {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f0d796;
+  box-shadow: 0 0 12px 3px rgba(240, 215, 150, 0.55);
+  opacity: 0;
+  animation: etincelle 4.5s ease-in-out infinite;
+}
+.auth-etincelles i:nth-child(1) {
+  top: 18%;
+  left: 12%;
+}
+.auth-etincelles i:nth-child(2) {
+  top: 30%;
+  left: 82%;
+  animation-delay: 0.8s;
+}
+.auth-etincelles i:nth-child(3) {
+  top: 72%;
+  left: 20%;
+  animation-delay: 1.6s;
+}
+.auth-etincelles i:nth-child(4) {
+  top: 62%;
+  left: 70%;
+  animation-delay: 2.4s;
+}
+.auth-etincelles i:nth-child(5) {
+  top: 86%;
+  left: 48%;
+  animation-delay: 3.2s;
+}
+.auth-etincelles i:nth-child(6) {
+  top: 10%;
+  left: 56%;
+  animation-delay: 3.9s;
+}
+@keyframes etincelle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  45% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+.auth-boite {
+  animation: auth-arrivee 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes auth-arrivee {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+}
+.auth-boite input:focus-visible {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--vert) 16%, transparent);
+}
+/* Téléphone : le bandeau garde la phrase, sans la liste. */
+@media (max-width: 860px) {
+  .auth-atouts {
+    display: none;
+  }
+  .auth-hadith {
+    margin-top: 10px;
+  }
+  .auth-hadith .arabe {
+    font-size: 20px;
+  }
+  .auth-hadith small {
+    font-size: 13px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-etincelles i,
+  .auth-boite {
+    animation: none;
+  }
+  .auth-etincelles i {
+    opacity: 0.6;
+  }
+}
+
+/* ---------- Avatars : un léger relief et l'étoile du logo en filigrane ---------- */
+.avatar[class*="avatar-teinte-"] {
+  position: relative;
+  overflow: hidden;
+  background-image:
+    radial-gradient(120% 90% at 25% 15%, rgba(255, 255, 255, 0.6), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23000' stroke-opacity='0.07' stroke-width='1.4'%3E%3Crect x='11' y='11' width='18' height='18'/%3E%3Crect x='11' y='11' width='18' height='18' transform='rotate(45 20 20)'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:
+    100% 100%,
+    170% 170%;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .avatar[class*="avatar-teinte-"] {
+    background-image:
+      radial-gradient(120% 90% at 25% 15%, rgba(255, 255, 255, 0.12), transparent 55%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='0.08' stroke-width='1.4'%3E%3Crect x='11' y='11' width='18' height='18'/%3E%3Crect x='11' y='11' width='18' height='18' transform='rotate(45 20 20)'/%3E%3C/g%3E%3C/svg%3E");
+    text-shadow: none;
+  }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) .avatar[class*="avatar-teinte-"] {
+  background-image:
+    radial-gradient(120% 90% at 25% 15%, rgba(255, 255, 255, 0.12), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='0.08' stroke-width='1.4'%3E%3Crect x='11' y='11' width='18' height='18'/%3E%3Crect x='11' y='11' width='18' height='18' transform='rotate(45 20 20)'/%3E%3C/g%3E%3C/svg%3E");
+  text-shadow: none;
+}
+
+/* ---------- Feuilles du bas : un léger ressort, et on les tire vers le bas pour fermer ---------- */
+.feuille-contenu {
+  position: relative;
+  animation: feuille-ressort 0.42s cubic-bezier(0.22, 1.18, 0.36, 1);
+}
+.feuille[open] {
+  /* Le prolongement sous la feuille (ci-dessous) ne doit jamais faire défiler la fenêtre. */
+  overflow: hidden;
+}
+/* Sous la feuille : la même couleur, pour que le rebond ne laisse jamais voir de jour. */
+.feuille-contenu::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--carte);
+}
+@keyframes feuille-ressort {
+  from {
+    transform: translateY(100%);
+  }
+}
+.feuille-entete {
+  touch-action: none;
+  cursor: grab;
+}
+.feuille-entete .feuille-fermer {
+  cursor: pointer;
+}
+.feuille-tiree {
+  transition: none;
+  cursor: grabbing;
+}
+.feuille-relachee {
+  transition: transform 0.36s cubic-bezier(0.25, 1.3, 0.4, 1);
+}
+.feuille-poignee {
+  transition:
+    width 0.2s ease,
+    background-color 0.2s ease;
+}
+.feuille-tiree .feuille-poignee {
+  width: 56px;
+  margin-left: -28px;
+  background: var(--texte-doux);
+}
+/* Grand écran : la feuille est une fenêtre au centre, sans ressort ni poignée. */
+@media (min-width: 761px) {
+  .feuille-contenu {
+    animation-name: feuille-apparait;
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .feuille-contenu::after {
+    display: none;
+  }
+  .feuille-entete {
+    cursor: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .feuille-contenu {
+    animation: none;
+  }
+  .feuille-relachee {
+    transition: none;
+  }
+}
+
+/* ---------- Profondeur au défilement : l'en-tête et les motifs bougent moins vite que la page ----------
+   Uniquement avec les animations liées au défilement (sans script) ; sinon, rien ne change. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* (Pas sur .barre-contenu : une transformation y décrocherait la barre du bas, qui est dedans.) */
+    .barre-titres {
+      animation: profondeur-entete linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 160px;
+    }
+    .carte-aujourdhui,
+    .progression-entete,
+    .profil-compte-tete {
+      animation: profondeur-motif linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 600px;
+    }
+  }
+}
+@keyframes profondeur-entete {
+  to {
+    transform: translateY(10px);
+    opacity: 0.65;
+  }
+}
+@keyframes profondeur-motif {
+  to {
+    background-position:
+      0 48px,
+      0 0;
+  }
+}
+
+/* ---------- Graphiques : bulles au toucher ---------------------------------- */
+.zone-bulles {
+  position: relative;
+}
+.graphique-cible {
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.graphique-barre:has(.graphique-cible:focus-visible) rect:not(.graphique-cible),
+.graphique-barre:hover rect:not(.graphique-cible) {
+  filter: brightness(1.08) saturate(1.1);
+}
+.graphique-cible:focus-visible {
+  stroke: var(--or);
+  stroke-width: 2;
+}
+.graphique-grille rect[data-bulle] {
+  cursor: pointer;
+}
+.bulle-graphique {
+  position: absolute;
+  z-index: 5;
+  max-width: min(280px, 90%);
+  padding: 7px 11px;
+  border-radius: 12px;
+  background: var(--vert-nuit);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  transform: translate(-50%, calc(-100% - 8px));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  animation: bulle-arrive 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.bulle-graphique::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  transform: rotate(45deg);
+  background: inherit;
+}
+@keyframes bulle-arrive {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 2px)) scale(0.94);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bulle-graphique {
+    animation: none;
+  }
+}
+
+/* ---------- Carte du Coran : chaque case se touche, son détail s'ouvre dessous ---------- */
+.carte-case-bouton {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+}
+.carte-case-bouton:active {
+  transform: scale(0.88);
+}
+.carte-case-bouton:focus-visible {
+  outline: 3px solid var(--or);
+  outline-offset: 1px;
+}
+.carte-case {
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease;
+}
+.carte-case.est-choisie {
+  z-index: 3;
+  overflow: visible;
+  transform: scale(1.18);
+  box-shadow:
+    0 0 0 2px var(--carte),
+    0 0 0 4px var(--or),
+    0 6px 14px rgba(0, 0, 0, 0.2);
+}
+.carte-detail-aide {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--texte-doux);
+  text-align: center;
+}
+.carte-detail {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--ligne);
+  display: grid;
+  gap: 8px;
+  animation: apparition 0.22s ease-out;
+}
+.carte-detail-tete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.carte-detail-tete b {
+  font-size: 16px;
+}
+.carte-detail-tete .arabe {
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--vert-texte);
+}
+.carte-detail-fermer {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-3);
+  color: var(--texte-doux);
+  cursor: pointer;
+}
+.carte-detail-infos,
+.carte-detail-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.carte-detail-infos strong {
+  color: var(--texte);
+}
+.carte-detail-note {
+  color: var(--or-texte);
+  font-weight: 600;
+}
+.carte-detail-jauge {
+  display: block;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.carte-detail-jauge > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teinte-2), var(--vert));
+  animation: jauge-remplit 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: left;
+}
+.carte-detail-a_reviser .carte-detail-jauge > span {
+  background: linear-gradient(90deg, #e0bd6b, #c9922e);
+}
+@keyframes jauge-remplit {
+  from {
+    transform: scaleX(0);
+  }
+}
+.carte-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.carte-detail-actions .bouton,
+.carte-detail-actions .bouton-secondaire {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .carte-detail,
+  .carte-detail-jauge > span {
+    animation: none;
+  }
+  .carte-case,
+  .carte-case-bouton {
+    transition: none;
+  }
+}
+
+/* ---------- Ma classe : la petite courbe de régularité de chaque élève ---------- */
+.liste-eleves .carte-eleve {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "avatar nom courbe chevron"
+    "avatar stats courbe chevron";
+}
+.courbe-quinzaine {
+  grid-area: courbe;
+  align-self: center;
+  display: flex;
+  padding: 4px 6px;
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.courbe-quinzaine svg {
+  display: block;
+  overflow: visible;
+}
+.courbe-jour {
+  fill: var(--teinte-2);
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: barre-pousse 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.1) backwards;
+  animation-delay: calc(0.15s + var(--i, 0) * 0.025s);
+}
+.courbe-aujourdhui {
+  fill: var(--vert);
+}
+.courbe-vide {
+  fill: var(--surface-3);
+}
+@media (max-width: 420px) {
+  .liste-eleves .carte-eleve {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "avatar nom chevron"
+      "avatar stats chevron"
+      "avatar courbe chevron";
+  }
+  .courbe-quinzaine {
+    justify-self: start;
+    margin-top: 4px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .courbe-jour {
+    animation: none;
+  }
+}
+
+/* ---------- Mode sombre soigné : une lueur en haut de l'écran, des cartes en relief ---------- */
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) body {
+    background:
+      radial-gradient(
+          140% 420px at 50% 0,
+          color-mix(in srgb, var(--vert) 16%, var(--fond)) 0,
+          transparent 100%
+        )
+        no-repeat,
+      var(--fond);
+  }
+  :where(:root:not([data-theme="clair"])) .semaine,
+  :where(:root:not([data-theme="clair"])) .resume-mois,
+  :where(:root:not([data-theme="clair"])) .carte-aujourdhui,
+  :where(:root:not([data-theme="clair"])) .carte-graphique,
+  :where(:root:not([data-theme="clair"])) .liste-eleves .carte-eleve,
+  :where(:root:not([data-theme="clair"])) .carte-compte,
+  :where(:root:not([data-theme="clair"])) .profil-compte,
+  :where(:root:not([data-theme="clair"])) .progression-entete,
+  :where(:root:not([data-theme="clair"])) .tuile {
+    border-color: rgba(255, 255, 255, 0.07);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 12px 32px rgba(0, 0, 0, 0.28);
+  }
+  :where(:root:not([data-theme="clair"])) .semaine-pliable:not([open]) {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+  :where(:root:not([data-theme="clair"])) .mot-cheikh {
+    box-shadow:
+      inset 0 1px 0 rgba(240, 215, 150, 0.12),
+      0 12px 32px rgba(0, 0, 0, 0.3);
+  }
+  :where(:root:not([data-theme="clair"])) .bouton {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 6px 18px rgba(0, 0, 0, 0.3);
+  }
+  :where(:root:not([data-theme="clair"])) .aujourdhui-icone,
+  :where(:root:not([data-theme="clair"])) .mot-cheikh-icone {
+    box-shadow: 0 0 18px color-mix(in srgb, currentColor 10%, transparent);
+  }
+  :where(:root:not([data-theme="clair"])) .bulle-graphique {
+    background: #0a1a14;
+    border: 1px solid rgba(240, 215, 150, 0.25);
+  }
+  :where(:root:not([data-theme="clair"])) .resume-tuiles li,
+  :where(:root:not([data-theme="clair"])) .bilan-tuiles li {
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+:where(:root[data-theme="sombre"]) body {
+  background:
+    radial-gradient(140% 420px at 50% 0, color-mix(in srgb, var(--vert) 16%, var(--fond)) 0, transparent 100%)
+      no-repeat,
+    var(--fond);
+}
+:where(:root[data-theme="sombre"]) .semaine,
+:where(:root[data-theme="sombre"]) .resume-mois,
+:where(:root[data-theme="sombre"]) .carte-aujourdhui,
+:where(:root[data-theme="sombre"]) .carte-graphique,
+:where(:root[data-theme="sombre"]) .liste-eleves .carte-eleve,
+:where(:root[data-theme="sombre"]) .carte-compte,
+:where(:root[data-theme="sombre"]) .profil-compte,
+:where(:root[data-theme="sombre"]) .progression-entete,
+:where(:root[data-theme="sombre"]) .tuile {
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 12px 32px rgba(0, 0, 0, 0.28);
+}
+:where(:root[data-theme="sombre"]) .semaine-pliable:not([open]) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+:where(:root[data-theme="sombre"]) .mot-cheikh {
+  box-shadow:
+    inset 0 1px 0 rgba(240, 215, 150, 0.12),
+    0 12px 32px rgba(0, 0, 0, 0.3);
+}
+:where(:root[data-theme="sombre"]) .bouton {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 6px 18px rgba(0, 0, 0, 0.3);
+}
+:where(:root[data-theme="sombre"]) .aujourdhui-icone,
+:where(:root[data-theme="sombre"]) .mot-cheikh-icone {
+  box-shadow: 0 0 18px color-mix(in srgb, currentColor 10%, transparent);
+}
+:where(:root[data-theme="sombre"]) .bulle-graphique {
+  background: #0a1a14;
+  border: 1px solid rgba(240, 215, 150, 0.25);
+}
+:where(:root[data-theme="sombre"]) .resume-tuiles li,
+:where(:root[data-theme="sombre"]) .bilan-tuiles li {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Progression : l'avancement en grand anneau doré ---------------------- */
+.progression-entete {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  border-radius: 22px;
+  background: var(--motif-doux), linear-gradient(150deg, var(--or-clair) 0, var(--carte) 80%);
+  border: 1px solid var(--bord-or);
+  box-shadow: var(--ombre);
+}
+.progression-anneau {
+  flex: none;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+.progression-anneau small {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--or-texte);
+}
+.progression-anneau .anneau {
+  filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--or) 30%, transparent));
+}
+.progression-anneau .anneau-valeur {
+  stroke: var(--or);
+}
+.progression-anneau .anneau-declare {
+  stroke: color-mix(in srgb, var(--or) 40%, var(--surface-3));
+}
+.progression-anneau .anneau-fond {
+  stroke: color-mix(in srgb, var(--or) 14%, var(--surface-3));
+}
+.progression-anneau .anneau-texte {
+  font-size: 22px;
+}
+.progression-entete-texte {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.progression-entete-texte p {
+  margin: 0;
+}
+.progression-surtitre {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--or-texte);
+}
+.progression-grand {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 19px;
+  line-height: 1.25;
+}
+.progression-grand strong {
+  font-size: 30px;
+  color: var(--vert-texte);
+}
+.progression-detail {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.progression-entete-texte .progression-encouragement {
+  margin-top: 4px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--carte) 70%, transparent);
+  border-left: 3px solid var(--or);
+  font-size: 14px;
+  font-style: italic;
+}
+.tuile-icone {
+  color: var(--vert-texte);
+  margin-bottom: 4px;
+}
+@media (max-width: 420px) {
+  .progression-entete {
+    flex-direction: column;
+    text-align: center;
+  }
+  .progression-encouragement {
+    border-left: 0;
+    border-top: 3px solid var(--or);
+  }
+}
+
+/* ---------- Onglet Coran : continuer la lecture ---------------------------------- */
+.continuer-lecture {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: var(--motif-clair), linear-gradient(135deg, var(--vert) 0, var(--vert-nuit) 100%);
+  background-size:
+    96px 96px,
+    cover;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--vert-nuit) 30%, transparent);
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+.continuer-lecture:hover {
+  color: #fff;
+}
+.continuer-lecture:active {
+  transform: scale(0.98);
+}
+.continuer-lecture-icone {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #f0d796;
+}
+.continuer-lecture-texte {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+.continuer-lecture-texte b {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.continuer-lecture-texte small {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.78);
+}
+.continuer-lecture-texte small:first-child {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f0d796;
+}
+.continuer-lecture-fleche {
+  flex: none;
+  opacity: 0.8;
+}
+
+/* ---------- Appel : la jauge des présents, les avatars, des choix plus francs ---------- */
+.appel-jauge {
+  flex-basis: 100%;
+  order: 3;
+  display: block;
+  height: 8px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--rouge) 28%, var(--surface-3));
+  overflow: hidden;
+}
+.appel-jauge > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teinte-2), var(--vert));
+  transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ligne-appel {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+.ligne-appel-tete .avatar {
+  flex: none;
+}
+.choix-statut button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  min-width: 44px;
+  padding: 0 12px;
+  border-radius: 99px;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.12s ease;
+}
+.choix-statut button:active {
+  transform: scale(0.92);
+}
+.choix-statut button[aria-checked="true"] svg {
+  animation: coche-du-jour 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.choix-statut-texte {
+  font-size: 13px;
+}
+.choix-statut button[aria-checked="false"] .choix-statut-texte {
+  display: none;
+}
+@media (max-width: 380px) {
+  .choix-statut-texte {
+    display: none;
+  }
+  .choix-statut button {
+    padding: 0;
+    width: 40px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .appel-jauge > span,
+  .ligne-appel,
+  .choix-statut button {
+    transition: none;
+  }
+  .choix-statut button[aria-checked="true"] svg {
+    animation: none;
+  }
+}
+
+/* ---------- Mon compte : la carte de profil ---------------------------------- */
+.carte-compte.profil-compte {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--carte);
+}
+.profil-compte-tete {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 20px 18px;
+  background: var(--motif-clair), linear-gradient(135deg, var(--vert) 0, var(--vert-nuit) 100%);
+  background-size:
+    96px 96px,
+    cover;
+  color: #fff;
+}
+.profil-compte-tete .avatar-grand {
+  width: 72px;
+  height: 72px;
+  font-size: 26px;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.85),
+    0 8px 20px rgba(0, 0, 0, 0.25);
+}
+.profil-compte-identite {
+  min-width: 0;
+}
+.carte-compte .profil-compte-identite h1 {
+  color: #fff;
+  font-size: 24px;
+}
+.carte-compte .profil-compte-identite p {
+  color: rgba(255, 255, 255, 0.8);
+}
+.carte-compte .profil-compte-identite .profil-compte-role {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 10px;
+  border-radius: 99px;
+  background: rgba(240, 215, 150, 0.2);
+  color: #f0d796;
+  font-size: 13px;
+  font-weight: 700;
+}
+.profil-compte-details {
+  list-style: none;
+  margin: 0;
+  padding: 0 20px 18px;
+  display: grid;
+  gap: 10px;
+}
+.profil-compte-details li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "icone libelle"
+    "icone valeur";
+  column-gap: 12px;
+  align-items: center;
+}
+.profil-compte-details svg {
+  grid-area: icone;
+  box-sizing: content-box;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.profil-compte-details span {
+  grid-area: libelle;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+.profil-compte-details b {
+  grid-area: valeur;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  font-size: 15px;
+}
+.profil-compte-details b small {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+
+/* ---------- Bienvenue : le logo fête l'arrivée, les premiers pas en trois étapes ---------- */
+.auth-fete .auth-logo {
+  position: relative;
+  animation: logo-fete 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+.auth-fete .auth-logo::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  z-index: -1;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(240, 215, 150, 0.32) 0 6deg, transparent 6deg 22.5deg);
+  mask: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: rayons-fete 14s linear infinite;
+}
+@keyframes logo-fete {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-90deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.12) rotate(8deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes rayons-fete {
+  to {
+    transform: rotate(1turn);
+  }
+}
+.auth-fete .auth-etincelles i {
+  animation-duration: 3s;
+}
+.bienvenue-etapes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.bienvenue-etapes li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-3);
+  animation: apparition 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation-delay: calc(0.35s + var(--i, 0) * 0.12s);
+}
+.bienvenue-etapes li > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.35;
+}
+.bienvenue-etapes b {
+  font-size: 15px;
+}
+.bienvenue-etapes small {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+.bienvenue-numero {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--vert);
+  color: #fff;
+  font-family: var(--font-titre), Georgia, serif;
+  font-weight: 700;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--or) 45%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-fete .auth-logo,
+  .auth-fete .auth-logo::before,
+  .bienvenue-etapes li {
+    animation: none;
+  }
+}
+@media (max-width: 600px) {
+  .jour-rempli .jour-duree {
+    justify-self: end;
+  }
+}
+
+/* Bilan : deux tuiles par ligne sur téléphone, quatre sur grand écran.
+   (Pas de base flexible ici : dans la carte en colonne, elle étirerait la hauteur.) */
+.bilan-tuiles {
+  flex: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 640px) {
+  .bilan-tuiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.auth-hadith .arabe {
+  align-self: flex-start;
+  text-align: left;
+}
+/* Tuiles : placement explicite (icône à gauche, valeur puis libellé à droite). */
+.resume-tuiles li,
+.bilan-tuiles li {
+  grid-template-areas:
+    "icone valeur"
+    "icone libelle";
+  align-content: center;
+}
+.resume-tuiles li > svg,
+.bilan-tuiles li > svg {
+  grid-area: icone;
+  align-self: center;
+}
+.resume-tuiles li > strong,
+.bilan-tuiles li > strong {
+  grid-area: valeur;
+}
+.resume-tuiles li > span,
+.bilan-tuiles li > span {
+  grid-area: libelle;
 }

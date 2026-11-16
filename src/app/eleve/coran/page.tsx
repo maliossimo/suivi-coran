@@ -1,6 +1,7 @@
 import { BookOpen, Mic } from "lucide-react";
 import Link from "next/link";
 import { EnteteEspace } from "@/components/EnteteEspace";
+import { ContinuerLecture } from "@/components/coran/ContinuerLecture";
 import { LIBELLE_LECTURE } from "@/domain/lectures";
 import { exigerEleveAvecLecture } from "@/services/acces";
 import { chargerAccueilCoran } from "@/services/accueilCoran";
@@ -27,6 +28,7 @@ export default async function PageCoranEleve() {
     <>
       <EnteteEspace titre="Coran" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
       <main className="espace espace-etroit accueil-coran">
+        <ContinuerLecture />
         <section className="carte-coran carte-reciter" aria-labelledby="titre-reciter">
           <h2 id="titre-reciter">
             <Mic size={20} aria-hidden="true" /> Réciter
