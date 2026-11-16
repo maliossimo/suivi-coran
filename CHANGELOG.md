@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.35.0] — 2026-11-16
+
+### Amélioré
+
+- Mode révision : sur la fiche de révision et la saisie d'une séance de révision, toute l'appli passe à l'or (en-tête, fond, barre du bas, boutons, liens, et la barre d'état du téléphone). Ailleurs, l'appli reste verte. En mode sombre aussi.
+- Passage apprentissage ↔ révision : la nouvelle couleur se répand en cercle depuis l'onglet touché, sur tout l'écran, sans clignotement (transition de vue du navigateur). Même effet en glissant sur les onglets. Sur un téléphone qui ne la connaît pas, ou avec « réduire les animations », le changement est direct.
+- Écran de démarrage plus abouti (environ 2,5 s) : l'étoile se dessine en or trait par trait, le calame trace le ق qui apparaît sous lui, un reflet doré traverse la lettre, le nom apparaît ; un court temps figé pour voir le logo, puis il file vers sa place dans l'en-tête. Un appui le passe toujours.
+
 ## [1.34.0] — 2026-11-16
 
 ### Amélioré

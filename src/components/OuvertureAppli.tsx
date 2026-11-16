@@ -1,8 +1,9 @@
 /**
  * Ouverture de l'appli installée, dans la continuité de l'écran de démarrage
  * (même image : étoile à 8 branches or et ق crème) :
- * un calame doré repasse sur le ق (le corps, puis les deux points), l'étoile pivote
- * d'un huitième de tour, puis tout s'ouvre sur la page. Environ 1,2 s.
+ * l'étoile se dessine en or, un calame doré trace le ق (le corps, puis les deux points),
+ * l'étoile pivote d'un huitième de tour, un reflet traverse la lettre, le nom apparaît ;
+ * un court temps figé, puis le logo file vers l'en-tête et la page s'ouvre. Environ 2,5 s.
  * Une fois par ouverture, seulement dans l'appli installée, jamais si le téléphone
  * demande de réduire les animations ; un appui la passe.
  * Pur HTML/CSS : le script du layout ajoute data-ouverture sur <html>.
@@ -14,9 +15,9 @@ export function OuvertureAppli() {
     <div className="ouverture" aria-hidden="true">
       <svg viewBox="0 0 200 200" className="ouverture-logo">
         <g className="ouverture-etoile">
-          <rect x="44" y="44" width="112" height="112" />
-          <rect x="44" y="44" width="112" height="112" transform="rotate(45 100 100)" />
-          <circle cx="100" cy="100" r="41" />
+          <rect x="44" y="44" width="112" height="112" pathLength={1} />
+          <rect x="44" y="44" width="112" height="112" transform="rotate(45 100 100)" pathLength={1} />
+          <circle cx="100" cy="100" r="41" pathLength={1} />
         </g>
         <g transform="translate(100 97.6) scale(0.0800 -0.0800) translate(-346.3 -224.7)">
           <path

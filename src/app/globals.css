@@ -23,6 +23,8 @@
   --revision-fonce: #6b480c;
   --revision-clair: #f5ebd8;
   --revision-texte: #7a4f0e;
+  --fond-revision: #f8f2e4;
+  --barre-revision: #6b4a10;
   /* Icônes des onglets : chacune garde sa couleur, quelle que soit la fiche ouverte. */
   --icone-apprentissage: #1d5c47;
   --icone-revision: #c9a24a;
@@ -687,72 +689,56 @@ a:hover {
 }
 .onglet.onglet-apprentissage[aria-current="page"],
 .onglet.onglet-revision[aria-current="page"] {
-  background: transparent;
-  box-shadow: none;
+  border: 1.5px solid var(--vert);
+  background: var(--vert-clair);
   color: var(--vert-texte);
 }
-.onglet.onglet-apprentissage[aria-current="page"]::before,
-.onglet.onglet-revision[aria-current="page"]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border: 1.5px solid var(--vert);
-  border-radius: inherit;
-  background: var(--vert-clair);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-.fiche-teinte[data-bascule="vers-revision"] .onglet-revision[aria-current="page"]::before {
-  animation: curseur-depuis-gauche 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.fiche-teinte[data-bascule="vers-apprentissage"] .onglet-apprentissage[aria-current="page"]::before {
-  animation: curseur-depuis-droite 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-@keyframes curseur-depuis-gauche {
-  from {
-    transform: translateX(calc(-100% - 4px));
-  }
-}
-@keyframes curseur-depuis-droite {
-  from {
-    transform: translateX(calc(100% + 4px));
-  }
-}
 
-/* La fiche de révision est la même fiche, teintée d'or : à l'intérieur, le vert de l'appli devient
-   l'or (en-tête, barre du bas et fond ne changent pas). Les couleurs glissent de l'une à l'autre. */
-@property --vert {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #1d5c47;
-}
-@property --vert-fonce {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #123c2e;
-}
-@property --vert-clair {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #e2eee8;
-}
-@property --vert-texte {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #1d5c47;
-}
-.fiche-teinte {
-  transition:
-    --vert 0.4s ease,
-    --vert-fonce 0.4s ease,
-    --vert-clair 0.4s ease,
-    --vert-texte 0.4s ease;
-}
-.fiche-teinte[data-teinte="revision"] {
+/* ---------- Mode révision : toute l'appli passe à l'or -------------------------------
+   Sur la fiche de révision et la saisie d'une séance de révision (repère .mode-revision dans
+   la page, posé par le serveur : pas d'éclair vert au chargement). Le vert de l'appli devient
+   l'or : en-tête, fond, barre du bas, boutons, liens. Ailleurs, tout reste vert. */
+:root:has(.mode-revision) {
   --vert: var(--revision);
   --vert-fonce: var(--revision-fonce);
   --vert-clair: var(--revision-clair);
   --vert-texte: var(--revision-texte);
+  --fond: var(--fond-revision);
+}
+:root:has(.mode-revision) .barre {
+  background-color: var(--barre-revision);
+}
+@media (prefers-color-scheme: dark) {
+  @media (max-width: 760px) {
+    :root:where(:not([data-theme="clair"])):has(.mode-revision) .nav-espace {
+      background: rgba(30, 26, 17, 0.94);
+    }
+  }
+}
+/* Même chose quand le thème sombre est choisi à la main. */
+@media (max-width: 760px) {
+  :root:where([data-theme="sombre"]):has(.mode-revision) .nav-espace {
+    background: rgba(30, 26, 17, 0.94);
+  }
+}
+
+/* Passage d'une fiche à l'autre : la nouvelle couleur se répand en cercle depuis l'onglet touché
+   (transition de vue du navigateur : l'ancien écran et le nouveau, sans clignotement). */
+html.vague-fiche::view-transition-old(root),
+html.vague-fiche::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.vague-fiche::view-transition-new(root) {
+  animation: vague-couleur 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes vague-couleur {
+  from {
+    clip-path: circle(0 at var(--vague-x, 50%) var(--vague-y, 30%));
+  }
+  to {
+    clip-path: circle(var(--vague-r, 150vmax) at var(--vague-x, 50%) var(--vague-y, 30%));
+  }
 }
 .resume-mois {
   margin: 0;
@@ -3152,6 +3138,8 @@ button:active:not(:disabled),
     --revision-fonce: #6b4d12;
     --revision-clair: #2b2416;
     --revision-texte: #e3c27a;
+    --fond-revision: #1a1710;
+    --barre-revision: #4a3410;
     --icone-apprentissage: #6cc3a0;
     --icone-revision: #e3c27a;
     --rouge: #e07a6c;
@@ -3225,6 +3213,8 @@ button:active:not(:disabled),
   --revision-fonce: #6b4d12;
   --revision-clair: #2b2416;
   --revision-texte: #e3c27a;
+  --fond-revision: #1a1710;
+  --barre-revision: #4a3410;
   --icone-apprentissage: #6cc3a0;
   --icone-revision: #e3c27a;
   --rouge: #e07a6c;
@@ -4155,7 +4145,13 @@ button:active:not(:disabled),
   margin-left: 0;
 }
 
-/* ---------- Ouverture de l'appli installée (calame doré) ---------------- */
+/* ---------- Ouverture de l'appli installée (calame doré), environ 2,5 s ----------------
+   0,05 → 0,8 s : l'étoile se dessine en or, trait par trait ;
+   0,6 → 1,4 s : le calame trace le ق (le corps, puis les deux points), la lettre apparaît sous lui,
+                  l'étoile pivote d'un huitième de tour ;
+   1,4 → 1,8 s : un reflet doré traverse la lettre, le nom monte sous le logo ;
+   1,8 → 2,1 s : tout reste figé, le temps de voir le logo ;
+   2,1 → 2,5 s : le logo file vers sa place dans l'en-tête et la page apparaît autour. */
 .ouverture {
   display: none;
 }
@@ -4166,33 +4162,49 @@ html[data-ouverture] .ouverture {
   display: grid;
   place-items: center;
   background: #1d5c47;
-  animation: ouverture-fondu 0.32s ease-in 0.95s forwards;
+  animation: ouverture-fondu 0.38s ease-in 2.12s forwards;
 }
 .ouverture-logo {
   /* Même taille que l'icône de l'écran de démarrage d'Android (étoile ≈ 240 px). */
   width: min(304px, 82vw);
   height: auto;
   overflow: visible;
-  animation: ouverture-envol 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.85s forwards;
+  animation: ouverture-envol 0.42s cubic-bezier(0.55, 0, 0.3, 1) 2.08s forwards;
 }
 .ouverture-etoile {
   transform-origin: 100px 100px;
-  animation: ouverture-pivot 0.9s cubic-bezier(0.45, 0, 0.2, 1) 0.15s both;
+  animation: ouverture-pivot 0.9s cubic-bezier(0.45, 0, 0.2, 1) 0.6s both;
+}
+.ouverture-etoile rect,
+.ouverture-etoile circle {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
 }
 .ouverture-etoile rect {
-  fill: rgba(255, 255, 255, 0.055);
+  fill: rgba(255, 255, 255, 0);
   stroke: #d6af5c;
   stroke-width: 2.4;
   stroke-linejoin: round;
+  animation:
+    ouverture-plume 0.75s cubic-bezier(0.5, 0, 0.3, 1) 0.05s forwards,
+    ouverture-voile 0.5s ease-out 0.6s forwards;
+}
+.ouverture-etoile rect + rect {
+  animation-delay: 0.18s, 0.7s;
 }
 .ouverture-etoile circle {
   fill: none;
   stroke: #d6af5c;
   stroke-opacity: 0.43;
   stroke-width: 1;
+  animation: ouverture-plume 0.5s ease-out 0.45s forwards;
 }
 .ouverture-lettre {
   fill: #faf3e0;
+  opacity: 0;
+  animation:
+    ouverture-apparait 0.5s ease-out 0.85s forwards,
+    ouverture-reflet 0.45s ease-in-out 1.42s;
 }
 /* Le calame : un trait or qui parcourt la lettre, puis s'efface. */
 .ouverture-calame {
@@ -4206,13 +4218,13 @@ html[data-ouverture] .ouverture {
 }
 .ouverture-calame-corps {
   animation:
-    ouverture-plume 0.6s cubic-bezier(0.55, 0.1, 0.35, 1) 0.05s forwards,
-    ouverture-dore 0.35s ease-out 0.6s forwards;
+    ouverture-plume 0.65s cubic-bezier(0.55, 0.1, 0.35, 1) 0.6s forwards,
+    ouverture-dore 0.4s ease-out 1.2s forwards;
 }
 .ouverture-calame-points {
   animation:
-    ouverture-plume 0.22s ease-out 0.55s forwards,
-    ouverture-dore 0.3s ease-out 0.72s forwards;
+    ouverture-plume 0.24s ease-out 1.12s forwards,
+    ouverture-dore 0.32s ease-out 1.3s forwards;
 }
 @keyframes ouverture-plume {
   to {
@@ -4224,14 +4236,31 @@ html[data-ouverture] .ouverture {
     stroke-opacity: 0;
   }
 }
+@keyframes ouverture-voile {
+  to {
+    fill: rgba(255, 255, 255, 0.055);
+  }
+}
+@keyframes ouverture-apparait {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ouverture-reflet {
+  50% {
+    fill: #fff6d6;
+    filter: drop-shadow(0 0 60px rgba(240, 215, 150, 0.9));
+  }
+}
 @keyframes ouverture-pivot {
   to {
     transform: rotate(45deg);
   }
 }
+/* Vers le logo de l'en-tête (en haut à gauche), en rétrécissant. */
 @keyframes ouverture-envol {
   to {
-    transform: scale(1.1);
+    transform: translate(calc(37px - 50vw), calc(48px + env(safe-area-inset-top) - 50vh)) scale(0.17);
   }
 }
 @keyframes ouverture-fondu {
@@ -5065,7 +5094,14 @@ html[data-ouverture] .ouverture-version {
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  animation: ouverture-version 0.5s ease-out 0.25s both;
+  animation:
+    ouverture-version 0.55s ease-out 1.3s both,
+    ouverture-apparait-inverse 0.25s ease-in 2.05s forwards;
+}
+@keyframes ouverture-apparait-inverse {
+  to {
+    opacity: 0;
+  }
 }
 .ouverture-version span {
   font-size: 12px;

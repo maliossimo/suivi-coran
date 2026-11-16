@@ -44,7 +44,7 @@ test.describe("Apparence", () => {
     });
   });
 
-  // Fiche d'un mois passé (stable d'un jour à l'autre) : apprentissage en vert, révision teintée d'or.
+  // Fiche d'un mois passé (stable d'un jour à l'autre) : apprentissage en vert, toute l'appli en or en révision.
   for (const [type, sombre] of [
     ["apprentissage", false],
     ["revision", false],
@@ -54,9 +54,7 @@ test.describe("Apparence", () => {
       if (sombre) await page.emulateMedia({ colorScheme: "dark" });
       await seConnecter(page, COMPTES.eleveA, /\/eleve/);
       await page.goto(`/eleve?mois=2026-01&type=${type}`);
-      await expect(
-        page.locator(`.fiche-teinte[data-teinte="${type}"] .onglet[aria-current="page"]`),
-      ).toBeVisible();
+      await expect(page.locator(`.onglet-${type}[aria-current="page"]`)).toBeVisible();
       await page.evaluate(() => document.fonts.ready);
       await expect(page).toHaveScreenshot(`fiche-${type}${sombre ? "-sombre" : ""}.png`, {
         ...OPTIONS,

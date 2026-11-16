@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { VueAdmin } from "@/components/admin/VueAdmin";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { EcranSeance } from "@/components/fiche/EcranSeance";
+import { ModeFiche } from "@/components/fiche/ModeFiche";
 import { exigerEspace } from "@/services/acces";
 import { chargerEleve } from "@/services/classe";
 import { chargerSeance, lireDateSaisissable, lireType } from "@/services/fiche";
@@ -38,7 +39,8 @@ export default async function PageSeanceMaitre({
         nom={`${profil.prenom} ${profil.nom}`.trim()}
         role={profil.role}
       />
-      <main className="espace espace-etroit fiche-teinte" data-teinte={type}>
+      <main className="espace espace-etroit">
+        <ModeFiche type={type} />
         <VueAdmin actif={profil.role === "admin"}>
           <EcranSeance donnees={donnees} eleveId={eleve.id} base={base} date={date} type={type} vueMaitre />
         </VueAdmin>

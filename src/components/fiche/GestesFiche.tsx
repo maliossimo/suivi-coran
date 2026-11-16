@@ -33,7 +33,6 @@ export function GestesFiche({
   ongletGauche,
   ongletDroite,
   cleFiche,
-  teinte,
   children,
 }: {
   moisPrecedent: string;
@@ -43,8 +42,6 @@ export function GestesFiche({
   ongletDroite: string | null;
   /** Mois + type affichés : le contenu se remonte (et s'anime) quand ils changent. */
   cleFiche: string;
-  /** Fiche ouverte : la révision est teintée d'or, et les couleurs glissent quand on change. */
-  teinte: "apprentissage" | "revision";
   children: ReactNode;
 }) {
   const router = useRouter();
@@ -56,16 +53,6 @@ export function GestesFiche({
   /** Départ en cours : le contenu s'efface dans le sens du geste jusqu'à l'arrivée du nouveau mois. */
   const [sortie, setSortie] = useState<{ sens: Sens; cle: string; hauteur: number } | null>(null);
   const contenu = useRef<HTMLDivElement>(null);
-  // Passage d'une fiche à l'autre (même mois) : le curseur des onglets glisse vers la fiche ouverte.
-  const [vue, setVue] = useState<{ cle: string; bascule: string | undefined }>({
-    cle: cleFiche,
-    bascule: undefined,
-  });
-  if (vue.cle !== cleFiche) {
-    const avant = vue.cle.slice(0, vue.cle.lastIndexOf("-"));
-    const apres = cleFiche.slice(0, cleFiche.lastIndexOf("-"));
-    setVue({ cle: cleFiche, bascule: avant === apres ? `vers-${teinte}` : undefined });
-  }
   const cleRef = useRef(cleFiche);
   cleRef.current = cleFiche;
 
@@ -74,6 +61,45 @@ export function GestesFiche({
     setSortie({ sens, cle: cleRef.current, hauteur: contenu.current?.offsetHeight ?? 0 });
     setGlisse(0);
   }, []);
+
+  /**
+   * Apprentissage ↔ révision : la nouvelle couleur se répand en cercle depuis (x, y) sur tout l'écran
+   * (transition de vue du navigateur). Sans elle, ou avec « réduire les animations » : simple changement.
+   */
+  const basculer = useCallback(
+    (cible: string, x: number, y: number) => {
+      const doc = document as Document & {
+        startViewTransition?: (maj: () => Promise<void>) => { finished: Promise<void> };
+      };
+      const type = new URL(cible, location.href).searchParams.get("type") ?? "apprentissage";
+      if (!doc.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        router.push(cible, { scroll: false });
+        return;
+      }
+      const html = document.documentElement;
+      const rayon = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      html.style.setProperty("--vague-x", `${x}px`);
+      html.style.setProperty("--vague-y", `${y}px`);
+      html.style.setProperty("--vague-r", `${Math.ceil(rayon)}px`);
+      html.classList.add("vague-fiche");
+      const transition = doc.startViewTransition(
+        () =>
+          new Promise<void>((pret) => {
+            router.push(cible, { scroll: false });
+            const debut = performance.now();
+            // La nouvelle fiche est affichée (son repère a le bon type) : la vague peut partir.
+            const attendre = () => {
+              const actuel = document.querySelector<HTMLElement>(".mode-fiche")?.dataset.type;
+              if (actuel === type || performance.now() - debut > 1500) pret();
+              else requestAnimationFrame(attendre);
+            };
+            attendre();
+          }),
+      );
+      transition.finished.finally(() => html.classList.remove("vague-fiche"));
+    },
+    [router],
+  );
 
   // Mois voisins et autre onglet chargés d'avance : le changement est immédiat.
   useEffect(() => {
@@ -146,8 +172,17 @@ export function GestesFiche({
       // Doigt vers la gauche : on avance (mois suivant, onglet de droite).
       const cible = d.onglets ? (dx < 0 ? ongletDroite : ongletGauche) : dx < 0 ? moisSuivant : moisPrecedent;
       if (!cible) return;
-      partir(dx < 0 ? "gauche" : "droite");
       if (retoursActives()) navigator.vibrate?.(8);
+      if (d.onglets) {
+        // La couleur part de l'onglet vers lequel on va.
+        const onglet = document.querySelector<HTMLElement>(
+          `.onglets .onglet-${dx < 0 ? "revision" : "apprentissage"}`,
+        );
+        const r = onglet?.getBoundingClientRect();
+        basculer(cible, r ? r.left + r.width / 2 : t.clientX, r ? r.top + r.height / 2 : t.clientY);
+        return;
+      }
+      partir(dx < 0 ? "gauche" : "droite");
       router.push(cible, { scroll: false });
     };
 
@@ -166,7 +201,7 @@ export function GestesFiche({
       window.removeEventListener("touchend", fin);
       window.removeEventListener("touchcancel", annule);
     };
-  }, [router, partir, moisPrecedent, moisSuivant, ongletGauche, ongletDroite]);
+  }, [router, partir, basculer, moisPrecedent, moisSuivant, ongletGauche, ongletDroite]);
 
   const visible = tire > 10 || rafraichit;
   // Nouveau contenu arrivé après un départ : il entre par le côté opposé.
@@ -193,37 +228,44 @@ export function GestesFiche({
         />
         {rafraichit ? <span className="visuellement-cache">Mise à jour…</span> : null}
       </div>
-      <div className="fiche-teinte" data-teinte={teinte} data-bascule={vue.bascule}>
-        <div
-          key={cleFiche}
-          ref={contenu}
-          className={classe}
-          style={
-            glisse
-              ? { transform: `translateX(${glisse}px)`, opacity: 1 - Math.min(Math.abs(glisse) / 400, 0.3) }
-              : sortie && sortie.cle !== cleFiche
-                ? { minHeight: sortie.hauteur }
-                : undefined
+      <div
+        key={cleFiche}
+        ref={contenu}
+        className={classe}
+        style={
+          glisse
+            ? { transform: `translateX(${glisse}px)`, opacity: 1 - Math.min(Math.abs(glisse) / 400, 0.3) }
+            : sortie && sortie.cle !== cleFiche
+              ? { minHeight: sortie.hauteur }
+              : undefined
+        }
+        // Ouvrir ou replier une semaine : petite vibration, comme un vrai bouton.
+        onClick={(e) => {
+          if ((e.target as Element).closest?.(".semaine-pliable > summary") && retoursActives())
+            navigator.vibrate?.(8);
+        }}
+        onAnimationEnd={(e) => {
+          if (e.target === e.currentTarget && sortie && sortie.cle !== cleFiche) setSortie(null);
+        }}
+        onClickCapture={(e) => {
+          // Flèches des mois et onglets : même effet que le glissement.
+          if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+            return;
+          const lien =
+            e.target instanceof Element ? e.target.closest<HTMLAnchorElement>("a[data-sens]") : null;
+          const sens = lien?.dataset.sens;
+          if (!lien || (sens !== "gauche" && sens !== "droite")) return;
+          // Onglets Apprentissage / Révision : la couleur se répand depuis le doigt.
+          if (lien.closest(".onglets")) {
+            e.preventDefault();
+            e.stopPropagation();
+            basculer(lien.href, e.clientX, e.clientY);
+            return;
           }
-          // Ouvrir ou replier une semaine : petite vibration, comme un vrai bouton.
-          onClick={(e) => {
-            if ((e.target as Element).closest?.(".semaine-pliable > summary") && retoursActives())
-              navigator.vibrate?.(8);
-          }}
-          onAnimationEnd={(e) => {
-            if (e.target === e.currentTarget && sortie && sortie.cle !== cleFiche) setSortie(null);
-          }}
-          onClickCapture={(e) => {
-            // Flèches des mois et onglets : même effet que le glissement.
-            if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
-              return;
-            const lien = e.target instanceof Element ? e.target.closest<HTMLElement>("a[data-sens]") : null;
-            const sens = lien?.dataset.sens;
-            if (sens === "gauche" || sens === "droite") partir(sens);
-          }}
-        >
-          {children}
-        </div>
+          partir(sens);
+        }}
+      >
+        {children}
       </div>
     </>
   );
