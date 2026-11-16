@@ -9,6 +9,15 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.43.1] — 2026-11-16
+
+### Corrigé
+
+- Coran, plein écran : le bouton « Quitter » se place au-dessus de la page (plus sur le texte) et s'efface après 3 s, un toucher le fait revenir ; plus le long message d'Android à chaque entrée ; en Mushaf, la page remplit l'écran.
+- Coran : la suite des sourates a exactement le même style que la page ouverte (couleurs de la page, numéros de versets, cartouche).
+- Coran : « Réciter » est rangé dans la barre du lecteur ; plus rien ne flotte sur les versets ni sur la légende du tajwid.
+- Coran : en arrivant sur l'onglet, la page s'affiche net (elle ne paraît plus grisée un instant).
+
 ## [1.43.0] — 2026-11-16
 
 ### Ajouté

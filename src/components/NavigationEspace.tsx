@@ -278,16 +278,16 @@ function useArriveeDansLeSens(chemin: string) {
     const fin = window.setTimeout(() => delete html.dataset.arriveeOnglet, 1500);
     const depart = sens === "droite" ? "28px" : "-28px";
     for (const el of document.querySelectorAll<HTMLElement>("main.espace > *")) {
-      // Un bloc qui porte un élément accroché à l'écran (lecteur du Coran, barre d'enregistrement…)
-      // arrive en simple fondu : déplacé, il emmènerait cet élément avec lui, qui sauterait ensuite.
-      const fixe = el.matches(ACCROCHES) || el.querySelector(ACCROCHES) !== null;
+      // Un bloc qui porte un élément accroché à l'écran (lecteur du Coran, barre d'enregistrement…) ne glisse
+      // pas : déplacé, il emmènerait cet élément avec lui, qui sauterait ensuite.
+      // (Pas de fondu non plus : une page claire à demi transparente paraissait grisée, comme en chargement.
+      // Elle s'affiche net, et c'est le lecteur qui monte depuis le bas.)
+      if (el.matches(ACCROCHES) || el.querySelector(ACCROCHES) !== null) continue;
       el.animate?.(
-        fixe
-          ? [{ opacity: 0.001 }, { opacity: 1 }]
-          : [
-              { transform: `translateX(${depart})`, opacity: 0.001 },
-              { transform: "none", opacity: 1 },
-            ],
+        [
+          { transform: `translateX(${depart})`, opacity: 0.001 },
+          { transform: "none", opacity: 1 },
+        ],
         { duration: 300, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
       );
     }
