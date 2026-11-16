@@ -32,7 +32,7 @@ Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z
 ### Amélioré
 
 - Barre du bas : icônes dessinées pour l'appli (carnet, mushaf sur son pupitre, mosquée…) ; la page arrive du côté de l'onglet touché.
-- Écran de connexion : une parole sur l'apprentissage du Coran, des étincelles dorées, la boîte qui arrive en douceur.
+- Écran de connexion : des étincelles dorées, la boîte qui arrive en douceur.
 - Avatars en léger relief, avec l'étoile du logo en filigrane.
 - Feuilles du bas : elles montent avec un léger ressort et se ferment en les tirant vers le bas par la poignée.
 - Léger effet de profondeur au défilement (en-tête et motifs).
