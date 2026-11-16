@@ -19,6 +19,8 @@ export function BarreNavigation() {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const lien = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
       if (!lien || lien.target || lien.hasAttribute("download")) return;
+      // Élément qui agit sur place, dans un lien (ex. pastille « à écouter ») : pas de navigation.
+      if ((e.target as Element).closest("[data-sans-navigation]")) return;
       const url = new URL(lien.href, window.location.href);
       if (url.origin !== window.location.origin) return;
       if (url.pathname === window.location.pathname && url.search === window.location.search) return;

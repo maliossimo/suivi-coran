@@ -1,0 +1,134 @@
+"use client";
+
+import { Check, ChevronRight, Headphones } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { actionMarquerPassages, actionSeancesAEcouter } from "@/app/actions/fiche";
+import { formaterDuree, libelleJourCourt, libelleJourSemaine, LIBELLE_TYPE } from "@/domain/fiche";
+import type { SeanceAEcouter } from "@/services/fiche";
+import { Feuille } from "./Feuille";
+import { retoursActives } from "./retourSensoriel";
+
+/**
+ * Écoute rapide : depuis la liste de sa classe, le Cheikh voit les séances à écouter d'un élève
+ * dans une feuille du bas, et les marque « Écouté » ou « Validé » sans ouvrir la fiche.
+ * La ligne part tout de suite ; si l'enregistrement échoue, elle revient avec un message.
+ */
+export function EcouteRapide({
+  eleve,
+  onFermer,
+}: {
+  eleve: { id: string; prenom: string; nom: string } | null;
+  onFermer: () => void;
+}) {
+  const [seances, setSeances] = useState<SeanceAEcouter[] | null>(null);
+  const [erreur, setErreur] = useState<string | null>(null);
+  const [faites, setFaites] = useState<Record<string, "ecoute" | "valide">>({});
+
+  useEffect(() => {
+    if (!eleve) return;
+    let annule = false;
+    setSeances(null);
+    setErreur(null);
+    setFaites({});
+    actionSeancesAEcouter(eleve.id)
+      .then((r) => {
+        if (annule) return;
+        if (r) setSeances(r);
+        else setErreur("Les séances n’ont pas pu être chargées. Réessaie.");
+      })
+      .catch(() => !annule && setErreur("Pas de réseau : réessaie dans un instant."));
+    return () => {
+      annule = true;
+    };
+  }, [eleve]);
+
+  const marquer = (s: SeanceAEcouter, etat: "ecoute" | "valide") => {
+    if (!eleve) return;
+    if (retoursActives()) navigator.vibrate?.(8);
+    setErreur(null);
+    setFaites((f) => ({ ...f, [s.id]: etat }));
+    actionMarquerPassages(eleve.id, { seanceId: s.id, etat })
+      .then((r) => {
+        if (r.ok) return;
+        setFaites((f) => sans(f, s.id));
+        setErreur(r.erreur ?? "Le changement n’a pas pu être enregistré.");
+      })
+      .catch(() => {
+        setFaites((f) => sans(f, s.id));
+        setErreur("Pas de réseau : le changement n’a pas été enregistré.");
+      });
+  };
+
+  const restantes = seances?.filter((s) => !faites[s.id]) ?? [];
+  return (
+    <Feuille
+      ouverte={eleve !== null}
+      onFermer={onFermer}
+      titre={eleve ? `À écouter · ${eleve.prenom} ${eleve.nom}`.trim() : "À écouter"}
+    >
+      {erreur ? (
+        <p className="message-erreur" role="alert">
+          {erreur}
+        </p>
+      ) : null}
+      {seances === null && !erreur ? (
+        <div className="ecoute-rapide-chargement" aria-label="Chargement">
+          <span className="squelette" />
+          <span className="squelette" />
+        </div>
+      ) : null}
+      {seances && restantes.length === 0 ? (
+        <p className="ecoute-rapide-fini">
+          <Check size={20} aria-hidden="true" /> Tout est écouté pour cet élève.
+        </p>
+      ) : null}
+      {seances ? (
+        <ul className="ecoute-rapide">
+          {seances.map((s) =>
+            faites[s.id] ? null : (
+              <li key={s.id} className={`ecoute-rapide-seance seance-${s.type}`}>
+                <div className="ecoute-rapide-tete">
+                  <b>
+                    {libelleJourSemaine(s.date)} {libelleJourCourt(s.date)}
+                  </b>
+                  <span className="ecoute-rapide-type">{LIBELLE_TYPE[s.type]}</span>
+                  {s.dureeMin ? (
+                    <span className="ecoute-rapide-duree">{formaterDuree(s.dureeMin)}</span>
+                  ) : null}
+                </div>
+                <p className="ecoute-rapide-passages">
+                  {s.passages.length ? s.passages.join(" · ") : "Séance sans passage"}
+                </p>
+                {s.noteLibre ? <p className="ecoute-rapide-note">« {s.noteLibre} »</p> : null}
+                <div className="ecoute-rapide-actions">
+                  <button type="button" className="bouton-secondaire" onClick={() => marquer(s, "ecoute")}>
+                    <Headphones size={17} aria-hidden="true" /> Écouté
+                  </button>
+                  <button type="button" className="bouton" onClick={() => marquer(s, "valide")}>
+                    <Check size={17} aria-hidden="true" /> Validé
+                  </button>
+                  <Link
+                    className="ecoute-rapide-ouvrir"
+                    href={eleve ? `/maitre/eleves/${eleve.id}/seance?date=${s.date}&type=${s.type}` : "#"}
+                    aria-label="Ouvrir la séance"
+                    onClick={onFermer}
+                  >
+                    <ChevronRight size={20} aria-hidden="true" />
+                  </Link>
+                </div>
+              </li>
+            ),
+          )}
+        </ul>
+      ) : null}
+    </Feuille>
+  );
+}
+
+/** Copie sans la clé donnée (la séance revient dans la liste). */
+function sans<T>(objet: Record<string, T>, cle: string): Record<string, T> {
+  const copie = { ...objet };
+  delete copie[cle];
+  return copie;
+}

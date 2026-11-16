@@ -12,6 +12,8 @@ import {
   enregistrerObjectifEleve,
   enregistrerSeanceEleve,
   marquerPassagesSeance,
+  seancesAEcouter,
+  type SeanceAEcouter,
   supprimerSeanceEleve,
   validerSeanceEleve,
   type ResultatSaisie,
@@ -175,4 +177,15 @@ export async function actionEnregistrerBilan(_: EtatSaisie, form: FormData): Pro
   await notifier("Bilan enregistré");
   revaliderEleve(eleveId);
   return { enregistre: true };
+}
+
+/** Écoute rapide : les séances à écouter d'un élève, pour la feuille ouverte depuis la classe. */
+export async function actionSeancesAEcouter(eleveIdBrut: unknown): Promise<SeanceAEcouter[] | null> {
+  const acteur = await profilConnecte();
+  if (!acteur || !acteur.actif) return null;
+  try {
+    return await seancesAEcouter(acteur, eleveIdBrut);
+  } catch {
+    return null;
+  }
 }

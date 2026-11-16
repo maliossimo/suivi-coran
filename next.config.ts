@@ -25,9 +25,9 @@ const nextConfig: NextConfig = {
   // La page « Nouveautés » lit l'historique des versions sur le serveur.
   outputFileTracingIncludes: { "/admin/nouveautes": ["./CHANGELOG.md"] },
   experimental: {
-    // Une page déjà vue (ex. la fiche) se rouvre instantanément pendant 2 min, puis se met à jour
+    // Une page déjà vue (ex. la fiche) se rouvre instantanément pendant 5 min, puis se met à jour
     // toute seule en arrière-plan (RafraichirCopies) : instantanée et jamais périmée.
-    staleTimes: { dynamic: 120 },
+    staleTimes: { dynamic: 300, static: 600 },
   },
   async headers() {
     return [

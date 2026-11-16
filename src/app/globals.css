@@ -12241,3 +12241,415 @@ html[data-arrivee-onglet] .coran-reciter-flottant {
     animation: none;
   }
 }
+
+/* =====================================================================
+   Fluidité (1.41) : tout répond au doigt, rien ne fait attendre
+   ===================================================================== */
+
+/* ---------- Page déjà vue pendant la visite : elle s'affiche net, sans animation d'entrée ---------- */
+html[data-revisite] .espace > *:not(.fiche-gestes),
+html[data-revisite] .semaines > *,
+html[data-revisite] .liste-eleves > li,
+html[data-revisite] .tuiles > .tuile,
+html[data-revisite] .accueil-coran > .carte-coran,
+html[data-revisite] .espace > .carte-graphique,
+html[data-revisite] .anneau circle:not(.anneau-fond),
+html[data-revisite] .graphique-ligne,
+html[data-revisite] .graphique-aire,
+html[data-revisite] .graphique-point,
+html[data-revisite] .graphique-barre,
+html[data-revisite] .graphique-grille rect,
+html[data-revisite] .carte-grille .carte-case,
+html[data-revisite] .courbe-jour,
+html[data-revisite] .jour-aujourdhui,
+html[data-revisite] .aujourdhui-action.est-fait .aujourdhui-icone,
+html[data-revisite] .aujourdhui-action:not(.est-fait)::after,
+html[data-revisite] .carte-reciter .carte-coran-action,
+html[data-revisite] .coran-reciter-flottant {
+  animation: none;
+}
+
+/* ---------- Des durées courtes, la même courbe partout ---------- */
+:root {
+  --duree-rapide: 0.16s;
+  --duree: 0.24s;
+  --courbe: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.espace > *,
+.squelettes,
+.fenetre-contenu {
+  animation-duration: 0.18s;
+}
+.espace > *:nth-child(2) {
+  animation-delay: 0.02s;
+}
+.espace > *:nth-child(3) {
+  animation-delay: 0.04s;
+}
+.semaines > * {
+  animation-duration: 0.2s;
+}
+.semaines > *:nth-child(n + 2) {
+  animation-delay: 0.02s;
+}
+.liste-eleves > li {
+  animation-duration: 0.2s;
+}
+.liste-eleves > li:nth-child(n + 2) {
+  animation-delay: 0.03s;
+}
+.tuiles > .tuile,
+.accueil-coran > .carte-coran {
+  animation-duration: 0.28s;
+}
+.nav-onglet[aria-current="page"] svg {
+  animation-duration: 0.26s;
+}
+@media (max-width: 760px) {
+  .nav-espace.avec-pastille .nav-pastille.glisse {
+    transition-duration: 0.26s;
+  }
+}
+.ouverture-page.ouvre,
+.ouverture-page.ferme {
+  transition-duration: 0.26s, 0.26s, 0.26s, 0.26s, 0.26s, 0.2s;
+}
+.ouverture-page.ferme.part {
+  transition-duration: 0.26s;
+}
+.feuille-contenu {
+  animation-duration: 0.3s;
+}
+.feuille-relachee {
+  transition-duration: 0.26s;
+}
+.barre-compacte,
+.barre-compacte[data-visible] {
+  transition-duration: 0.24s, 0.18s;
+}
+.barre-compacte[data-visible] .barre-compacte-titre {
+  animation-duration: 0.28s;
+}
+.barre-compacte[data-visible] .barre-compacte-logo {
+  animation-duration: 0.32s;
+}
+.notification {
+  animation-duration: 0.3s;
+}
+.carte-detail,
+.bulle-graphique {
+  animation-duration: 0.16s;
+}
+.carte-detail-jauge > span {
+  animation-duration: 0.35s;
+}
+.anneau circle:not(.anneau-fond) {
+  animation-duration: 0.7s;
+  animation-delay: 0.05s;
+}
+.graphique-ligne {
+  animation-duration: 0.7s;
+  animation-delay: 0.05s;
+}
+.graphique-aire {
+  animation-duration: 0.4s;
+  animation-delay: 0.4s;
+}
+.graphique-barre {
+  animation-duration: 0.4s;
+  animation-delay: calc(0.05s + var(--i, 0) * 0.025s);
+}
+.carte-grille .carte-case {
+  animation-duration: 0.25s;
+  animation-delay: calc(var(--i, 0) * 0.003s);
+}
+.auth-boite {
+  animation-duration: 0.35s;
+}
+html[data-arrivee-onglet] .coran-lecteur {
+  animation-duration: 0.32s;
+  animation-delay: 0.06s;
+}
+
+/* ---------- Le doigt touche : la réponse est immédiate ---------- */
+a,
+button,
+summary,
+label,
+[role="button"],
+[role="radio"],
+[role="tab"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+:is(
+  .carte-eleve,
+  a.jour,
+  .aujourdhui-action,
+  .continuer-lecture,
+  .semaine-pliable > summary,
+  .mois-fleche,
+  .onglet,
+  .puce-periode,
+  .puce-action,
+  .lien-pdf,
+  .lien-retour,
+  .bouton,
+  .bouton-secondaire,
+  .mot-cheikh-lien,
+  .carte-coran-action,
+  .appel-du-jour-ligne,
+  .statut,
+  .duree-rapide
+) {
+  transition:
+    transform 0.14s var(--courbe),
+    background-color 0.14s ease,
+    box-shadow 0.14s ease;
+}
+:is(
+    .carte-eleve,
+    a.jour,
+    .aujourdhui-action,
+    .continuer-lecture,
+    .semaine-pliable > summary,
+    .mois-fleche,
+    .onglet,
+    .puce-periode,
+    .puce-action,
+    .lien-pdf,
+    .lien-retour,
+    .bouton,
+    .bouton-secondaire,
+    .mot-cheikh-lien,
+    .carte-coran-action,
+    .appel-du-jour-ligne,
+    .statut,
+    .duree-rapide
+  ):active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 0.05s;
+}
+:is(.carte-eleve, a.jour, .aujourdhui-action, .continuer-lecture, .appel-du-jour-ligne):active {
+  background-color: color-mix(in srgb, var(--vert) 7%, var(--carte));
+}
+.nav-onglet:active svg {
+  transform: scale(0.86);
+  transition-duration: 0.05s;
+}
+
+/* ---------- Des zones de toucher un peu plus grandes ---------- */
+@media (pointer: coarse) {
+  .mois-fleche {
+    min-width: 46px;
+    min-height: 46px;
+  }
+  .jour-vide,
+  .pastille-etat,
+  .pastille-commentaire,
+  .pastille-note {
+    padding-block: 3px;
+  }
+  .feuille-fermer,
+  .carte-detail-fermer {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .lien-pdf,
+  .lien-retour,
+  .mot-cheikh-lien,
+  .puce-periode,
+  .puce-action {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .statut {
+    height: 40px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.carte-eleve, a.jour, .aujourdhui-action, .continuer-lecture, .bouton, .bouton-secondaire):active {
+    transform: none;
+  }
+}
+
+/* ---------- Barre du bas de l'admin : les onglets moins utilisés sont rangés dans « Plus » ---------- */
+.nav-plus {
+  display: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .nav-espace .nav-secondaire {
+    display: none;
+  }
+  .nav-espace .nav-plus {
+    display: flex;
+  }
+  .nav-plus[data-actif] {
+    color: var(--vert-texte);
+  }
+}
+.menu-plus-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.menu-plus-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--texte);
+  font-weight: 600;
+  text-decoration: none;
+}
+.menu-plus-nav a svg {
+  color: var(--vert-texte);
+}
+.menu-plus-nav a[aria-current="page"] {
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.menu-plus-nav a:active {
+  transform: scale(0.98);
+}
+
+/* ---------- Écoute rapide : le Cheikh écoute et valide depuis la liste de sa classe ---------- */
+.liste-eleves a.carte-eleve {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.pastille-touchable {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 30px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--or) 45%, transparent);
+  transition: transform 0.12s var(--courbe);
+}
+.pastille-touchable:active {
+  transform: scale(0.94);
+}
+.ecoute-rapide {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.ecoute-rapide-seance {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-3);
+  border-left: 4px solid var(--icone-apprentissage);
+  animation: apparition 0.18s ease-out;
+}
+.ecoute-rapide-seance.seance-revision {
+  border-left-color: var(--icone-revision);
+}
+.ecoute-rapide-tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+.ecoute-rapide-type {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texte-doux);
+}
+.ecoute-rapide-duree {
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.ecoute-rapide-passages,
+.ecoute-rapide-note {
+  margin: 0;
+  font-size: 14px;
+}
+.ecoute-rapide-note {
+  color: var(--texte-doux);
+  font-style: italic;
+}
+.ecoute-rapide-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ecoute-rapide-actions .bouton,
+.ecoute-rapide-actions .bouton-secondaire {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+}
+.ecoute-rapide-ouvrir {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--surface-3);
+  color: var(--texte-doux);
+}
+.ecoute-rapide-fini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+  font-weight: 600;
+}
+.ecoute-rapide-chargement {
+  display: grid;
+  gap: 10px;
+}
+.ecoute-rapide-chargement .squelette {
+  display: block;
+  height: 118px;
+  border-radius: 16px;
+}
+
+/* ---------- Champs confortables : pas de zoom sur iPhone, un vrai repère du champ actif ---------- */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
+}
+input,
+textarea,
+select {
+  scroll-margin-block: 96px;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]):focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: var(--vert);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--vert) 16%, transparent);
+}

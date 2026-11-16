@@ -2,7 +2,7 @@
 
 import { BookOpenText, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { lireDerniereLecture, type DerniereLecture } from "./derniereLecture";
 
 /** « il y a 5 min », « hier », « il y a 3 jours » */
@@ -22,7 +22,8 @@ function depuis(quand: number): string {
  */
 export function ContinuerLecture() {
   const [derniere, setDerniere] = useState<DerniereLecture | null>(null);
-  useEffect(() => setDerniere(lireDerniereLecture()), []);
+  // Lu avant que la page s'affiche : la carte est là d'emblée, rien ne se décale ensuite.
+  useLayoutEffect(() => setDerniere(lireDerniereLecture()), []);
   if (!derniere) return null;
   return (
     <Link href={derniere.adresse} className="continuer-lecture">

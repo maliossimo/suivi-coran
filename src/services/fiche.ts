@@ -20,8 +20,10 @@ import {
   type StatutObjectif,
   type TypeSeance,
 } from "@/domain/fiche";
+import { JOURS_A_VOIR } from "@/domain/classe";
 import {
   creerReferentiel,
+  libellePassage,
   nbVersetsDistincts,
   lirePassageTexte,
   passageSuivant,
@@ -409,4 +411,48 @@ export async function chargerFicheImprimable(eleveId: string, moisParam?: string
     }),
   );
   return { mois: parties[0]!.fiche.mois, parties, editeeLe: aujourdhuiParis() };
+}
+
+// ---------- Écoute rapide (Cheikh, depuis la liste de sa classe) ---------
+
+export interface SeanceAEcouter {
+  id: string;
+  date: DateISO;
+  type: TypeSeance;
+  dureeMin: number;
+  /** Passages en clair (« Al-Mulk 1-10 »), ou vide pour une séance sans passage. */
+  passages: string[];
+  noteLibre: string | null;
+}
+
+/**
+ * Séances récentes d'un élève que le Cheikh n'a pas encore écoutées (même règle que la pastille
+ * « à écouter » de la classe), de la plus ancienne à la plus récente. Lecture vérifiée par la base (RLS).
+ */
+export async function seancesAEcouter(
+  acteur: { role: string; actif: boolean },
+  eleveBrut: unknown,
+): Promise<SeanceAEcouter[] | null> {
+  if (!acteur.actif || (acteur.role !== "maitre" && acteur.role !== "admin")) return null;
+  const eleveId = z.string().uuid().safeParse(eleveBrut);
+  if (!eleveId.success) return null;
+  const aujourdhui = aujourdhuiParis();
+  const debut = ajouterJours(aujourdhui, -JOURS_A_VOIR);
+  const [apprentissage, revision, lecture] = await Promise.all([
+    seancesEntre(eleveId.data, "apprentissage", debut, aujourdhui),
+    seancesEntre(eleveId.data, "revision", debut, aujourdhui),
+    lectureEleve(eleveId.data),
+  ]);
+  const ref = creerReferentiel(await listerSourates(lecture));
+  return [...apprentissage, ...revision]
+    .filter((s) => (s.passages.length === 0 ? !s.corrigee : s.passages.some((p) => !(p.corrige || p.valide))))
+    .sort((a, b) => (a.date === b.date ? a.type.localeCompare(b.type) : a.date.localeCompare(b.date)))
+    .map((s) => ({
+      id: s.id,
+      date: s.date,
+      type: s.type,
+      dureeMin: s.dureeMin,
+      passages: s.passages.map((p) => libellePassage(ref, p)),
+      noteLibre: s.noteLibre,
+    }));
 }

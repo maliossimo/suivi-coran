@@ -24,6 +24,8 @@ export function FormulaireConnexion({ erreurInitiale }: { erreurInitiale?: strin
           name="email"
           type="email"
           autoComplete="email"
+          inputMode="email"
+          enterKeyHint="next"
           placeholder="prenom@exemple.fr"
           required
         />
@@ -35,7 +37,14 @@ export function FormulaireConnexion({ erreurInitiale }: { erreurInitiale?: strin
             Mot de passe oublié ?
           </Link>
         </div>
-        <input id="motDePasse" name="motDePasse" type="password" autoComplete="current-password" required />
+        <input
+          id="motDePasse"
+          name="motDePasse"
+          type="password"
+          autoComplete="current-password"
+          enterKeyHint="go"
+          required
+        />
       </div>
       <AntiRobot />
       <button className="bouton" type="submit" disabled={enCours}>

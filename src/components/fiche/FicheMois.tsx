@@ -39,6 +39,7 @@ import { IndicateurLien } from "../IndicateurLien";
 import { PastilleCheikh } from "./PastilleCheikh";
 import { TableauDuJour } from "./TableauDuJour";
 import { SousTitreEntete } from "@/components/SousTitreEntete";
+import { CHOIX, RetenirChoix } from "@/components/RetenirChoix";
 
 /**
  * Fiche du mois d'un élève (semaines 1 à 5). Utilisée par l'élève (/eleve)
@@ -85,6 +86,7 @@ export function FicheMois({
       cleFiche={`${cle}-${fiche.type}`}
     >
       <ModeFiche type={fiche.type} />
+      <RetenirChoix nom={CHOIX.ongletFiche} valeur={fiche.type} />
       <SousTitreEntete
         texte={`${libelleMois(fiche.mois).replace(/^./, (c) => c.toUpperCase())} · ${LIBELLE_TYPE[fiche.type]}`}
       />
