@@ -38,6 +38,7 @@ import { PreparerHorsLigne } from "./PreparerHorsLigne";
 import { IndicateurLien } from "../IndicateurLien";
 import { PastilleCheikh } from "./PastilleCheikh";
 import { TableauDuJour } from "./TableauDuJour";
+import { SousTitreEntete } from "@/components/SousTitreEntete";
 
 /**
  * Fiche du mois d'un élève (semaines 1 à 5). Utilisée par l'élève (/eleve)
@@ -84,6 +85,9 @@ export function FicheMois({
       cleFiche={`${cle}-${fiche.type}`}
     >
       <ModeFiche type={fiche.type} />
+      <SousTitreEntete
+        texte={`${libelleMois(fiche.mois).replace(/^./, (c) => c.toUpperCase())} · ${LIBELLE_TYPE[fiche.type]}`}
+      />
       {pagesHorsLigne.length ? <PreparerHorsLigne pages={pagesHorsLigne} /> : null}
       {fiche.premiereFois && !aVenir ? (
         <AccueilPremiereFois
