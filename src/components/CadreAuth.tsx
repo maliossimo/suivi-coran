@@ -26,12 +26,6 @@ export function CadreAuth({
             <LogoEtoile />
           </div>
           <p className="auth-nom">Suivi cours Coran</p>
-          <p className="auth-hadith">
-            <span className="arabe" lang="ar" dir="rtl">
-              خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ
-            </span>
-            <small>« Le meilleur d’entre vous est celui qui apprend le Coran et l’enseigne. »</small>
-          </p>
           <ul className="auth-atouts">
             <li>Ta fiche du mois, apprentissage et révision</li>
             <li>Le Coran à lire, écouter et réciter</li>

@@ -11055,24 +11055,7 @@ a.jour[data-etat="partielle"] {
   align-self: center;
 }
 
-/* ---------- Connexion : une phrase qui inspire, des étincelles, la boîte qui arrive ---------- */
-.auth-hadith {
-  margin: 14px 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.auth-hadith .arabe {
-  font-size: 24px;
-  line-height: 1.7;
-  color: #f0d796;
-}
-.auth-hadith small {
-  font-size: 14px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.82);
-  font-style: italic;
-}
+/* ---------- Connexion : des étincelles, la boîte qui arrive ---------- */
 .auth-atouts {
   list-style: none;
   margin: 18px 0 0;
@@ -11164,19 +11147,10 @@ a.jour[data-etat="partielle"] {
 .auth-boite input:focus-visible {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--vert) 16%, transparent);
 }
-/* Téléphone : le bandeau garde la phrase, sans la liste. */
+/* Téléphone : le bandeau sans la liste. */
 @media (max-width: 860px) {
   .auth-atouts {
     display: none;
-  }
-  .auth-hadith {
-    margin-top: 10px;
-  }
-  .auth-hadith .arabe {
-    font-size: 20px;
-  }
-  .auth-hadith small {
-    font-size: 13px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -12094,10 +12068,6 @@ a.jour[data-etat="partielle"] {
   .bilan-tuiles {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-}
-.auth-hadith .arabe {
-  align-self: flex-start;
-  text-align: left;
 }
 /* Tuiles : placement explicite (icône à gauche, valeur puis libellé à droite). */
 .resume-tuiles li,
