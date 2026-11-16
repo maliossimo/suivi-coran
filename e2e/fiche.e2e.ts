@@ -101,8 +101,11 @@ test.describe("Mode révision", () => {
     page,
   }) => {
     await seConnecter(page, COMPTES.eleveA, /\/eleve/);
-    const barre = page.locator(".barre").first();
+    // La fiche est affichée (pas l'écran de chargement) avant de lire la couleur de l'en-tête.
+    await expect(page.locator(".onglets .onglet-revision")).toBeVisible();
+    const barre = page.locator("header.barre").first();
     const fond = () => barre.evaluate((e) => getComputedStyle(e).backgroundColor);
+    await expect.poll(fond).not.toBe("");
     const vert = await fond();
     await page.locator(".onglets .onglet-revision").click();
     await expect(page).toHaveURL(/type=revision/);
@@ -137,7 +140,8 @@ test.describe("Finitions de l'interface", () => {
     await page.mouse.wheel(0, -2000);
     await expect(page.locator(".barre-compacte[data-visible]")).toHaveCount(0);
     // Un jour s'ouvre en page : le voile part une fois la séance affichée.
-    await page.locator("a.jour[data-ouvre-en-page]").first().click();
+    // Un jour visible (les semaines passées sont repliées).
+    await page.locator("a.jour[data-ouvre-en-page]:visible").first().click();
     await expect(page).toHaveURL(/\/eleve\/seance/);
     await expect(page.locator(".ouverture-page")).toHaveCount(0, { timeout: 4000 });
   });
