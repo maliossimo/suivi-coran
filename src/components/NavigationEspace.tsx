@@ -1,9 +1,11 @@
 "use client";
 
-import { ScrollText, ShieldCheck } from "lucide-react";
+import { Ellipsis, ScrollText, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLayoutEffect, useRef, type ComponentType, type RefObject } from "react";
+import { useLayoutEffect, useRef, useState, type ComponentType, type RefObject } from "react";
+import { Feuille } from "./Feuille";
+import { CHOIX, useChoix } from "./RetenirChoix";
 import {
   IconeClasse,
   IconeCompte,
@@ -26,7 +28,8 @@ type Icone =
   | "journal"
   | "coran"
   | "presences"
-  | "mosquee";
+  | "mosquee"
+  | "nouveautes";
 
 interface Onglet {
   href: string;
@@ -34,6 +37,8 @@ interface Onglet {
   icone: Icone;
   /** L'onglet est allumé si le chemin courant lui appartient. */
   actif: (chemin: string) => boolean;
+  /** Téléphone : rangé dans « Plus » (barre du bas moins chargée). */
+  secondaire?: boolean;
 }
 
 const commence = (prefixe: string) => (chemin: string) =>
@@ -75,11 +80,24 @@ const ONGLETS: Record<Role, Onglet[]> = {
   ],
   admin: [
     { href: "/admin", libelle: "Admin", icone: "admin", actif: (c) => c === "/admin" },
-    { href: "/admin/journal", libelle: "Journal", icone: "journal", actif: commence("/admin/journal") },
     { href: "/maitre", libelle: "Élèves", icone: "classe", actif: commence("/maitre") },
     { href: "/admin/coran", libelle: "Coran", icone: "coran", actif: commence("/admin/coran") },
     { href: "/presences", libelle: "Présences", icone: "presences", actif: commence("/presences") },
-    { ...COMPTE, libelle: "Compte" },
+    {
+      href: "/admin/journal",
+      libelle: "Journal",
+      icone: "journal",
+      actif: commence("/admin/journal"),
+      secondaire: true,
+    },
+    {
+      href: "/admin/nouveautes",
+      libelle: "Nouveautés",
+      icone: "nouveautes",
+      actif: commence("/admin/nouveautes"),
+      secondaire: true,
+    },
+    { ...COMPTE, libelle: "Compte", secondaire: true },
   ],
 };
 
@@ -96,6 +114,7 @@ const ICONES: Record<Icone, IconeComposant> = {
   coran: IconeCoran,
   presences: IconePresences,
   mosquee: IconeMosquee,
+  nouveautes: Sparkles,
 };
 
 /** Le Cheikh responsable de sa mosquée : ses élèves, sa mosquée et les présences. */
@@ -123,19 +142,35 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
   usePastilleQuiGlisse(nav, pastille, chemin);
   useArriveeDansLeSens(chemin);
   const onglets = responsable ? RESPONSABLE : ONGLETS[role];
-  const indexActif = onglets.findIndex((o) => o.actif(chemin));
+  // Choix retenus : « Ma fiche » rouvre l'onglet choisi la dernière fois, « Ma classe » la classe choisie.
+  const ongletFiche = useChoix(CHOIX.ongletFiche);
+  const classeCheikh = useChoix(CHOIX.classeCheikh);
+  const adresse = (href: string) =>
+    href === "/eleve" && ongletFiche === "revision"
+      ? "/eleve?type=revision"
+      : href === "/maitre" && classeCheikh && /^[0-9a-f-]{36}$/i.test(classeCheikh)
+        ? `/maitre?groupe=${classeCheikh}`
+        : href;
+  const principaux = onglets.filter((o) => !o.secondaire);
+  const secondaires = onglets.filter((o) => o.secondaire);
+  // Position sur la barre du téléphone : un onglet rangé dans « Plus » est à la place de « Plus ».
+  const position = (o: Onglet) => (o.secondaire ? principaux.length : principaux.indexOf(o));
+  const ongletActif = onglets.find((o) => o.actif(chemin));
+  const indexActif = ongletActif ? position(ongletActif) : -1;
+  const plusActif = Boolean(ongletActif?.secondaire);
   return (
     <nav className="nav-espace" aria-label="Navigation principale" ref={nav}>
       <span className="nav-pastille" ref={pastille} aria-hidden="true" />
-      {onglets.map((o, index) => {
+      {[...principaux, ...secondaires].map((o) => {
         const actif = o.actif(chemin);
+        const index = position(o);
         const IconeOnglet = ICONES[o.icone];
         // Onglets préchargés en entier : la page s'ouvre sans attente.
         return (
           <Link
             key={o.href}
-            href={o.href}
-            className="nav-onglet"
+            href={adresse(o.href)}
+            className={o.secondaire ? "nav-onglet nav-secondaire" : "nav-onglet"}
             aria-current={actif ? "page" : undefined}
             prefetch
             onClick={() => {
@@ -148,7 +183,74 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
           </Link>
         );
       })}
+      {secondaires.length ? (
+        <MenuPlus
+          onglets={secondaires}
+          actif={plusActif}
+          chemin={chemin}
+          surChoix={(o) => {
+            sensOnglet = o.actif(chemin) || indexActif < 0 || plusActif ? null : "droite";
+          }}
+        />
+      ) : null}
     </nav>
+  );
+}
+
+/**
+ * Téléphone : « Plus » regroupe les onglets moins utilisés dans une feuille du bas
+ * (la barre garde de la place pour des libellés lisibles). Sur ordinateur, ils sont dans le menu du haut.
+ */
+function MenuPlus({
+  onglets,
+  actif,
+  chemin,
+  surChoix,
+}: {
+  onglets: Onglet[];
+  actif: boolean;
+  chemin: string;
+  surChoix: (o: Onglet) => void;
+}) {
+  const [ouvert, setOuvert] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        className="nav-onglet nav-plus"
+        data-actif={actif ? "" : undefined}
+        aria-haspopup="dialog"
+        aria-expanded={ouvert}
+        onClick={() => setOuvert(true)}
+      >
+        <Ellipsis size={22} strokeWidth={1.9} aria-hidden="true" />
+        <span>Plus</span>
+      </button>
+      <Feuille ouverte={ouvert} onFermer={() => setOuvert(false)} titre="Plus">
+        <ul className="menu-plus-nav">
+          {onglets.map((o) => {
+            const IconeOnglet = ICONES[o.icone];
+            const courant = o.actif(chemin);
+            return (
+              <li key={o.href}>
+                <Link
+                  href={o.href}
+                  prefetch
+                  aria-current={courant ? "page" : undefined}
+                  onClick={() => {
+                    surChoix(o);
+                    setOuvert(false);
+                  }}
+                >
+                  <IconeOnglet size={20} strokeWidth={2} aria-hidden="true" />
+                  {o.libelle}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </Feuille>
+    </>
   );
 }
 
@@ -212,7 +314,10 @@ function usePastilleQuiGlisse(
     const barre = nav.current;
     const p = pastille.current;
     if (!barre || !p) return;
-    const actif = barre.querySelector<HTMLElement>('.nav-onglet[aria-current="page"]');
+    // (Sur téléphone, un onglet rangé dans « Plus » est représenté par le bouton « Plus ».)
+    const actif = [
+      ...barre.querySelectorAll<HTMLElement>('.nav-onglet[aria-current="page"], .nav-plus[data-actif]'),
+    ].find((el) => el.offsetParent !== null);
     if (!actif) {
       barre.classList.remove("avec-pastille");
       return;

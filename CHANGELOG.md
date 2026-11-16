@@ -9,6 +9,24 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.41.0] — 2026-11-16
+
+### Amélioré
+
+- Fluidité :
+  - les pages déjà ouvertes se rouvrent tout de suite pendant 5 minutes (puis se mettent à jour en arrière-plan) ;
+  - une page déjà vue pendant la visite s'affiche net, sans rejouer ses animations d'entrée ;
+  - des animations plus courtes et la même courbe partout ;
+  - cartes, lignes, puces et boutons s'enfoncent dès que le doigt touche ;
+  - « Continuer la lecture » est là d'emblée, sans décaler la page ;
+  - au retour en arrière, la page reprend à la même position.
+- Tirer pour rafraîchir sur tous les onglets (appli installée).
+- L'appli se souvient : « Ma fiche » rouvre l'onglet choisi la dernière fois (apprentissage ou révision), « Ma classe » la classe choisie.
+- Écoute rapide pour le Cheikh : toucher la pastille « à écouter » d'un élève (ou appui long sur sa carte) ouvre ses séances dans une feuille du bas, à marquer « Écouté » ou « Validé » sans quitter la liste.
+- Administration : la barre du bas garde Admin, Élèves, Coran et Présences ; Journal, Nouveautés et Compte sont dans « Plus ».
+- Champs : « Suivant » sur le clavier passe au champ d'après, les chiffres se remplacent d'un toucher, le champ reste visible au-dessus du clavier, pas de zoom sur iPhone.
+- Zones de toucher un peu plus grandes (flèches des mois, liens, pastilles, croix de fermeture).
+
 ## [1.40.1] — 2026-11-16
 
 ### Corrigé

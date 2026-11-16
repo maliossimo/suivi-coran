@@ -19,16 +19,31 @@ export function FormulaireRejoindre({ code }: { code: string }) {
       <div className="formulaire-deux">
         <div className="champ">
           <label htmlFor="prenom">Prénom</label>
-          <input id="prenom" name="prenom" autoComplete="given-name" required maxLength={60} />
+          <input
+            id="prenom"
+            name="prenom"
+            autoComplete="given-name"
+            enterKeyHint="next"
+            required
+            maxLength={60}
+          />
         </div>
         <div className="champ">
           <label htmlFor="nom">Nom</label>
-          <input id="nom" name="nom" autoComplete="family-name" required maxLength={60} />
+          <input id="nom" name="nom" autoComplete="family-name" enterKeyHint="next" required maxLength={60} />
         </div>
       </div>
       <div className="champ">
         <label htmlFor="email">Adresse e-mail</label>
-        <input id="email" name="email" type="email" autoComplete="email" inputMode="email" required />
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+          enterKeyHint="next"
+          required
+        />
       </div>
       <div className="champ">
         <label htmlFor="motDePasse">Mot de passe (10 caractères minimum)</label>
@@ -37,13 +52,21 @@ export function FormulaireRejoindre({ code }: { code: string }) {
           name="motDePasse"
           type="password"
           autoComplete="new-password"
+          enterKeyHint="next"
           minLength={10}
           required
         />
       </div>
       <div className="champ">
         <label htmlFor="confirmation">Confirme le mot de passe</label>
-        <input id="confirmation" name="confirmation" type="password" autoComplete="new-password" required />
+        <input
+          id="confirmation"
+          name="confirmation"
+          type="password"
+          autoComplete="new-password"
+          enterKeyHint="go"
+          required
+        />
       </div>
       <AntiRobot />
       <button className="bouton" type="submit" disabled={enCours}>
