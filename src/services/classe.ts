@@ -21,6 +21,7 @@ import {
   inviter,
   type PorteeInvitation,
 } from "@/repositories/invitations";
+import { acquisAEcouterParEleve } from "@/repositories/acquis";
 import { statutsObjectifsDuMois } from "@/repositories/objectifs";
 import {
   definirActif,
@@ -44,7 +45,7 @@ export async function chargerClasse(moisParam?: string, etablissementId?: string
   const aujourdhui = aujourdhuiParis();
   const mois = lireMois(moisParam, aujourdhui);
   const depuis = premierJour(decalerMois(mois, -3));
-  const [eleves, seances, objectifs, dernieres, aVoir, recentes] = await Promise.all([
+  const [eleves, seances, objectifs, dernieres, aVoir, recentes, acquisAEcouter] = await Promise.all([
     listerEleves(),
     statsSeancesEntre(premierJour(mois), dernierJour(mois)),
     statutsObjectifsDuMois(premierJour(mois)),
@@ -52,11 +53,17 @@ export async function chargerClasse(moisParam?: string, etablissementId?: string
     seancesSuiviDepuis(ajouterJours(aujourdhui, -JOURS_A_VOIR)),
     // Les 14 derniers jours, pour la petite courbe de régularité de chaque carte.
     statsSeancesEntre(ajouterJours(aujourdhui, -(JOURS_COURBE - 1)), aujourdhui),
+    // Parties « déjà connues » que l'élève veut faire écouter : comptées avec ses séances à écouter.
+    acquisAEcouterParEleve(),
   ]);
   // L'admin peut regarder une seule classe ; le Cheikh ne voit de toute façon que la sienne (RLS).
   const visibles = etablissementId ? eleves.filter((e) => e.etablissementId === etablissementId) : eleves;
   const resumes = resumerClasse(visibles, seances, objectifs, dernieres, aujourdhui, fileAVoir(aVoir)).map(
-    (r) => ({ ...r, quinzaine: courbeRegularite(recentes, r.eleve.id, aujourdhui) }),
+    (r) => ({
+      ...r,
+      aVoir: r.aVoir + (acquisAEcouter.get(r.eleve.id) ?? 0),
+      quinzaine: courbeRegularite(recentes, r.eleve.id, aujourdhui),
+    }),
   );
   return {
     mois,

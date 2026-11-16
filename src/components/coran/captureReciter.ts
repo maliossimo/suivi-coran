@@ -6,6 +6,7 @@ import {
   contientParole,
   estimerBruit,
   DUREE_TRAME_S,
+  normaliserVolume,
   pointDeCoupe,
   seuilVoix,
   type AvisSon,
@@ -49,7 +50,7 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
     // rarement) : le début d'un mot prononcé doucement (hamza, « و », « ف », « ه ») reste sous le
     // seuil ; coupé, le moteur risque de ne pas entendre le mot et de le compter « non entendu ».
     const seuil = seuilVoix(bruit);
-    const avant = Math.ceil(0.3 / DUREE_TRAME_S);
+    const avant = Math.ceil(0.5 / DUREE_TRAME_S);
     const premier = Math.max(0, trames.findIndex((t) => t.rms >= seuil) - avant);
     const morceau = echantillons.slice(premier);
     const pcm = new Int16Array(morceau.reduce((n, e) => n + e.length, 0));
@@ -58,7 +59,8 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
       pcm.set(e, o);
       o += e.length;
     }
-    rappel.current(pcm);
+    // Voix faible (téléphone loin, voix douce) : ramenée à un volume que le moteur entend bien.
+    rappel.current(normaliserVolume(pcm));
   }, []);
 
   const ajouterTrame = useCallback(
@@ -128,6 +130,12 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
       ouvert = ouvrir();
     }
     const { ctx, source } = ouvert;
+    // Filtre passe-haut (80 Hz) : retire le grondement (ventilation, voiture, souffle sur le micro)
+    // qui masquait la voix et faussait la détection des silences. La voix commence bien au-dessus.
+    const filtre = ctx.createBiquadFilter();
+    filtre.type = "highpass";
+    filtre.frequency.value = 80;
+    filtre.Q.value = 0.7;
     const noeud = ctx.createScriptProcessor(4096, 1, 1);
     const rapport = ctx.sampleRate / FREQ;
     etat.current = {
@@ -164,7 +172,8 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
       setSecondes(e.total / FREQ);
       if (e.total / FREQ >= DUREE_MAX_S) arreterRef.current();
     };
-    source.connect(noeud);
+    source.connect(filtre);
+    filtre.connect(noeud);
     noeud.connect(ctx.destination); // nécessaire pour que le nœud tourne (il ne produit aucun son)
     ressources.current = { flux, ctx, noeud };
     setSecondes(0);
@@ -190,12 +199,9 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
     const bruit = estimerBruit(e.toutes);
     const trames = e.toutes.slice(-e.recentes.length);
     if (!ressources.current || !contientParole(trames.slice(-8), bruit)) return null;
-    const n = e.recentes.reduce((t, x) => t + x.length, 0);
-    const sortie = new Uint8Array(n);
-    let o = 0;
-    for (const bloc of e.recentes) {
-      for (let i = 0; i < bloc.length; i++) sortie[o++] = versMulaw(bloc[i]!);
-    }
+    const pcm = normaliserVolume(assembler(e.recentes));
+    const sortie = new Uint8Array(pcm.length);
+    for (let i = 0; i < pcm.length; i++) sortie[i] = versMulaw(pcm[i]!);
     return sortie;
   }, []);
 
@@ -205,17 +211,26 @@ export function useCaptureReciter(onMorceau: (pcm: Int16Array) => void) {
     const bruit = estimerBruit(e.toutes);
     const trames = e.toutes.slice(-e.recentes.length);
     if (!ressources.current || !contientParole(trames.slice(-8), bruit)) return null;
-    const n = e.recentes.reduce((t, x) => t + x.length, 0);
-    const garde = Math.min(n, Math.round(duree * FREQ));
+    const pcm = normaliserVolume(assembler(e.recentes));
+    const garde = Math.min(pcm.length, Math.round(duree * FREQ));
     const sortie = new Float32Array(garde);
-    let o = garde - n; // on saute le début : seules les `duree` dernières secondes
-    for (const bloc of e.recentes) {
-      for (let i = 0; i < bloc.length; i++, o++) if (o >= 0) sortie[o] = bloc[i]! / 32768;
-    }
+    // On saute le début : seules les `duree` dernières secondes.
+    for (let i = 0; i < garde; i++) sortie[i] = pcm[pcm.length - garde + i]! / 32768;
     return sortie;
   }, []);
 
   return { actif, niveau, secondes, avis, demarrer, arreter, dernieresSecondes, dernieresSecondesPcm };
+}
+
+/** Les trames bout à bout. */
+function assembler(blocs: readonly Int16Array[]): Int16Array {
+  const tout = new Int16Array(blocs.reduce((n, b) => n + b.length, 0));
+  let o = 0;
+  for (const b of blocs) {
+    tout.set(b, o);
+    o += b.length;
+  }
+  return tout;
 }
 
 /** Un échantillon 16 bits en μ-law 8 bits (G.711). */

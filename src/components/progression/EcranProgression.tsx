@@ -8,6 +8,7 @@ import { EtatVide } from "@/components/EtatVide";
 import { CarteCoran } from "./CarteCoran";
 import { GraphiqueCumul, GraphiqueSemaines, GrilleRegularite, LegendeTeintes } from "./Graphiques";
 import { ZoneBulles } from "./ZoneBulles";
+import { AcquisProgression } from "@/components/acquis/AcquisProgression";
 import { SousTitreEntete } from "@/components/SousTitreEntete";
 
 /** Écran « Progression », commun à l'élève et au maître. */
@@ -15,7 +16,18 @@ export function EcranProgression({
   p,
   base,
 }: {
-  p: Progression & { aujourdhui: string; carte: CarteDuCoran };
+  p: Progression & {
+    aujourdhui: string;
+    carte: CarteDuCoran;
+    acquis: {
+      id: string;
+      eleveId: string;
+      libelle: string;
+      aEcouter: boolean;
+      ecoute: boolean;
+      valide: boolean;
+    }[];
+  };
   /** Racine des pages de l'élève : « /eleve » ou « /maitre/eleves/{id} ». */
   base: string;
 }) {
@@ -58,6 +70,13 @@ export function EcranProgression({
             </strong>{" "}
             verset{p.versetsAppris > 1 ? "s" : ""} appris
           </p>
+          {p.pagesApprises !== null && p.versetsAppris > 0 ? (
+            <p className="progression-pages">
+              <b>{p.pagesApprises.toLocaleString("fr-FR", { maximumFractionDigits: 1 })}</b> page
+              {p.pagesApprises >= 2 ? "s" : ""} sur 604
+              {p.juzComplets ? ` · ${p.juzComplets} juz complet${p.juzComplets > 1 ? "s" : ""}` : ""}
+            </p>
+          ) : null}
           {p.versetsAppris > 0 ? (
             <p className="progression-detail">
               {p.versetsValides >= p.versetsAppris
@@ -72,6 +91,8 @@ export function EcranProgression({
           ) : null}
         </div>
       </section>
+
+      <AcquisProgression acquis={p.acquis} vueEleve={base === "/eleve"} />
 
       <div className="tuiles">
         <div className="tuile">

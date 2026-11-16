@@ -4,6 +4,7 @@
  */
 import { formaterDate, lireDate, type DateISO } from "./calendrier";
 import { joursEntre } from "./classe";
+import { pagesApprises, type DecoupageMushaf } from "./acquis";
 import { serieDeJours, type Objectif, type Seance } from "./fiche";
 import type { Lecture } from "./lectures";
 import {
@@ -52,9 +53,14 @@ export interface Progression {
   versetsVus: number;
   /** Versets appris validés par le Cheikh : mémorisés. */
   versetsValides: number;
+  /** Part du Coran apprise, en pages du mushaf (sinon en versets). */
   pourcentageCoran: number;
   /** Part du Coran apprise ET vue par le Cheikh. */
   pourcentageCoranVu: number;
+  /** Pages du mushaf apprises (une page commencée compte en partie) ; null sans découpage du mushaf. */
+  pagesApprises: number | null;
+  /** Juz appris en entier ; null sans découpage du mushaf. */
+  juzComplets: number | null;
   souratesCompletes: number;
   /** Sourates complètes dont tous les versets ont été vus par le Cheikh. */
   souratesCompletesVues: number;
@@ -120,15 +126,25 @@ export function calculerProgression(
   seances: readonly Seance[],
   objectifs: readonly (Objectif & { mois: string })[],
   aujourdhui: DateISO,
-  options: { mois?: number; semaines?: number; lecture?: Lecture } = {},
+  options: {
+    mois?: number;
+    semaines?: number;
+    lecture?: Lecture;
+    /** Découpage du mushaf : le pourcentage se compte alors en pages (604), plus juste que les versets. */
+    pages?: DecoupageMushaf;
+    /** « Ce que je connais déjà », en séances sans durée : comptées comme apprises, pas comme du temps. */
+    acquis?: readonly Seance[];
+  } = {},
 ): Progression {
   const nbMois = options.mois ?? 6;
   const nbSemaines = options.semaines ?? 12;
   const valides = seances.filter((s) => s.date <= aujourdhui);
+  // Pour ce qui est connu (versets, sourates, révisions) : les séances et les acquis déclarés.
+  const avecAcquis = [...valides, ...(options.acquis ?? []).filter((s) => s.date <= aujourdhui)];
 
   // Versets appris (séances d'apprentissage), datés, pour le cumul.
   const intervallesDates: { date: DateISO; intervalle: Intervalle; vu: boolean; valide: boolean }[] = [];
-  for (const s of valides) {
+  for (const s of avecAcquis) {
     if (s.type !== "apprentissage") continue;
     for (const p of s.passages) {
       try {
@@ -220,7 +236,7 @@ export function calculerProgression(
       );
     const vus = dansSourate(intervallesVus);
     const validesSourate = dansSourate(intervallesValides);
-    const revisions = valides
+    const revisions = avecAcquis
       .filter((s) => s.type === "revision")
       .filter((s) =>
         s.passages.some((p) => {
@@ -245,12 +261,24 @@ export function calculerProgression(
   }
   sourates.sort((a, b) => b.sourate.numero - a.sourate.numero);
 
+  // Part du Coran : en pages du mushaf quand on a son découpage (604 pages), sinon en versets.
+  const enPages = options.pages ? pagesApprises(ref, options.pages, tousIntervalles) : null;
+  const enPagesVus = options.pages ? pagesApprises(ref, options.pages, intervallesVus) : null;
+  const totalPages = options.pages?.pages.length ?? 604;
+  const enPourcent = (pages: number) => Math.round((pages / totalPages) * 1000) / 10;
+
   return {
     versetsAppris,
     versetsVus,
     versetsValides,
-    pourcentageCoran: pourcentageDuCoran(versetsAppris, options.lecture),
-    pourcentageCoranVu: pourcentageDuCoran(versetsVus, options.lecture),
+    pourcentageCoran: enPages
+      ? enPourcent(enPages.pages)
+      : pourcentageDuCoran(versetsAppris, options.lecture),
+    pourcentageCoranVu: enPagesVus
+      ? enPourcent(enPagesVus.pages)
+      : pourcentageDuCoran(versetsVus, options.lecture),
+    pagesApprises: enPages ? Math.round(enPages.pages * 10) / 10 : null,
+    juzComplets: enPages?.juzComplets ?? null,
     souratesCompletes: sourates.filter((s) => s.pourcentage === 100).length,
     souratesCompletesVues: sourates.filter(
       (s) => s.pourcentage === 100 && s.versetsVus >= s.sourate.nbVersets,

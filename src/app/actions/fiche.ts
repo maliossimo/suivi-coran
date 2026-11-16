@@ -13,7 +13,7 @@ import {
   enregistrerSeanceEleve,
   marquerPassagesSeance,
   seancesAEcouter,
-  type SeanceAEcouter,
+  type AEcouter,
   supprimerSeanceEleve,
   validerSeanceEleve,
   type ResultatSaisie,
@@ -180,7 +180,7 @@ export async function actionEnregistrerBilan(_: EtatSaisie, form: FormData): Pro
 }
 
 /** Écoute rapide : les séances à écouter d'un élève, pour la feuille ouverte depuis la classe. */
-export async function actionSeancesAEcouter(eleveIdBrut: unknown): Promise<SeanceAEcouter[] | null> {
+export async function actionSeancesAEcouter(eleveIdBrut: unknown): Promise<AEcouter | null> {
   const acteur = await profilConnecte();
   if (!acteur || !acteur.actif) return null;
   try {

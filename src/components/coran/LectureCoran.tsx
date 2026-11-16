@@ -48,6 +48,7 @@ import {
 } from "@/domain/coran";
 import { ActionsVerset, type ModeVerset } from "./ActionsVerset";
 import { retenirLecture } from "./derniereLecture";
+import { noterUneFois } from "./usage";
 import { annoncerTourDePage, lireTourDePage, type SensTour } from "./tourDePage";
 import { useAppuiLong } from "./appuiLong";
 import { useMarquePages } from "./marquePages";
@@ -177,6 +178,12 @@ export function LectureCoran({
     setReglages(lireReglages());
     setPret(true);
   }, []);
+  // Compteur « qui utilise le Coran » (administration) : une lecture par sourate et par visite.
+  const premiereSourate = blocs[0]?.sourate;
+  useEffect(() => {
+    if (premiereSourate) noterUneFois("lecture", premiereSourate);
+  }, [premiereSourate]);
+
   // Élève : l'endroit lu est retenu pour « Continuer la lecture » (onglet Coran).
   useEffect(() => {
     if (base !== "/eleve/coran/lire") return;
@@ -743,7 +750,10 @@ export function LectureCoran({
         <audio
           ref={audio}
           preload="none"
-          onPlay={() => setJoue(true)}
+          onPlay={() => {
+            setJoue(true);
+            if (premiereSourate) noterUneFois("ecoute", premiereSourate);
+          }}
           onPause={() => setJoue(false)}
           onPlaying={() => setCharge(false)}
           onWaiting={() => setCharge(true)}
