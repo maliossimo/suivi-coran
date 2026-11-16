@@ -1,6 +1,6 @@
 import "server-only";
 import { z } from "zod";
-import { debutDuMois, lireDate, type DateISO, type NumeroSemaine } from "@/domain/calendrier";
+import { ajouterJours, debutDuMois, lireDate, type DateISO, type NumeroSemaine } from "@/domain/calendrier";
 import type { Lecture } from "@/domain/lectures";
 import {
   conflitDeSaisie,
@@ -10,6 +10,7 @@ import {
   lireMois,
   positionDuMois,
   premierJour,
+  serieDeJours,
   type Bilan,
   type Mois,
   type PositionMois,
@@ -30,7 +31,13 @@ import {
   type Sourate,
 } from "@/domain/versets";
 import { bilanDuMois, enregistrerBilan } from "@/repositories/bilans";
-import { commentairesDe, commentairesDuJour, type Commentaire } from "@/repositories/commentaires";
+import {
+  commentairesDe,
+  commentairesDuJour,
+  dernierCommentaire,
+  type Commentaire,
+  type DernierCommentaire,
+} from "@/repositories/commentaires";
 import { enregistrerObjectif, objectifsDuMois } from "@/repositories/objectifs";
 import {
   derniereSeanceAvecPassagesAvant,
@@ -41,6 +48,7 @@ import {
   validerSeance,
   marquerPassages,
   aDejaUneSeance,
+  joursDeSeanceDepuis,
 } from "@/repositories/seances";
 import { lectureEleve } from "@/repositories/profils";
 import { listerSourates } from "@/repositories/sourates";
@@ -72,18 +80,38 @@ export interface Fiche {
   lecture: Lecture;
   /** Aucune séance encore, tous mois et types confondus : on accueille l'élève. */
   premiereFois: boolean;
+  /** Mois en cours seulement : ce qui est déjà saisi aujourd'hui, la série et le dernier mot du Cheikh. */
+  duJour: {
+    date: DateISO;
+    fait: Record<TypeSeance, boolean>;
+    /** Jours d'affilée avec au moins une séance (tous types). */
+    serie: number;
+    dernierMot: DernierCommentaire | null;
+  } | null;
 }
 
-export async function chargerFiche(eleveId: string, moisParam?: string, typeParam?: string): Promise<Fiche> {
+/** Assez loin pour une longue série, sans tout relire. */
+const FENETRE_SERIE = 120;
+
+export async function chargerFiche(
+  eleveId: string,
+  moisParam?: string,
+  typeParam?: string,
+  /** Faux pour la fiche imprimable : ni carte du jour, ni série, ni dernier mot. */
+  avecDuJour = true,
+): Promise<Fiche> {
   const aujourdhui = aujourdhuiParis();
   const mois = lireMois(moisParam, aujourdhui);
   const position = positionDuMois(mois, aujourdhui);
   const type = lireType(typeParam);
-  const [seances, objectifs, lecture, dejaCommence] = await Promise.all([
+  const courant = avecDuJour && position === "courant";
+  const [seances, objectifs, lecture, dejaCommence, recents, dernierMot] = await Promise.all([
     position === "futur" ? [] : seancesEntre(eleveId, type, premierJour(mois), dernierJour(mois)),
     objectifsDuMois(eleveId, type, premierJour(mois)),
     lectureEleve(eleveId),
     aDejaUneSeance(eleveId),
+    courant ? joursDeSeanceDepuis(eleveId, ajouterJours(aujourdhui, -FENETRE_SERIE)) : null,
+    courant ? dernierCommentaire(eleveId) : null,
   ]);
   // Les passages sont dans la numérotation de la lecture de l'élève (Hafs ou Warsh).
   const sourates = await listerSourates(lecture);
@@ -104,6 +132,20 @@ export async function chargerFiche(eleveId: string, moisParam?: string, typePara
     sourates,
     lecture,
     premiereFois: !dejaCommence,
+    duJour: recents
+      ? {
+          date: aujourdhui,
+          fait: {
+            apprentissage: recents.some((r) => r.date === aujourdhui && r.type === "apprentissage"),
+            revision: recents.some((r) => r.date === aujourdhui && r.type === "revision"),
+          },
+          serie: serieDeJours(
+            recents.filter((r) => r.date <= aujourdhui).map((r) => r.date),
+            aujourdhui,
+          ),
+          dernierMot,
+        }
+      : null,
   };
 }
 
@@ -360,7 +402,7 @@ export interface FicheImprimable {
 export async function chargerFicheImprimable(eleveId: string, moisParam?: string): Promise<FicheImprimable> {
   const parties = await Promise.all(
     TYPES_SEANCE.map(async (type) => {
-      const fiche = await chargerFiche(eleveId, moisParam, type);
+      const fiche = await chargerFiche(eleveId, moisParam, type, false);
       const { bilan } =
         fiche.position === "futur" ? { bilan: null } : await chargerBilan(eleveId, type, fiche.mois);
       return { fiche, bilan };

@@ -47,7 +47,13 @@ export function GraphiqueCumul({ points }: { points: PointMois[] }) {
           </text>
         </g>
       ))}
-      <path d={aire} fill={VERT} opacity="0.1" className="graphique-aire" />
+      <defs>
+        <linearGradient id="degrade-cumul" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={VERT} stopOpacity="0.32" />
+          <stop offset="1" stopColor={VERT} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <path d={aire} fill="url(#degrade-cumul)" className="graphique-aire" />
       <path
         d={ligne}
         className="graphique-ligne"
@@ -71,6 +77,16 @@ export function GraphiqueCumul({ points }: { points: PointMois[] }) {
           <text x={x(i)} y={H - 8} textAnchor="middle" fontSize="12" fill={TEXTE}>
             {p.libelle}
           </text>
+          {/* Zone de toucher, plus large que le point : sa valeur s'affiche en bulle. */}
+          <circle
+            cx={x(i)}
+            cy={y(p.valeur)}
+            r={16}
+            fill="transparent"
+            className="graphique-cible"
+            tabIndex={0}
+            data-bulle={`${p.libelle} : ${p.valeur} verset${p.valeur > 1 ? "s" : ""}`}
+          />
         </g>
       ))}
       {derniere ? (
@@ -126,6 +142,16 @@ export function GraphiqueSemaines({ barres }: { barres: BarreSemaine[] }) {
           </text>
         </g>
       ))}
+      <defs>
+        <linearGradient id="degrade-vert" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#2f7d61" />
+          <stop offset="1" stopColor={VERT} />
+        </linearGradient>
+        <linearGradient id="degrade-or" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#e0bd6b" />
+          <stop offset="1" stopColor={OR} />
+        </linearGradient>
+      </defs>
       {barres.map((b, i) => {
         const cx = marge.gauche + pas * i + pas / 2;
         return (
@@ -140,7 +166,7 @@ export function GraphiqueSemaines({ barres }: { barres: BarreSemaine[] }) {
               y={base - h(b.apprentissage)}
               width={largeur}
               height={h(b.apprentissage)}
-              fill={VERT}
+              fill="url(#degrade-vert)"
               rx="3"
             />
             <rect
@@ -148,8 +174,23 @@ export function GraphiqueSemaines({ barres }: { barres: BarreSemaine[] }) {
               y={base - h(b.apprentissage) - h(b.revision)}
               width={largeur}
               height={h(b.revision)}
-              fill={OR}
+              fill="url(#degrade-or)"
               rx="3"
+            />
+            {/* Toute la colonne se touche : le détail de la semaine s'affiche en bulle. */}
+            <rect
+              x={cx - pas / 2}
+              y={marge.haut}
+              width={pas}
+              height={base - marge.haut}
+              fill="transparent"
+              className="graphique-cible"
+              tabIndex={0}
+              data-bulle={`Semaine du ${b.libelle} : ${formaterDuree(b.apprentissage + b.revision)}${
+                b.apprentissage + b.revision
+                  ? ` (${formaterDuree(b.apprentissage)} d’apprentissage, ${formaterDuree(b.revision)} de révision)`
+                  : ""
+              }`}
             />
             {i % 2 === barres.length % 2 ? null : (
               <text x={cx} y={H - 8} textAnchor="middle" fontSize="11" fill={TEXTE}>
@@ -201,6 +242,11 @@ export function GrilleRegularite({ colonnes }: { colonnes: CaseRegularite[][] })
             fill={jour.futur ? "transparent" : TEINTES[jour.niveau]}
             stroke={jour.futur ? GRILLE : "none"}
             strokeDasharray={jour.futur ? "3 3" : undefined}
+            data-bulle={
+              jour.futur
+                ? undefined
+                : `${libelleJourCourt(jour.date)} : ${jour.minutes ? formaterDuree(jour.minutes) : "pas de séance"}`
+            }
           >
             <title>
               {libelleJourCourt(jour.date)} : {jour.minutes ? formaterDuree(jour.minutes) : "pas de séance"}

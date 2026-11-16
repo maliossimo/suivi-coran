@@ -10,6 +10,7 @@ import {
   deNom,
   fileAVoir,
   seanceAVoir,
+  courbeRegularite,
 } from "./classe";
 
 const eleves = [
@@ -176,5 +177,26 @@ describe("file à voir du Cheikh", () => {
     ]);
     expect(file.get("a")).toEqual({ nombre: 2, premiere: { date: "2026-10-25", type: "apprentissage" } });
     expect(file.has("b")).toBe(false);
+  });
+});
+
+describe("courbeRegularite", () => {
+  const seances = [
+    { eleveId: "a", type: "apprentissage" as const, date: "2026-11-16", dureeMin: 20 },
+    { eleveId: "a", type: "revision" as const, date: "2026-11-16", dureeMin: 10 },
+    { eleveId: "a", type: "revision" as const, date: "2026-11-03", dureeMin: 15 },
+    { eleveId: "a", type: "revision" as const, date: "2026-11-02", dureeMin: 99 },
+    { eleveId: "b", type: "apprentissage" as const, date: "2026-11-15", dureeMin: 40 },
+  ];
+  it("additionne les minutes de chaque jour, du plus ancien au plus récent", () => {
+    const courbe = courbeRegularite(seances, "a", "2026-11-16");
+    expect(courbe).toHaveLength(14);
+    expect(courbe[13]).toBe(30);
+    expect(courbe[0]).toBe(15); // 3 novembre
+    expect(courbe.reduce((t, m) => t + m, 0)).toBe(45); // le 2 novembre est hors fenêtre
+  });
+  it("ignore les autres élèves", () => {
+    expect(courbeRegularite(seances, "b", "2026-11-16")[12]).toBe(40);
+    expect(courbeRegularite(seances, "c", "2026-11-16").every((m) => m === 0)).toBe(true);
   });
 });

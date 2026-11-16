@@ -47,6 +47,7 @@ import {
   type SegmentTajwid,
 } from "@/domain/coran";
 import { ActionsVerset, type ModeVerset } from "./ActionsVerset";
+import { retenirLecture } from "./derniereLecture";
 import { annoncerTourDePage, lireTourDePage, type SensTour } from "./tourDePage";
 import { useAppuiLong } from "./appuiLong";
 import { useMarquePages } from "./marquePages";
@@ -176,6 +177,13 @@ export function LectureCoran({
     setReglages(lireReglages());
     setPret(true);
   }, []);
+  // Élève : l'endroit lu est retenu pour « Continuer la lecture » (onglet Coran).
+  useEffect(() => {
+    if (base !== "/eleve/coran/lire") return;
+    const params = new URLSearchParams(location.search);
+    params.delete("reciter"); // on y revient pour lire, pas pour réciter
+    retenirLecture(`${location.pathname}?${params.toString()}`, titre);
+  }, [base, titre]);
   const modifier = useCallback((m: Partial<Reglages>) => {
     setReglages((r) => {
       const n = { ...r, ...m };
@@ -473,8 +481,20 @@ export function LectureCoran({
   // Vue page : glisser pour tourner les pages (sens du mushaf : vers la droite = page suivante).
   // La page suit le doigt (avec un léger pivot, comme une page qu'on tourne) ; relâchée assez loin,
   // elle part et la nouvelle arrive de l'autre côté (voir tourDePage.ts).
-  const depart = useRef<{ x: number; y: number } | null>(null);
-  const [tour, setTour] = useState(0);
+  const depart = useRef<{ x: number; y: number; t: number; suit: boolean } | null>(null);
+  /** La carte de la page : déplacée directement pendant le glissement (sans recalculer le texte). */
+  const cartePage = useRef<HTMLElement>(null);
+  const suivreDoigt = (dx: number | null) => {
+    const el = cartePage.current;
+    if (!el) return;
+    if (dx === null) {
+      el.classList.remove("page-suit-le-doigt");
+      el.style.removeProperty("transform");
+      return;
+    }
+    el.classList.add("page-suit-le-doigt");
+    el.style.transform = `perspective(1400px) translateX(${dx * 0.55}px) rotateY(${dx * 0.025}deg)`;
+  };
   const [partie, setPartie] = useState<SensTour | null>(null);
   const [arrivee, setArrivee] = useState<SensTour | null>(null);
   // Avant le premier affichage : la nouvelle page entre directement par le bon côté.
@@ -859,9 +879,8 @@ export function LectureCoran({
           "cliquable",
           passage ? "avec-passage" : "",
           reglages.theme !== "auto" ? `theme-${reglages.theme}` : "",
-          tour ? "page-suit-le-doigt" : "",
           partie ? `page-part-${partie}` : "",
-          arrivee && !partie && !tour ? `page-arrive-${arrivee}` : "",
+          arrivee && !partie ? `page-arrive-${arrivee}` : "",
         ].join(" ")}
         // Texte interactif (toucher, appui long) : posé une fois la page prête dans le navigateur.
         data-pret={pret ? "" : undefined}
@@ -870,34 +889,35 @@ export function LectureCoran({
         style={
           {
             "--taille-coran": `${TAILLES[reglages.taille]}px`,
-            ...(tour
-              ? { transform: `perspective(1400px) translateX(${tour * 0.55}px) rotateY(${tour * 0.025}deg)` }
-              : {}),
           } as CSSProperties
         }
+        ref={cartePage}
         onTouchStart={(e) => {
           if (vue !== "page" || e.touches.length !== 1) return;
-          depart.current = { x: e.touches[0]!.clientX, y: e.touches[0]!.clientY };
+          depart.current = { x: e.touches[0]!.clientX, y: e.touches[0]!.clientY, t: Date.now(), suit: false };
         }}
         onTouchMove={(e) => {
           const d = depart.current;
           if (!d || vue !== "page" || partie) return;
           const dx = e.touches[0]!.clientX - d.x;
           const dy = e.touches[0]!.clientY - d.y;
-          if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.6) {
-            // Sans page de ce côté : la page résiste.
+          // Le geste est horizontal : la page suit le doigt (sans page de ce côté, elle résiste).
+          if (d.suit || (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.4)) {
+            d.suit = true;
             const possible = dx > 0 ? pageSuivante : pagePrecedente;
-            setTour(possible ? dx : dx * 0.15);
-          } else if (tour) setTour(0);
+            suivreDoigt(possible ? dx : dx * 0.15);
+          }
         }}
         onTouchEnd={(e) => {
           const d = depart.current;
           depart.current = null;
-          setTour(0);
-          if (!d || vue !== "page") return;
+          suivreDoigt(null);
+          if (!d || vue !== "page" || !d.suit) return;
           const dx = e.changedTouches[0]!.clientX - d.x;
           const dy = e.changedTouches[0]!.clientY - d.y;
-          if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+          // Assez loin, ou un geste vif (comme on tourne vraiment une page).
+          const vif = Math.abs(dx) > 35 && Date.now() - d.t < 280;
+          if ((Math.abs(dx) < 70 && !vif) || Math.abs(dx) < Math.abs(dy)) return;
           const sens: SensTour = dx > 0 ? "suivante" : "precedente";
           const cible = sens === "suivante" ? pageSuivante : pagePrecedente;
           if (!cible) return;
@@ -907,7 +927,7 @@ export function LectureCoran({
         }}
         onTouchCancel={() => {
           depart.current = null;
-          setTour(0);
+          suivreDoigt(null);
         }}
       >
         <div ref={texte} {...appui}>

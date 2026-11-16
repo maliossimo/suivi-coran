@@ -1,12 +1,12 @@
-import type { CSSProperties } from "react";
 import { LIBELLE_ETAT, type CarteDuCoran, type EtatSourate } from "@/domain/carte";
+import { GrilleCarte } from "./GrilleCarte";
 import { ListeHizbARevoir } from "./ListeHizbARevoir";
 
 const ORDRE: EtatSourate[] = ["maitrisee", "a_reviser", "en_cours", "vide"];
 
 /**
- * Carte du Coran : les 114 sourates, chacune colorée selon son état,
- * et les hizb à réviser en priorité.
+ * Carte du Coran : les 114 sourates, chacune colorée selon son état (toucher une case
+ * ouvre son détail), et les hizb à réviser en priorité.
  */
 export function CarteCoran({
   carte,
@@ -37,28 +37,20 @@ export function CarteCoran({
         ) : null}
       </ul>
 
-      <ol className="carte-grille">
-        {carte.cases.map((c, i) => {
-          const description = `${c.sourate.numero}. ${c.sourate.nomLatin} (${c.sourate.nomAr}) — ${LIBELLE_ETAT[c.etat]}${
-            c.etat === "en_cours" ? `, ${c.pourcentage} %` : ""
-          }${c.aFaireVoir ? ", pas encore écouté en entier par le Cheikh" : ""}`;
-          return (
-            <li
-              key={c.sourate.numero}
-              className={`carte-case carte-${c.etat}${c.aFaireVoir ? " carte-a-voir" : ""}`}
-              title={description}
-              // Les 114 cases apparaissent en vague, d'Al-Fatiha à An-Nas.
-              style={{ "--i": i } as CSSProperties}
-            >
-              <span aria-hidden="true">{c.sourate.numero}</span>
-              <span className="visuellement-cache">{description}</span>
-              {c.etat === "en_cours" ? (
-                <span className="carte-jauge" style={{ height: `${c.pourcentage}%` }} aria-hidden="true" />
-              ) : null}
-            </li>
-          );
-        })}
-      </ol>
+      <GrilleCarte
+        base={base}
+        aujourdhui={aujourdhui}
+        cases={carte.cases.map((c) => ({
+          numero: c.sourate.numero,
+          nomLatin: c.sourate.nomLatin,
+          nomAr: c.sourate.nomAr,
+          nbVersets: c.sourate.nbVersets,
+          etat: c.etat,
+          pourcentage: c.pourcentage,
+          derniereActivite: c.derniereActivite,
+          aFaireVoir: c.aFaireVoir,
+        }))}
+      />
 
       <ListeHizbARevoir hizb={carte.hizb} aujourdhui={aujourdhui} base={base} />
     </section>

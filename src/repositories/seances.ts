@@ -304,3 +304,19 @@ export async function aDejaUneSeance(eleveId: string): Promise<boolean> {
   if (error) throw new Error(`Lecture des séances impossible : ${error.message}`);
   return (count ?? 0) > 0;
 }
+
+/** Jours et types des séances d'un élève depuis une date (série de jours, carte « Aujourd'hui »). */
+export async function joursDeSeanceDepuis(
+  eleveId: string,
+  depuis: DateISO,
+): Promise<{ date: DateISO; type: TypeSeance }[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("seances")
+    .select("date, type")
+    .eq("eleve_id", eleveId)
+    .gte("date", depuis)
+    .order("date", { ascending: false });
+  if (error) throw new Error(`Lecture des séances impossible : ${error.message}`);
+  return z.array(z.object({ date: z.string(), type: z.enum(["apprentissage", "revision"]) })).parse(data);
+}

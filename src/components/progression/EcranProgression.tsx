@@ -1,11 +1,13 @@
+import { BookCheck, Flame, Target } from "lucide-react";
 import { Compteur } from "@/components/Compteur";
-import { libelleJourCourt } from "@/domain/fiche";
+import { encouragement, libelleJourCourt } from "@/domain/fiche";
 import type { CarteDuCoran } from "@/domain/carte";
 import { aRenforcer, type Progression } from "@/domain/progression";
 import { AnneauProgression } from "@/components/AnneauProgression";
 import { EtatVide } from "@/components/EtatVide";
 import { CarteCoran } from "./CarteCoran";
 import { GraphiqueCumul, GraphiqueSemaines, GrilleRegularite, LegendeTeintes } from "./Graphiques";
+import { ZoneBulles } from "./ZoneBulles";
 
 /** Écran « Progression », commun à l'élève et au maître. */
 export function EcranProgression({
@@ -32,34 +34,44 @@ export function EcranProgression({
           s’afficheront ici.
         </EtatVide>
       ) : null}
-      <div className="tuiles">
-        <div className="tuile tuile-forte">
-          <strong>
-            <Compteur valeur={p.versetsAppris} />
-          </strong>
-          <span>versets appris</span>
-          {p.versetsAppris > 0 ? (
-            <small className="tuile-detail">
-              {p.versetsValides >= p.versetsAppris
-                ? "tous validés par le Cheikh"
-                : p.versetsVus === 0
-                  ? "pas encore écoutés par le Cheikh"
-                  : `dont ${p.versetsValides} validé${p.versetsValides > 1 ? "s" : ""}, ${p.versetsVus} écouté${p.versetsVus > 1 ? "s" : ""} par le Cheikh`}
-            </small>
-          ) : null}
-        </div>
-        <div className="tuile tuile-anneau">
+      <section className="progression-entete" aria-label="Avancement dans le Coran">
+        <div className="progression-anneau">
           <AnneauProgression
             pourcentage={p.pourcentageCoran}
             pourcentageVu={p.pourcentageCoranVu}
-            taille={64}
-            epaisseur={7}
+            taille={124}
+            epaisseur={11}
             libelle={`${p.pourcentageCoran.toLocaleString("fr-FR")} % du Coran, dont ${p.pourcentageCoranVu.toLocaleString("fr-FR")} % écouté par le Cheikh`}
             texte={`${p.pourcentageCoran.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %`}
           />
-          <span>du Coran</span>
+          <small>du Coran</small>
         </div>
+        <div className="progression-entete-texte">
+          <p className="progression-surtitre">Avancement</p>
+          <p className="progression-grand">
+            <strong>
+              <Compteur valeur={p.versetsAppris} />
+            </strong>{" "}
+            verset{p.versetsAppris > 1 ? "s" : ""} appris
+          </p>
+          {p.versetsAppris > 0 ? (
+            <p className="progression-detail">
+              {p.versetsValides >= p.versetsAppris
+                ? "Tous validés par le Cheikh"
+                : p.versetsVus === 0
+                  ? "Pas encore écoutés par le Cheikh"
+                  : `Dont ${p.versetsValides} validé${p.versetsValides > 1 ? "s" : ""}, ${p.versetsVus} écouté${p.versetsVus > 1 ? "s" : ""} par le Cheikh`}
+            </p>
+          ) : null}
+          {base === "/eleve" ? (
+            <p className="progression-encouragement">{encouragement(p.pourcentageCoran)}</p>
+          ) : null}
+        </div>
+      </section>
+
+      <div className="tuiles">
         <div className="tuile">
+          <BookCheck size={20} aria-hidden="true" className="tuile-icone" />
           <strong>
             <Compteur valeur={p.souratesCompletes} />
           </strong>
@@ -74,11 +86,19 @@ export function EcranProgression({
             </small>
           ) : null}
         </div>
-        <div className="tuile">
+        <div className={p.joursConsecutifs > 0 ? "tuile tuile-serie est-allumee" : "tuile tuile-serie"}>
+          <Flame size={20} aria-hidden="true" className="tuile-icone" />
           <strong>
             <Compteur valeur={p.joursConsecutifs} />
           </strong>
           <span>jour{p.joursConsecutifs > 1 ? "s" : ""} d’affilée</span>
+        </div>
+        <div className="tuile">
+          <Target size={20} aria-hidden="true" className="tuile-icone" />
+          <strong>
+            {objectifs.atteints}/{objectifs.total}
+          </strong>
+          <span>objectifs atteints en 6 mois</span>
         </div>
       </div>
 
@@ -88,7 +108,9 @@ export function EcranProgression({
         <section className="carte-graphique">
           <h2>Versets appris</h2>
           <p className="carte-graphique-sous">Cumul sur les 6 derniers mois</p>
-          <GraphiqueCumul points={p.cumulParMois} />
+          <ZoneBulles>
+            <GraphiqueCumul points={p.cumulParMois} />
+          </ZoneBulles>
         </section>
 
         <section className="carte-graphique">
@@ -97,7 +119,9 @@ export function EcranProgression({
             {Math.round(minutes12 / 60)} h sur les 12 dernières semaines · <span className="puce puce-vert" />{" "}
             apprentissage <span className="puce puce-or" /> révision
           </p>
-          <GraphiqueSemaines barres={p.minutesParSemaine} />
+          <ZoneBulles>
+            <GraphiqueSemaines barres={p.minutesParSemaine} />
+          </ZoneBulles>
         </section>
 
         <section className="carte-graphique">
@@ -105,7 +129,9 @@ export function EcranProgression({
           <p className="carte-graphique-sous">
             12 dernières semaines · <LegendeTeintes />
           </p>
-          <GrilleRegularite colonnes={p.regularite} />
+          <ZoneBulles>
+            <GrilleRegularite colonnes={p.regularite} />
+          </ZoneBulles>
         </section>
 
         <section className="carte-graphique">

@@ -1,21 +1,19 @@
 "use client";
 
-import {
-  BookOpen,
-  Building2,
-  CalendarCheck,
-  CalendarDays,
-  ChartNoAxesColumn,
-  ScrollText,
-  ShieldCheck,
-  UserPlus,
-  UserRound,
-  UsersRound,
-  type LucideIcon,
-} from "lucide-react";
+import { ScrollText, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLayoutEffect, useRef, type RefObject } from "react";
+import { useLayoutEffect, useRef, type ComponentType, type RefObject } from "react";
+import {
+  IconeClasse,
+  IconeCompte,
+  IconeCoran,
+  IconeFiche,
+  IconeInviter,
+  IconeMosquee,
+  IconePresences,
+  IconeProgression,
+} from "./IconesNav";
 import type { Role } from "@/domain/roles";
 
 type Icone =
@@ -85,17 +83,19 @@ const ONGLETS: Record<Role, Onglet[]> = {
   ],
 };
 
-const ICONES: Record<Icone, LucideIcon> = {
-  fiche: CalendarDays,
-  progression: ChartNoAxesColumn,
-  compte: UserRound,
-  classe: UsersRound,
-  inviter: UserPlus,
+type IconeComposant = ComponentType<{ size?: number; strokeWidth?: number; "aria-hidden"?: "true" }>;
+
+const ICONES: Record<Icone, IconeComposant> = {
+  fiche: IconeFiche,
+  progression: IconeProgression,
+  compte: IconeCompte,
+  classe: IconeClasse,
+  inviter: IconeInviter,
   admin: ShieldCheck,
   journal: ScrollText,
-  coran: BookOpen,
-  presences: CalendarCheck,
-  mosquee: Building2,
+  coran: IconeCoran,
+  presences: IconePresences,
+  mosquee: IconeMosquee,
 };
 
 /** Le Cheikh responsable de sa mosquée : ses élèves, sa mosquée et les présences. */
@@ -121,10 +121,13 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
   const nav = useRef<HTMLElement>(null);
   const pastille = useRef<HTMLSpanElement>(null);
   usePastilleQuiGlisse(nav, pastille, chemin);
+  useArriveeDansLeSens(chemin);
+  const onglets = responsable ? RESPONSABLE : ONGLETS[role];
+  const indexActif = onglets.findIndex((o) => o.actif(chemin));
   return (
     <nav className="nav-espace" aria-label="Navigation principale" ref={nav}>
       <span className="nav-pastille" ref={pastille} aria-hidden="true" />
-      {(responsable ? RESPONSABLE : ONGLETS[role]).map((o) => {
+      {onglets.map((o, index) => {
         const actif = o.actif(chemin);
         const IconeOnglet = ICONES[o.icone];
         // Onglets préchargés en entier : la page s'ouvre sans attente.
@@ -135,6 +138,10 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
             className="nav-onglet"
             aria-current={actif ? "page" : undefined}
             prefetch
+            onClick={() => {
+              // La page suivante arrive du côté de l'onglet touché.
+              sensOnglet = actif || indexActif < 0 ? null : index > indexActif ? "droite" : "gauche";
+            }}
           >
             <IconeOnglet size={22} strokeWidth={1.9} aria-hidden="true" />
             <span>{o.libelle}</span>
@@ -143,6 +150,33 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
       })}
     </nav>
   );
+}
+
+/** Côté d'où arrive la page ouverte depuis la barre (null : pas d'onglet touché). */
+let sensOnglet: "gauche" | "droite" | null = null;
+
+/**
+ * Onglet du bas touché : le contenu de la nouvelle page glisse depuis le côté de l'onglet
+ * (vers la droite de la barre → depuis la droite). Animation faite en script : elle ne laisse
+ * aucune trace dans la feuille de style (rien ne se relance ensuite). Rien si le téléphone
+ * demande de réduire les animations.
+ */
+function useArriveeDansLeSens(chemin: string) {
+  useLayoutEffect(() => {
+    const sens = sensOnglet;
+    sensOnglet = null;
+    if (!sens || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const depart = sens === "droite" ? "28px" : "-28px";
+    for (const el of document.querySelectorAll<HTMLElement>("main.espace > *")) {
+      el.animate?.(
+        [
+          { transform: `translateX(${depart})`, opacity: 0.001 },
+          { transform: "none", opacity: 1 },
+        ],
+        { duration: 300, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
+      );
+    }
+  }, [chemin]);
 }
 
 /** Position de la pastille sur la page précédente : gardée d'une page à l'autre (même session). */

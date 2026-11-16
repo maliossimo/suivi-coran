@@ -166,3 +166,36 @@ export async function changerMonNom(id: string, prenom: string, nom: string): Pr
   const { error } = await supabase.from("profils").update({ prenom, nom }).eq("id", id);
   if (error) throw new Error(`Enregistrement du nom impossible : ${error.message}`);
 }
+
+export interface DetailsCompte {
+  /** Date d'inscription (horodatage). */
+  inscritLe: string | null;
+  /** Nom de la mosquée (null pour l'admin). */
+  etablissement: string | null;
+  /** Élève : ses classes en cours et leurs Cheikhs (fonction mes_classes, noms seulement). */
+  classes: { classe: string; cheikhs: string }[];
+}
+
+/** « Mon compte » : inscription, mosquée et, pour un élève, ses classes. */
+export async function detailsDuCompte(profil: Profil): Promise<DetailsCompte> {
+  const supabase = await creerClientServeur();
+  const [inscription, etablissement, classes] = await Promise.all([
+    supabase.from("profils").select("cree_le").eq("id", profil.id).maybeSingle(),
+    profil.etablissementId
+      ? supabase.from("etablissements").select("nom").eq("id", profil.etablissementId).maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+    profil.role === "eleve" ? supabase.rpc("mes_classes") : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (inscription.error) throw new Error(`Lecture du profil impossible : ${inscription.error.message}`);
+  if (etablissement.error)
+    throw new Error(`Lecture de la mosquée impossible : ${etablissement.error.message}`);
+  // Classes : un simple plus. Si la fonction manque encore (site mis en ligne avant la base),
+  // la page s'affiche quand même, sans elles.
+  return {
+    inscritLe: z.object({ cree_le: z.string() }).nullable().parse(inscription.data)?.cree_le ?? null,
+    etablissement: z.object({ nom: z.string() }).nullable().parse(etablissement.data)?.nom ?? null,
+    classes: classes.error
+      ? []
+      : z.array(z.object({ classe: z.string(), cheikhs: z.string() })).parse(classes.data ?? []),
+  };
+}

@@ -1,4 +1,15 @@
-import { BookPlus, ChevronLeft, ChevronRight, Download, MessageCircle, RotateCcw } from "lucide-react";
+import {
+  BookOpen,
+  BookPlus,
+  CalendarCheck,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Download,
+  MessageCircle,
+  RotateCcw,
+  Target,
+} from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
@@ -26,6 +37,7 @@ import { ModeFiche } from "./ModeFiche";
 import { PreparerHorsLigne } from "./PreparerHorsLigne";
 import { IndicateurLien } from "../IndicateurLien";
 import { PastilleCheikh } from "./PastilleCheikh";
+import { TableauDuJour } from "./TableauDuJour";
 
 /**
  * Fiche du mois d'un élève (semaines 1 à 5). Utilisée par l'élève (/eleve)
@@ -151,33 +163,7 @@ export function FicheMois({
           </p>
         </section>
       ) : (
-        <ul className="bilan-chiffres resume-mois" aria-label="Résumé du mois">
-          <li>
-            <strong>{formaterDuree(fiche.totalMinutes)}</strong> de travail
-          </li>
-          <li>
-            <strong>
-              <Compteur valeur={fiche.joursTravailles} />
-            </strong>{" "}
-            jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé
-            {fiche.joursTravailles > 1 ? "s" : ""}
-          </li>
-          <li>
-            <strong>
-              <Compteur valeur={fiche.versetsTravailles} />
-            </strong>{" "}
-            verset{fiche.versetsTravailles > 1 ? "s" : ""}
-          </li>
-          {fiche.semaines.some((s) => s.objectif) ? (
-            <li>
-              <strong>
-                {fiche.semaines.filter((s) => s.objectif?.statut === "atteint").length}/
-                {fiche.semaines.filter((s) => s.objectif).length}
-              </strong>{" "}
-              objectifs atteints
-            </li>
-          ) : null}
-        </ul>
+        <TableauDuJour fiche={fiche} base={base} vueMaitre={vueMaitre} />
       )}
 
       <div className="fiche-actions">
@@ -189,17 +175,39 @@ export function FicheMois({
 
       <div className="semaines">
         {fiche.semaines.map((semaine) => {
+          const courante = semaine.numero === semaineCourante;
           const entete = (
             <>
-              <h3 id={`s${semaine.numero}`}>Semaine {semaine.numero}</h3>
+              <h3 id={`s${semaine.numero}`}>
+                Semaine {semaine.numero}
+                {courante ? <span className="semaine-badge">Cette semaine</span> : null}
+              </h3>
               <span>
                 {libelleJourCourt(semaine.jours[0]!.date)} → {libelleJourCourt(semaine.jours.at(-1)!.date)} ·{" "}
                 {aVenir
                   ? `${semaine.jours.length} jours`
                   : semaine.totalMinutes
-                    ? formaterDuree(semaine.totalMinutes)
+                    ? `${semaine.joursTravailles}/${semaine.jours.length} j · ${formaterDuree(semaine.totalMinutes)}`
                     : "rien saisi"}
               </span>
+              {aVenir ? null : (
+                <span className="semaine-points" aria-hidden="true">
+                  {semaine.jours.map((j) => (
+                    <i
+                      key={j.date}
+                      className={
+                        j.seance
+                          ? `point-plein point-${etatCheikh(j.seance) ?? "saisi"}`
+                          : j.futur
+                            ? "point-futur"
+                            : j.aujourdhui
+                              ? "point-aujourdhui"
+                              : undefined
+                      }
+                    />
+                  ))}
+                </span>
+              )}
             </>
           );
           const contenu = (
@@ -250,7 +258,11 @@ export function FicheMois({
             );
           }
           return (
-            <section key={semaine.numero} className="semaine" aria-labelledby={`s${semaine.numero}`}>
+            <section
+              key={semaine.numero}
+              className={courante ? "semaine semaine-courante" : "semaine"}
+              aria-labelledby={`s${semaine.numero}`}
+            >
               <header className="semaine-entete">{entete}</header>
               {contenu}
             </section>
@@ -258,9 +270,12 @@ export function FicheMois({
         })}
       </div>
 
-      <section className="semaine">
+      <section className="semaine objectif-du-mois">
         <header className="semaine-entete">
-          <h3>Objectif du mois</h3>
+          <h3>
+            <Target size={18} aria-hidden="true" />
+            Objectif du mois
+          </h3>
         </header>
         <FormulaireObjectif
           key={`${fiche.type}-mois-${fiche.objectifMensuel?.statut ?? ""}`}
@@ -279,30 +294,38 @@ export function FicheMois({
           <header className="semaine-entete">
             <h3 id="bilan-titre">Bilan du mois · {LIBELLE_TYPE[fiche.type].toLowerCase()}</h3>
           </header>
-          <ul className="bilan-chiffres">
+          <ul className="bilan-tuiles">
             <li>
-              <strong>{formaterDuree(fiche.totalMinutes)}</strong> de travail
+              <Clock size={20} aria-hidden="true" />
+              <strong>{formaterDuree(fiche.totalMinutes)}</strong>
+              <span>de travail</span>
             </li>
             <li>
+              <CalendarCheck size={20} aria-hidden="true" />
               <strong>
                 <Compteur valeur={fiche.joursTravailles} />
-              </strong>{" "}
-              jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé
-              {fiche.joursTravailles > 1 ? "s" : ""}
+              </strong>
+              <span>
+                jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé{fiche.joursTravailles > 1 ? "s" : ""}
+              </span>
             </li>
             <li>
+              <BookOpen size={20} aria-hidden="true" />
               <strong>
                 <Compteur valeur={fiche.versetsTravailles} />
-              </strong>{" "}
-              verset{fiche.versetsTravailles > 1 ? "s" : ""}{" "}
-              {fiche.type === "apprentissage" ? "appris" : "révisés"}
+              </strong>
+              <span>
+                verset{fiche.versetsTravailles > 1 ? "s" : ""}{" "}
+                {fiche.type === "apprentissage" ? "appris" : "révisés"}
+              </span>
             </li>
             <li>
+              <Target size={20} aria-hidden="true" />
               <strong>
                 {fiche.semaines.filter((s) => s.objectif?.statut === "atteint").length +
                   (fiche.objectifMensuel?.statut === "atteint" ? 1 : 0)}
-              </strong>{" "}
-              objectif(s) atteint(s)
+              </strong>
+              <span>objectif(s) atteint(s)</span>
             </li>
           </ul>
           {fiche.position === "courant" ? (
@@ -369,10 +392,17 @@ function LigneJour({
     jour.aujourdhui ? "jour-aujourdhui" : "",
     jour.futur ? "jour-futur" : "",
   ].join(" ");
+  const etat = s ? (etatCheikh(s) ?? "saisi") : undefined;
   if (jour.futur) return <div className={classes}>{corps}</div>;
   return (
     // Aujourd'hui : séance préchargée en entier, elle s'ouvre sans attente.
-    <Link className={classes} href={lien} prefetch={precharger ? true : null} data-ouvre-en-page>
+    <Link
+      className={classes}
+      href={lien}
+      prefetch={precharger ? true : null}
+      data-ouvre-en-page
+      data-etat={etat}
+    >
       {corps}
     </Link>
   );
