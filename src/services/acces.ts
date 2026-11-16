@@ -2,7 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { accueilDuRole, peutOuvrirEspace, type Role } from "@/domain/roles";
 import { emailConnecte } from "@/repositories/auth";
-import { profilConnecte, type Profil } from "@/repositories/profils";
+import { detailsDuCompte, profilConnecte, type DetailsCompte, type Profil } from "@/repositories/profils";
 
 /**
  * Garde d'accès d'un espace (élève, maître, admin).
@@ -43,9 +43,14 @@ export async function exigerConnexion(): Promise<Profil> {
 }
 
 /** Données de la page « Mon compte ». */
-export async function chargerCompte(): Promise<{ profil: Profil; email: string | null }> {
+export async function chargerCompte(): Promise<{
+  profil: Profil;
+  email: string | null;
+  details: DetailsCompte;
+}> {
   const profil = await exigerConnexion();
-  return { profil, email: await emailConnecte() };
+  const [email, details] = await Promise.all([emailConnecte(), detailsDuCompte(profil)]);
+  return { profil, email, details };
 }
 
 /** Profil de la personne connectée, sans redirection (pages publiques). */

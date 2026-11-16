@@ -1,3 +1,4 @@
+import { Building2, CalendarHeart, UsersRound } from "lucide-react";
 import { actionDeconnexion } from "@/app/actions/auth";
 import Link from "next/link";
 import { COMMIT, LIBELLE_VERSION } from "@/lib/version";
@@ -10,29 +11,69 @@ import { ReglageApparence } from "@/components/ReglageApparence";
 import { ReglageRetours } from "@/components/ReglageRetours";
 import { chargerCompte } from "@/services/acces";
 import { LIBELLE_ROLE_LONG } from "@/domain/roles";
+import { libelleDateLongue } from "@/domain/fiche";
+
+/** Jour (à Paris) d'un horodatage. */
+function jourParis(horodatage: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(new Date(horodatage));
+}
 
 export default async function PageCompte() {
-  const { profil, email } = await chargerCompte();
+  const { profil, email, details } = await chargerCompte();
   const nom = `${profil.prenom} ${profil.nom}`.trim();
 
   return (
     <>
       <EnteteEspace titre="Mon compte" nom={nom} role={profil.role} />
       <main className="espace espace-etroit">
-        <section className="carte-compte">
-          <Avatar
-            prenom={profil.prenom}
-            nom={profil.nom}
-            email={email}
-            cle={profil.id}
-            role={profil.role}
-            taille="grand"
-          />
-          <div>
-            <h1>{nom || "Mon compte"}</h1>
-            <p>{LIBELLE_ROLE_LONG[profil.role]}</p>
-            {email ? <p className="carte-compte-email">{email}</p> : null}
+        <section className="carte-compte profil-compte">
+          <div className="profil-compte-tete">
+            <Avatar
+              prenom={profil.prenom}
+              nom={profil.nom}
+              email={email}
+              cle={profil.id}
+              role={profil.role}
+              taille="grand"
+            />
+            <div className="profil-compte-identite">
+              <h1>{nom || "Mon compte"}</h1>
+              <p className="profil-compte-role">{LIBELLE_ROLE_LONG[profil.role]}</p>
+              {email ? <p className="carte-compte-email">{email}</p> : null}
+            </div>
           </div>
+          {details.etablissement || details.classes.length || details.inscritLe ? (
+            <ul className="profil-compte-details">
+              {details.etablissement ? (
+                <li>
+                  <Building2 size={18} aria-hidden="true" />
+                  <span>Mosquée</span>
+                  <b>{details.etablissement}</b>
+                </li>
+              ) : null}
+              {details.classes.map((c) => (
+                <li key={c.classe}>
+                  <UsersRound size={18} aria-hidden="true" />
+                  <span>Classe</span>
+                  <b>
+                    {c.classe}
+                    {c.cheikhs ? <small>Cheikh : {c.cheikhs}</small> : null}
+                  </b>
+                </li>
+              ))}
+              {details.inscritLe ? (
+                <li>
+                  <CalendarHeart size={18} aria-hidden="true" />
+                  <span>Membre depuis</span>
+                  <b>
+                    <time dateTime={details.inscritLe}>
+                      {libelleDateLongue(jourParis(details.inscritLe))}
+                    </time>
+                  </b>
+                </li>
+              ) : null}
+            </ul>
+          ) : null}
         </section>
 
         <InstallerAppli />

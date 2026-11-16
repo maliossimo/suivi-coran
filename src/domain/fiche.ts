@@ -3,6 +3,7 @@
  * à partir des séances d'un élève. Code pur : aucune dépendance au framework.
  */
 import {
+  ajouterJours,
   formaterDate,
   jourDansSemaine,
   lireDate,
@@ -289,4 +290,35 @@ export function conflitDeSaisie(
   if (actuelle && memeContenuSeance(actuelle, nouvelle)) return false; // déjà enregistrée
   if (!attendu) return actuelle !== null;
   return actuelle === null || !memeContenuSeance(attendu, actuelle);
+}
+
+/**
+ * Série : nombre de jours d'affilée avec au moins une séance, jusqu'à aujourd'hui.
+ * Un jour pas encore travaillé ne casse pas la série : elle compte alors jusqu'à hier.
+ */
+export function serieDeJours(dates: Iterable<DateISO>, aujourdhui: DateISO): number {
+  const jours = new Set(dates);
+  let serie = 0;
+  let curseur = jours.has(aujourdhui) ? aujourdhui : ajouterJours(aujourdhui, -1);
+  while (jours.has(curseur)) {
+    serie++;
+    curseur = ajouterJours(curseur, -1);
+  }
+  return serie;
+}
+
+/** Jours du mois déjà commencés (aujourd'hui compris) : tout le mois s'il est passé, 0 s'il est à venir. */
+export function joursEcoules(semaines: readonly SemaineFiche[]): number {
+  return semaines.reduce((t, s) => t + s.jours.filter((j) => !j.futur).length, 0);
+}
+
+/** Phrase d'encouragement selon la part du Coran apprise (en %). */
+export function encouragement(pourcentage: number): string {
+  if (pourcentage <= 0) return "Chaque grand voyage commence par un premier verset.";
+  if (pourcentage < 5) return "Un beau départ : continue, verset après verset.";
+  if (pourcentage < 25) return "Tu avances bien, la régularité paie.";
+  if (pourcentage < 50) return "Déjà une belle part du Coran : garde le cap.";
+  if (pourcentage < 75) return "Plus de la moitié du chemin : magnifique persévérance.";
+  if (pourcentage < 100) return "La dernière ligne droite : courage, tu y es presque.";
+  return "Tout le Coran : qu’Allah te le préserve et te l’élève en rang.";
 }

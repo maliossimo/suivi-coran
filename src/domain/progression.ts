@@ -4,7 +4,7 @@
  */
 import { formaterDate, lireDate, type DateISO } from "./calendrier";
 import { joursEntre } from "./classe";
-import type { Objectif, Seance } from "./fiche";
+import { serieDeJours, type Objectif, type Seance } from "./fiche";
 import type { Lecture } from "./lectures";
 import {
   fusionner,
@@ -190,12 +190,7 @@ export function calculerProgression(
   }
 
   // Jours consécutifs avec au moins une séance, jusqu'à aujourd'hui (ou hier).
-  let joursConsecutifs = 0;
-  let curseur = minutesParJour.has(aujourdhui) ? aujourdhui : ajouterJours(aujourdhui, -1);
-  while (minutesParJour.has(curseur)) {
-    joursConsecutifs++;
-    curseur = ajouterJours(curseur, -1);
-  }
+  const joursConsecutifs = serieDeJours(minutesParJour.keys(), aujourdhui);
 
   const objectifsParMois = mois.map((m) => {
     const duMois = objectifs.filter((o) => o.mois.startsWith(m.cle));

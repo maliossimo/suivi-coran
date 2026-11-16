@@ -9,6 +9,39 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.39.0] — 2026-11-16
+
+### Ajouté
+
+- Fiche de l'élève :
+  - une carte « Aujourd'hui » avec l'apprentissage et la révision du jour en grand (saisie ou à saisir) ;
+  - la régularité du mois en anneau, le temps, les versets, la série de jours d'affilée (une flamme) et les objectifs en tuiles ;
+  - le dernier mot du Cheikh, en carte dorée, avec un lien vers la séance.
+- Semaines : celle en cours ressort ; chaque semaine montre 7 points (un par jour, à la couleur de l'écoute du Cheikh) et ses jours travaillés.
+- Jours : la durée en pastille et un liseré à la couleur de l'écoute du Cheikh. Le bilan du mois passe en tuiles illustrées.
+- Progression : l'avancement en grand anneau doré, avec une phrase d'encouragement.
+- Carte du Coran : toucher une sourate ouvre son détail (part apprise, dernière fois, « Lire », « Réviser cette sourate »).
+- Graphiques : dégradés, et une bulle donne la valeur au toucher (semaine, mois, jour).
+- Onglet Coran : une carte « Continuer la lecture » rouvre la dernière page lue.
+- Ma classe : une petite courbe des 14 derniers jours sur la carte de chaque élève.
+- Appel : avatars, jauge des présents qui suit les choix, boutons « Présent / Absent » plus francs.
+- Mon compte : carte de profil avec la mosquée, la classe et son Cheikh, et la date d'inscription.
+- Bienvenue (après le QR code) : le logo fête l'arrivée et les premiers pas sont expliqués en trois étapes.
+- QR code de la classe : « Afficher en grand » le montre en plein écran sur fond blanc, avec le nom de la classe, et l'écran reste allumé ; le message de partage précise la classe.
+
+### Amélioré
+
+- Barre du bas : icônes dessinées pour l'appli (carnet, mushaf sur son pupitre, mosquée…) ; la page arrive du côté de l'onglet touché.
+- Écran de connexion : des étincelles dorées, la boîte qui arrive en douceur.
+- Avatars en léger relief, avec l'étoile du logo en filigrane.
+- Feuilles du bas : elles montent avec un léger ressort et se ferment en les tirant vers le bas par la poignée.
+- Léger effet de profondeur au défilement (en-tête et motifs).
+- Mode sombre : une lueur en haut de l'écran et des cartes en relief.
+
+### Corrigé
+
+- Mushaf : le glissement d'une page à l'autre suit le doigt sans à-coups ; un geste vif suffit pour tourner la page.
+
 ## [1.38.0] — 2026-11-16
 
 ### Ajouté

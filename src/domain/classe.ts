@@ -42,6 +42,27 @@ export interface ResumeEleve {
   aVoir: number;
   /** La plus ancienne d'entre elles : la fiche s'ouvre sur son mois et son onglet. */
   premiereAVoir: { date: DateISO; type: TypeSeance } | null;
+  /** Minutes travaillées chaque jour des 14 derniers jours (le plus ancien d'abord). */
+  quinzaine?: number[];
+}
+
+export const JOURS_COURBE = 14;
+
+/** Minutes travaillées par jour (tous types), des `nbJours` jours jusqu'à `fin` incluse. */
+export function courbeRegularite(
+  seances: readonly SeanceStat[],
+  eleveId: string,
+  fin: DateISO,
+  nbJours = JOURS_COURBE,
+): number[] {
+  const debut = Date.parse(`${fin}T00:00:00Z`) - (nbJours - 1) * 86_400_000;
+  const minutes = new Array<number>(nbJours).fill(0);
+  for (const s of seances) {
+    if (s.eleveId !== eleveId) continue;
+    const i = Math.round((Date.parse(`${s.date}T00:00:00Z`) - debut) / 86_400_000);
+    if (i >= 0 && i < nbJours) minutes[i] = (minutes[i] ?? 0) + s.dureeMin;
+  }
+  return minutes;
 }
 
 /** Une séance récente, réduite à ce qu'il faut pour savoir si le Cheikh doit la voir. */

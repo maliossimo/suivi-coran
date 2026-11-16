@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Avatar } from "./Avatar";
 import { EtiquetteLecture } from "./ChoixLecture";
 import { EtatVide } from "./EtatVide";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { actionArchiverEleve } from "@/app/actions/classe";
 import { correspondARecherche, JOURS_A_VOIR, phraseEleve, type ResumeEleve } from "@/domain/classe";
 import { formaterDuree } from "@/domain/fiche";
@@ -104,6 +104,7 @@ export function ListeEleves({
                   </span>
                 ) : null}
               </span>
+              {r.quinzaine ? <CourbeQuinzaine minutes={r.quinzaine} /> : null}
               <span className="chevron" aria-hidden="true">
                 <ChevronRight size={20} />
               </span>
@@ -134,5 +135,52 @@ export function ListeEleves({
         </details>
       ) : null}
     </>
+  );
+}
+
+/**
+ * Petite courbe de régularité : une barre par jour sur les 14 derniers jours
+ * (hauteur = temps de travail, jour sans séance = simple point). Aujourd'hui à droite.
+ */
+function CourbeQuinzaine({ minutes }: { minutes: number[] }) {
+  const max = Math.max(30, ...minutes);
+  const jours = minutes.filter((m) => m > 0).length;
+  const L = 6;
+  const H = 24;
+  return (
+    <span
+      className="courbe-quinzaine"
+      title={`${jours} jour${jours > 1 ? "s" : ""} travaillé${jours > 1 ? "s" : ""} sur les 14 derniers`}
+    >
+      <svg
+        viewBox={`0 0 ${minutes.length * L} ${H}`}
+        width={minutes.length * L}
+        height={H}
+        role="img"
+        aria-label={`Régularité : ${jours} jour${jours > 1 ? "s" : ""} travaillé${jours > 1 ? "s" : ""} sur les 14 derniers`}
+      >
+        {minutes.map((m, i) => {
+          const h = m > 0 ? Math.max(5, (m / max) * H) : 2.5;
+          return (
+            <rect
+              key={i}
+              x={i * L + 1}
+              y={H - h}
+              width={L - 2}
+              height={h}
+              rx={1.5}
+              className={
+                m > 0
+                  ? i === minutes.length - 1
+                    ? "courbe-jour courbe-aujourdhui"
+                    : "courbe-jour"
+                  : "courbe-vide"
+              }
+              style={{ "--i": i } as CSSProperties}
+            />
+          );
+        })}
+      </svg>
+    </span>
   );
 }
