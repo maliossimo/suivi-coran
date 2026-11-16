@@ -13239,7 +13239,8 @@ textarea:focus-visible {
 html[data-plein-ecran] .barre,
 html[data-plein-ecran] .nav-espace,
 html[data-plein-ecran] .barre-compacte,
-html[data-plein-ecran] .coran-entete > :not(.coran-sortir-plein-ecran) {
+html[data-plein-ecran] .coran-entete > :not(.coran-outils),
+html[data-plein-ecran] .coran-outils > :not(.coran-sortir-plein-ecran) {
   display: none !important;
 }
 html[data-plein-ecran] .espace-coran {
@@ -13527,4 +13528,19 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   .coran-cache .mot {
     transition: none;
   }
+}
+
+/* Outils de lecture en haut à droite : cacher le texte, plein écran. */
+.coran-outils {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  gap: 6px;
+}
+#coran-outil-cache {
+  display: contents;
+}
+.coran-cacher.actif {
+  background: var(--vert);
+  color: #fff;
 }

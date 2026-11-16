@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import {
   memo,
   useCallback,
@@ -166,6 +167,8 @@ export function LectureCoran({
   const [cache, setCache] = useState(false);
   /** Lignes (« l3 ») ou versets (« 2:255 ») dévoilés d'un toucher en mode caché. */
   const [devoiles, setDevoiles] = useState<ReadonlySet<string>>(new Set());
+  const [emplacementCache, setEmplacementCache] = useState<HTMLElement | null>(null);
+  useEffect(() => setEmplacementCache(document.getElementById("coran-outil-cache")), []);
   /** Arrêt automatique : heure de fin, « à la fin du passage », ou rien. */
   const [minuterie, setMinuterie] = useState<{ fin: number; choix: ChoixMinuterie } | "fin" | null>(null);
   const [maintenant, setMaintenant] = useState(0);
@@ -753,21 +756,6 @@ export function LectureCoran({
               </span>
             </button>
           ) : null}
-          <button
-            type="button"
-            className={cache ? "coran-bouton coran-bouton-actif" : "coran-bouton"}
-            onClick={() => {
-              setCache((c) => !c);
-              setDevoiles(new Set());
-            }}
-            aria-pressed={cache}
-            aria-label={cache ? "Montrer tout le texte" : "Cacher le texte pour réviser"}
-            title={
-              cache ? "Montrer tout le texte" : "Cacher le texte : seul le premier mot de chaque ligne reste"
-            }
-          >
-            {cache ? <Eye size={20} aria-hidden="true" /> : <EyeOff size={20} aria-hidden="true" />}
-          </button>
           {memorisation ? (
             <button
               type="button"
@@ -926,6 +914,29 @@ export function LectureCoran({
         }}
       />
 
+      {/* « Cacher le texte » : en haut, à côté du plein écran (la barre du lecteur reste lisible). */}
+      {emplacementCache
+        ? createPortal(
+            <button
+              type="button"
+              className={cache ? "coran-plein-ecran coran-cacher actif" : "coran-plein-ecran coran-cacher"}
+              onClick={() => {
+                setCache((c) => !c);
+                setDevoiles(new Set());
+              }}
+              aria-pressed={cache}
+              aria-label={cache ? "Montrer tout le texte" : "Cacher le texte pour réviser"}
+              title={
+                cache
+                  ? "Montrer tout le texte"
+                  : "Cacher le texte : seul le premier mot de chaque ligne reste"
+              }
+            >
+              {cache ? <Eye size={18} aria-hidden="true" /> : <EyeOff size={18} aria-hidden="true" />}
+            </button>,
+            emplacementCache,
+          )
+        : null}
       {cache ? (
         <p className="coran-cache-aide" role="status">
           <EyeOff size={16} aria-hidden="true" />
