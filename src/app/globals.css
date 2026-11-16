@@ -9566,22 +9566,14 @@ html[data-taille="grand"] body {
 html[data-taille="tres-grand"] body {
   zoom: 1.22;
 }
-/* La barre du bas (jusqu'à 6 onglets) garde sa taille normale : elle tient toujours dans l'écran. */
+/* La barre du bas (jusqu'à 6 onglets) garde sa taille normale : elle tient toujours dans l'écran
+   (les icônes et libellés restent ceux de la taille normale, déjà lisibles). */
 @media (max-width: 760px) {
   html[data-taille="grand"] .nav-espace {
     zoom: 0.9091;
   }
   html[data-taille="tres-grand"] .nav-espace {
     zoom: 0.8197;
-  }
-  .nav-onglet {
-    min-width: 0;
-  }
-  .nav-onglet span {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 }
 
@@ -9887,7 +9879,7 @@ fieldset.vue-admin-modifiable {
 .tuiles > .tuile:nth-child(n + 4) {
   animation-delay: 0.18s;
 }
-.compteur {
+.nombre-anime {
   font-variant-numeric: tabular-nums;
 }
 

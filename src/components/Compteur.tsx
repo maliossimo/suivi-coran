@@ -32,5 +32,5 @@ export function Compteur({ valeur }: { valeur: number }) {
       setAffiche(valeur);
     };
   }, [valeur]);
-  return <span className="compteur">{FORMAT.format(affiche)}</span>;
+  return <span className="nombre-anime">{FORMAT.format(affiche)}</span>;
 }
