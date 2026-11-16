@@ -73,3 +73,23 @@ test.describe("Apparence", () => {
     });
   });
 });
+
+test.describe("Texte très grand", () => {
+  test("la barre du bas (6 onglets) tient dans l'écran", async ({ page }) => {
+    await page.addInitScript(() =>
+      localStorage.setItem("apparence", JSON.stringify({ taille: "tres-grand" })),
+    );
+    await seConnecter(page, COMPTES.admin, /\/admin/);
+    await page.goto("/compte");
+    await expect(page.locator("html")).toHaveAttribute("data-taille", "tres-grand");
+    const largeur = page.viewportSize()!.width;
+    const onglets = page.locator(".nav-espace .nav-onglet");
+    await expect(onglets.first()).toBeVisible();
+    for (const boite of await onglets.evaluateAll((els) =>
+      els.map((e) => e.getBoundingClientRect().toJSON()),
+    )) {
+      expect(boite.left).toBeGreaterThanOrEqual(-1);
+      expect(boite.right).toBeLessThanOrEqual(largeur + 1);
+    }
+  });
+});

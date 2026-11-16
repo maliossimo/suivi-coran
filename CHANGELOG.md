@@ -9,6 +9,25 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.37.0] — 2026-11-16
+
+### Corrigé
+
+- Mode révision : la barre d'état du téléphone (tout en haut de l'écran) passe bien à l'or ; elle restait verte sur la fiche.
+- Ouverture de l'appli : l'animation part du logo tel que l'écran de démarrage du téléphone le montre, au lieu de le redessiner depuis rien.
+- Texte « très grand » : la barre du bas ne dépasse plus de l'écran.
+
+### Ajouté
+
+- Animations dans l'appli :
+  - les chiffres (jours travaillés, versets, versets appris, sourates, jours d'affilée) montent jusqu'à leur valeur ;
+  - les tuiles et les chiffres du résumé arrivent avec un petit ressort ;
+  - l'anneau du Coran se trace, la courbe des versets se dessine, les barres du temps de travail poussent semaine après semaine, la régularité s'allume de gauche à droite ;
+  - les 114 sourates de la carte du Coran apparaissent en vague ;
+  - le jour d'aujourd'hui s'illumine doucement sur la fiche ;
+  - les cartes des élèves arrivent l'une après l'autre (Cheikh) ;
+  - dans l'onglet Coran, « Réciter » respire pour inviter à essayer.
+
 ## [1.36.0] — 2026-11-16
 
 ### Corrigé

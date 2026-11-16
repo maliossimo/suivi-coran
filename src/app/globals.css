@@ -4317,11 +4317,12 @@ a.jour:active {
 }
 
 /* ---------- Ouverture de l'appli installée (calame doré), environ 2,5 s ----------------
-   0,05 → 0,8 s : l'étoile se dessine en or, trait par trait ;
-   0,6 → 1,4 s : le calame trace le ق (le corps, puis les deux points), la lettre apparaît sous lui,
-                  l'étoile pivote d'un huitième de tour ;
-   1,4 → 1,8 s : un reflet doré traverse la lettre, le nom monte sous le logo ;
-   1,8 → 2,1 s : tout reste figé, le temps de voir le logo ;
+   Elle part du logo tel que l'écran de démarrage d'Android le montre (même taille, même place) :
+   aucune coupure, le logo reste là, puis s'anime.
+   0,1 → 0,8 s : un trait d'or plus vif parcourt l'étoile ;
+   0,35 → 1,15 s : le calame repasse sur le ق (le corps, puis les deux points) ; l'étoile pivote ;
+   1,4 → 1,85 s : un reflet doré traverse la lettre, le nom monte ;
+   1,85 → 2,1 s : tout reste figé, le temps de voir le logo ;
    2,1 → 2,5 s : le logo file vers sa place dans l'en-tête et la page apparaît autour. */
 .ouverture {
   display: none;
@@ -4344,40 +4345,41 @@ html[data-ouverture] .ouverture {
 }
 .ouverture-etoile {
   transform-origin: 100px 100px;
-  animation: ouverture-pivot 0.9s cubic-bezier(0.45, 0, 0.2, 1) 0.6s both;
-}
-.ouverture-etoile rect,
-.ouverture-etoile circle {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  animation: ouverture-pivot 0.95s cubic-bezier(0.45, 0, 0.2, 1) 0.45s both;
 }
 .ouverture-etoile rect {
-  fill: rgba(255, 255, 255, 0);
+  fill: rgba(255, 255, 255, 0.055);
   stroke: #d6af5c;
   stroke-width: 2.4;
   stroke-linejoin: round;
-  animation:
-    ouverture-plume 0.75s cubic-bezier(0.5, 0, 0.3, 1) 0.05s forwards,
-    ouverture-voile 0.5s ease-out 0.6s forwards;
-}
-.ouverture-etoile rect + rect {
-  animation-delay: 0.18s, 0.7s;
 }
 .ouverture-etoile circle {
   fill: none;
   stroke: #d6af5c;
   stroke-opacity: 0.43;
   stroke-width: 1;
-  animation: ouverture-plume 0.5s ease-out 0.45s forwards;
+}
+/* Le trait d'or vif qui parcourt l'étoile, par-dessus, puis s'efface. */
+.ouverture-etoile .ouverture-trait {
+  fill: none;
+  stroke: #f6dd98;
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 6px rgba(246, 221, 152, 0.8));
+  animation:
+    ouverture-plume 0.7s cubic-bezier(0.5, 0, 0.3, 1) 0.1s forwards,
+    ouverture-dore 0.4s ease-out 0.8s forwards;
+}
+.ouverture-etoile .ouverture-trait + .ouverture-trait {
+  animation-delay: 0.2s, 0.9s;
 }
 .ouverture-lettre {
   fill: #faf3e0;
-  opacity: 0;
-  animation:
-    ouverture-apparait 0.5s ease-out 0.85s forwards,
-    ouverture-reflet 0.45s ease-in-out 1.42s;
+  animation: ouverture-reflet 0.45s ease-in-out 1.4s;
 }
-/* Le calame : un trait or qui parcourt la lettre, puis s'efface. */
+/* Le calame : un trait or qui repasse sur la lettre, puis s'efface. */
 .ouverture-calame {
   fill: none;
   stroke: #e6c47a;
@@ -4389,13 +4391,13 @@ html[data-ouverture] .ouverture {
 }
 .ouverture-calame-corps {
   animation:
-    ouverture-plume 0.65s cubic-bezier(0.55, 0.1, 0.35, 1) 0.6s forwards,
-    ouverture-dore 0.4s ease-out 1.2s forwards;
+    ouverture-plume 0.6s cubic-bezier(0.55, 0.1, 0.35, 1) 0.35s forwards,
+    ouverture-dore 0.4s ease-out 0.95s forwards;
 }
 .ouverture-calame-points {
   animation:
-    ouverture-plume 0.24s ease-out 1.12s forwards,
-    ouverture-dore 0.32s ease-out 1.3s forwards;
+    ouverture-plume 0.22s ease-out 0.9s forwards,
+    ouverture-dore 0.32s ease-out 1.1s forwards;
 }
 @keyframes ouverture-plume {
   to {
@@ -4405,16 +4407,6 @@ html[data-ouverture] .ouverture {
 @keyframes ouverture-dore {
   to {
     stroke-opacity: 0;
-  }
-}
-@keyframes ouverture-voile {
-  to {
-    fill: rgba(255, 255, 255, 0.055);
-  }
-}
-@keyframes ouverture-apparait {
-  to {
-    opacity: 1;
   }
 }
 @keyframes ouverture-reflet {
@@ -5266,7 +5258,7 @@ html[data-ouverture] .ouverture-version {
   font-weight: 600;
   letter-spacing: 0.02em;
   animation:
-    ouverture-version 0.55s ease-out 1.3s both,
+    ouverture-version 0.55s ease-out 1.35s both,
     ouverture-apparait-inverse 0.25s ease-in 2.05s forwards;
 }
 @keyframes ouverture-apparait-inverse {
@@ -9574,6 +9566,24 @@ html[data-taille="grand"] body {
 html[data-taille="tres-grand"] body {
   zoom: 1.22;
 }
+/* La barre du bas (jusqu'à 6 onglets) garde sa taille normale : elle tient toujours dans l'écran. */
+@media (max-width: 760px) {
+  html[data-taille="grand"] .nav-espace {
+    zoom: 0.9091;
+  }
+  html[data-taille="tres-grand"] .nav-espace {
+    zoom: 0.8197;
+  }
+  .nav-onglet {
+    min-width: 0;
+  }
+  .nav-onglet span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
 
 /* Choix en segments (Apparence) */
 .reglage-apparence {
@@ -9844,4 +9854,200 @@ fieldset.vue-admin-modifiable {
 }
 .reciter-texte.avec-couleurs .reciter-mot.entendu {
   background: color-mix(in srgb, var(--vert) 12%, transparent);
+}
+
+/* ---------- Animations de l'appli : vivante, sans jamais gêner -----------------------------
+   Courtes (0,3 à 0,9 s), une seule fois à l'arrivée sur la page. Rien ne bouge si le téléphone
+   demande de réduire les animations (règle générale plus haut) ni à l'impression. */
+
+/* Chiffres du résumé et tuiles : ils arrivent l'un après l'autre, avec un petit ressort. */
+@keyframes arrivee-ressort {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.02);
+  }
+}
+.resume-mois > li,
+.tuiles > .tuile {
+  animation: arrivee-ressort 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+.resume-mois > li:nth-child(2),
+.tuiles > .tuile:nth-child(2) {
+  animation-delay: 0.06s;
+}
+.resume-mois > li:nth-child(3),
+.tuiles > .tuile:nth-child(3) {
+  animation-delay: 0.12s;
+}
+.resume-mois > li:nth-child(n + 4),
+.tuiles > .tuile:nth-child(n + 4) {
+  animation-delay: 0.18s;
+}
+.compteur {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Anneau de progression : l'arc se trace. */
+@keyframes anneau-trace {
+  from {
+    stroke-dasharray: 0 1000;
+  }
+}
+.anneau circle:not(.anneau-fond) {
+  animation: anneau-trace 1.1s cubic-bezier(0.25, 0.8, 0.25, 1) 0.2s backwards;
+}
+
+/* Courbe des versets appris : la ligne se dessine, l'aire et les points suivent. */
+@keyframes trace-ligne {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes fondu-simple {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes point-pop {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.3);
+  }
+}
+.graphique-ligne {
+  animation: trace-ligne 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.15s backwards;
+}
+.graphique-aire {
+  animation: fondu-simple 0.8s ease-out 0.7s backwards;
+}
+.graphique-point {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: point-pop 0.4s ease-out backwards;
+  animation-delay: calc(0.25s + var(--i, 0) * 0.15s);
+}
+
+/* Temps de travail : les barres poussent depuis la ligne de base, semaine après semaine. */
+@keyframes barre-pousse {
+  from {
+    transform: scaleY(0);
+  }
+}
+.graphique-barre {
+  animation: barre-pousse 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.1) backwards;
+  animation-delay: calc(0.1s + var(--i, 0) * 0.04s);
+}
+
+/* Régularité : les cases s'allument de gauche à droite. */
+.graphique-grille rect {
+  animation: fondu-simple 0.35s ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 0.035s);
+}
+
+/* Carte du Coran : les 114 sourates apparaissent en vague. */
+@keyframes case-vague {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+.carte-grille .carte-case {
+  animation: case-vague 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 0.006s);
+}
+
+/* Aujourd'hui, sur la fiche : une lueur douce attire le regard, une fois. */
+@keyframes lueur-aujourdhui {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--vert) 45%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 12px color-mix(in srgb, var(--vert) 0%, transparent);
+  }
+}
+.jour-aujourdhui {
+  animation: lueur-aujourdhui 1.4s ease-out 0.5s 2;
+}
+
+/* Liste des élèves (Cheikh) : les cartes arrivent l'une après l'autre. */
+.liste-eleves > li {
+  animation: apparition 0.3s ease-out backwards;
+}
+.liste-eleves > li:nth-child(2) {
+  animation-delay: 0.04s;
+}
+.liste-eleves > li:nth-child(3) {
+  animation-delay: 0.08s;
+}
+.liste-eleves > li:nth-child(4) {
+  animation-delay: 0.12s;
+}
+.liste-eleves > li:nth-child(n + 5) {
+  animation-delay: 0.16s;
+}
+
+/* Coran de l'élève : les deux cartes arrivent, et « Réciter » respire pour inviter à essayer. */
+.accueil-coran > .carte-coran {
+  animation: arrivee-ressort 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+.accueil-coran > .carte-coran:nth-child(2) {
+  animation-delay: 0.1s;
+}
+@keyframes halo-invite {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--vert) 50%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--vert) 0%, transparent);
+  }
+}
+.carte-reciter .carte-coran-action {
+  animation: halo-invite 1.8s ease-out 0.8s 3;
+}
+@keyframes halo-invite-flottant {
+  0% {
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.22),
+      0 0 0 0 color-mix(in srgb, var(--vert) 50%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.22),
+      0 0 0 14px color-mix(in srgb, var(--vert) 0%, transparent);
+  }
+}
+.coran-reciter-flottant {
+  animation: halo-invite-flottant 1.8s ease-out 0.8s 3;
+}
+
+@media print {
+  .resume-mois > li,
+  .tuiles > .tuile,
+  .anneau circle,
+  .graphique-ligne,
+  .graphique-aire,
+  .graphique-point,
+  .graphique-barre,
+  .graphique-grille rect,
+  .carte-grille .carte-case,
+  .jour-aujourdhui,
+  .liste-eleves > li,
+  .accueil-coran > .carte-coran,
+  .carte-reciter .carte-coran-action {
+    animation: none !important;
+  }
 }
