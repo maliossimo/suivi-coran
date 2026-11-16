@@ -33,6 +33,7 @@ export function GestesFiche({
   ongletGauche,
   ongletDroite,
   cleFiche,
+  teinte,
   children,
 }: {
   moisPrecedent: string;
@@ -42,6 +43,8 @@ export function GestesFiche({
   ongletDroite: string | null;
   /** Mois + type affichés : le contenu se remonte (et s'anime) quand ils changent. */
   cleFiche: string;
+  /** Fiche ouverte : la révision est teintée d'or, et les couleurs glissent quand on change. */
+  teinte: "apprentissage" | "revision";
   children: ReactNode;
 }) {
   const router = useRouter();
@@ -53,6 +56,16 @@ export function GestesFiche({
   /** Départ en cours : le contenu s'efface dans le sens du geste jusqu'à l'arrivée du nouveau mois. */
   const [sortie, setSortie] = useState<{ sens: Sens; cle: string; hauteur: number } | null>(null);
   const contenu = useRef<HTMLDivElement>(null);
+  // Passage d'une fiche à l'autre (même mois) : le curseur des onglets glisse vers la fiche ouverte.
+  const [vue, setVue] = useState<{ cle: string; bascule: string | undefined }>({
+    cle: cleFiche,
+    bascule: undefined,
+  });
+  if (vue.cle !== cleFiche) {
+    const avant = vue.cle.slice(0, vue.cle.lastIndexOf("-"));
+    const apres = cleFiche.slice(0, cleFiche.lastIndexOf("-"));
+    setVue({ cle: cleFiche, bascule: avant === apres ? `vers-${teinte}` : undefined });
+  }
   const cleRef = useRef(cleFiche);
   cleRef.current = cleFiche;
 
@@ -180,35 +193,37 @@ export function GestesFiche({
         />
         {rafraichit ? <span className="visuellement-cache">Mise à jour…</span> : null}
       </div>
-      <div
-        key={cleFiche}
-        ref={contenu}
-        className={classe}
-        style={
-          glisse
-            ? { transform: `translateX(${glisse}px)`, opacity: 1 - Math.min(Math.abs(glisse) / 400, 0.3) }
-            : sortie && sortie.cle !== cleFiche
-              ? { minHeight: sortie.hauteur }
-              : undefined
-        }
-        // Ouvrir ou replier une semaine : petite vibration, comme un vrai bouton.
-        onClick={(e) => {
-          if ((e.target as Element).closest?.(".semaine-pliable > summary") && retoursActives())
-            navigator.vibrate?.(8);
-        }}
-        onAnimationEnd={(e) => {
-          if (e.target === e.currentTarget && sortie && sortie.cle !== cleFiche) setSortie(null);
-        }}
-        onClickCapture={(e) => {
-          // Flèches des mois et onglets : même effet que le glissement.
-          if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
-            return;
-          const lien = e.target instanceof Element ? e.target.closest<HTMLElement>("a[data-sens]") : null;
-          const sens = lien?.dataset.sens;
-          if (sens === "gauche" || sens === "droite") partir(sens);
-        }}
-      >
-        {children}
+      <div className="fiche-teinte" data-teinte={teinte} data-bascule={vue.bascule}>
+        <div
+          key={cleFiche}
+          ref={contenu}
+          className={classe}
+          style={
+            glisse
+              ? { transform: `translateX(${glisse}px)`, opacity: 1 - Math.min(Math.abs(glisse) / 400, 0.3) }
+              : sortie && sortie.cle !== cleFiche
+                ? { minHeight: sortie.hauteur }
+                : undefined
+          }
+          // Ouvrir ou replier une semaine : petite vibration, comme un vrai bouton.
+          onClick={(e) => {
+            if ((e.target as Element).closest?.(".semaine-pliable > summary") && retoursActives())
+              navigator.vibrate?.(8);
+          }}
+          onAnimationEnd={(e) => {
+            if (e.target === e.currentTarget && sortie && sortie.cle !== cleFiche) setSortie(null);
+          }}
+          onClickCapture={(e) => {
+            // Flèches des mois et onglets : même effet que le glissement.
+            if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+              return;
+            const lien = e.target instanceof Element ? e.target.closest<HTMLElement>("a[data-sens]") : null;
+            const sens = lien?.dataset.sens;
+            if (sens === "gauche" || sens === "droite") partir(sens);
+          }}
+        >
+          {children}
+        </div>
       </div>
     </>
   );

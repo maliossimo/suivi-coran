@@ -68,6 +68,7 @@ export function FicheMois({
       ongletGauche={fiche.type === "apprentissage" ? null : lien(cle, "apprentissage")}
       ongletDroite={fiche.type === "revision" ? null : lien(cle, "revision")}
       cleFiche={`${cle}-${fiche.type}`}
+      teinte={fiche.type}
     >
       {pagesHorsLigne.length ? <PreparerHorsLigne pages={pagesHorsLigne} /> : null}
       {fiche.premiereFois && !aVenir ? (

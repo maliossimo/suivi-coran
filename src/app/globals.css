@@ -18,6 +18,14 @@
   --or: #c9a24a;
   --or-clair: #f5ebd8;
   --or-texte: #7a4f0e;
+  /* Fiche de révision : la même fiche, teintée d'or (même palette que l'appli). Blanc sur --revision : 5,9:1. */
+  --revision: #8a5f12;
+  --revision-fonce: #6b480c;
+  --revision-clair: #f5ebd8;
+  --revision-texte: #7a4f0e;
+  /* Icônes des onglets : chacune garde sa couleur, quelle que soit la fiche ouverte. */
+  --icone-apprentissage: #1d5c47;
+  --icone-revision: #c9a24a;
   --rouge: #9b2c1f;
   --ombre: 0 1px 2px rgba(23, 35, 30, 0.06), 0 8px 24px rgba(23, 35, 30, 0.08);
   --surface-2: #faf8f3;
@@ -656,35 +664,95 @@ a:hover {
   font-weight: 700;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
-/* Fiche : Apprentissage (vert) et Révision (or), chacun avec son icône et ses séances du mois,
-   pour qu'on voie qu'il y a deux fiches et laquelle est ouverte. */
+/* Fiche : Apprentissage (vert) et Révision (or). Chaque onglet a son icône ; l'onglet ouvert est un
+   « curseur » coloré (dessiné par ::before) qui glisse d'un onglet à l'autre quand on change de fiche. */
 .onglet.onglet-apprentissage,
 .onglet.onglet-revision {
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 1.5px solid transparent;
 }
 .onglet-apprentissage svg,
 .onglet-revision svg {
   flex-shrink: 0;
 }
 .onglet-apprentissage svg {
-  color: var(--vert);
+  color: var(--icone-apprentissage);
 }
 .onglet-revision svg {
-  color: var(--or);
+  color: var(--icone-revision);
 }
-.onglet.onglet-apprentissage[aria-current="page"] {
-  border-color: var(--vert);
-  background: var(--vert-clair);
+.onglet.onglet-apprentissage[aria-current="page"],
+.onglet.onglet-revision[aria-current="page"] {
+  background: transparent;
+  box-shadow: none;
   color: var(--vert-texte);
 }
-.onglet.onglet-revision[aria-current="page"] {
-  border-color: var(--or);
-  background: var(--or-clair);
-  color: var(--or-texte);
+.onglet.onglet-apprentissage[aria-current="page"]::before,
+.onglet.onglet-revision[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1.5px solid var(--vert);
+  border-radius: inherit;
+  background: var(--vert-clair);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.fiche-teinte[data-bascule="vers-revision"] .onglet-revision[aria-current="page"]::before {
+  animation: curseur-depuis-gauche 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.fiche-teinte[data-bascule="vers-apprentissage"] .onglet-apprentissage[aria-current="page"]::before {
+  animation: curseur-depuis-droite 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes curseur-depuis-gauche {
+  from {
+    transform: translateX(calc(-100% - 4px));
+  }
+}
+@keyframes curseur-depuis-droite {
+  from {
+    transform: translateX(calc(100% + 4px));
+  }
+}
+
+/* La fiche de révision est la même fiche, teintée d'or : à l'intérieur, le vert de l'appli devient
+   l'or (en-tête, barre du bas et fond ne changent pas). Les couleurs glissent de l'une à l'autre. */
+@property --vert {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1d5c47;
+}
+@property --vert-fonce {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #123c2e;
+}
+@property --vert-clair {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e2eee8;
+}
+@property --vert-texte {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1d5c47;
+}
+.fiche-teinte {
+  transition:
+    --vert 0.4s ease,
+    --vert-fonce 0.4s ease,
+    --vert-clair 0.4s ease,
+    --vert-texte 0.4s ease;
+}
+.fiche-teinte[data-teinte="revision"] {
+  --vert: var(--revision);
+  --vert-fonce: var(--revision-fonce);
+  --vert-clair: var(--revision-clair);
+  --vert-texte: var(--revision-texte);
 }
 .resume-mois {
   margin: 0;
@@ -3079,6 +3147,13 @@ button:active:not(:disabled),
     --or-clair: #2b2416;
     --bord-or: #5b4a24;
     --or-texte: #e3c27a;
+    /* Fiche de révision en sombre : blanc sur --revision 5,0:1 ; --revision-texte sur les cartes 9:1. */
+    --revision: #8a6418;
+    --revision-fonce: #6b4d12;
+    --revision-clair: #2b2416;
+    --revision-texte: #e3c27a;
+    --icone-apprentissage: #6cc3a0;
+    --icone-revision: #e3c27a;
     --rouge: #e07a6c;
     --ombre: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
     --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
@@ -3145,6 +3220,13 @@ button:active:not(:disabled),
   --or-clair: #2b2416;
   --bord-or: #5b4a24;
   --or-texte: #e3c27a;
+  /* Fiche de révision en sombre : blanc sur --revision 5,0:1 ; --revision-texte sur les cartes 9:1. */
+  --revision: #8a6418;
+  --revision-fonce: #6b4d12;
+  --revision-clair: #2b2416;
+  --revision-texte: #e3c27a;
+  --icone-apprentissage: #6cc3a0;
+  --icone-revision: #e3c27a;
   --rouge: #e07a6c;
   --ombre: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
   --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");

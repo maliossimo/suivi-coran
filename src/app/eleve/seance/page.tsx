@@ -21,7 +21,7 @@ export default async function PageSeance({
   return (
     <>
       <EnteteEspace titre="Ma fiche" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
-      <main className="espace espace-etroit">
+      <main className="espace espace-etroit fiche-teinte" data-teinte={type}>
         {/* Pour l'élève seulement : la vue du Cheikh reste centrée sur la correction. */}
         {peutOuvrirCoran(profil) && donnees.seance ? (
           <EcouterPassages
