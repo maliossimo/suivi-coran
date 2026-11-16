@@ -152,6 +152,10 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
   );
 }
 
+/** Éléments accrochés à l'écran (position fixe ou collante) : leur bloc ne glisse pas. */
+const ACCROCHES =
+  ".coran-lecteur, .coran-vue-page, .barre-enregistrer, .feuille-appel-resume, [data-accroche]";
+
 /** Côté d'où arrive la page ouverte depuis la barre (null : pas d'onglet touché). */
 let sensOnglet: "gauche" | "droite" | null = null;
 
@@ -166,16 +170,29 @@ function useArriveeDansLeSens(chemin: string) {
     const sens = sensOnglet;
     sensOnglet = null;
     if (!sens || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Repère le temps de l'arrivée : le lecteur du Coran monte depuis le bas (voir globals.css).
+    const html = document.documentElement;
+    html.dataset.arriveeOnglet = sens;
+    const fin = window.setTimeout(() => delete html.dataset.arriveeOnglet, 1500);
     const depart = sens === "droite" ? "28px" : "-28px";
     for (const el of document.querySelectorAll<HTMLElement>("main.espace > *")) {
+      // Un bloc qui porte un élément accroché à l'écran (lecteur du Coran, barre d'enregistrement…)
+      // arrive en simple fondu : déplacé, il emmènerait cet élément avec lui, qui sauterait ensuite.
+      const fixe = el.matches(ACCROCHES) || el.querySelector(ACCROCHES) !== null;
       el.animate?.(
-        [
-          { transform: `translateX(${depart})`, opacity: 0.001 },
-          { transform: "none", opacity: 1 },
-        ],
+        fixe
+          ? [{ opacity: 0.001 }, { opacity: 1 }]
+          : [
+              { transform: `translateX(${depart})`, opacity: 0.001 },
+              { transform: "none", opacity: 1 },
+            ],
         { duration: 300, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
       );
     }
+    return () => {
+      window.clearTimeout(fin);
+      delete html.dataset.arriveeOnglet;
+    };
   }, [chemin]);
 }
 
