@@ -32,7 +32,7 @@ test.describe("Coran (admin)", () => {
   test("appui long sur un verset : son explication directement", async ({ page }) => {
     await page.goto("/admin/coran?lecture=hafs&sourate=18");
     // L'appli doit être prête (texte du Coran interactif) avant le geste.
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
     await expect(page.locator(".coran-page[data-pret]")).toBeVisible();
     const verset = page.locator('.coran-verset[data-cle="18:10"]');
     await verset.scrollIntoViewIfNeeded();
@@ -304,9 +304,17 @@ test.describe("Vérifier ma récitation", () => {
     await expect(reciter.getByText(/Merci, c’est noté/)).toBeVisible();
     // Signalé par l'admin : la remarque disparaît et devient une correction apprise.
     await expect(reciter.getByText(/Madd ʿarid \(à l’arrêt\) trop long/)).toHaveCount(0);
-    await page.waitForLoadState("networkidle");
-    await page.goto("/admin/journal");
-    await expect(page.getByText("Corrections apprises (1)")).toBeVisible();
+    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
+    // Le signalement part en arrière-plan : le journal est relu jusqu'à ce qu'il y figure.
+    await expect
+      .poll(
+        async () => {
+          await page.goto("/admin/journal");
+          return page.getByText("Corrections apprises (1)").count();
+        },
+        { timeout: 20_000 },
+      )
+      .toBe(1);
     await expect(page.getByText(/Madd ʿarid/).first()).toBeVisible();
   });
 });
