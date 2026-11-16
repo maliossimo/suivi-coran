@@ -11,6 +11,8 @@ import { CorrectionsApprises } from "@/components/admin/CorrectionsApprises";
 import { chargerCorrectionsTajwid, chargerSignalementsTajwid } from "@/services/tajwid";
 import { dateHeure, heure } from "@/domain/format";
 import { LIBELLE_ROLE } from "@/domain/roles";
+import { UsageCoran } from "@/components/admin/UsageCoran";
+import { chargerUsagesCoran } from "@/services/usagesCoran";
 
 const ACTIONS: Record<string, string> = {
   INSERT: "Créations",
@@ -37,10 +39,11 @@ export default async function PageJournal({
     profil,
     await searchParams,
   );
-  const [signalements, corrections, securite] = await Promise.all([
+  const [signalements, corrections, securite, usageCoran] = await Promise.all([
     chargerSignalementsTajwid(profil),
     chargerCorrectionsTajwid(profil),
     chargerSecuriteEtVitesse(profil, noms),
+    chargerUsagesCoran(),
   ]);
   const echecs7j = securite.evenements.filter(
     (e) => e.type === "echec_connexion" && Date.parse(e.quand) > Date.now() - 7 * 86_400_000,
@@ -94,6 +97,8 @@ export default async function PageJournal({
             </ul>
           </details>
         </section>
+
+        <UsageCoran resume={usageCoran.resume} noms={usageCoran.noms} maintenant={maintenant} />
 
         <section className="carte-graphique">
           <div className="admin-titre">

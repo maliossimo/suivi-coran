@@ -734,9 +734,15 @@ export function ModeReciter({
         </button>
         <h2>{etape === "resultat" ? "Résultat" : "Réciter"}</h2>
         {etape === "pret" ? (
-          <button type="button" className="tajwid-masquer" aria-pressed={masquer} onClick={basculerMasquer}>
+          <button
+            type="button"
+            className="tajwid-masquer"
+            aria-pressed={masquer}
+            aria-label={masquer ? "Montrer le texte" : "Masquer le texte"}
+            onClick={basculerMasquer}
+          >
             {masquer ? <Eye size={16} aria-hidden="true" /> : <EyeOff size={16} aria-hidden="true" />}
-            {masquer ? "Montrer le texte" : "Masquer le texte"}
+            {masquer ? "Montrer" : "Masquer"}
           </button>
         ) : (
           <span className="reciter-plage">
@@ -791,7 +797,20 @@ export function ModeReciter({
         </div>
       ) : null}
       {etape === "pret" && (historique.scores.length > 0 || historique.difficiles.length > 0) ? (
-        <div className="reciter-historique">
+        // Replié par défaut : une ligne, pour laisser la place aux versets.
+        <details className="reciter-historique">
+          <summary>
+            {historique.scores.length ? (
+              <>
+                Dernier essai : <b>{historique.scores.at(-1)!.score} %</b>
+              </>
+            ) : (
+              "Tes essais"
+            )}
+            {historique.difficiles.length
+              ? ` · ${historique.difficiles.length} mot${historique.difficiles.length > 1 ? "s" : ""} difficile${historique.difficiles.length > 1 ? "s" : ""}`
+              : ""}
+          </summary>
           {historique.scores.length ? (
             <p>
               Tes essais ici : <b>{historique.scores.map((e) => `${e.score} %`).join(" → ")}</b>
@@ -819,7 +838,7 @@ export function ModeReciter({
               ))}
             </div>
           ) : null}
-        </div>
+        </details>
       ) : null}
 
       {etape === "ecoute" || etape === "fin" ? (
@@ -1021,16 +1040,18 @@ export function ModeReciter({
       <footer className="reciter-pied">
         {etape === "pret" ? (
           <>
-            <button
-              type="button"
-              className="tajwid-micro"
-              disabled={tropLong || !versetsChoisis.length}
-              onClick={() => void commencer()}
-            >
-              <Mic size={30} aria-hidden="true" />
-              <span className="visuellement-cache">Commencer la récitation</span>
-            </button>
-            <span className="tajwid-consigne">Touche et récite à ton rythme</span>
+            <div className="reciter-lancer">
+              <button
+                type="button"
+                className="tajwid-micro"
+                disabled={tropLong || !versetsChoisis.length}
+                onClick={() => void commencer()}
+              >
+                <Mic size={26} aria-hidden="true" />
+                <span className="visuellement-cache">Commencer la récitation</span>
+              </button>
+              <span className="tajwid-consigne">Touche le micro et récite à ton rythme</span>
+            </div>
           </>
         ) : null}
         {etape === "ecoute" ? (

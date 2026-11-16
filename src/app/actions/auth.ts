@@ -49,6 +49,19 @@ export async function actionDeconnexion(): Promise<void> {
   redirect("/connexion");
 }
 
+/**
+ * Lien d'inscription ouvert sur un téléphone déjà connecté (souvent celui du Cheikh ou d'un parent) :
+ * on se déconnecte et on revient sur ce même lien pour créer le compte élève.
+ */
+export async function actionDeconnexionPourRejoindre(form: FormData): Promise<void> {
+  const code = z
+    .string()
+    .regex(/^[A-Za-z0-9_-]{4,64}$/)
+    .safeParse(form.get("code"));
+  await deconnecter();
+  redirect(code.success ? `/rejoindre/${code.data}` : "/connexion");
+}
+
 const schemaEmail = z.object({ email: z.string().trim().toLowerCase().email() });
 
 export async function actionMotDePasseOublie(_: EtatFormulaire, form: FormData): Promise<EtatFormulaire> {

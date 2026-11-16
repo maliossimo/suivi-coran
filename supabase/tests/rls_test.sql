@@ -712,6 +712,68 @@ select pg_temp.attendu(not exists (select 1 from public.mes_classes()),
   'mon compte : un élève sans classe ne voit aucune classe');
 select pg_temp.console();
 
+-- « Ce que je connais déjà » : l'élève déclare, son Cheikh écoute et valide.
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+insert into public.acquis (id, eleve_id, sourate_debut, verset_debut, sourate_fin, verset_fin, a_ecouter, ecoute_le, valide_le)
+  values ('ac000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 67, 1, 67, 30, true, now(), now());
+select pg_temp.attendu(
+  (select ecoute_le is null and valide_le is null and a_ecouter from public.acquis
+    where id = 'ac000000-0000-0000-0000-000000000001'),
+  'acquis : l''élève déclare une partie, sans pouvoir la marquer écoutée');
+select pg_temp.doit_echouer(
+  $q$insert into public.acquis (eleve_id, sourate_debut, verset_debut, sourate_fin, verset_fin)
+     values ('a0000000-0000-0000-0000-000000000002', 1, 1, 1, 7)$q$,
+  'acquis : un élève ne déclare pas pour un autre');
+select pg_temp.doit_echouer(
+  $q$insert into public.acquis (eleve_id, sourate_debut, verset_debut, sourate_fin, verset_fin)
+     values ('a0000000-0000-0000-0000-000000000001', 67, 1, 67, 31)$q$,
+  'acquis : un verset hors de la sourate est refusé');
+select pg_temp.doit_echouer(
+  $q$select public.marquer_acquis('ac000000-0000-0000-0000-000000000001', 'valide')$q$,
+  'acquis : l''élève ne valide pas lui-même');
+update public.acquis set valide_le = now() where id = 'ac000000-0000-0000-0000-000000000001';
+select pg_temp.attendu(
+  (select valide_le is null from public.acquis where id = 'ac000000-0000-0000-0000-000000000001'),
+  'acquis : la validation reste réservée au Cheikh, même par une mise à jour directe');
+select public.acquis_repondu();
+select pg_temp.attendu(
+  (select acquis_repondu from public.profils where id = 'a0000000-0000-0000-0000-000000000001'),
+  'acquis : l''élève a répondu, on ne lui redemande plus');
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu(not exists (select 1 from public.acquis),
+  'acquis : un élève d''une autre mosquée ne voit rien');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
+select public.marquer_acquis('ac000000-0000-0000-0000-000000000001', 'valide');
+select pg_temp.attendu(
+  (select valide_le is not null and ecoute_le is not null
+          and ecoute_par = 'a0000000-0000-0000-0000-00000000000a'
+     from public.acquis where id = 'ac000000-0000-0000-0000-000000000001'),
+  'acquis : le Cheikh valide la partie de son élève, en son nom');
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.doit_echouer(
+  $q$select public.marquer_acquis('ac000000-0000-0000-0000-000000000001', 'aucun')$q$,
+  'acquis : un Cheikh d''une autre mosquée ne touche pas aux acquis');
+select pg_temp.console();
+
+-- Usage du Coran : chacun note le sien, seul l'admin lit.
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select public.noter_usage_coran('lecture', 18::smallint);
+select public.noter_usage_coran('lecture', 18::smallint);
+select public.noter_usage_coran('inconnu', 18::smallint);
+select pg_temp.attendu(not exists (select 1 from public.usages_coran),
+  'usage du Coran : un élève ne lit pas les compteurs, même les siens');
+select pg_temp.doit_echouer(
+  $q$insert into public.usages_coran (personne_id, quoi, sourate)
+     values ('a0000000-0000-0000-0000-000000000002', 'lecture', 1)$q$,
+  'usage du Coran : personne n''écrit directement dans les compteurs');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu(
+  (select nombre from public.usages_coran
+    where personne_id = 'a0000000-0000-0000-0000-000000000001' and quoi = 'lecture' and sourate = 18) = 2
+  and (select count(*) from public.usages_coran) = 1,
+  'usage du Coran : l''admin voit les lectures comptées (un type inconnu est ignoré)');
+select pg_temp.console();
+
 -- Invitation avec une classe : l'élève y entre dès la création de son compte.
 insert into auth.users (id, email, raw_user_meta_data) values
   ('a0000000-0000-0000-0000-000000000003', 'eleve3.a@test.local',

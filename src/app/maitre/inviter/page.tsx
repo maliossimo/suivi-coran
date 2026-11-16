@@ -1,16 +1,27 @@
-import { ChevronLeft, Mail, QrCode as IconeQr } from "lucide-react";
+import { ChevronLeft, QrCode as IconeQr } from "lucide-react";
 import Link from "next/link";
 import { actionDesactiverQr, actionGenererQr } from "@/app/actions/classe";
-import { CopierLien } from "@/components/CopierLien";
+import { headers } from "next/headers";
+import { PartagerInvitation } from "@/components/PartagerInvitation";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { Selecteur } from "@/components/Selecteur";
-import { FormulaireInvitation } from "@/components/FormulaireInvitation";
 import { QrCode } from "@/components/QrCode";
 import { QrPleinEcran } from "@/components/QrPleinEcran";
 import { envPublic } from "@/lib/env";
 import { exigerEspace } from "@/services/acces";
 import { listerClasses } from "@/services/admin";
 import { chargerQrClasse, classesDuCheikh } from "@/services/classe";
+
+/** Adresse du site telle que la personne l'a ouverte (repli : le réglage du site). */
+async function origineDuSite(): Promise<string> {
+  const h = await headers();
+  const hote = h.get("x-forwarded-host") ?? h.get("host");
+  if (hote && /^[a-z0-9.-]+(:\d+)?$/i.test(hote)) {
+    const protocole = h.get("x-forwarded-proto") ?? (hote.startsWith("localhost") ? "http" : "https");
+    return `${protocole === "http" ? "http" : "https"}://${hote}`;
+  }
+  return envPublic.NEXT_PUBLIC_SITE_URL;
+}
 
 function dateHeure(iso: string): string {
   return new Intl.DateTimeFormat("fr-FR", {
@@ -47,7 +58,8 @@ export default async function PageInviter({
       {coursChoisi ? <input type="hidden" name="classe" value={coursChoisi.id} /> : null}
     </>
   );
-  const lien = qr ? `${envPublic.NEXT_PUBLIC_SITE_URL}/rejoindre/${qr.code}` : null;
+  // Le lien part de l'adresse ouverte en ce moment (celle que les élèves connaissent), pas d'un réglage.
+  const lien = qr ? `${await origineDuSite()}/rejoindre/${qr.code}` : null;
 
   return (
     <>
@@ -59,7 +71,10 @@ export default async function PageInviter({
         </Link>
         <header className="seance-entete">
           <h1>Inviter des élèves</h1>
-          <p>Deux façons, au choix : un QR code à scanner en classe, ou une invitation par e-mail.</p>
+          <p>
+            Un QR code à scanner en classe, ou son lien à partager (WhatsApp, SMS…) : chaque élève crée son
+            compte et arrive directement dans ta classe.
+          </p>
         </header>
 
         {sesClasses.length > 1 ? (
@@ -112,6 +127,7 @@ export default async function PageInviter({
                   <QrPleinEcran lien={lien} classe={coursChoisi?.nom ?? classeChoisie?.nom ?? "Ma classe"}>
                     <QrCode texte={lien} libelle="QR code pour rejoindre la classe" />
                   </QrPleinEcran>
+                  <PartagerInvitation lien={lien} classe={coursChoisi?.nom ?? classeChoisie?.nom} />
                   <p className="qr-infos">
                     Valable jusqu’au {dateHeure(qr.expireLe)}
                     <br />
@@ -120,7 +136,6 @@ export default async function PageInviter({
                       : `${qr.utilisations} élève${qr.utilisations > 1 ? "s" : ""} inscrit${qr.utilisations > 1 ? "s" : ""} avec ce code.`}
                   </p>
                   <div className="qr-actions">
-                    <CopierLien lien={lien} classe={coursChoisi?.nom ?? classeChoisie?.nom} />
                     <form action={actionGenererQr}>
                       {champClasse}
                       <button type="submit" className="bouton-secondaire">
@@ -150,20 +165,6 @@ export default async function PageInviter({
                   </form>
                 </>
               )}
-            </section>
-
-            <section className="carte-invitation">
-              <h2>
-                <Mail size={20} aria-hidden="true" /> Par e-mail
-              </h2>
-              <p className="carte-graphique-sous">
-                L’élève reçoit un e-mail avec un lien pour choisir son mot de passe.
-              </p>
-              <FormulaireInvitation
-                cible="eleve"
-                etablissementId={classeChoisie?.id}
-                classeId={coursChoisi?.id}
-              />
             </section>
           </>
         )}
