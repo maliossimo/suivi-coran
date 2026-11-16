@@ -85,7 +85,8 @@ export function avisSon(trames: readonly Trame[], bruit: number): AvisSon {
   if (bruit > 0.05) return "bruit";
   if (!voix.length) return trames.length < 8 ? "attente" : "bas";
   const moyenne = voix.reduce((s, t) => s + t.rms, 0) / voix.length;
-  return moyenne < 0.03 ? "bas" : "bon";
+  // Le volume est remonté avant l'analyse : on ne demande de parler plus fort que pour une voix vraiment faible.
+  return moyenne < 0.015 ? "bas" : "bon";
 }
 
 /** Volume visé pour le moteur (RMS de la voix), et gain maximal (au-delà, on amplifierait le bruit). */

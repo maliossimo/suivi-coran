@@ -55,7 +55,8 @@ describe("son", () => {
 
   it("avis sur le son", () => {
     expect(avisSon(voix(12), BRUIT)).toBe("bon");
-    expect(avisSon(voix(12, 0.02), BRUIT)).toBe("bas");
+    expect(avisSon(voix(12, 0.012), BRUIT)).toBe("bas");
+    expect(avisSon(voix(12, 0.02), BRUIT)).toBe("bon");
     expect(avisSon(silence(4), BRUIT)).toBe("attente");
     expect(avisSon(silence(12), BRUIT)).toBe("bas");
     expect(

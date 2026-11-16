@@ -1056,17 +1056,20 @@ export function ModeReciter({
         ) : null}
         {etape === "ecoute" ? (
           <>
-            <span className={`reciter-avis ${micro.avis}`}>{LIBELLE_AVIS[micro.avis]}</span>
-            <button
-              type="button"
-              className="tajwid-micro actif"
-              style={{ boxShadow: `0 0 0 ${6 + Math.round(micro.niveau * 14)}px var(--vert-clair)` }}
-              onClick={terminer}
-            >
-              <Square size={26} aria-hidden="true" />
-              <span className="visuellement-cache">J’ai fini</span>
-            </button>
-            <span className="tajwid-chrono">{chrono(micro.secondes)}</span>
+            {/* Une seule rangée : l'avis sur le son, le bouton pour finir, le temps. */}
+            <div className="reciter-ecoute">
+              <span className={`reciter-avis ${micro.avis}`}>{LIBELLE_AVIS[micro.avis]}</span>
+              <button
+                type="button"
+                className="tajwid-micro actif"
+                style={{ boxShadow: `0 0 0 ${4 + Math.round(micro.niveau * 10)}px var(--vert-clair)` }}
+                onClick={terminer}
+              >
+                <Square size={22} aria-hidden="true" />
+                <span className="visuellement-cache">J’ai fini</span>
+              </button>
+              <span className="tajwid-chrono">{chrono(micro.secondes)}</span>
+            </div>
             <span className="tajwid-consigne">Chaque verset est analysé dès que tu fais une pause.</span>
           </>
         ) : null}
@@ -1131,7 +1134,7 @@ export function ModeReciter({
             </div>
           </>
         ) : null}
-        <p className="tajwid-note">
+        <p className="tajwid-note" hidden={etape === "ecoute" || etape === "fin"}>
           Analyse sur notre serveur, sans rien enregistrer (modèle ouvert HisnLabs Tajweed v2). C’est une aide
           : ton Cheikh reste juge.
         </p>
