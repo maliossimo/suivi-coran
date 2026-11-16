@@ -2,8 +2,16 @@
 Toute remarque du moteur y est (presque sûrement) fausse : on mesure combien de mots sont repris à tort,
 et par quelle règle, pour chaque réglage. Complète banc_qdat.py (un seul verset, mais des fautes annotées).
 
+Warsh aussi : trois récitateurs Warsh d'everyayah.com (fichiers numérotés comme en Hafs) sur les versets dont
+le découpage est le même dans les deux lectures. Idée tirée du travail de Yousr Allouani
+(github.com/Yousr-Allah-Allouani/warsh-quran-audio) : mesurer avant tout, sur des récitations de référence,
+ce que le moteur entend à tort en Warsh.
+
 Usage (CI, réseau) : python tests_python/banc_recitateurs.py
 """
+
+import json
+import re
 
 import os
 import subprocess
@@ -18,6 +26,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "api"))
 from _tajwid.moteur import ErreurSaisie, Reglages, analyser  # noqa: E402
 
 RECITATEURS = ["Husary_128kbps", "Alafasy_128kbps", "Minshawy_Murattal_128kbps"]
+RECITATEURS_WARSH = [
+    "warsh/warsh_ibrahim_aldosary_128kbps",
+    "warsh/warsh_yassin_al_jazaery_64kbps",
+    "warsh/warsh_Abdul_Basit_128kbps",
+]
+DONNEES = os.path.join(os.path.dirname(__file__), "..", "src", "donnees", "coran")
 
 # Versets courts (≤ 30 s chez Husary), choisis pour couvrir les règles : madd (naturel, muttasil, munfasil,
 # lazim, ʿarid), ghunna, ikhfaʾ, iqlab, idgham, qalqala, tafkhim…
@@ -56,19 +70,46 @@ def telecharger(rec: str, sourate: int, verset: int) -> bytes | None:
     ).stdout
 
 
+def versets_warsh() -> list[tuple[int, int, int, str]]:
+    """Versets Warsh (sourate, verset Warsh, fichier Hafs, texte) découpés comme en Hafs : un fichier = un verset."""
+    table = json.load(open(os.path.join(DONNEES, "warsh-hafs.json"), encoding="utf-8"))
+    choisis = []
+    for s, w in VERSETS:
+        hafs = [i + 1 for i, ws in enumerate(table[str(s)]) if w in ws]
+        if len(hafs) != 1 or table[str(s)][hafs[0] - 1] != [w]:
+            continue
+        textes = json.load(open(os.path.join(DONNEES, "warsh", f"{s}.json"), encoding="utf-8"))
+        if w <= len(textes):
+            choisis.append((s, w, hafs[0], re.sub(r"\s*[\u0660-\u0669]+\s*$", "", textes[w - 1]).strip()))
+    return choisis
+
+
 def main() -> None:
-    taches = [(r, s, v) for r in RECITATEURS for s, v in VERSETS]
+    lecture = sys.argv[1] if len(sys.argv) > 1 else "hafs"
+    if lecture == "warsh":
+        warsh = versets_warsh()
+        taches = [(r, s, h) for r in RECITATEURS_WARSH for s, _, h, _ in warsh]
+        lecteur = {(r, s, h): (w, t) for r in RECITATEURS_WARSH for s, w, h, t in warsh}
+        nb_versets, nb_rec = len(warsh), len(RECITATEURS_WARSH)
+    else:
+        taches = [(r, s, v) for r in RECITATEURS for s, v in VERSETS]
+        lecteur = {}
+        nb_versets, nb_rec = len(VERSETS), len(RECITATEURS)
     with ThreadPoolExecutor(8) as ex:
         sons = dict(zip(taches, ex.map(lambda t: telecharger(*t), taches)))
     sons = {t: a for t, a in sons.items() if a and len(a) / 32000 <= 30}
-    print(f"{len(sons)} récitations ({len(VERSETS)} versets × {len(RECITATEURS)} récitateurs, ≤ 30 s)")
+    print(f"{lecture} : {len(sons)} récitations ({nb_versets} versets × {nb_rec} récitateurs, ≤ 30 s)")
     for nom, reglages in CONFIGS:
         debut, mots, repris, par_regle, par_rec, durees = time.time(), 0, 0, Counter(), Counter(), []
         oublis = []
         for (rec, s, v), a in sons.items():
             t = time.time()
             try:
-                r = analyser(a, s, v, "hafs", reglages=reglages)
+                if lecture == "warsh":
+                    w, texte = lecteur[(rec, s, v)]
+                    r = analyser(a, s, w, "warsh", texte_warsh=texte, reglages=reglages)
+                else:
+                    r = analyser(a, s, v, "hafs", reglages=reglages)
             except ErreurSaisie as e:
                 print("  ignoré", rec, s, v, e)
                 continue
@@ -78,7 +119,7 @@ def main() -> None:
                 regles = {n["regle"].split(":")[0] for n in m["remarques"]}
                 if m["etat"] == "oublie":
                     regles.add("mot non entendu")
-                    oublis.append(f"{rec.split('_')[0]} {s}:{v} « {m['mot']} »")
+                    oublis.append(f"{rec.split('/')[-1].split('_')[0 if lecture == 'hafs' else 1]} {s}:{v} « {m['mot']} »")
                 if regles:
                     repris += 1
                     par_rec[rec] += 1
