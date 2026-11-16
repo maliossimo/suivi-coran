@@ -1,5 +1,7 @@
 "use client";
 
+import { IndicateurGlissant } from "@/components/IndicateurGlissant";
+import { annoncerTourDePage } from "./tourDePage";
 import { Bookmark, BookOpen, ChevronDown, ChevronLeft, ChevronRight, ScrollText, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -82,6 +84,7 @@ export function NavigationCoran({
     <>
       <div className="coran-entete">
         <nav className="coran-segments" aria-label="Affichage">
+          <IndicateurGlissant id="coran-affichage" actif='[aria-current="page"]' valeur={vue} />
           <Link
             href={lienSourate(sourate)}
             aria-current={vue === "sourate" ? "page" : undefined}
@@ -101,6 +104,7 @@ export function NavigationCoran({
               className="mois-fleche"
               href={precedent}
               aria-label={vue === "page" ? "Page précédente" : "Sourate précédente"}
+              onClick={() => vue === "page" && annoncerTourDePage("precedente")}
             >
               <ChevronLeft size={22} aria-hidden="true" />
             </Link>
@@ -138,6 +142,7 @@ export function NavigationCoran({
               className="mois-fleche"
               href={suivant}
               aria-label={vue === "page" ? "Page suivante" : "Sourate suivante"}
+              onClick={() => vue === "page" && annoncerTourDePage("suivante")}
             >
               <ChevronRight size={22} aria-hidden="true" />
             </Link>
@@ -149,6 +154,7 @@ export function NavigationCoran({
 
       <Feuille ouverte={ouvert} onFermer={() => setOuvert(false)} titre="Aller à">
         <div className="coran-segments coran-onglets-aller" role="tablist" aria-label="Aller à">
+          <IndicateurGlissant id="coran-aller" actif='[aria-selected="true"]' valeur={onglet} />
           {(
             [
               ["sourates", "Sourate"],

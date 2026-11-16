@@ -1,5 +1,6 @@
 "use client";
 
+import { IndicateurGlissant } from "@/components/IndicateurGlissant";
 import { Eye, PencilLine } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition, type ReactNode } from "react";
@@ -38,6 +39,7 @@ export function ZoneVueAdmin({
           <Link href="/admin">Administration</Link>
         </p>
         <div className="choix-mode-admin" role="group" aria-label="Mode">
+          <IndicateurGlissant id="vue-admin" actif='[aria-pressed="true"]' valeur={String(modification)} />
           <button type="button" aria-pressed={!modification} onClick={() => choisir(false)}>
             Lecture seule
           </button>

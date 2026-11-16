@@ -1,5 +1,6 @@
 "use client";
 
+import { IndicateurGlissant } from "./IndicateurGlissant";
 import { useEffect, useState } from "react";
 
 type Theme = "auto" | "clair" | "sombre";
@@ -36,6 +37,7 @@ function Choix<T extends string>({
 }) {
   return (
     <div className="choix-segmente" role="radiogroup" aria-label={titre}>
+      <IndicateurGlissant id={`apparence-${titre}`} actif='[aria-checked="true"]' valeur={String(valeur)} />
       {options.map((o) => (
         <button
           key={o.valeur}

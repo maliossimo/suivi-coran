@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLayoutEffect, useRef, type RefObject } from "react";
 import type { Role } from "@/domain/roles";
 
 type Icone =
@@ -117,8 +118,12 @@ const RESPONSABLE: Onglet[] = [
  */
 export function NavigationEspace({ role, responsable = false }: { role: Role; responsable?: boolean }) {
   const chemin = usePathname();
+  const nav = useRef<HTMLElement>(null);
+  const pastille = useRef<HTMLSpanElement>(null);
+  usePastilleQuiGlisse(nav, pastille, chemin);
   return (
-    <nav className="nav-espace" aria-label="Navigation principale">
+    <nav className="nav-espace" aria-label="Navigation principale" ref={nav}>
+      <span className="nav-pastille" ref={pastille} aria-hidden="true" />
       {(responsable ? RESPONSABLE : ONGLETS[role]).map((o) => {
         const actif = o.actif(chemin);
         const IconeOnglet = ICONES[o.icone];
@@ -138,4 +143,47 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
       })}
     </nav>
   );
+}
+
+/** Position de la pastille sur la page précédente : gardée d'une page à l'autre (même session). */
+let positionPrecedente: number | null = null;
+
+/**
+ * Barre du bas (téléphone) : la pastille claire de l'onglet actif glisse depuis l'onglet de la page
+ * précédente jusqu'au nouvel onglet. Chaque page a sa barre : la position d'avant est gardée en mémoire.
+ */
+function usePastilleQuiGlisse(
+  nav: RefObject<HTMLElement | null>,
+  pastille: RefObject<HTMLSpanElement | null>,
+  chemin: string,
+) {
+  useLayoutEffect(() => {
+    const barre = nav.current;
+    const p = pastille.current;
+    if (!barre || !p) return;
+    const actif = barre.querySelector<HTMLElement>('.nav-onglet[aria-current="page"]');
+    if (!actif) {
+      barre.classList.remove("avec-pastille");
+      return;
+    }
+    // D'abord la classe (les onglets deviennent des repères de position), puis les mesures.
+    barre.classList.add("avec-pastille");
+    const position = actif.offsetLeft + actif.offsetWidth / 2;
+    // Hauteur : juste au-dessus du libellé (icône de 22 px + 2 px de marge, 3 px d'écart), comme avant.
+    const libelle = actif.querySelector<HTMLElement>("span");
+    if (libelle) p.style.setProperty("--pastille-y", `${actif.offsetTop + libelle.offsetTop - 3 - 26}px`);
+    const placer = (x: number) => p.style.setProperty("--pastille-x", `${x}px`);
+    if (positionPrecedente === null || positionPrecedente === position) {
+      p.classList.remove("glisse");
+      placer(position);
+    } else {
+      // Départ à l'ancienne place, sans transition ; arrivée à la nouvelle, en glissant.
+      p.classList.remove("glisse");
+      placer(positionPrecedente);
+      void p.offsetWidth;
+      p.classList.add("glisse");
+      placer(position);
+    }
+    positionPrecedente = position;
+  }, [nav, pastille, chemin]);
 }

@@ -3,6 +3,7 @@
 import { Check, X } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
 import { actionEnregistrerObjectif } from "@/app/actions/fiche";
+import { ContenuBoutonEnregistrer } from "@/components/ContenuBoutonEnregistrer";
 import type { Objectif, StatutObjectif, TypeSeance } from "@/domain/fiche";
 
 const STATUTS: { valeur: StatutObjectif; libelle: string }[] = [
@@ -87,7 +88,7 @@ export function FormulaireObjectif({
         ))}
       </fieldset>
       <button type="submit" className="bouton-secondaire" disabled={enCours}>
-        {enCours ? "Enregistrement…" : "Enregistrer"}
+        <ContenuBoutonEnregistrer enCours={enCours} libelle="Enregistrer" />
       </button>
     </form>
   );
