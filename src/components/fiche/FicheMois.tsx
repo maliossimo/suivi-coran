@@ -21,6 +21,7 @@ import { SectionBilan } from "./SectionBilan";
 import { cleSeance } from "./cleSeance";
 import { BoutonValider, EtatEnregistrement } from "./EtatsLigneJour";
 import { GestesFiche } from "./GestesFiche";
+import { Compteur } from "@/components/Compteur";
 import { ModeFiche } from "./ModeFiche";
 import { PreparerHorsLigne } from "./PreparerHorsLigne";
 import { IndicateurLien } from "../IndicateurLien";
@@ -155,11 +156,17 @@ export function FicheMois({
             <strong>{formaterDuree(fiche.totalMinutes)}</strong> de travail
           </li>
           <li>
-            <strong>{fiche.joursTravailles}</strong> jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé
+            <strong>
+              <Compteur valeur={fiche.joursTravailles} />
+            </strong>{" "}
+            jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé
             {fiche.joursTravailles > 1 ? "s" : ""}
           </li>
           <li>
-            <strong>{fiche.versetsTravailles}</strong> verset{fiche.versetsTravailles > 1 ? "s" : ""}
+            <strong>
+              <Compteur valeur={fiche.versetsTravailles} />
+            </strong>{" "}
+            verset{fiche.versetsTravailles > 1 ? "s" : ""}
           </li>
           {fiche.semaines.some((s) => s.objectif) ? (
             <li>
@@ -277,11 +284,17 @@ export function FicheMois({
               <strong>{formaterDuree(fiche.totalMinutes)}</strong> de travail
             </li>
             <li>
-              <strong>{fiche.joursTravailles}</strong> jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé
+              <strong>
+                <Compteur valeur={fiche.joursTravailles} />
+              </strong>{" "}
+              jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé
               {fiche.joursTravailles > 1 ? "s" : ""}
             </li>
             <li>
-              <strong>{fiche.versetsTravailles}</strong> verset{fiche.versetsTravailles > 1 ? "s" : ""}{" "}
+              <strong>
+                <Compteur valeur={fiche.versetsTravailles} />
+              </strong>{" "}
+              verset{fiche.versetsTravailles > 1 ? "s" : ""}{" "}
               {fiche.type === "apprentissage" ? "appris" : "révisés"}
             </li>
             <li>

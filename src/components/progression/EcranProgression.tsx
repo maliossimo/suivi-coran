@@ -1,3 +1,4 @@
+import { Compteur } from "@/components/Compteur";
 import { libelleJourCourt } from "@/domain/fiche";
 import type { CarteDuCoran } from "@/domain/carte";
 import { aRenforcer, type Progression } from "@/domain/progression";
@@ -33,7 +34,9 @@ export function EcranProgression({
       ) : null}
       <div className="tuiles">
         <div className="tuile tuile-forte">
-          <strong>{p.versetsAppris}</strong>
+          <strong>
+            <Compteur valeur={p.versetsAppris} />
+          </strong>
           <span>versets appris</span>
           {p.versetsAppris > 0 ? (
             <small className="tuile-detail">
@@ -57,7 +60,9 @@ export function EcranProgression({
           <span>du Coran</span>
         </div>
         <div className="tuile">
-          <strong>{p.souratesCompletes}</strong>
+          <strong>
+            <Compteur valeur={p.souratesCompletes} />
+          </strong>
           <span>
             sourate{p.souratesCompletes > 1 ? "s" : ""} complète{p.souratesCompletes > 1 ? "s" : ""}
           </span>
@@ -70,7 +75,9 @@ export function EcranProgression({
           ) : null}
         </div>
         <div className="tuile">
-          <strong>{p.joursConsecutifs}</strong>
+          <strong>
+            <Compteur valeur={p.joursConsecutifs} />
+          </strong>
           <span>jour{p.joursConsecutifs > 1 ? "s" : ""} d’affilée</span>
         </div>
       </div>
