@@ -64,19 +64,35 @@ export function EcranProgression({
         </div>
         <div className="progression-entete-texte">
           <p className="progression-surtitre">Avancement</p>
-          <p className="progression-grand">
-            <strong>
-              <Compteur valeur={p.versetsAppris} />
-            </strong>{" "}
-            verset{p.versetsAppris > 1 ? "s" : ""} appris
-          </p>
-          {p.pagesApprises !== null && p.versetsAppris > 0 ? (
-            <p className="progression-pages">
-              <b>{p.pagesApprises.toLocaleString("fr-FR", { maximumFractionDigits: 1 })}</b> page
-              {p.pagesApprises >= 2 ? "s" : ""} sur 604
-              {p.juzComplets ? ` · ${p.juzComplets} juz complet${p.juzComplets > 1 ? "s" : ""}` : ""}
+          {p.pagesApprises !== null ? (
+            <>
+              {/* Les pages d'abord : c'est ainsi que l'on compte ce que l'on sait par cœur. */}
+              <p className="progression-grand">
+                <strong>{p.pagesApprises.toLocaleString("fr-FR", { maximumFractionDigits: 1 })}</strong> page
+                {p.pagesApprises >= 2 ? "s" : ""}
+                <span className="progression-sur"> sur 604</span>
+              </p>
+              <p className="progression-versets">
+                <b>
+                  <Compteur valeur={p.versetsAppris} />
+                </b>{" "}
+                verset{p.versetsAppris > 1 ? "s" : ""} appris
+                {p.juzComplets ? (
+                  <>
+                    {" · "}
+                    <b>{p.juzComplets}</b> juz complet{p.juzComplets > 1 ? "s" : ""}
+                  </>
+                ) : null}
+              </p>
+            </>
+          ) : (
+            <p className="progression-grand">
+              <strong>
+                <Compteur valeur={p.versetsAppris} />
+              </strong>{" "}
+              verset{p.versetsAppris > 1 ? "s" : ""} appris
             </p>
-          ) : null}
+          )}
           {p.versetsAppris > 0 ? (
             <p className="progression-detail">
               {p.versetsValides >= p.versetsAppris

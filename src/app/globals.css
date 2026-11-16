@@ -13107,3 +13107,224 @@ textarea:focus-visible {
 .usage-coran-compteurs small {
   flex-basis: 100%;
 }
+
+/* ---------- Fiche PDF : le jour ne déborde plus sur la colonne voisine, pas de barre de défilement ---------- */
+.pdf-table td {
+  overflow: hidden;
+}
+.pdf-jour {
+  flex-wrap: wrap;
+  column-gap: 5px;
+  row-gap: 0;
+  white-space: normal;
+}
+.pdf-jour strong,
+.pdf-jour small {
+  white-space: nowrap;
+}
+.pdf-col-jour {
+  width: 17%;
+}
+@media screen and (max-width: 640px) {
+  /* Sur téléphone, la fiche tient dans l'écran : pas de défilement de côté ni de barre grise. */
+  .pdf-page,
+  .pdf-semaine {
+    overflow-x: hidden;
+  }
+  .pdf-table {
+    min-width: 0;
+  }
+  .pdf-col-jour {
+    width: 25%;
+  }
+  .pdf-col-duree {
+    width: 15%;
+  }
+  .pdf-col-note {
+    width: 20%;
+  }
+  .pdf-col-cheikh {
+    width: 16%;
+  }
+  .pdf-table th,
+  .pdf-table td {
+    padding: 3px 5px;
+  }
+  .pdf-jour {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .pdf-entete-titres h1 {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .pdf-semaine-titre {
+    flex-wrap: wrap;
+  }
+}
+
+/* Progression : les pages en grand, les versets et les juz juste dessous. */
+.progression-grand strong {
+  font-size: 38px;
+  line-height: 1.05;
+}
+.progression-sur {
+  font-size: 17px;
+  color: var(--texte-doux);
+}
+.progression-entete-texte .progression-versets {
+  font-size: 16px;
+  color: var(--texte);
+}
+.progression-versets b {
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 20px;
+  color: var(--or-texte);
+}
+/* Réciter pendant l'écoute : une rangée compacte (avis · bouton · temps). */
+.reciter-ecoute {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.reciter-ecoute .reciter-avis {
+  justify-self: start;
+  font-size: 13px;
+}
+.reciter-ecoute .tajwid-chrono {
+  justify-self: end;
+}
+.reciter-pied .reciter-ecoute .tajwid-micro {
+  width: 56px;
+  height: 56px;
+}
+.reciter-pied .tajwid-consigne {
+  font-size: 12px;
+}
+.reciter-pied .tajwid-note[hidden] {
+  display: none;
+}
+
+/* ---------- Coran en plein écran : tout s'efface sauf le texte ---------- */
+.coran-entete {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.coran-entete > * {
+  grid-column: 1 / -1;
+}
+.coran-entete > .coran-segments {
+  grid-column: 1;
+  grid-row: 1;
+}
+.coran-plein-ecran {
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 100%;
+  min-height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-3);
+  color: var(--vert-texte);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.coran-plein-ecran:active {
+  transform: scale(0.92);
+}
+html[data-plein-ecran] .barre,
+html[data-plein-ecran] .nav-espace,
+html[data-plein-ecran] .barre-compacte,
+html[data-plein-ecran] .coran-entete > :not(.coran-sortir-plein-ecran) {
+  display: none !important;
+}
+html[data-plein-ecran] .espace-coran {
+  padding-top: calc(10px + env(safe-area-inset-top));
+}
+html[data-plein-ecran] .coran-lecteur {
+  bottom: calc(14px + env(safe-area-inset-bottom));
+}
+html[data-plein-ecran] body {
+  background: var(--fond);
+}
+.coran-sortir-plein-ecran {
+  position: fixed;
+  top: calc(10px + env(safe-area-inset-top));
+  right: 10px;
+  z-index: 46;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--carte) 70%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--texte);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+  animation: apparition 0.3s ease-out 0.25s backwards;
+}
+.coran-sortir-plein-ecran:hover,
+.coran-sortir-plein-ecran:focus-visible,
+.coran-sortir-plein-ecran:active {
+  opacity: 1;
+}
+/* L'entrée et la sortie : la barre du haut monte, celle du bas descend, la page s'installe. */
+html.transition-plein-ecran .barre {
+  view-transition-name: plein-ecran-haut;
+}
+html.transition-plein-ecran .nav-espace {
+  view-transition-name: plein-ecran-bas;
+}
+::view-transition-old(plein-ecran-haut) {
+  animation: plein-ecran-monte 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+::view-transition-new(plein-ecran-haut) {
+  animation: plein-ecran-descend 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+::view-transition-old(plein-ecran-bas) {
+  animation: plein-ecran-sort-bas 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+::view-transition-new(plein-ecran-bas) {
+  animation: plein-ecran-entre-bas 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+html.transition-plein-ecran::view-transition-group(root) {
+  animation-duration: 0.32s;
+}
+@keyframes plein-ecran-monte {
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+@keyframes plein-ecran-descend {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+@keyframes plein-ecran-sort-bas {
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+@keyframes plein-ecran-entre-bas {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coran-sortir-plein-ecran {
+    animation: none;
+  }
+}
