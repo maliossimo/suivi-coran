@@ -8,6 +8,7 @@ import { EtatVide } from "@/components/EtatVide";
 import { CarteCoran } from "./CarteCoran";
 import { GraphiqueCumul, GraphiqueSemaines, GrilleRegularite, LegendeTeintes } from "./Graphiques";
 import { ZoneBulles } from "./ZoneBulles";
+import { SousTitreEntete } from "@/components/SousTitreEntete";
 
 /** Écran « Progression », commun à l'élève et au maître. */
 export function EcranProgression({
@@ -34,6 +35,9 @@ export function EcranProgression({
           s’afficheront ici.
         </EtatVide>
       ) : null}
+      <SousTitreEntete
+        texte={`${p.pourcentageCoran.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} % du Coran · ${p.versetsAppris} verset${p.versetsAppris > 1 ? "s" : ""}`}
+      />
       <section className="progression-entete" aria-label="Avancement dans le Coran">
         <div className="progression-anneau">
           <AnneauProgression

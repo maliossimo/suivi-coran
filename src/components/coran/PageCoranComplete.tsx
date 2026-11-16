@@ -1,3 +1,4 @@
+import { SousTitreEntete } from "@/components/SousTitreEntete";
 import Link from "next/link";
 import { LectureCoran } from "@/components/coran/LectureCoran";
 import { NavigationCoran } from "@/components/coran/NavigationCoran";
@@ -53,6 +54,9 @@ export function PageCoranComplete({
     <>
       <EnteteEspace titre="Coran" nom={nom} role={role} />
       <main className="espace espace-coran">
+        <SousTitreEntete
+          texte={p.vue === "page" ? `Page ${p.page} · Juz ${p.juz}` : `${bloc.sourate}. ${bloc.nomLatin}`}
+        />
         <NavigationCoran
           base={base}
           lecture={p.lecture}

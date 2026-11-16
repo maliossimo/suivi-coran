@@ -9,6 +9,15 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.40.0] — 2026-11-16
+
+### Amélioré
+
+- En-tête quand on descend, sur toutes les pages : barre en verre dépoli (le contenu glisse dessous en s'estompant), fil doré qui s'efface vers les bords.
+- Le grand titre rétrécit et s'efface en descendant ; le petit titre arrive à sa place avec un sous-titre utile (élèves et séances à écouter, mois et onglet de la fiche, sourate ou page du Coran, avancement de la progression, rôle sur « Mon compte »).
+- Un toucher sur la barre remonte en haut de la page : le logo fait un tour, une flèche l'indique.
+- Ma classe : la courbe des 14 derniers jours, plus petite, se place à droite du nom et n'apparaît que si l'élève a travaillé ; les chiffres tiennent sur une ligne (icône et valeur, sans les zéros).
+
 ## [1.39.0] — 2026-11-16
 
 ### Ajouté

@@ -1,10 +1,11 @@
 "use client";
 
-import { ChevronRight, Search } from "lucide-react";
+import { BookPlus, CalendarCheck, ChevronRight, RotateCcw, Search, Target } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "./Avatar";
 import { EtiquetteLecture } from "./ChoixLecture";
 import { EtatVide } from "./EtatVide";
+import { SousTitreEntete } from "./SousTitreEntete";
 import { useState, type CSSProperties } from "react";
 import { actionArchiverEleve } from "@/app/actions/classe";
 import { correspondARecherche, JOURS_A_VOIR, phraseEleve, type ResumeEleve } from "@/domain/classe";
@@ -27,8 +28,14 @@ export function ListeEleves({
   const visibles = actifs.filter((r) => correspondARecherche(r.eleve, recherche));
   const archivesVisibles = archives.filter((r) => correspondARecherche(r.eleve, recherche));
 
+  const aEcouter = actifs.reduce((t, r) => t + r.aVoir, 0);
   return (
     <>
+      <SousTitreEntete
+        texte={`${actifs.length} élève${actifs.length > 1 ? "s" : ""}${
+          aEcouter ? ` · ${aEcouter} séance${aEcouter > 1 ? "s" : ""} à écouter` : ""
+        }`}
+      />
       {actifs.length + archives.length > 1 ? (
         <div className="recherche">
           <span className="recherche-icone" aria-hidden="true">
@@ -85,26 +92,8 @@ export function ListeEleves({
                   {phraseEleve(r.joursSansSaisie)}
                 </small>
               </span>
-              <span className="carte-eleve-stats">
-                <span>
-                  <b>{formaterDuree(r.minutesApprentissage)}</b> apprentissage
-                </span>
-                <span>
-                  <b>{formaterDuree(r.minutesRevision)}</b> révision
-                </span>
-                <span>
-                  <b>{r.joursTravailles}</b> j travaillés
-                </span>
-                {r.objectifsTotal ? (
-                  <span>
-                    <b>
-                      {r.objectifsAtteints}/{r.objectifsTotal}
-                    </b>{" "}
-                    objectifs
-                  </span>
-                ) : null}
-              </span>
-              {r.quinzaine ? <CourbeQuinzaine minutes={r.quinzaine} /> : null}
+              <StatsEleve r={r} />
+              {r.quinzaine?.some((m) => m > 0) ? <CourbeQuinzaine minutes={r.quinzaine} /> : null}
               <span className="chevron" aria-hidden="true">
                 <ChevronRight size={20} />
               </span>
@@ -145,8 +134,8 @@ export function ListeEleves({
 function CourbeQuinzaine({ minutes }: { minutes: number[] }) {
   const max = Math.max(30, ...minutes);
   const jours = minutes.filter((m) => m > 0).length;
-  const L = 6;
-  const H = 24;
+  const L = 4;
+  const H = 20;
   return (
     <span
       className="courbe-quinzaine"
@@ -164,11 +153,11 @@ function CourbeQuinzaine({ minutes }: { minutes: number[] }) {
           return (
             <rect
               key={i}
-              x={i * L + 1}
+              x={i * L + 0.5}
               y={H - h}
-              width={L - 2}
+              width={L - 1}
               height={h}
-              rx={1.5}
+              rx={1}
               className={
                 m > 0
                   ? i === minutes.length - 1
@@ -181,6 +170,63 @@ function CourbeQuinzaine({ minutes }: { minutes: number[] }) {
           );
         })}
       </svg>
+    </span>
+  );
+}
+
+/**
+ * Chiffres du mois sur une ligne : seulement ce qui n'est pas nul, chacun avec son icône
+ * (vert = apprentissage, or = révision). Rien du tout si l'élève n'a encore rien fait ce mois-ci.
+ */
+function StatsEleve({ r }: { r: ResumeEleve }) {
+  const elements = [
+    r.minutesApprentissage
+      ? {
+          cle: "a",
+          Icone: BookPlus,
+          classe: "stat-apprentissage",
+          valeur: formaterDuree(r.minutesApprentissage),
+          libelle: "d’apprentissage",
+        }
+      : null,
+    r.minutesRevision
+      ? {
+          cle: "r",
+          Icone: RotateCcw,
+          classe: "stat-revision",
+          valeur: formaterDuree(r.minutesRevision),
+          libelle: "de révision",
+        }
+      : null,
+    r.joursTravailles
+      ? {
+          cle: "j",
+          Icone: CalendarCheck,
+          classe: "",
+          valeur: `${r.joursTravailles} j`,
+          libelle: `jour${r.joursTravailles > 1 ? "s" : ""} travaillé${r.joursTravailles > 1 ? "s" : ""}`,
+        }
+      : null,
+    r.objectifsTotal
+      ? {
+          cle: "o",
+          Icone: Target,
+          classe: "",
+          valeur: `${r.objectifsAtteints}/${r.objectifsTotal}`,
+          libelle: "objectifs atteints",
+        }
+      : null,
+  ].filter((e) => e !== null);
+  if (!elements.length) return null;
+  return (
+    <span className="carte-eleve-stats">
+      {elements.map(({ cle, Icone, classe, valeur, libelle }) => (
+        <span key={cle} className={classe || undefined} title={`${valeur} ${libelle}`}>
+          <Icone size={14} strokeWidth={2.4} aria-hidden="true" />
+          <b>{valeur}</b>
+          <span className="visuellement-cache"> {libelle}</span>
+        </span>
+      ))}
     </span>
   );
 }
