@@ -9,6 +9,16 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.44.1] — 2026-11-16
+
+### Corrigé
+
+- Réciter en Warsh : plus d'un verset sur quatre (1 690 sur 6 214, dont presque toutes les sourates Al-Isra, Al-Kahf, Maryam, Al-Furqan, Al-Ahzab) échouait avec « L'analyse a échoué ». Le texte Warsh du Complexe du Roi Fahd écrit le tanwîn « ouvert » avec d'autres caractères que ceux attendus par le moteur : ils sont maintenant convertis. Il ne reste que quelques graphies rares.
+
+### Ajouté
+
+- Banc d'essai du moteur sur trois récitateurs Warsh de référence, et un test qui vérifie que chaque verset Warsh se lit (idée tirée du travail de Yousr Allouani sur le Warsh).
+
 ## [1.44.0] — 2026-11-16
 
 ### Ajouté

@@ -94,6 +94,11 @@ jobs:
         if: steps.changements.outputs.moteur == 'oui'
         continue-on-error: true
         run: python tests_python/banc_recitateurs.py
+      # Même banc en Warsh (trois récitateurs Warsh) : ce que le moteur reprend à tort dans cette lecture.
+      - name: Banc d'essai récitateurs Warsh
+        if: steps.changements.outputs.moteur == 'oui'
+        continue-on-error: true
+        run: python tests_python/banc_recitateurs.py warsh
 
   base:
     name: Migrations et règles d'accès (RLS)

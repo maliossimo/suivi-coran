@@ -128,6 +128,12 @@ def entendre(audio: np.ndarray, riwaya: str, variante: str = MODELE):
     return "".join(sortie), probs, instants
 
 
+# Tanwîn « ouvert » (suivi d'une idghâm ou d'une ikhfâ') : le texte Warsh du Complexe du Roi Fahd l'écrit avec
+# U+0657 / U+065E / U+0656, warsh.py (HisnLabs) avec U+08F0 / U+08F1 / U+08F2. Sans cette conversion, un verset Warsh
+# sur quatre ne se laissait pas mettre en écriture phonétique (erreur du moteur à la récitation).
+TANWIN_OUVERT_KFGQPC = str.maketrans({"\u0657": "\u08f0", "\u065e": "\u08f1", "\u0656": "\u08f2"})
+
+
 def mots_du_verset(sourate: int, verset: int, riwaya: str, texte_warsh: str | None) -> list[str]:
     from quran_transcript import Aya
 
@@ -141,7 +147,7 @@ def mots_du_verset(sourate: int, verset: int, riwaya: str, texte_warsh: str | No
             hafs = Aya(sourate, verset).get().uthmani.split(" ")
         except Exception:  # noqa: BLE001
             hafs = None
-    return warsh.verse(sourate, verset, texte_warsh, hafs).split(" ")
+    return warsh.verse(sourate, verset, texte_warsh.translate(TANWIN_OUVERT_KFGQPC), hafs).split(" ")
 
 
 MOTS_MAX = 400  # une page ou un peu plus
