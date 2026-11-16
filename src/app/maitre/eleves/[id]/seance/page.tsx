@@ -38,7 +38,7 @@ export default async function PageSeanceMaitre({
         nom={`${profil.prenom} ${profil.nom}`.trim()}
         role={profil.role}
       />
-      <main className="espace espace-etroit">
+      <main className="espace espace-etroit fiche-teinte" data-teinte={type}>
         <VueAdmin actif={profil.role === "admin"}>
           <EcranSeance donnees={donnees} eleveId={eleve.id} base={base} date={date} type={type} vueMaitre />
         </VueAdmin>

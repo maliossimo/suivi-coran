@@ -9,6 +9,13 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.34.0] — 2026-11-16
+
+### Amélioré
+
+- Fiche : l'apprentissage et la révision ont chacun leur couleur. L'apprentissage garde le vert de l'appli ; la révision est teintée d'or (onglet, flèches du mois, cartes des semaines, résumés, boutons), sans toucher à l'en-tête, à la barre du bas ni au fond. La saisie d'une séance prend la couleur de sa fiche.
+- En passant d'une fiche à l'autre, les couleurs glissent doucement de l'une à l'autre, le curseur de l'onglet ouvert glisse vers la fiche choisie et le contenu arrive par le côté. Avec « réduire les animations », tout change sans mouvement.
+
 ## [1.33.2] — 2026-11-15
 
 ### Amélioré
