@@ -12084,8 +12084,10 @@ a.jour[data-etat="partielle"] {
   }
 }
 
-/* Bilan : deux tuiles par ligne sur téléphone, quatre sur grand écran. */
+/* Bilan : deux tuiles par ligne sur téléphone, quatre sur grand écran.
+   (Pas de base flexible ici : dans la carte en colonne, elle étirerait la hauteur.) */
 .bilan-tuiles {
+  flex: none;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 @media (min-width: 640px) {
