@@ -712,7 +712,7 @@ a:hover {
 }
 :root:is([data-mode-force="revision"], :has(.mode-revision):not([data-mode-force="apprentissage"]))
   .barre-compacte {
-  background: color-mix(in srgb, var(--barre-revision) 86%, transparent);
+  --teinte-verre: var(--barre-revision);
 }
 /* La flèche des semaines (une image) a aussi sa version or. */
 :root:is([data-mode-force="revision"], :has(.mode-revision):not([data-mode-force="apprentissage"]))
@@ -11267,12 +11267,6 @@ a.jour[data-etat="partielle"] {
    Uniquement avec les animations liées au défilement (sans script) ; sinon, rien ne change. */
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {
-    /* (Pas sur .barre-contenu : une transformation y décrocherait la barre du bas, qui est dedans.) */
-    .barre-titres {
-      animation: profondeur-entete linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 160px;
-    }
     .carte-aujourdhui,
     .progression-entete,
     .profil-compte-tete {
@@ -11280,12 +11274,6 @@ a.jour[data-etat="partielle"] {
       animation-timeline: scroll(root block);
       animation-range: 0 600px;
     }
-  }
-}
-@keyframes profondeur-entete {
-  to {
-    transform: translateY(10px);
-    opacity: 0.65;
   }
 }
 @keyframes profondeur-motif {
@@ -11503,14 +11491,14 @@ a.jour[data-etat="partielle"] {
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   grid-template-areas:
     "avatar nom courbe chevron"
-    "avatar stats courbe chevron";
+    "avatar stats stats chevron";
 }
 .courbe-quinzaine {
   grid-area: courbe;
-  align-self: center;
+  align-self: start;
   display: flex;
-  padding: 4px 6px;
-  border-radius: 10px;
+  padding: 3px 4px;
+  border-radius: 8px;
   background: var(--surface-2);
 }
 .courbe-quinzaine svg {
@@ -11529,19 +11517,6 @@ a.jour[data-etat="partielle"] {
 }
 .courbe-vide {
   fill: var(--surface-3);
-}
-@media (max-width: 420px) {
-  .liste-eleves .carte-eleve {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-      "avatar nom chevron"
-      "avatar stats chevron"
-      "avatar courbe chevron";
-  }
-  .courbe-quinzaine {
-    justify-self: start;
-    margin-top: 4px;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .courbe-jour {
@@ -12089,4 +12064,151 @@ a.jour[data-etat="partielle"] {
 .resume-tuiles li > span,
 .bilan-tuiles li > span {
   grid-area: libelle;
+}
+
+/* =====================================================================
+   En-tête compact (1.40) : verre dépoli, le grand titre qui s'efface,
+   le petit qui arrive avec un sous-titre, un toucher pour remonter
+   ===================================================================== */
+.barre-compacte {
+  --teinte-verre: #174d3b;
+  gap: 12px;
+  padding: calc(9px + env(safe-area-inset-top)) 16px 9px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--teinte-verre) 88%, transparent) 0%,
+    color-mix(in srgb, var(--teinte-verre) 68%, transparent) 100%
+  );
+  -webkit-backdrop-filter: blur(22px) saturate(1.7);
+  backdrop-filter: blur(22px) saturate(1.7);
+  box-shadow: 0 10px 30px rgba(8, 26, 20, 0.18);
+}
+/* Le fil doré s'estompe vers les bords ; sous la barre, une ombre douce : le contenu glisse dessous. */
+.barre-compacte::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(226, 190, 110, 0.85) 30%,
+    rgba(226, 190, 110, 0.85) 70%,
+    transparent
+  );
+}
+.barre-compacte::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 22px;
+  background: linear-gradient(180deg, rgba(8, 26, 20, 0.14), transparent);
+  pointer-events: none;
+}
+.barre-compacte-textes {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.barre-compacte-sous-titre {
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.barre-compacte-haut {
+  flex: none;
+  padding: 6px;
+  box-sizing: content-box;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f0d796;
+}
+/* À l'arrivée : le titre descend en rétrécissant à sa place, puis le sous-titre et la flèche apparaissent. */
+.barre-compacte[data-visible] .barre-compacte-titre {
+  animation: titre-compact 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: left center;
+}
+.barre-compacte[data-visible] .barre-compacte-sous-titre,
+.barre-compacte[data-visible] .barre-compacte-haut {
+  animation: apparition 0.3s ease-out 0.12s both;
+}
+.barre-compacte[data-visible] .barre-compacte-logo {
+  animation: logo-compact 0.5s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+}
+@keyframes titre-compact {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(1.25);
+  }
+}
+@keyframes logo-compact {
+  from {
+    opacity: 0;
+    transform: rotate(-60deg) scale(0.6);
+  }
+}
+/* Toucher : le logo fait un tour pendant que la page remonte. */
+.barre-compacte.joue .logo-etoile-branches {
+  transform: rotate(90deg);
+}
+.barre-compacte.joue .logo-etoile-lettre {
+  animation: logo-presse 0.35s ease;
+}
+.barre-compacte.joue .barre-compacte-haut {
+  animation: fleche-monte 0.5s ease;
+}
+@keyframes fleche-monte {
+  40% {
+    transform: translateY(-4px);
+  }
+}
+/* Grande barre : en descendant, le titre rétrécit et s'efface (le petit prend le relais). */
+.barre-titres {
+  transform-origin: left center;
+  transform: translateY(calc(var(--avance-entete, 0) * 10px)) scale(calc(1 - var(--avance-entete, 0) * 0.14));
+  opacity: calc(1 - var(--avance-entete, 0) * 0.9);
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .barre-titres {
+    transform: none;
+    opacity: 1;
+  }
+  .barre-compacte[data-visible] .barre-compacte-titre,
+  .barre-compacte[data-visible] .barre-compacte-sous-titre,
+  .barre-compacte[data-visible] .barre-compacte-haut,
+  .barre-compacte[data-visible] .barre-compacte-logo,
+  .barre-compacte.joue .logo-etoile-lettre,
+  .barre-compacte.joue .barre-compacte-haut {
+    animation: none;
+  }
+}
+
+/* Chiffres de l'élève sur une ligne : icône + valeur, seulement ce qui n'est pas nul. */
+.liste-eleves .carte-eleve-stats {
+  gap: 4px 12px;
+}
+.liste-eleves .carte-eleve-stats > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.liste-eleves .carte-eleve-stats svg {
+  color: var(--texte-doux);
+}
+.liste-eleves .carte-eleve-stats .stat-apprentissage svg {
+  color: var(--icone-apprentissage);
+}
+.liste-eleves .carte-eleve-stats .stat-revision svg {
+  color: var(--icone-revision);
 }

@@ -10,10 +10,11 @@ test.describe("Invitation par QR code", () => {
     await seConnecter(page, COMPTES.cheikhA2, /\/maitre/);
     await page.goto("/maitre/inviter");
 
-    // Un code est affiché (créé au besoin).
+    // Un code est affiché (créé au besoin) : on attend la page, avec le code ou le bouton pour le créer.
     const creer = page.getByRole("button", { name: "Afficher le QR code de la classe" });
-    if (await creer.isVisible()) await creer.click();
     const zone = page.locator(".qr-zone");
+    await expect(zone.or(creer)).toBeVisible({ timeout: 20_000 });
+    if (await creer.isVisible()) await creer.click();
     await expect(zone).toBeVisible({ timeout: 20_000 });
 
     // En grand : plein écran avec le nom de la classe, puis fermeture.

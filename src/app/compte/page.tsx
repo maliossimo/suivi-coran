@@ -5,6 +5,7 @@ import { COMMIT, LIBELLE_VERSION } from "@/lib/version";
 import { Avatar } from "@/components/Avatar";
 import { EtiquetteLecture } from "@/components/ChoixLecture";
 import { EnteteEspace } from "@/components/EnteteEspace";
+import { SousTitreEntete } from "@/components/SousTitreEntete";
 import { FormulaireMotDePasse } from "@/components/FormulaireMotDePasse";
 import { InstallerAppli } from "@/components/InstallerAppli";
 import { ReglageApparence } from "@/components/ReglageApparence";
@@ -26,6 +27,7 @@ export default async function PageCompte() {
     <>
       <EnteteEspace titre="Mon compte" nom={nom} role={profil.role} />
       <main className="espace espace-etroit">
+        <SousTitreEntete texte={`${nom || "Mon compte"} · ${LIBELLE_ROLE_LONG[profil.role]}`} />
         <section className="carte-compte profil-compte">
           <div className="profil-compte-tete">
             <Avatar
