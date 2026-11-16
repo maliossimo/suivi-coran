@@ -3,6 +3,7 @@ import { accueilDuRole, LIBELLE_ROLE_LONG, type Role } from "@/domain/roles";
 import { compteConnecte } from "@/services/acces";
 import { Avatar } from "./Avatar";
 import { DemandePrenom } from "./DemandePrenom";
+import { EnteteCompact } from "./EnteteCompact";
 import { LogoAccueil } from "./logo/LogoAccueil";
 import { NavigationEspace } from "./NavigationEspace";
 import { SignalerOuverture } from "./SignalerOuverture";
@@ -19,6 +20,7 @@ export async function EnteteEspace({ titre, nom, role }: { titre: string; nom: s
   return (
     <header className="barre">
       <SignalerOuverture />
+      <EnteteCompact titre={titre} />
       {nom ? null : <DemandePrenom />}
       <div className="barre-contenu">
         <LogoAccueil accueil={accueilDuRole(role)} label="Accueil — Suivi cours Coran">

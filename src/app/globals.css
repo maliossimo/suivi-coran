@@ -710,6 +710,10 @@ a:hover {
 :root:is([data-mode-force="revision"], :has(.mode-revision):not([data-mode-force="apprentissage"])) .barre {
   background-color: var(--barre-revision);
 }
+:root:is([data-mode-force="revision"], :has(.mode-revision):not([data-mode-force="apprentissage"]))
+  .barre-compacte {
+  background: color-mix(in srgb, var(--barre-revision) 86%, transparent);
+}
 /* La flèche des semaines (une image) a aussi sa version or. */
 :root:is([data-mode-force="revision"], :has(.mode-revision):not([data-mode-force="apprentissage"]))
   .semaine-pliable
@@ -1660,9 +1664,88 @@ input.champ-texte {
 /* ---------- Chargement (squelettes) ----------------------------------- */
 .squelette {
   border-radius: 14px;
-  background: linear-gradient(90deg, var(--surface-3) 0%, var(--surface-2) 50%, var(--surface-3) 100%);
-  background-size: 200% 100%;
-  animation: squelette 1.2s ease-in-out infinite;
+  /* Un reflet doré passe sur les silhouettes. */
+  background: linear-gradient(
+    100deg,
+    var(--surface-3) 30%,
+    color-mix(in srgb, var(--or-clair) 70%, var(--surface-2)) 50%,
+    var(--surface-3) 70%
+  );
+  background-size: 250% 100%;
+  animation: squelette 1.4s ease-in-out infinite;
+}
+/* Silhouettes à la forme des pages (fiche, listes). */
+.squelette-page {
+  display: grid;
+  gap: 14px;
+}
+.squelette-mois {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.squelette-rond {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+.squelette-titre {
+  width: 46%;
+  height: 26px;
+  border-radius: 8px;
+}
+.squelette-pastilles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.squelette-pastille {
+  height: 30px;
+  border-radius: 99px;
+}
+.squelette-semaine {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--ligne);
+  border-radius: 18px;
+  background: var(--carte);
+}
+.squelette-texte {
+  height: 16px;
+  border-radius: 6px;
+}
+.squelette-texte-petit {
+  height: 12px;
+}
+.squelette-jour {
+  height: 40px;
+  border-radius: 10px;
+}
+.squelette-recherche {
+  height: 48px;
+  border-radius: 14px;
+}
+.squelette-element {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 18px;
+  background: var(--carte);
+}
+.squelette-avatar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+.squelette-lignes {
+  flex: 1;
+  display: grid;
+  gap: 8px;
 }
 .squelette-ligne {
   height: 44px;
@@ -10041,5 +10124,468 @@ fieldset.vue-admin-modifiable {
   .accueil-coran > .carte-coran,
   .carte-reciter .carte-coran-action {
     animation: none !important;
+  }
+}
+
+/* ---------- Barre du bas : la pastille de l'onglet actif glisse d'un onglet à l'autre ---------- */
+.nav-pastille {
+  display: none;
+}
+@media (max-width: 760px) {
+  .nav-espace.avec-pastille .nav-pastille {
+    position: absolute;
+    top: var(--pastille-y, 10px);
+    left: 0;
+    display: block;
+    width: 50px;
+    height: 26px;
+    border-radius: 99px;
+    background: var(--vert-clair);
+    transform: translateX(calc(var(--pastille-x, 0px) - 25px));
+    pointer-events: none;
+  }
+  .nav-espace.avec-pastille .nav-pastille.glisse {
+    transition: transform 0.38s cubic-bezier(0.3, 1.25, 0.5, 1);
+  }
+  /* La pastille remplace le fond de l'icône active ; l'icône passe au-dessus. */
+  .nav-espace.avec-pastille .nav-onglet[aria-current="page"] svg {
+    background: transparent;
+  }
+  .nav-espace.avec-pastille .nav-onglet {
+    position: relative;
+    z-index: 1;
+  }
+}
+/* L'icône active se remplit légèrement. */
+.nav-onglet[aria-current="page"] svg {
+  fill: currentColor;
+  fill-opacity: 0.16;
+}
+
+/* ---------- Choix en segments : le fond de l'option choisie glisse d'une option à l'autre ---------- */
+.indicateur-glissant {
+  display: none;
+}
+.avec-indicateur {
+  position: relative;
+  isolation: isolate;
+}
+.avec-indicateur > .indicateur-glissant {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  display: block;
+  border-radius: 10px;
+  background: var(--carte);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+  pointer-events: none;
+}
+.avec-indicateur > .indicateur-glissant.glisse {
+  transition:
+    transform 0.32s cubic-bezier(0.3, 1.2, 0.5, 1),
+    width 0.32s cubic-bezier(0.3, 1.2, 0.5, 1);
+}
+.coran-segments.avec-indicateur > .indicateur-glissant {
+  border-radius: 9px;
+}
+.choix-mode-admin.avec-indicateur > .indicateur-glissant {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+/* L'option choisie laisse voir l'indicateur (son texte reste coloré). */
+.avec-indicateur > [aria-checked="true"],
+.avec-indicateur > [aria-pressed="true"],
+.avec-indicateur > [aria-current="page"],
+.avec-indicateur > [aria-selected="true"] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ---------- En-tête compact : il glisse depuis le haut quand la grande barre quitte l'écran ---------- */
+.barre-compacte {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+  border: 0;
+  border-radius: 0;
+  background: color-mix(in srgb, #174d3b 86%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow:
+    inset 0 -1.5px 0 rgba(214, 175, 92, 0.5),
+    0 6px 18px rgba(0, 0, 0, 0.12);
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transform: translateY(-110%);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.2s ease,
+    visibility 0s linear 0.32s;
+  -webkit-tap-highlight-color: transparent;
+}
+.barre-compacte[data-visible] {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.2s ease;
+}
+.barre-compacte:active:not(:disabled) {
+  transform: none;
+}
+/* Un élément amené à l'écran (verset suivi, mot récité…) ne se cache pas sous l'en-tête compact. */
+html {
+  scroll-padding-top: calc(56px + env(safe-area-inset-top));
+}
+.barre-compacte-logo {
+  flex: none;
+  width: 30px;
+  height: 30px;
+}
+.barre-compacte-titre {
+  overflow: hidden;
+  font-family: var(--font-titre), Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+@media (min-width: 761px) {
+  .barre-compacte {
+    padding-left: max(20px, calc((100% - 1100px) / 2 + 20px));
+  }
+}
+@media print {
+  .barre-compacte {
+    display: none !important;
+  }
+}
+
+/* ---------- Mushaf : la page suit le doigt, part, et la nouvelle arrive de l'autre côté ---------- */
+.coran-page.coran-vue-page {
+  transform-origin: center center;
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.25s ease;
+}
+.coran-page.page-suit-le-doigt {
+  transition: none;
+}
+/* Mushaf : la page suivante est à gauche ; on la tourne vers la droite. */
+.coran-page.page-part-suivante {
+  transform: perspective(1400px) translateX(70px) rotateY(6deg);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.coran-page.page-part-precedente {
+  transform: perspective(1400px) translateX(-70px) rotateY(-6deg);
+  opacity: 0.45;
+  pointer-events: none;
+}
+@keyframes page-arrive-suivante {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) translateX(-70px) rotateY(-6deg);
+  }
+}
+@keyframes page-arrive-precedente {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) translateX(70px) rotateY(6deg);
+  }
+}
+.coran-page.page-arrive-suivante {
+  animation: page-arrive-suivante 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.coran-page.page-arrive-precedente {
+  animation: page-arrive-precedente 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* ---------- Séance enregistrée : une coche se dessine sur la ligne du jour, puis s'efface ---------- */
+@keyframes enregistree-arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+@keyframes enregistree-part {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes coche-trait {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+.pastille-enregistree {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 2px 9px 2px 7px;
+  border-radius: 99px;
+  background: var(--vert);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  animation:
+    enregistree-arrive 0.4s cubic-bezier(0.3, 1.4, 0.5, 1) both,
+    enregistree-part 0.4s ease-in 1.8s forwards;
+}
+.pastille-enregistree svg path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation: coche-trait 0.4s ease-out 0.15s backwards;
+}
+.bouton-coche {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vert-texte);
+  animation: enregistree-arrive 0.4s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+.bouton-coche svg path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation: coche-trait 0.4s ease-out 0.1s backwards;
+}
+
+/* ---------- Écran vide : l'étoile se dessine, puis flotte et tourne très lentement ---------- */
+@keyframes etat-vide-flotte {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes etat-vide-tourne {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.etat-vide-motif {
+  animation: etat-vide-flotte 4s ease-in-out 1.2s infinite;
+}
+.etat-vide-etoile {
+  transform-origin: 48px 48px;
+  animation: etat-vide-tourne 40s linear 1.2s infinite;
+}
+.etat-vide-etoile > * {
+  stroke-dasharray: 1;
+  animation: coche-trait 1s cubic-bezier(0.5, 0, 0.3, 1) backwards;
+}
+.etat-vide-etoile > :nth-child(2) {
+  animation-delay: 0.2s;
+}
+.etat-vide-etoile > :nth-child(3) {
+  animation-delay: 0.45s;
+}
+.etat-vide-centre {
+  animation: point-pop 0.4s ease-out 0.8s backwards;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ---------- En-tête vivant : un reflet d'or traverse le motif, de temps en temps ---------- */
+@keyframes barre-reflet {
+  0% {
+    background-position: 130% 0;
+  }
+  22%,
+  100% {
+    background-position: -30% 0;
+  }
+}
+.barre::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 42%, rgba(240, 215, 150, 0.13) 50%, transparent 58%)
+    no-repeat;
+  background-size: 250% 100%;
+  background-position: 130% 0;
+  pointer-events: none;
+  animation: barre-reflet 11s ease-in-out 1.5s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .barre::after,
+  .etat-vide-motif,
+  .etat-vide-etoile {
+    animation: none !important;
+  }
+}
+@media print {
+  .barre::after {
+    display: none;
+  }
+}
+
+/* Tirer pour rafraîchir : l'étoile du logo, en or. */
+.tirer-etoile rect {
+  fill: none;
+  stroke: var(--or);
+  stroke-width: 14;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: var(--trace, 0);
+}
+.tirer-etoile.tourne {
+  transform-origin: center;
+}
+
+/* ---------- Notifications : elles glissent depuis le haut, avec une icône animée ---------- */
+.zone-notification {
+  top: calc(10px + env(safe-area-inset-top));
+  bottom: auto;
+}
+@media (max-width: 760px) {
+  .zone-notification {
+    top: calc(10px + env(safe-area-inset-top));
+    bottom: auto;
+  }
+}
+@keyframes notification-descend {
+  from {
+    opacity: 0;
+    transform: translateY(-120%) scale(0.96);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(4px) scale(1);
+  }
+}
+@keyframes notification-remonte {
+  to {
+    opacity: 0;
+    transform: translateY(-120%) scale(0.96);
+  }
+}
+@keyframes notification-temps {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.notification {
+  position: relative;
+  overflow: hidden;
+  animation: notification-descend 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+.notification.sortie {
+  animation: notification-remonte 0.25s ease-in forwards;
+}
+.notification-icone svg {
+  animation: point-pop 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) 0.15s backwards;
+}
+.notification-temps {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.45);
+  transform-origin: left center;
+  animation: notification-temps 3.2s linear forwards;
+}
+
+/* ---------- Harmonisation : mêmes arrondis et mêmes ombres partout ---------- */
+:root {
+  --rayon-carte: 18px;
+  --rayon-bouton: 12px;
+}
+.tuile,
+.carte-coran,
+.semaine,
+.carte-graphique,
+.carte-classe,
+.etat-vide {
+  border-radius: var(--rayon-carte);
+}
+.bouton,
+.bouton-secondaire,
+.bouton-doux,
+.mois-fleche {
+  border-radius: var(--rayon-bouton);
+}
+.tuile,
+.carte-coran {
+  box-shadow: var(--ombre);
+}
+
+/* ---------- L'élément touché s'ouvre en page (et s'y referme au retour) ---------- */
+.ouverture-page {
+  position: fixed;
+  z-index: 900;
+  background: var(--carte);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  overflow: hidden;
+}
+/* Pendant l'attente : le reflet d'or des chargements passe sur la page qui s'ouvre. */
+.ouverture-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    color-mix(in srgb, var(--or-clair) 60%, transparent) 50%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  animation: squelette 1.4s ease-in-out 0.35s infinite;
+  opacity: 0.7;
+}
+.ouverture-page.ouvre,
+.ouverture-page.ferme {
+  transition:
+    left 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+    top 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-radius 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.25s ease;
+}
+.ouverture-page.part {
+  opacity: 0;
+}
+.ouverture-page.ferme.part {
+  transition-property: left, top, width, height, border-radius, opacity;
+  transition-duration: 0.34s, 0.34s, 0.34s, 0.34s, 0.34s, 0.34s;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  opacity: 0;
+}
+@media print {
+  .ouverture-page {
+    display: none !important;
   }
 }

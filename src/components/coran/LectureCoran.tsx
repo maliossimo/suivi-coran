@@ -18,6 +18,7 @@ import {
   memo,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -46,6 +47,7 @@ import {
   type SegmentTajwid,
 } from "@/domain/coran";
 import { ActionsVerset, type ModeVerset } from "./ActionsVerset";
+import { annoncerTourDePage, lireTourDePage, type SensTour } from "./tourDePage";
 import { useAppuiLong } from "./appuiLong";
 import { useMarquePages } from "./marquePages";
 import { retourSensoriel } from "@/components/retourSensoriel";
@@ -469,7 +471,22 @@ export function LectureCoran({
   }, [basculer, decaler, piste, recitation, titre]);
 
   // Vue page : glisser pour tourner les pages (sens du mushaf : vers la droite = page suivante).
+  // La page suit le doigt (avec un léger pivot, comme une page qu'on tourne) ; relâchée assez loin,
+  // elle part et la nouvelle arrive de l'autre côté (voir tourDePage.ts).
   const depart = useRef<{ x: number; y: number } | null>(null);
+  const [tour, setTour] = useState(0);
+  const [partie, setPartie] = useState<SensTour | null>(null);
+  const [arrivee, setArrivee] = useState<SensTour | null>(null);
+  // Avant le premier affichage : la nouvelle page entre directement par le bon côté.
+  useLayoutEffect(() => {
+    if (vue === "page") setArrivee(lireTourDePage());
+  }, [vue]);
+  useEffect(() => {
+    if (!partie) return;
+    // Navigation qui n'aboutit pas : la page revient à sa place.
+    const minuteur = window.setTimeout(() => setPartie(null), 4000);
+    return () => window.clearTimeout(minuteur);
+  }, [partie]);
 
   /** Toucher : actions du verset ; appui long : son explication. */
   const appui = useAppuiLong(
@@ -842,25 +859,55 @@ export function LectureCoran({
           "cliquable",
           passage ? "avec-passage" : "",
           reglages.theme !== "auto" ? `theme-${reglages.theme}` : "",
+          tour ? "page-suit-le-doigt" : "",
+          partie ? `page-part-${partie}` : "",
+          arrivee && !partie && !tour ? `page-arrive-${arrivee}` : "",
         ].join(" ")}
         // Texte interactif (toucher, appui long) : posé une fois la page prête dans le navigateur.
         data-pret={pret ? "" : undefined}
         lang="ar"
         dir="rtl"
-        style={{ "--taille-coran": `${TAILLES[reglages.taille]}px` } as CSSProperties}
+        style={
+          {
+            "--taille-coran": `${TAILLES[reglages.taille]}px`,
+            ...(tour
+              ? { transform: `perspective(1400px) translateX(${tour * 0.55}px) rotateY(${tour * 0.025}deg)` }
+              : {}),
+          } as CSSProperties
+        }
         onTouchStart={(e) => {
           if (vue !== "page" || e.touches.length !== 1) return;
           depart.current = { x: e.touches[0]!.clientX, y: e.touches[0]!.clientY };
         }}
+        onTouchMove={(e) => {
+          const d = depart.current;
+          if (!d || vue !== "page" || partie) return;
+          const dx = e.touches[0]!.clientX - d.x;
+          const dy = e.touches[0]!.clientY - d.y;
+          if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+            // Sans page de ce côté : la page résiste.
+            const possible = dx > 0 ? pageSuivante : pagePrecedente;
+            setTour(possible ? dx : dx * 0.15);
+          } else if (tour) setTour(0);
+        }}
         onTouchEnd={(e) => {
           const d = depart.current;
           depart.current = null;
+          setTour(0);
           if (!d || vue !== "page") return;
           const dx = e.changedTouches[0]!.clientX - d.x;
           const dy = e.changedTouches[0]!.clientY - d.y;
           if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
-          const cible = dx > 0 ? pageSuivante : pagePrecedente;
-          if (cible) router.push(cible, { scroll: false });
+          const sens: SensTour = dx > 0 ? "suivante" : "precedente";
+          const cible = sens === "suivante" ? pageSuivante : pagePrecedente;
+          if (!cible) return;
+          annoncerTourDePage(sens);
+          setPartie(sens);
+          router.push(cible, { scroll: false });
+        }}
+        onTouchCancel={() => {
+          depart.current = null;
+          setTour(0);
         }}
       >
         <div ref={texte} {...appui}>

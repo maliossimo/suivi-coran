@@ -9,6 +9,24 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.38.0] — 2026-11-16
+
+### Ajouté
+
+- L'élément touché s'ouvre en page : la carte d'un élève ou le jour d'une fiche s'agrandit jusqu'à remplir l'écran, puis la page apparaît ; au retour, l'écran se referme vers la carte.
+- Barre du bas : la pastille de l'onglet actif glisse d'un onglet à l'autre, l'icône active se remplit légèrement.
+- Choix en segments (Sourate / Mushaf, Lecture seule / Modifier, Thème, Taille du texte, Hafs / Warsh, Aller à) : le fond de l'option choisie glisse.
+- En-tête compact : quand la grande barre du haut quitte l'écran, une barre fine (logo et titre, sur verre dépoli) glisse depuis le haut ; un toucher remonte en haut de la page.
+- Mushaf : la page suit le doigt avec un léger pivot, part, et la nouvelle arrive de l'autre côté (aussi avec les flèches).
+- Enregistrer : une coche se dessine (« Enregistrée » sur la ligne du jour, « Enregistré » sur les objectifs et le bilan).
+- Chargements à la forme des pages (fiche, listes) avec un reflet doré ; écrans vides avec une étoile qui se dessine puis flotte ; un reflet d'or traverse de temps en temps l'en-tête.
+- Tirer pour rafraîchir : l'étoile du logo se dessine à mesure qu'on tire, puis tourne.
+- Notifications : elles glissent depuis le haut, l'icône apparaît avec un petit ressort, une fine barre montre le temps qui reste, puis elles remontent.
+
+### Amélioré
+
+- Mêmes arrondis et mêmes ombres pour les cartes et les boutons de toute l'appli.
+
 ## [1.37.0] — 2026-11-16
 
 ### Corrigé

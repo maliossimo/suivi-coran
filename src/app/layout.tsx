@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import Script from "next/script";
 import { Suspense } from "react";
 import { BandeauNotification } from "@/components/BandeauNotification";
+import { OuvertureEnPage } from "@/components/OuvertureEnPage";
 import { BarreNavigation } from "@/components/BarreNavigation";
 import { RafraichirCopies } from "@/components/RafraichirCopies";
 import { MesureVitesse } from "@/components/MesureVitesse";
@@ -147,6 +148,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <OuvertureAppli />
         {children}
         <BandeauNotification />
+        <OuvertureEnPage />
         <BandeauAnnulation />
         <EtatReseau />
         <MiseAJourAuto />

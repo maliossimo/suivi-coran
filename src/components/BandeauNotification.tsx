@@ -9,16 +9,23 @@ const DUREE_MS = 3200;
 
 // Le message vit hors de React : un rafraîchissement de la page juste après
 // l'enregistrement (revalidation) ne doit pas l'effacer avant qu'on le voie.
-let courante: Notification | null = null;
+let courante: (Notification & { sortie?: boolean }) | null = null;
 const abonnes = new Set<() => void>();
 let minuterie: number | undefined;
 let veilleDemarree = false;
 
-function publier(notification: Notification | null) {
+function publier(notification: (Notification & { sortie?: boolean }) | null) {
   courante = notification;
   abonnes.forEach((f) => f());
   window.clearTimeout(minuterie);
-  if (notification) minuterie = window.setTimeout(() => publier(null), DUREE_MS);
+  if (notification && !notification.sortie) minuterie = window.setTimeout(fermer, DUREE_MS);
+}
+
+/** Le bandeau remonte et s'efface (0,25 s), puis disparaît. */
+function fermer() {
+  if (!courante || courante.sortie) return;
+  publier({ ...courante, sortie: true });
+  minuterie = window.setTimeout(() => publier(null), 250);
 }
 
 function lireEtEffacer(): Notification | null {
@@ -62,7 +69,7 @@ function sAbonner(f: () => void) {
 }
 
 /**
- * Bandeau « ✓ Séance enregistrée » en bas de l'écran, qui disparaît tout seul.
+ * Bandeau « ✓ Séance enregistrée » qui glisse depuis le haut de l'écran et disparaît tout seul.
  * Les actions serveur déposent le message dans un cookie (voir notifier()) ;
  * on le relève à chaque navigation et en continu.
  */
@@ -82,19 +89,19 @@ export function BandeauNotification() {
   return (
     <div className="zone-notification" aria-live="polite" role="status">
       {notification ? (
-        <div key={notification.id} className={`notification notification-${notification.genre}`}>
+        <div
+          key={notification.id}
+          className={`notification notification-${notification.genre}${notification.sortie ? " sortie" : ""}`}
+        >
           <span className="notification-icone" aria-hidden="true">
             {notification.genre === "succes" ? <CircleCheck size={18} /> : <CircleAlert size={18} />}
           </span>
           <span>{notification.message}</span>
-          <button
-            type="button"
-            className="notification-fermer"
-            onClick={() => publier(null)}
-            aria-label="Fermer"
-          >
+          <button type="button" className="notification-fermer" onClick={fermer} aria-label="Fermer">
             <X size={18} aria-hidden="true" />
           </button>
+          {/* Le temps qui reste avant que le bandeau parte. */}
+          <span className="notification-temps" aria-hidden="true" />
         </div>
       ) : null}
     </div>

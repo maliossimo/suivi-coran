@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { actionEnregistrerSeanceFond, actionValiderSeance } from "@/app/actions/fiche";
 import { retourSensoriel } from "@/components/retourSensoriel";
 import { memeContenuSeance, type ContenuSeance, type Seance } from "@/domain/fiche";
@@ -58,7 +58,28 @@ export function EtatEnregistrement({ cle, enBase }: { cle: string; enBase: Seanc
     renvoyer(cle, reprise.saisie, attendu);
   }, [cle, e, enBase]);
   const suppression = useSuppressionEnAttente(cle);
+  // Envoi confirmé par la base : une coche se dessine, « Enregistrée », puis s'efface.
+  const precedent = useRef(e?.etat);
+  const [reussi, setReussi] = useState(false);
+  useEffect(() => {
+    const avant = precedent.current;
+    precedent.current = e?.etat;
+    if (avant !== "envoi" || e) return;
+    setReussi(true);
+    const t = window.setTimeout(() => setReussi(false), 2200);
+    return () => window.clearTimeout(t);
+  }, [e]);
   if (suppression) return <span className="pastille-envoi">Suppression…</span>;
+  if (!e && reussi && !interrompu) {
+    return (
+      <span className="pastille-enregistree" role="status">
+        <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+          <path d="M5 12.5l4.2 4.2L19 7" pathLength={1} />
+        </svg>
+        Enregistrée
+      </span>
+    );
+  }
   if (!e) {
     return interrompu ? (
       <span className="pastille-echec">Pas encore enregistrée · touche pour la retrouver</span>
