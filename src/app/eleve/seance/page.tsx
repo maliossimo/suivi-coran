@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { EcouterPassages } from "@/components/coran/EcouterPassages";
 import { EcranSeance } from "@/components/fiche/EcranSeance";
+import { ModeFiche } from "@/components/fiche/ModeFiche";
 import { exigerEleveAvecLecture } from "@/services/acces";
 import { peutOuvrirCoran } from "@/services/coran";
 import { chargerSeance, lireDateSaisissable, lireType } from "@/services/fiche";
@@ -21,7 +22,8 @@ export default async function PageSeance({
   return (
     <>
       <EnteteEspace titre="Ma fiche" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
-      <main className="espace espace-etroit fiche-teinte" data-teinte={type}>
+      <main className="espace espace-etroit">
+        <ModeFiche type={type} />
         {/* Pour l'élève seulement : la vue du Cheikh reste centrée sur la correction. */}
         {peutOuvrirCoran(profil) && donnees.seance ? (
           <EcouterPassages

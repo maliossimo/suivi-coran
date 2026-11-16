@@ -21,6 +21,7 @@ import { SectionBilan } from "./SectionBilan";
 import { cleSeance } from "./cleSeance";
 import { BoutonValider, EtatEnregistrement } from "./EtatsLigneJour";
 import { GestesFiche } from "./GestesFiche";
+import { ModeFiche } from "./ModeFiche";
 import { PreparerHorsLigne } from "./PreparerHorsLigne";
 import { IndicateurLien } from "../IndicateurLien";
 import { PastilleCheikh } from "./PastilleCheikh";
@@ -68,8 +69,8 @@ export function FicheMois({
       ongletGauche={fiche.type === "apprentissage" ? null : lien(cle, "apprentissage")}
       ongletDroite={fiche.type === "revision" ? null : lien(cle, "revision")}
       cleFiche={`${cle}-${fiche.type}`}
-      teinte={fiche.type}
     >
+      <ModeFiche type={fiche.type} />
       {pagesHorsLigne.length ? <PreparerHorsLigne pages={pagesHorsLigne} /> : null}
       {fiche.premiereFois && !aVenir ? (
         <AccueilPremiereFois

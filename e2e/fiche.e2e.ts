@@ -95,3 +95,22 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await eleve.close();
   });
 });
+
+test.describe("Mode révision", () => {
+  test("l'onglet Révision fait passer toute l'appli à l'or, et Apprentissage la ramène au vert", async ({
+    page,
+  }) => {
+    await seConnecter(page, COMPTES.eleveA, /\/eleve/);
+    const barre = page.locator(".barre").first();
+    const fond = () => barre.evaluate((e) => getComputedStyle(e).backgroundColor);
+    const vert = await fond();
+    await page.locator(".onglets .onglet-revision").click();
+    await expect(page).toHaveURL(/type=revision/);
+    await expect(page.locator(".mode-revision")).toHaveCount(1);
+    await expect.poll(fond).not.toBe(vert);
+    await page.locator(".onglets .onglet-apprentissage").click();
+    await expect(page).toHaveURL(/type=apprentissage/);
+    await expect(page.locator(".mode-revision")).toHaveCount(0);
+    await expect.poll(fond).toBe(vert);
+  });
+});
