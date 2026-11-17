@@ -455,6 +455,17 @@ select pg_temp.doit_echouer(
   $q$insert into public.horaires_priere (etablissement_id, mois, jour, fajr, chourouq, dhuhr, asr, maghrib, isha)
      values ('aaaaaaaa-0000-0000-0000-000000000000', 11, 18, 600, 481, 755, 887, 1031, 1160)$q$,
   'horaires : ordre des prières vérifié');
+update public.horaires_priere set iqama_fajr = 399, iqama_maghrib = 1036 where mois = 11 and jour = 17;
+select pg_temp.attendu(
+  (select iqama_maghrib from public.horaires_priere where mois = 11 and jour = 17) = 1036,
+  'horaires : l''admin enregistre l''iqama');
+select pg_temp.doit_echouer(
+  $q$update public.horaires_priere set iqama_fajr = 380 where mois = 11 and jour = 17$q$,
+  'horaires : iqama jamais avant l''adhan');
+update public.etablissements set jumua = '{780}' where id = 'aaaaaaaa-0000-0000-0000-000000000000';
+select pg_temp.doit_echouer(
+  $q$update public.etablissements set jumua = '{780,800,820,840}' where id = 'aaaaaaaa-0000-0000-0000-000000000000'$q$,
+  'Joumou''a : trois heures au plus');
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 select pg_temp.attendu(
   (select count(*) from public.horaires_priere) = 1,
