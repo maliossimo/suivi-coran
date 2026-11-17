@@ -1,11 +1,12 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { cleMois, decalerMois, formaterDuree, libelleMois, lireMois } from "@/domain/fiche";
 import { Squelettes } from "@/components/Chargement";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { EtatVide } from "@/components/EtatVide";
 import { ListeEleves } from "@/components/ListeEleves";
+import { AccueilCheikh } from "./AccueilCheikh";
 import { VueAdmin } from "@/components/admin/VueAdmin";
 import { AppelDuJour } from "@/components/presences/AppelDuJour";
 import { exigerEspace } from "@/services/acces";
@@ -20,7 +21,10 @@ async function ContenuClasse({
   moisParam,
   classeId,
   eleveIds,
+  accueil,
 }: {
+  /** Classe vide : l'accueil des premiers élèves (Cheikh), à la place de la liste. */
+  accueil?: ReactNode;
   moisParam?: string;
   classeId?: string;
   /** Cheikh avec plusieurs classes : seulement les élèves de la classe choisie. */
@@ -41,39 +45,57 @@ async function ContenuClasse({
   const objectifs = classe.actifs.reduce((t, r) => t + r.objectifsTotal, 0);
   const enAlerte = classe.actifs.filter((r) => r.alerte).length;
 
-  return (
-    <>
-      <div className="tuiles">
-        <div className="tuile">
-          <strong>{classe.actifs.length}</strong>
-          <span>élève{classe.actifs.length > 1 ? "s" : ""}</span>
-        </div>
-        <div className="tuile">
-          <strong>{formaterDuree(minutes)}</strong>
-          <span>de travail ce mois-ci</span>
-        </div>
-        <div className="tuile">
-          <strong>
-            {atteints} / {objectifs}
-          </strong>
-          <span>objectifs atteints</span>
-        </div>
-        <div className={enAlerte ? "tuile tuile-alerte" : "tuile"}>
-          <strong>{enAlerte}</strong>
-          <span>sans saisie depuis 3 jours</span>
-        </div>
-      </div>
-
-      {classe.actifs.length === 0 ? (
+  if (classe.actifs.length === 0 && classe.archives.length === 0) {
+    return (
+      accueil ?? (
         <EtatVide titre="Aucun élève pour l’instant">
-          <p>Invite tes élèves : envoie-leur le lien d’invitation ou fais-leur scanner le QR code.</p>
+          <p>Invite des élèves : envoie-leur le lien d’invitation ou fais-leur scanner le QR code.</p>
           <Link href="/maitre/inviter" className="bouton bouton-auto">
             Inviter un élève
           </Link>
         </EtatVide>
-      ) : null}
+      )
+    );
+  }
+  return (
+    <>
       <ListeEleves actifs={classe.actifs} archives={classe.archives} cleMois={cle} />
+      {classe.actifs.length ? (
+        // Les chiffres du mois, sur une ligne discrète : la liste passe d'abord.
+        <dl className="chiffres-classe" aria-label="Le mois en chiffres">
+          <div>
+            <dt>Travail</dt>
+            <dd>{formaterDuree(minutes)}</dd>
+          </div>
+          <div>
+            <dt>Objectifs</dt>
+            <dd>
+              {atteints} / {objectifs}
+            </dd>
+          </div>
+          <div className={enAlerte ? "chiffre-alerte" : undefined}>
+            <dt>Sans saisie 3 j</dt>
+            <dd>{enAlerte}</dd>
+          </div>
+        </dl>
+      ) : null}
     </>
+  );
+}
+
+/** « Salam Cheikh Malek · mardi 17 novembre » */
+function Salutation({ prenom }: { prenom: string }) {
+  const jour = new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "Europe/Paris",
+  }).format(new Date());
+  return (
+    <p className="salutation-cheikh">
+      <strong>Salam {/^cheikh\b/i.test(prenom) ? prenom : `Cheikh ${prenom}`.trim()}</strong>
+      <span> · {jour}</span>
+    </p>
   );
 }
 
@@ -104,6 +126,7 @@ export default async function PageClasse({
         role={profil.role}
       />
       <main className="espace">
+        {admin ? null : <Salutation prenom={profil.prenom} />}
         {classe ? null : <AppelDuJour classes={appelDuJour} />}
         <div className="entete-page">
           <nav className="mois mois-compact" aria-label="Changer de mois">
@@ -161,7 +184,12 @@ export default async function PageClasse({
         ) : null}
         <VueAdmin actif={Boolean(classe)} classe={classe?.nom}>
           <Suspense key={`${cleMois(mois)}-${groupe?.id ?? ""}`} fallback={<Squelettes cartes={1} />}>
-            <ContenuClasse moisParam={moisParam} classeId={classe?.id} eleveIds={groupe?.eleveIds} />
+            <ContenuClasse
+              moisParam={moisParam}
+              classeId={classe?.id}
+              eleveIds={groupe?.eleveIds}
+              accueil={admin ? undefined : <AccueilCheikh profil={profil} />}
+            />
           </Suspense>
         </VueAdmin>
       </main>

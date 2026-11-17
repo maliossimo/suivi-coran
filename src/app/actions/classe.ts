@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { profilConnecte } from "@/repositories/profils";
+import { apercuEleve, type ApercuEleve } from "@/services/apercuEleve";
 import {
   archiverEleve,
   desactiverQrClasse,
@@ -81,6 +82,7 @@ export async function actionGenererQr(form: FormData): Promise<void> {
   const resultat = await genererQrClasse(profil, form.get("etablissementId"), form.get("classe"));
   await notifier(resultat.ok ? "QR code prêt" : resultat.erreur, resultat.ok ? "succes" : "erreur");
   revalidatePath("/maitre/inviter");
+  revalidatePath("/maitre");
 }
 
 export async function actionDesactiverQr(form: FormData): Promise<void> {
@@ -88,4 +90,9 @@ export async function actionDesactiverQr(form: FormData): Promise<void> {
   const resultat = await desactiverQrClasse(profil, form.get("etablissementId"), form.get("classe"));
   await notifier(resultat.ok ? "QR code désactivé" : resultat.erreur, resultat.ok ? "succes" : "erreur");
   revalidatePath("/maitre/inviter");
+}
+
+/** Aperçu rapide d'un élève (vue du Cheikh), sans quitter la liste. */
+export async function actionApercuEleve(eleveId: unknown): Promise<ApercuEleve | null> {
+  return apercuEleve(await profilConnecte(), eleveId).catch(() => null);
 }

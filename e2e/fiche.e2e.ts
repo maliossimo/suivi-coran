@@ -47,6 +47,15 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await expect(page.getByText("Bilal")).toHaveCount(0);
     await capture(page, "20-cheikh-classe");
 
+    // Aperçu rapide sans quitter la liste : progression, tendance sur 8 semaines, lien vers la fiche.
+    await page.locator(".carte-eleve", { hasText: "Inès" }).locator("[data-apercu]").click();
+    const apercu = page.getByRole("dialog");
+    await expect(apercu.getByText(/du Coran/)).toBeVisible();
+    await expect(apercu.getByRole("img", { name: /8 dernières semaines/ })).toBeVisible();
+    await expect(apercu.getByRole("link", { name: /Ouvrir sa fiche/ })).toBeVisible();
+    await capture(page, "20b-cheikh-apercu-eleve");
+    await page.keyboard.press("Escape");
+
     await page.goto(`/maitre/eleves/${IDS.eleveA}`);
     await capture(page, "21-cheikh-fiche-eleve");
 

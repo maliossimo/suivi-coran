@@ -1,27 +1,15 @@
 import { ChevronLeft, QrCode as IconeQr } from "lucide-react";
 import Link from "next/link";
 import { actionDesactiverQr, actionGenererQr } from "@/app/actions/classe";
-import { headers } from "next/headers";
 import { PartagerInvitation } from "@/components/PartagerInvitation";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { Selecteur } from "@/components/Selecteur";
 import { QrCode } from "@/components/QrCode";
 import { QrPleinEcran } from "@/components/QrPleinEcran";
-import { envPublic } from "@/lib/env";
+import { origineDuSite } from "../origine";
 import { exigerEspace } from "@/services/acces";
 import { listerClasses } from "@/services/admin";
 import { chargerQrClasse, classesDuCheikh } from "@/services/classe";
-
-/** Adresse du site telle que la personne l'a ouverte (repli : le réglage du site). */
-async function origineDuSite(): Promise<string> {
-  const h = await headers();
-  const hote = h.get("x-forwarded-host") ?? h.get("host");
-  if (hote && /^[a-z0-9.-]+(:\d+)?$/i.test(hote)) {
-    const protocole = h.get("x-forwarded-proto") ?? (hote.startsWith("localhost") ? "http" : "https");
-    return `${protocole === "http" ? "http" : "https"}://${hote}`;
-  }
-  return envPublic.NEXT_PUBLIC_SITE_URL;
-}
 
 function dateHeure(iso: string): string {
   return new Intl.DateTimeFormat("fr-FR", {
