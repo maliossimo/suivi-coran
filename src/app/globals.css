@@ -5642,18 +5642,18 @@ html[data-ouverture] .ouverture-version {
 }
 .espace-coran {
   /* Couleurs du tajwid (planches classiques), éclaircies en mode sombre. */
-  --tj-madd-2: #3d6ff0;
+  --tj-madd-2: #2f62e6;
   --tj-madd-246: #4050ff;
   --tj-madd-45: #2144c1;
   --tj-madd-6: #000eb0;
-  --tj-ghunna: #e8700f;
+  --tj-ghunna: #d4620a;
   --tj-ikhfa: #9400a8;
   --tj-idgham: #128a6c;
-  --tj-idgham-sans: #8a6a00;
+  --tj-idgham-sans: #7a5a00;
   --tj-izhar: #ad1457;
-  --tj-iqlab: #1597d4;
+  --tj-iqlab: #0d7db3;
   --tj-qalqala: #d4000b;
-  --tj-muette: #9a9a9a;
+  --tj-muette: #7a7a7a;
 }
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-theme="clair"])) .espace-coran {
@@ -7395,18 +7395,18 @@ html.defilement-bloque {
   --or-clair: #f5ebd8;
   --vert-clair: #e2eee8;
   --vert-texte: #1d5c47;
-  --tj-madd-2: #3d6ff0;
+  --tj-madd-2: #2f62e6;
   --tj-madd-246: #4050ff;
   --tj-madd-45: #2144c1;
   --tj-madd-6: #000eb0;
-  --tj-ghunna: #e8700f;
+  --tj-ghunna: #d4620a;
   --tj-ikhfa: #9400a8;
   --tj-idgham: #128a6c;
-  --tj-idgham-sans: #8a6a00;
+  --tj-idgham-sans: #7a5a00;
   --tj-izhar: #ad1457;
-  --tj-iqlab: #1597d4;
+  --tj-iqlab: #0d7db3;
   --tj-qalqala: #d4000b;
-  --tj-muette: #9a9a9a;
+  --tj-muette: #7a7a7a;
 }
 .coran-page.theme-sepia {
   --carte: #f5ecd6;
@@ -7416,18 +7416,18 @@ html.defilement-bloque {
   --or-clair: #ead9b0;
   --vert-clair: #e3dcc0;
   --vert-texte: #285c45;
-  --tj-madd-2: #3d6ff0;
+  --tj-madd-2: #2f62e6;
   --tj-madd-246: #4050ff;
   --tj-madd-45: #2144c1;
   --tj-madd-6: #000eb0;
-  --tj-ghunna: #e8700f;
+  --tj-ghunna: #d4620a;
   --tj-ikhfa: #9400a8;
   --tj-idgham: #128a6c;
-  --tj-idgham-sans: #8a6a00;
+  --tj-idgham-sans: #7a5a00;
   --tj-izhar: #ad1457;
-  --tj-iqlab: #1597d4;
+  --tj-iqlab: #0d7db3;
   --tj-qalqala: #d4000b;
-  --tj-muette: #9a9a9a;
+  --tj-muette: #7a7a7a;
 }
 .coran-page.theme-sombre {
   --carte: #141b18;
@@ -13543,4 +13543,157 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
 .coran-cacher.actif {
   background: var(--vert);
   color: #fff;
+}
+/* Ligne un peu plus longue que les autres : resserrée, elle seule (la taille reste celle de toute la page). */
+.coran-lignes {
+  overflow-x: clip;
+}
+.coran-ligne.serree {
+  display: block;
+  width: calc(100% / var(--serrage, 1));
+  transform: scaleX(var(--serrage, 1));
+  transform-origin: right center;
+  text-align: justify;
+  text-align-last: justify;
+}
+/* Lecteur : le nom du récitateur en entier (sur deux lignes s'il le faut), pas de phrase d'aide au repos. */
+.coran-barre-infos strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+/* ---------- Panneau du tajwid : raccourcis, règles en tuiles à leur couleur ---------- */
+.tajwid-panneau {
+  display: grid;
+  gap: 14px;
+}
+.tajwid-raccourcis {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -2px;
+  padding: 2px;
+}
+.tajwid-raccourci {
+  flex-shrink: 0;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 999px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tajwid-raccourci[aria-pressed="true"] {
+  border-color: var(--vert);
+  background: var(--vert);
+  color: #fff;
+}
+.tajwid-aide {
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.tajwid-groupe h3 {
+  margin: 0 0 8px;
+  color: var(--texte-doux);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.tajwid-tuiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.tajwid-tuile {
+  --c: var(--texte-doux);
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  min-height: 92px;
+  padding: 10px 12px;
+  border: 2px solid var(--ligne);
+  border-radius: 16px;
+  background: var(--surface-2);
+  color: var(--texte-doux);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+.tajwid-tuile:active {
+  transform: scale(0.97);
+}
+.tajwid-tuile.allumee {
+  border-color: color-mix(in srgb, var(--c) 55%, transparent);
+  background: color-mix(in srgb, var(--c) 12%, var(--carte));
+  color: var(--texte);
+}
+.tajwid-tuile.allumee b {
+  color: var(--c);
+}
+.tajwid-tuile:not(.allumee) .tj-pastille {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+.tajwid-tuile.absente:not(.allumee) {
+  opacity: 0.6;
+}
+.tajwid-tuile-haut {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tajwid-tuile-haut b {
+  font-size: 14px;
+  line-height: 1.2;
+}
+.tajwid-tuile-aide {
+  font-size: 12.5px;
+  line-height: 1.3;
+}
+.tajwid-tuile-bas {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+  font-size: 11.5px;
+  color: var(--texte-doux);
+}
+.tajwid-tuile-bas [lang="ar"] {
+  font-family: var(--font-arabe), serif;
+  font-size: 13px;
+}
+/* Légende sous le texte : les règles visibles sur la page, et le panneau à un toucher. */
+.coran-legende {
+  display: grid;
+  gap: 10px;
+}
+.coran-legende ul {
+  margin: 0;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  font-size: 13px;
+}
+.coran-legende > .bouton-secondaire {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.coran-palette.actif {
+  color: var(--vert);
 }
