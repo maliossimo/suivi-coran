@@ -9,7 +9,18 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
-## [1.55.1] — 2026-11-17
+## [1.56.0] — 2026-11-17
+
+### Ajouté
+
+- Administration : « Horaires Mawaqit » sur chaque établissement. On colle le lien de la page de la mosquée sur Mawaqit : ses horaires de l'année sont importés tout de suite, puis mis à jour seuls chaque mois (date du dernier import ou erreur affichée). Champ vide : la page est retirée et le ciel revient au calcul.
+
+### Modifié
+
+- Barre du bas : en verre, dans la couleur de la page (plus de bloc vert), avec un léger motif doré et une ombre douce ; le mihrab au repos devient une arche de lumière dorée translucide.
+- La lumière de l'arche parcourt seulement sa courbe, en or doux (plus de trait blanc le long des côtés).
+
+— 2026-11-17
 
 ### Corrigé
 
