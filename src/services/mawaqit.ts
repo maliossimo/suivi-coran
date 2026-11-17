@@ -22,19 +22,21 @@ const TAILLE_MAX = 3_000_000;
 const jours = z.record(z.string(), z.array(z.string()));
 const schemaConf = z.object({
   calendar: z.array(jours).length(12),
-  iqamaCalendar: z.array(jours).nullish(),
-  jumua: z.string().nullish(),
-  jumua2: z.string().nullish(),
-  jumua3: z.string().nullish(),
   timezone: z.string().nullish(),
 });
 
 export type ResultatImport =
-  | { adresse: string; etat: "importe"; jours: number; jumua: number[] }
+  | { adresse: string; etat: "importe"; jours: number }
   | { adresse: string; etat: "a-jour" }
   | { adresse: string; etat: "erreur"; message: string };
 
-async function lirePage(adresse: string): Promise<string> {
+interface PageLue {
+  html: string;
+  /** Pour le message d'erreur : statut, adresse finale, titre et taille de la page reçue. */
+  resume: string;
+}
+
+async function lirePage(adresse: string): Promise<PageLue> {
   const reponse = await fetch(urlPageMawaqit(adresse), {
     headers: {
       "User-Agent": `SuiviCoran/${VERSION} (horaires de la mosquee, 1 requete par mois)`,
@@ -47,19 +49,22 @@ async function lirePage(adresse: string): Promise<string> {
   if (!reponse.ok) throw new Error(`Mawaqit a répondu ${reponse.status}`);
   const html = await reponse.text();
   if (html.length > TAILLE_MAX) throw new Error("Page Mawaqit trop volumineuse");
-  return html;
+  const titre = /<title[^>]*>([^<]{0,80})/i.exec(html)?.[1]?.trim() ?? "sans titre";
+  const chemin = new URL(reponse.url || urlPageMawaqit(adresse)).pathname;
+  return { html, resume: `${reponse.status} ${chemin}, « ${titre} », ${html.length} car.` };
 }
 
 /** Importe une mosquée (sans regarder la date du dernier import). */
 export async function importerMosquee(id: string, adresse: string): Promise<ResultatImport> {
   try {
-    const brut = extraireConfData(await lirePage(adresse));
-    if (brut === null) throw new Error("confData introuvable dans la page Mawaqit");
+    const page = await lirePage(adresse);
+    const brut = extraireConfData(page.html);
+    if (brut === null) throw new Error(`confData introuvable dans la page Mawaqit (${page.resume})`);
     const conf = schemaConf.safeParse(brut);
     if (!conf.success) throw new Error(`confData inattendu : ${conf.error.issues[0]?.path.join(".") ?? "?"}`);
-    const horaires = horairesDepuisConf(conf.data);
-    await enregistrerHorairesMawaqit(id, horaires);
-    return { adresse, etat: "importe", jours: horaires.jours.length, jumua: horaires.jumua };
+    const jours = horairesDepuisConf(conf.data);
+    await enregistrerHorairesMawaqit(id, jours);
+    return { adresse, etat: "importe", jours: jours.length };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     await noterErreurMawaqit(id, message).catch(() => undefined);

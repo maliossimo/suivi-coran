@@ -113,27 +113,39 @@ function Silhouettes() {
 }
 
 /** Lune du mois hégirien : la part éclairée suit le jour du mois. */
-function Lune({ jour }: { jour: number }) {
+function Lune({
+  jour,
+  cx = 246,
+  cy = 60,
+  r = 10,
+  id = "masque-lune",
+}: {
+  jour: number;
+  cx?: number;
+  cy?: number;
+  r?: number;
+  id?: string;
+}) {
   const { eclairee, croissante } = phaseLune(jour);
-  const r = 10;
   const decalage = 2 * r * eclairee * (croissante ? -1 : 1);
+  const k = r / 10;
   return (
     <g className="ciel-lune">
       <defs>
-        <mask id="masque-lune">
-          <circle cx="246" cy="60" r={r} fill="#fff" />
-          <circle cx={246 + decalage} cy="60" r={r + 0.4} fill="#000" />
+        <mask id={id}>
+          <circle cx={cx} cy={cy} r={r} fill="#fff" />
+          <circle cx={cx + decalage} cy={cy} r={r + 0.4 * k} fill="#000" />
         </mask>
       </defs>
-      <circle cx="246" cy="60" r={r + 18} className="ciel-lune-halo" />
-      <g mask="url(#masque-lune)">
-        <circle cx="246" cy="60" r={r} className="ciel-lune-disque" />
+      <circle cx={cx} cy={cy} r={r + 18 * k} className="ciel-lune-halo" />
+      <g mask={`url(#${id})`}>
+        <circle cx={cx} cy={cy} r={r} className="ciel-lune-disque" />
         {/* Quelques « mers » sombres : la lune ressemble à la lune. */}
         <g className="ciel-lune-mers">
-          <circle cx="243" cy="56.5" r="2.6" />
-          <circle cx="249.5" cy="58" r="1.8" />
-          <circle cx="245" cy="63.5" r="2.1" />
-          <circle cx="250" cy="64" r="1.1" />
+          <circle cx={cx - 3 * k} cy={cy - 3.5 * k} r={2.6 * k} />
+          <circle cx={cx + 3.5 * k} cy={cy - 2 * k} r={1.8 * k} />
+          <circle cx={cx - 1 * k} cy={cy + 3.5 * k} r={2.1 * k} />
+          <circle cx={cx + 4 * k} cy={cy + 4 * k} r={1.1 * k} />
         </g>
       </g>
     </g>
@@ -259,7 +271,7 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
             [120, 12, 1.2],
             [175, 30, 0.9],
             [215, 14, 1.1],
-            [340, 66, 1],
+            [196, 50, 1],
             [80, 46, 0.8],
             [250, 52, 0.9],
           ].map(([x, y, r], i) => (
@@ -269,6 +281,53 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
         </g>
         {fete === "ramadan" ? <Lanternes /> : null}
         <Silhouettes />
+      </svg>
+    </div>
+  );
+}
+
+/**
+ * Ciel en miniature pour l'en-tête compact (quand on descend dans la page) : même moment, mêmes couleurs,
+ * le même astre (lune du mois ou soleil) et les coupoles en petit, calées à droite.
+ * Les dégradés du soleil et de la lune viennent du grand ciel, toujours présent dans la barre.
+ */
+export function CielMini({ horaires, jourHegire, maintenant }: CielProps) {
+  const { minutes, fixe } = useMinutes(maintenant);
+  const moment = fixe ?? momentDuCiel(minutes, horaires);
+  const bas = moment === "fajr" || moment === "maghrib";
+  return (
+    <div className="ciel ciel-mini" data-moment={moment} aria-hidden="true">
+      <div className="ciel-motif" />
+      <svg className="ciel-mini-scene" viewBox="0 0 220 64" preserveAspectRatio="xMaxYMax meet">
+        <g className="ciel-etoiles">
+          {[
+            [24, 14, 0.9],
+            [70, 30, 0.8],
+            [118, 10, 1],
+            [150, 40, 0.7],
+          ].map(([x, y, r], i) => (
+            <circle key={i} cx={x} cy={y} r={r} style={{ animationDelay: `${(i * 0.9) % 3}s` }} />
+          ))}
+        </g>
+        {moment === "jour" ? (
+          <g className="ciel-soleil-reel">
+            <circle cx="96" cy="26" r="22" fill="url(#soleil-lueur)" />
+            <circle cx="96" cy="26" r="7" fill="url(#soleil-disque)" />
+          </g>
+        ) : null}
+        {bas ? (
+          <g className="ciel-soleil-reel">
+            <circle cx="90" cy="46" r="26" fill="url(#soleil-bas-lueur)" />
+            <circle cx="90" cy="46" r="8.5" fill="url(#soleil-bas-disque)" />
+          </g>
+        ) : null}
+        {!fixe && jourHegire !== null && moment !== "jour" ? (
+          <Lune jour={jourHegire} cx={96} cy={24} r={7} id="masque-lune-mini" />
+        ) : null}
+        {/* Les coupoles et le minaret, en petit (même dessin que la grande barre). */}
+        <g transform="translate(220 64) scale(0.4) translate(-360 -138)">
+          <Silhouettes />
+        </g>
       </svg>
     </div>
   );

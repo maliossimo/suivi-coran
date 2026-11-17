@@ -3,17 +3,27 @@
 import { ChevronUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { titreArabe } from "@/domain/ciel";
+import { CielMini, type CielProps } from "./ciel/CielVivant";
 import { LogoEtoile } from "./logo/LogoEtoile";
 import { useSousTitreEntete } from "./SousTitreEntete";
 
 /**
- * En-tête compact : quand la grande barre du haut quitte l'écran en descendant, une barre fine en verre
- * dépoli (logo, titre de la page et un sous-titre utile) glisse depuis le haut ; elle repart quand la grande
+ * En-tête compact : quand la grande barre du haut quitte l'écran en descendant, une barre fine
+ * (logo, titre calligraphié, sous-titre utile) glisse depuis le haut, avec le même ciel que la grande
+ * barre (moment, astre, coupoles en petit), sa frise et son fondu ; elle repart quand la grande
  * barre revient. Pendant le défilement, le grand titre rétrécit et s'efface (variable --avance-entete),
  * et le petit arrive à sa place. Elle ne prend aucune place dans la page : rien ne saute.
  * Un toucher remonte en haut de la page, le logo fait un tour.
  */
-export function EnteteCompact({ titre, nomPage }: { titre: string; nomPage?: string }) {
+export function EnteteCompact({
+  titre,
+  nomPage,
+  ciel,
+}: {
+  titre: string;
+  nomPage?: string;
+  ciel?: CielProps;
+}) {
   const repere = useRef<HTMLSpanElement>(null);
   const [visible, setVisible] = useState(false);
   const [joue, setJoue] = useState(false);
@@ -75,6 +85,7 @@ export function EnteteCompact({ titre, nomPage }: { titre: string; nomPage?: str
         }}
         aria-label="Remonter en haut de la page"
       >
+        {ciel ? <CielMini {...ciel} /> : null}
         <LogoEtoile className="barre-compacte-logo" />
         <span className="barre-compacte-textes">
           <span className="barre-compacte-titre">
@@ -83,11 +94,12 @@ export function EnteteCompact({ titre, nomPage }: { titre: string; nomPage?: str
                 {titreArabe(titre)}
               </span>
             ) : null}
-            {nomPage ?? titre}
+            <span className="barre-compacte-fr">{nomPage ?? titre}</span>
           </span>
           {sousTitre ? <span className="barre-compacte-sous-titre">{sousTitre}</span> : null}
         </span>
         <ChevronUp className="barre-compacte-haut" size={18} aria-hidden="true" />
+        <span className="frise-zellige barre-compacte-frise" aria-hidden="true" />
       </button>
     </>
   );
