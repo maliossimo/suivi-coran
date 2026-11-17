@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.50.2] — 2026-11-17
+
+### Corrigé
+
+- Barre du haut sur téléphone : elle ne passe plus sur deux étages (l'avatar était repoussé dessous). Elle est plus basse qu'avant pour laisser la place au contenu, et les trois dates (française, hégirienne en français et en arabe) sont dans un fin bandeau centré juste dessous, qui part avec la page quand on fait défiler.
+
 ## [1.50.1] — 2026-11-17
 
 ### Modifié
