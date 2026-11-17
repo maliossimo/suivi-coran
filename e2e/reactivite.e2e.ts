@@ -34,7 +34,10 @@ test("réactivité : temps d'affichage des pages principales", async ({ page }) 
   ] as const) {
     await chrono(`onglet « ${onglet} » (navigation)`, async () => {
       // En lisant le Coran, la barre du bas se cache en descendant : on remonte pour la faire revenir.
-      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.evaluate(() => {
+        window.scrollTo(0, 0);
+        delete document.documentElement.dataset.navCachee;
+      });
       await page.getByRole("link", { name: onglet, exact: true }).first().click();
       await page.waitForURL(adresse);
       await page.locator("main").first().waitFor();
