@@ -1,6 +1,6 @@
 /**
  * Lecture des horaires publiés par une mosquée sur sa page Mawaqit (https://mawaqit.net/fr/m/<adresse>).
- * La page publique contient un objet JSON `var confData = {…};` : calendrier de l'année (12 mois,
+ * La page publique contient un objet JSON `let confData = {…};` (`var` sur la version mobile) : calendrier de l'année (12 mois,
  * pour chaque jour [Fajr, Chourouq, Dhuhr, Asr, Maghrib, Icha]) et fuseau horaire. On n'en garde
  * que les heures des prières (elles règlent le ciel de la barre du haut).
  * Règles pures : aucune requête ici (voir services/mawaqit).
@@ -11,7 +11,8 @@ export const MOTIF_ADRESSE_MAWAQIT = /^[a-z0-9-]{1,160}$/;
 
 export function urlPageMawaqit(adresse: string): string {
   if (!MOTIF_ADRESSE_MAWAQIT.test(adresse)) throw new Error("Adresse Mawaqit invalide");
-  return `https://mawaqit.net/fr/m/${adresse}`;
+  // Version ordinateur : c'est celle que Mawaqit sert à un serveur (la version mobile y redirige).
+  return `https://mawaqit.net/fr/${adresse}`;
 }
 
 /**
@@ -19,7 +20,7 @@ export function urlPageMawaqit(adresse: string): string {
  * null s'il est absent ou illisible. Parcourt les accolades en tenant compte des chaînes.
  */
 export function extraireConfData(html: string): unknown {
-  const marque = /var\s+confData\s*=\s*\{/.exec(html);
+  const marque = /(?:var|let|const)\s+confData\s*=\s*\{/.exec(html);
   if (!marque) return null;
   const debut = marque.index + marque[0].length - 1;
   let profondeur = 0;
