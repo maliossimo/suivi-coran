@@ -17,13 +17,13 @@ const OPTIONS = { fullPage: true, animations: "disabled", maxDiffPixelRatio: 0.0
 const SANS_MOTS_A_REVOIR =
   ".coran-a-revoir-bouton { display: none !important; } .mot.a-revoir { text-decoration: none !important; }";
 
-/** La date hégirienne de la barre change chaque jour : remplacée par un texte fixe de même style. */
+/** Les dates de la barre et les mois hégiriens changent avec le jour : texte fixe, ou masqués (même place). */
 function dateHegirienneFixe(page: Page): Promise<void> {
   return page.addInitScript(() => {
     document.addEventListener("DOMContentLoaded", () => {
       const style = document.createElement("style");
       style.textContent =
-        ".barre-hegire { font-size: 0 !important; } .barre-hegire::after { content: '1 Mouharram 1448'; font-size: 12px; }";
+        ".barre-hegire { font-size: 0 !important; } .barre-hegire::after { content: 'Lun. 1 janv. · 1 Mouharram 1448'; font-size: 12px; } .mois-hegire { visibility: hidden !important; }";
       document.head.append(style);
     });
   });

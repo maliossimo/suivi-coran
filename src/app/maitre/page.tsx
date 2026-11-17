@@ -1,3 +1,4 @@
+import { TitreMoisDouble } from "@/components/DateHegirienne";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
@@ -138,7 +139,7 @@ export default async function PageClasse({
             >
               <ChevronLeft size={22} aria-hidden="true" />
             </Link>
-            <h1 className="mois-titre">{libelleMois(mois)}</h1>
+            <TitreMoisDouble annee={mois.annee} mois={mois.mois} libelle={libelleMois(mois)} as="h1" />
             <Link
               className="mois-fleche"
               prefetch
