@@ -68,8 +68,8 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await seConnecter(page, COMPTES.cheikhA, /\/maitre/);
     await page.goto(`/maitre/eleves/${IDS.eleveA}/seance?date=${jourParis(-1)}&type=revision`);
     const recitation = page.getByRole("region", { name: "Écoute du Cheikh" });
-    await recitation.getByRole("button", { name: "Tout écouté" }).click();
-    await expect(recitation.getByRole("radio", { name: /Écouté/ }).first()).toHaveAttribute(
+    await recitation.getByRole("button", { name: "Tout à refaire" }).click();
+    await expect(recitation.getByRole("radio", { name: /À refaire/ }).first()).toHaveAttribute(
       "aria-checked",
       "true",
     );
@@ -92,6 +92,31 @@ test.describe("Fiche : l'élève saisit, le Cheikh corrige", () => {
     await expect(page2.getByText("✓ Validé", { exact: true }).first()).toBeVisible();
     await expect(page2.getByText(/^validé le /).first()).toBeVisible();
     await capture(page2, "12-eleve-valide");
+
+    // L'élève marque lui-même son passage chez le Cheikh : à refaire, puis validé.
+    const passe = page2.getByRole("region", { name: "Passé avec le Cheikh" });
+    await passe
+      .getByRole("radio", { name: /À refaire/ })
+      .first()
+      .click();
+    await expect(passe.getByRole("radio", { name: /À refaire/ }).first()).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    await page2.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
+    await page2.reload();
+    await expect(
+      page2
+        .getByRole("region", { name: "Passé avec le Cheikh" })
+        .getByRole("radio", { name: /À refaire/ })
+        .first(),
+    ).toHaveAttribute("aria-checked", "true");
+    await page2
+      .getByRole("region", { name: "Passé avec le Cheikh" })
+      .getByRole("radio", { name: /Validé/ })
+      .first()
+      .click();
+    await capture(page2, "13-eleve-passe-cheikh");
     await eleve.close();
   });
 });

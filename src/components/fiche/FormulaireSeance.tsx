@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Minus, Plus, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { EtatCheikh, Seance, TypeSeance } from "@/domain/fiche";
@@ -11,6 +11,7 @@ import { ChoixSourate } from "./ChoixSourate";
 import { ecrireBrouillon, effacerBrouillon, lireBrouillon, memeSaisie, type Brouillon } from "./brouillon";
 import { cleSeance, lireEnAttente, preparerEnvoi } from "./enregistrementsEnAttente";
 import { retourSensoriel } from "@/components/retourSensoriel";
+import { Astuce } from "@/components/Astuce";
 import { PastilleCheikh } from "./PastilleCheikh";
 
 export interface SourateOption {
@@ -36,6 +37,7 @@ export function FormulaireSeance({
   type,
   initiale,
   suggestion = null,
+  aRefaire = [],
   propose = null,
   vueMaitre = false,
   sourates,
@@ -49,6 +51,8 @@ export function FormulaireSeance({
   type: TypeSeance;
   initiale: Seance | null;
   suggestion?: Passage | null;
+  /** Passages « à refaire » de la séance précédente : repris en un toucher. */
+  aRefaire?: readonly Passage[];
   /** Passage proposé (bouton « Réviser ») : ajouté d'office s'il n'est pas déjà saisi. */
   propose?: Passage | null;
   vueMaitre?: boolean;
@@ -367,6 +371,27 @@ export function FormulaireSeance({
         <h2 className="seance-section-titre">
           {type === "revision" ? "Passages révisés" : "Passages appris"}
         </h2>
+        {passages.length === 0 && aRefaire.length ? (
+          <button
+            type="button"
+            className="suggestion suggestion-a-refaire"
+            onClick={() => setPassages([...aRefaire])}
+          >
+            <span className="suggestion-titre">
+              <RotateCcw size={15} aria-hidden="true" /> À refaire depuis la dernière séance
+            </span>
+            <span className="suggestion-passage">
+              {aRefaire
+                .map(
+                  (p) => `${nomSourate(p.sourateDebut)?.nomLatin ?? ""} · ${p.versetDebut} → ${p.versetFin}`,
+                )
+                .join(" · ")}
+            </span>
+            <span className="suggestion-action">
+              Reprendre <ChevronRight size={16} aria-hidden="true" />
+            </span>
+          </button>
+        ) : null}
         {passages.length === 0 && suggestion ? (
           <button type="button" className="suggestion" onClick={() => setPassages([suggestion])}>
             <span className="suggestion-titre">
@@ -386,6 +411,11 @@ export function FormulaireSeance({
               Ajouter <ChevronRight size={16} aria-hidden="true" />
             </span>
           </button>
+        ) : null}
+        {passages.length && !vueMaitre ? (
+          <Astuce id="seance-plus-moins">
+            les boutons <b>−</b> et <b>+</b> changent le verset d’un toucher, sans ouvrir le clavier.
+          </Astuce>
         ) : null}
         <div className="liste-passages">
           {passages.map((p, i) =>
@@ -411,32 +441,86 @@ export function FormulaireSeance({
                   </button>
                 </div>
                 <div className="passage-versets">
-                  <label className="champ">
-                    <span>Du verset</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      autoComplete="off"
-                      enterKeyHint="next"
-                      onFocus={(e) => e.currentTarget.select()}
-                      value={p.versetDebut ? String(p.versetDebut) : ""}
-                      onChange={(e) => modifier(i, "versetDebut", lireNombre(e.target.value))}
-                    />
-                  </label>
-                  <label className="champ">
-                    <span>Au verset</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      autoComplete="off"
-                      enterKeyHint="done"
-                      onFocus={(e) => e.currentTarget.select()}
-                      value={p.versetFin ? String(p.versetFin) : ""}
-                      onChange={(e) => modifier(i, "versetFin", lireNombre(e.target.value))}
-                    />
-                  </label>
+                  <div className="champ champ-verset">
+                    <span id={`verset-versetDebut-${i}`}>Du verset</span>
+                    <div className="pas-a-pas" role="group" aria-labelledby={`verset-versetDebut-${i}`}>
+                      <button
+                        type="button"
+                        aria-label="Un verset de moins"
+                        disabled={(p.versetDebut || 1) <= 1}
+                        onClick={() => {
+                          retourSensoriel("toucher");
+                          modifier(i, "versetDebut", Math.max(1, (p.versetDebut || 1) - 1));
+                        }}
+                      >
+                        <Minus size={18} aria-hidden="true" />
+                      </button>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        autoComplete="off"
+                        enterKeyHint="next"
+                        aria-labelledby={`verset-versetDebut-${i}`}
+                        onFocus={(e) => e.currentTarget.select()}
+                        value={p.versetDebut ? String(p.versetDebut) : ""}
+                        onChange={(e) => modifier(i, "versetDebut", lireNombre(e.target.value))}
+                      />
+                      <button
+                        type="button"
+                        aria-label="Un verset de plus"
+                        disabled={(p.versetDebut || 0) >= nbVersets(p.sourateDebut)}
+                        onClick={() => {
+                          retourSensoriel("toucher");
+                          modifier(
+                            i,
+                            "versetDebut",
+                            Math.min(nbVersets(p.sourateDebut), (p.versetDebut || 0) + 1),
+                          );
+                        }}
+                      >
+                        <Plus size={18} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="champ champ-verset">
+                    <span id={`verset-versetFin-${i}`}>Au verset</span>
+                    <div className="pas-a-pas" role="group" aria-labelledby={`verset-versetFin-${i}`}>
+                      <button
+                        type="button"
+                        aria-label="Un verset de moins"
+                        disabled={(p.versetFin || 1) <= 1}
+                        onClick={() => {
+                          retourSensoriel("toucher");
+                          modifier(i, "versetFin", Math.max(1, (p.versetFin || 1) - 1));
+                        }}
+                      >
+                        <Minus size={18} aria-hidden="true" />
+                      </button>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        autoComplete="off"
+                        enterKeyHint="done"
+                        aria-labelledby={`verset-versetFin-${i}`}
+                        onFocus={(e) => e.currentTarget.select()}
+                        value={p.versetFin ? String(p.versetFin) : ""}
+                        onChange={(e) => modifier(i, "versetFin", lireNombre(e.target.value))}
+                      />
+                      <button
+                        type="button"
+                        aria-label="Un verset de plus"
+                        disabled={(p.versetFin || 0) >= nbVersets(p.sourateFin)}
+                        onClick={() => {
+                          retourSensoriel("toucher");
+                          modifier(i, "versetFin", Math.min(nbVersets(p.sourateFin), (p.versetFin || 0) + 1));
+                        }}
+                      >
+                        <Plus size={18} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 {/* Cas rare : le passage déborde sur la sourate suivante. Masqué tant qu'il ne sert pas. */}
                 {p.sourateFin !== p.sourateDebut ? (

@@ -237,7 +237,7 @@ export function FicheImprimable({
                           <td>{s?.noteLibre ?? ""}</td>
                           <td>
                             {etat === "valide" && <span className="pdf-vu">✓ Validé</span>}
-                            {etat === "ecoute" && <span className="pdf-vu pdf-vu-ecoute">Écouté</span>}
+                            {etat === "ecoute" && <span className="pdf-vu pdf-vu-ecoute">À refaire</span>}
                             {etat === "partielle" && (
                               <span className="pdf-vu pdf-vu-partielle">À écouter</span>
                             )}

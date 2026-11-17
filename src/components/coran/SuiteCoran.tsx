@@ -10,7 +10,13 @@ import type { BlocAffiche } from "./types";
 
 const AUTOMATIQUES = 3;
 
-type Reglages = { taille: number; tajwid: boolean; theme: string; tajwidEteintes?: string[] };
+type Reglages = {
+  taille: number;
+  tajwid: boolean;
+  theme: string;
+  tajwidEteintes?: string[];
+  occidentaux?: boolean;
+};
 
 /** Mêmes réglages que la page lue (taille, tajwid, couleurs de la page) : la suite lui ressemble en tout. */
 function lireReglages(): Reglages {
@@ -20,6 +26,7 @@ function lireReglages(): Reglages {
       tajwid?: boolean;
       theme?: string;
       tajwidEteintes?: unknown;
+      chiffres?: unknown;
     };
     return {
       taille: r.taille ?? 2,
@@ -28,6 +35,7 @@ function lireReglages(): Reglages {
       tajwidEteintes: Array.isArray(r.tajwidEteintes)
         ? r.tajwidEteintes.filter((x) => typeof x === "string")
         : [],
+      occidentaux: r.chiffres === "occidentaux",
     };
   } catch {
     return { taille: 2, tajwid: false, theme: "auto" };
@@ -128,9 +136,20 @@ export function SuiteCoran({
                           </span>
                         ),
                       )
-                    : v.texte}
-                  {/* Numéro en rosace, comme dans la page ouverte (police du Complexe). */}
-                  {reglages.tajwid && v.tajwid ? `\u00a0${chiffresArabes(v.n)}` : ""}{" "}
+                    : reglages.occidentaux
+                      ? v.texte.replace(/\s*[\u0660-\u0669]+\s*$/, "")
+                      : v.texte}
+                  {/* Numéro : rosace comme dans la page ouverte (police du Complexe), ou chiffres occidentaux. */}
+                  {reglages.occidentaux ? (
+                    <>
+                      {"\u00a0"}
+                      <span className="numero-occidental">{v.n}</span>
+                    </>
+                  ) : reglages.tajwid && v.tajwid ? (
+                    `\u00a0${chiffresArabes(v.n)}`
+                  ) : (
+                    ""
+                  )}{" "}
                 </span>
               ))}
             </p>

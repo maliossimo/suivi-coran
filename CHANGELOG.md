@@ -9,6 +9,25 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.47.0] — 2026-11-17
+
+### Ajouté
+
+- « Passé avec le Cheikh » : l'élève marque lui-même chaque passage de sa séance (apprentissage et révision) et chaque partie de « Ce que je connais » : **Validé** ou **À refaire** ; son Cheikh garde la même possibilité, le dernier qui marque a raison. Les passages « à refaire » de la dernière séance se reprennent en un toucher dans la séance suivante. (« Écouté » devient « À refaire » partout ; les marques existantes ne changent pas.)
+- Tester les enchaînements (Coran de l'élève) : la fin d'un verset que l'élève connaît, il récite le début du suivant, puis « Voir la réponse » (ou « Au micro » avec Réciter) et se note lui-même.
+- Coran : lecture de nuit (Réglages → Couleurs → Nuit : fond noir, texte ambré doux) et numéros des versets en chiffres arabes ou occidentaux.
+- Séance : boutons − / + pour changer un verset sans clavier.
+- Bouton « remonter en haut » sur les longues pages.
+- Accueil du Coran : « Réorganiser les cartes » (↑ / ↓), ordre retenu sur l'appareil.
+- Petite fête discrète dans la progression quand une sourate ou un juz est terminé (une ligne dorée, une seule fois).
+- Astuces au bon moment, une seule fois chacune (gestes du Mushaf, Réciter en texte caché, boutons − / +).
+
+### Amélioré
+
+- Vibrations très légères, sans son, en tournant une page du Mushaf et avec les boutons − / + (désactivables dans « Mon compte »).
+- La police du Mushaf est préchargée : le Coran s'affiche tout de suite dans la bonne police.
+- Cheikh sans élève : le message parle du lien et du QR code (plus de l'e-mail).
+
 ## [1.46.2] — 2026-11-17
 
 ### Ajouté
