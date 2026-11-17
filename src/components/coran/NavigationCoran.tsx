@@ -130,7 +130,8 @@ export function NavigationCoran({
             <span>
               {vue === "page" ? (
                 <>
-                  <b>Page {page}</b> · Juz {juz}
+                  {/* L'en-tête dit déjà « Page · Juz » : ici, la sourate de la page. */}
+                  <b>Page {page}</b> · {actuelle ? actuelle.nomLatin : `Juz ${juz}`}
                 </>
               ) : (
                 <>

@@ -10,7 +10,7 @@ import type { BlocAffiche } from "./types";
 
 const AUTOMATIQUES = 3;
 
-type Reglages = { taille: number; tajwid: boolean; theme: string };
+type Reglages = { taille: number; tajwid: boolean; theme: string; tajwidEteintes?: string[] };
 
 /** Mêmes réglages que la page lue (taille, tajwid, couleurs de la page) : la suite lui ressemble en tout. */
 function lireReglages(): Reglages {
@@ -19,8 +19,16 @@ function lireReglages(): Reglages {
       taille?: number;
       tajwid?: boolean;
       theme?: string;
+      tajwidEteintes?: unknown;
     };
-    return { taille: r.taille ?? 2, tajwid: Boolean(r.tajwid), theme: r.theme ?? "auto" };
+    return {
+      taille: r.taille ?? 2,
+      tajwid: Boolean(r.tajwid),
+      theme: r.theme ?? "auto",
+      tajwidEteintes: Array.isArray(r.tajwidEteintes)
+        ? r.tajwidEteintes.filter((x) => typeof x === "string")
+        : [],
+    };
   } catch {
     return { taille: 2, tajwid: false, theme: "auto" };
   }
@@ -81,6 +89,7 @@ export function SuiteCoran({
         <section
           key={b.sourate}
           className="coran-suite-bloc"
+          data-sous-titre={`${b.sourate}. ${b.nomLatin}`}
           aria-label={`Sourate ${b.sourate}, ${b.nomLatin}`}
         >
           <header className={`coran-cartouche coran-${lecture}`}>
@@ -98,6 +107,7 @@ export function SuiteCoran({
               "coran-page",
               `coran-${lecture}`,
               reglages.tajwid ? "coran-tajwid" : "",
+              ...(reglages.tajwid ? (reglages.tajwidEteintes ?? []).map((f) => `sans-tj-${f}`) : []),
               reglages.theme !== "auto" ? `theme-${reglages.theme}` : "",
             ].join(" ")}
             lang="ar"

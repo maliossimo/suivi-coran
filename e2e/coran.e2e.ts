@@ -31,6 +31,22 @@ test.describe("Coran (admin)", () => {
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await page.getByRole("button", { name: "Montrer tout le texte" }).click();
     await expect(page.locator(".coran-page")).not.toHaveClass(/coran-cache/);
+
+    // Panneau du tajwid : allumer les couleurs, puis « seulement la qalqala » d'un raccourci.
+    await page.getByRole("button", { name: "Couleurs du tajwid", exact: true }).click();
+    const panneau = page.getByRole("dialog");
+    const interrupteur = panneau.getByRole("switch", { name: "Couleurs du tajwid" });
+    if ((await interrupteur.getAttribute("aria-checked")) !== "true") await interrupteur.click();
+    await panneau.getByRole("button", { name: "Qalqala", exact: true }).click();
+    await expect(panneau.getByRole("button", { name: "Qalqala", exact: true })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(page.locator(".coran-page")).toHaveClass(/sans-tj-madd-2/);
+    await expect(page.locator(".coran-page")).not.toHaveClass(/sans-tj-qalqala/);
+    await capture(page, "42-coran-panneau-tajwid");
+    await panneau.getByRole("button", { name: "Toutes", exact: true }).click();
+    await expect(page.locator(".coran-page")).not.toHaveClass(/sans-tj-/);
   });
 
   test("toucher un verset ouvre ses actions, sans faire défiler la page", async ({ page }) => {
