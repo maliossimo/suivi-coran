@@ -16632,8 +16632,8 @@ html {
   opacity: 0.5;
 }
 .ciel-lune-halo {
-  fill: #f3d27c;
-  opacity: 0.12;
+  fill: url(#lune-lueur);
+  opacity: 1;
 }
 /* Sous la barre : un filet doré et un losange (plus de bandeau qui défile). */
 .barre-vivante > .frise-zellige,
@@ -16848,5 +16848,25 @@ html {
 @media (max-width: 760px) {
   .barre-vivante > .ciel > .ciel-scene {
     right: 52px;
+  }
+}
+
+/* 1.58.2 : la barre du bas a grandi (vague, nom arabe) : le lecteur du Coran, la barre « Enregistrer »
+   et le bouton « remonter » passent au-dessus, le contenu garde sa marge. */
+@media (max-width: 760px) {
+  .espace {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  }
+  .coran-lecteur {
+    bottom: calc(100px + env(safe-area-inset-bottom));
+  }
+  .barre-enregistrer {
+    bottom: calc(100px + env(safe-area-inset-bottom));
+  }
+  .remonter-en-haut {
+    bottom: calc(108px + env(safe-area-inset-bottom));
+  }
+  html:has(.coran-lecteur) .remonter-en-haut {
+    bottom: calc(182px + env(safe-area-inset-bottom));
   }
 }
