@@ -34,7 +34,14 @@ import {
 } from "@/repositories/admin";
 import { MISE_EN_LIGNE, VERSION } from "@/lib/version";
 import { renvoyerInvitation } from "@/repositories/invitations";
-import { placerEtablissement, positionsEtablissements } from "@/repositories/etablissements";
+import { adresseMawaqitDepuis } from "@/domain/mawaqit";
+import { importerMaintenant } from "./mawaqit";
+import {
+  liensMawaqit,
+  placerEtablissement,
+  positionsEtablissements,
+  relierMawaqit,
+} from "@/repositories/etablissements";
 import { seancesSuiviDepuis } from "@/repositories/seances";
 import type { Profil } from "@/repositories/profils";
 import { aujourdhuiParis, type ResultatSaisie } from "./fiche";
@@ -404,6 +411,47 @@ export async function placerUnEtablissement(
   if (!position.success)
     return { ok: false, erreur: position.error.issues[0]?.message ?? "Position invalide." };
   await placerEtablissement(id.data, position.data);
+  return { ok: true };
+}
+
+/** Pages Mawaqit des mosquées (admin), pour le formulaire « Horaires Mawaqit ». */
+export async function liensMawaqitDesEtablissements(acteur: Profil) {
+  exigerAdmin(acteur);
+  return liensMawaqit();
+}
+
+/**
+ * Relie une mosquée à sa page Mawaqit (lien collé ou adresse) et importe tout de suite ses horaires ;
+ * champ vide : on la délie. Ensuite, la mise à jour est automatique chaque mois.
+ */
+export async function relierMawaqitEtablissement(
+  acteur: Profil,
+  idBrut: unknown,
+  saisieBrute: unknown,
+): Promise<ResultatSaisie & { jours?: number }> {
+  exigerAdmin(acteur);
+  const id = z.string().uuid().safeParse(idBrut);
+  if (!id.success) return { ok: false, erreur: "Établissement introuvable." };
+  const saisie = z
+    .string()
+    .max(300)
+    .safeParse(saisieBrute ?? "");
+  if (!saisie.success) return { ok: false, erreur: "Lien trop long." };
+  if (!saisie.data.trim()) {
+    await relierMawaqit(id.data, null);
+    return { ok: true };
+  }
+  const adresse = adresseMawaqitDepuis(saisie.data);
+  if (!adresse)
+    return {
+      ok: false,
+      erreur: "Colle le lien de la page de la mosquée sur Mawaqit (ex. https://mawaqit.net/fr/m/ma-mosquee).",
+    };
+  await relierMawaqit(id.data, adresse);
+  const r = await importerMaintenant(id.data, adresse);
+  if (r.etat === "importe") return { ok: true, jours: r.jours };
+  if (r.etat === "erreur")
+    return { ok: false, erreur: `Page enregistrée, mais l’import a échoué : ${r.message}` };
   return { ok: true };
 }
 

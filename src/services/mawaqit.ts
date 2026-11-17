@@ -92,3 +92,9 @@ export async function mettreAJourHorairesMosquees(forcer = false): Promise<Resul
   }
   return resultats;
 }
+
+/** Import demandé par l'admin (il vient de relier la page) : toujours au plus une requête par jour. */
+export async function importerMaintenant(id: string, adresse: string): Promise<ResultatImport> {
+  if (!(await noterEssaiMawaqit(id, new Date()))) return { adresse, etat: "a-jour" };
+  return importerMosquee(id, adresse);
+}

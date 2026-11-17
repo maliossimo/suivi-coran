@@ -76,3 +76,47 @@ export const horairesMosquee = cache(
     return { ...reste, lever: chourouq };
   },
 );
+
+export interface LienMawaqit {
+  adresse: string;
+  importeLe: string | null;
+  erreur: string | null;
+}
+
+/** Pages Mawaqit reliées aux établissements (admin) ; vide si les colonnes n'existent pas encore. */
+export async function liensMawaqit(): Promise<Map<string, LienMawaqit>> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("etablissements")
+    .select("id, mawaqit, mawaqit_importe_le, mawaqit_erreur")
+    .not("mawaqit", "is", null);
+  const liens = new Map<string, LienMawaqit>();
+  if (error || !data) return liens;
+  for (const l of data as {
+    id: string;
+    mawaqit: string;
+    mawaqit_importe_le: string | null;
+    mawaqit_erreur: string | null;
+  }[]) {
+    liens.set(l.id, { adresse: l.mawaqit, importeLe: l.mawaqit_importe_le, erreur: l.mawaqit_erreur });
+  }
+  return liens;
+}
+
+/**
+ * Relie (ou délie) la page Mawaqit d'une mosquée : réservé à l'admin par la base.
+ * Nouvelle adresse : l'import peut repartir tout de suite. Sans adresse : ses horaires sont retirés
+ * (le ciel revient au calcul).
+ */
+export async function relierMawaqit(id: string, adresse: string | null): Promise<void> {
+  const supabase = await creerClientServeur();
+  const { error } = await supabase
+    .from("etablissements")
+    .update({ mawaqit: adresse, mawaqit_tente_le: null, mawaqit_erreur: null, mawaqit_importe_le: null })
+    .eq("id", id);
+  if (error) throw new Error(`Page Mawaqit impossible à enregistrer : ${error.message}`);
+  if (!adresse) {
+    const { error: e2 } = await supabase.from("horaires_priere").delete().eq("etablissement_id", id);
+    if (e2) throw new Error(`Horaires impossibles à retirer : ${e2.message}`);
+  }
+}

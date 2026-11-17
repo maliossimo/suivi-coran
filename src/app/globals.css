@@ -16233,3 +16233,80 @@ body:has(.barre-vivante) {
     transition: none;
   }
 }
+
+/* =====================================================================
+   1.56 : barre du bas en verre, dans la couleur de la page (plus de bloc vert) ;
+   lumière de l'arche sur la courbe seulement ; formulaire Mawaqit de l'admin
+   ===================================================================== */
+@media (max-width: 760px) {
+  .nav-espace {
+    --nav-verre: color-mix(in srgb, var(--fond) 80%, transparent);
+    background-color: transparent;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23c9a24a' stroke-opacity='.09' stroke-width='1.4'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3C/g%3E%3C/svg%3E"),
+      linear-gradient(180deg, var(--nav-verre), color-mix(in srgb, var(--fond) 96%, transparent));
+    background-size:
+      56px 56px,
+      auto;
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+    border-top: 0;
+    box-shadow:
+      0 -1px 0 color-mix(in srgb, #c9a24a 35%, transparent),
+      0 -12px 30px rgba(0, 0, 0, 0.12);
+  }
+  /* La frise laisse voir le verre au lieu d'un bandeau plein. */
+  .nav-espace::before {
+    background-color: color-mix(in srgb, var(--fond) 70%, transparent);
+  }
+  /* Le mihrab au repos : une arche de lumière dorée translucide, plus une forme terne. */
+  .nav-mihrab:not([aria-current="page"])::after {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, #e2be6e 60%, transparent),
+      color-mix(in srgb, #c9a24a 22%, transparent)
+    );
+    filter: drop-shadow(0 3px 8px rgba(201, 162, 74, 0.18));
+  }
+  .nav-mihrab:not([aria-current="page"]) > svg {
+    color: var(--nav-or);
+  }
+  /* Libellés : au repos, la couleur douce du texte de la page ; l'onglet choisi en or. */
+  .nav-onglet,
+  .nav-plus {
+    color: var(--texte-doux, var(--nav-texte));
+  }
+  .nav-onglet[aria-current="page"],
+  .nav-plus[data-actif] {
+    color: var(--nav-or);
+  }
+  /* La lumière parcourt la courbe de l'arche, en or doux, sans descendre le long des côtés. */
+  .nav-mihrab-lisere path {
+    stroke: #ffe3a1;
+    stroke-width: 1.6;
+    stroke-dasharray: 22 140;
+    stroke-dashoffset: 22;
+    filter: drop-shadow(0 0 2px rgba(255, 214, 120, 0.8));
+  }
+}
+@keyframes arche-lumiere {
+  0% {
+    stroke-dashoffset: 22;
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.95;
+  }
+  30% {
+    opacity: 0.95;
+  }
+  38%,
+  100% {
+    stroke-dashoffset: -100;
+    opacity: 0;
+  }
+}
+.formulaire-mawaqit input[name="mawaqit"] {
+  flex: 1 1 220px;
+  min-width: 0;
+}

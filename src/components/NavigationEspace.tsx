@@ -220,7 +220,7 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
               // Une lumière fait le tour de l'arche quand un motif de la frise y arrive.
               <i className="nav-mihrab-lisere" aria-hidden="true">
                 <svg viewBox="0 0 56 58">
-                  <path d="M2 58V28Q2 11 28 2Q54 11 54 28V58" pathLength={100} />
+                  <path d="M2 28Q2 11 28 2Q54 11 54 28" pathLength={100} />
                 </svg>
               </i>
             ) : null}
