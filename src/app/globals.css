@@ -15033,7 +15033,10 @@ ul.apercu-liste li {
 }
 
 .barre.barre-vivante {
+  /* Calque propre (le ciel reste derrière), au niveau de l'ancienne barre du bas (50) : la barre du bas,
+     rangée dans la barre du haut, reste au-dessus du contenu de la page. */
   position: relative;
+  z-index: 50;
   isolation: isolate;
   overflow: hidden;
   background: transparent;
