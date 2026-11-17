@@ -16843,3 +16843,10 @@ html {
     animation: none !important;
   }
 }
+
+/* 1.58.1 : téléphone — la ville se décale pour que le minaret ne passe pas derrière l'avatar. */
+@media (max-width: 760px) {
+  .barre-vivante > .ciel > .ciel-scene {
+    right: 52px;
+  }
+}
