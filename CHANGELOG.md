@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.54.0] — 2026-11-17
+
+### Ajouté
+
+- Horaires de la mosquée tenus à jour tout seuls : une fois par mois, le serveur relit la page publique Mawaqit de la mosquée (calendrier de l'année, changements d'heure compris) ; plus besoin de les réimporter à la main.
+- Iqama de chaque prière et heures de Joumou'a enregistrées avec le calendrier.
+
+### Sécurité
+
+- Au plus une requête par mosquée et par jour vers Mawaqit, même si l'adresse de mise à jour est appelée plusieurs fois ; relecture immédiate réservée à la tâche planifiée (CRON_SECRET). En cas d'échec, les horaires déjà connus restent utilisés.
+
 ## [1.53.0] — 2026-11-17
 
 ### Ajouté
