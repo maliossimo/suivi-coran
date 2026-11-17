@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.50.0] — 2026-11-17
+
+### Ajouté
+
+- Les deux calendriers ensemble : la barre du haut montre la date française et la date hégirienne (« Mar. 17 nov. · 7 Joumada ath-thania 1448 »), et chaque mois (fiche, classe du Cheikh, présences) montre sous son nom les mois hégiriens qu'il couvre, en phonétique et en arabe (« Joumada al-oula – ath-thania 1448 · جمادى الأولى – الآخرة ١٤٤٨ هـ »).
+
 ## [1.49.1] — 2026-11-17
 
 ### Corrigé
