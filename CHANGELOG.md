@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.51.1] — 2026-11-17
+
+### Corrigé
+
+- Mihrab de la barre du bas : le nom arabe n'est plus écrit en or sur l'or (l'icône seule dans le mihrab, « Coran » dessous), mihrab un peu plus fin.
+- Ligne des dates : un espace entre la date et le temps de prière.
+- Coucher du soleil : le soleil se couche derrière la grande coupole au lieu de passer sous la date hégirienne ; plus de nuage gris au crépuscule.
+
 ## [1.51.0] — 2026-11-17
 
 ### Ajouté
