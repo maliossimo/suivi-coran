@@ -1,3 +1,4 @@
+import { TitreMoisDouble } from "@/components/DateHegirienne";
 import {
   BookOpen,
   BookPlus,
@@ -110,7 +111,7 @@ export function FicheMois({
           <ChevronLeft size={22} aria-hidden="true" />
           <IndicateurLien />
         </Link>
-        <h2 className="mois-titre">{libelleMois(fiche.mois)}</h2>
+        <TitreMoisDouble annee={fiche.mois.annee} mois={fiche.mois.mois} libelle={libelleMois(fiche.mois)} />
         <Link
           className="mois-fleche"
           prefetch

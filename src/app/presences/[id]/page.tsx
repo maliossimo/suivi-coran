@@ -1,3 +1,4 @@
+import { TitreMoisDouble } from "@/components/DateHegirienne";
 import { AlertTriangle, CalendarCheck, ChevronLeft, ChevronRight, Settings, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -100,7 +101,7 @@ export default async function PageClasse({
           <Link className="mois-fleche" href={lien(-1)} aria-label="Mois précédent" scroll={false}>
             <ChevronLeft size={22} aria-hidden="true" />
           </Link>
-          <h2 className="mois-titre">{titreMois}</h2>
+          <TitreMoisDouble annee={annee} mois={mois} libelle={titreMois} />
           <Link className="mois-fleche" href={lien(1)} aria-label="Mois suivant" scroll={false}>
             <ChevronRight size={22} aria-hidden="true" />
           </Link>
