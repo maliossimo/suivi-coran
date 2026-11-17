@@ -14796,9 +14796,19 @@ ul.apercu-liste li {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.barre-hegire-ar {
+  unicode-bidi: isolate;
+}
+/* Téléphone : sans le jour de la semaine, et la date arabe sur sa propre ligne */
 @media (max-width: 640px) {
-  .barre-hegire-ar {
+  .barre-semaine,
+  .barre-hegire-sep {
     display: none;
+  }
+  .barre-hegire-ar {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
