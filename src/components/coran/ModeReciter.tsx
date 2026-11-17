@@ -6,9 +6,10 @@ import {
   actionCorrectionsTajwid,
   actionGarderEssai,
   actionHistoriquePassage,
+  actionMotsARevoir,
   actionSignalerTajwid,
 } from "@/app/actions/tajwid";
-import { fautesAGarder, type MotDifficile } from "@/domain/essais";
+import { fautesAGarder, type MotARevoir, type MotDifficile } from "@/domain/essais";
 import { bloquerDefilement } from "@/components/Feuille";
 import { useFermerAuRetour } from "@/components/retour";
 import { retourSensoriel } from "@/components/retourSensoriel";
@@ -441,6 +442,19 @@ export function ModeReciter({
   const bilan = useMemo(() => bilanPassage(mots), [mots]);
   const guide = useMemo(() => guiderResultat(mots), [mots]);
 
+  // Mots à revoir de la sourate (ratés lors des récitations, pas encore réussis deux fois).
+  const [aRevoir, setARevoir] = useState<MotARevoir[]>([]);
+  useEffect(() => {
+    if (etape !== "pret") return;
+    let actif = true;
+    void actionMotsARevoir({ lecture, sourates: [sourate] })
+      .then((r) => actif && setARevoir(r[sourate] ?? []))
+      .catch(() => undefined);
+    return () => {
+      actif = false;
+    };
+  }, [etape, lecture, sourate]);
+
   // Avant de réciter : les essais précédents sur ce passage et les mots difficiles.
   useEffect(() => {
     if (etape !== "pret") return;
@@ -799,6 +813,37 @@ export function ModeReciter({
             />
           ) : null}
         </div>
+      ) : null}
+      {etape === "pret" && aRevoir.length ? (
+        // Mots ratés lors des récitations : un toucher prépare le verset, texte caché (il se dévoile en récitant).
+        <details className="reciter-historique reciter-a-revoir" open>
+          <summary>
+            <RotateCcw size={15} aria-hidden="true" /> {aRevoir.length} mot{aRevoir.length > 1 ? "s" : ""} à
+            revoir dans cette sourate
+          </summary>
+          <div className="reciter-difficiles">
+            {aRevoir.map((m) => (
+              <button
+                key={`${m.verset}|${m.mot}`}
+                type="button"
+                className={
+                  du === m.verset && au === m.verset ? "reciter-difficile choisi" : "reciter-difficile"
+                }
+                aria-label={`${m.mot}, verset ${m.verset} : réciter ce verset`}
+                onClick={() => {
+                  setDu(m.verset);
+                  setAu(m.verset);
+                  setReveler(true);
+                }}
+              >
+                <span lang="ar" dir="rtl">
+                  {m.mot}
+                </span>
+                <small>v. {m.verset}</small>
+              </button>
+            ))}
+          </div>
+        </details>
       ) : null}
       {etape === "pret" && (historique.scores.length > 0 || historique.difficiles.length > 0) ? (
         // Replié par défaut : une ligne, pour laisser la place aux versets.

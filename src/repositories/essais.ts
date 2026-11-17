@@ -38,3 +38,24 @@ export async function listerMesEssais(eleveId: string, lecture: Lecture, sourate
     quand: r.cree_le as string,
   }));
 }
+
+/** Les derniers essais d'un élève, toutes sourates (400 au plus) ; lisibles par lui et ceux qui le suivent (RLS). */
+export async function listerEssaisEleve(eleveId: string): Promise<(Essai & { lecture: Lecture })[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("essais_recitation")
+    .select("lecture, sourate, du, au, score, fautes, cree_le")
+    .eq("eleve_id", eleveId)
+    .order("cree_le", { ascending: false })
+    .limit(400);
+  if (error) throw new Error(`Lecture des essais impossible : ${error.message}`);
+  return (data ?? []).map((r) => ({
+    lecture: (r.lecture === "warsh" ? "warsh" : "hafs") as Lecture,
+    sourate: r.sourate as number,
+    du: r.du as number,
+    au: r.au as number,
+    score: r.score as number,
+    fautes: (Array.isArray(r.fautes) ? r.fautes : []) as FauteEssai[],
+    quand: r.cree_le as string,
+  }));
+}

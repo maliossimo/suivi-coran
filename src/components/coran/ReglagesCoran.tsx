@@ -1,7 +1,17 @@
 "use client";
 
 import { IndicateurGlissant } from "@/components/IndicateurGlissant";
-import { CloudDownload, CloudOff, Minus, Palette, Plus, ScanEye, TextCursor, Trash2 } from "lucide-react";
+import {
+  CloudDownload,
+  CloudOff,
+  Minus,
+  Palette,
+  Plus,
+  ScanEye,
+  TextCursor,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 import Link from "next/link";
 import { Feuille } from "@/components/Feuille";
 import { Selecteur } from "@/components/Selecteur";
@@ -25,6 +35,8 @@ export interface Reglages {
   tajwidEteintes: string[];
   /** Vue page : texte grossi au-delà de la page du Mushaf (il passe alors à la ligne librement). */
   mushafLibre: boolean;
+  /** Souligner sur la page les mots ratés lors des récitations. */
+  soulignerARevoir: boolean;
 }
 
 export type ThemeCoran = "auto" | "clair" | "sepia" | "sombre";
@@ -214,6 +226,12 @@ export function ReglagesCoran({
             actif={reglages.motParMot && Boolean(recitation?.mots)}
             desactive={!recitation?.mots}
             onChange={(v) => modifier({ motParMot: v })}
+          />
+          <Interrupteur
+            icone={<Undo2 size={18} aria-hidden="true" />}
+            libelle="Souligner mes mots à revoir"
+            actif={reglages.soulignerARevoir}
+            onChange={(v) => modifier({ soulignerARevoir: v })}
           />
         </div>
       </section>
