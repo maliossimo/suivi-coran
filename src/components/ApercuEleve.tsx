@@ -115,29 +115,33 @@ export function ApercuEleve({
             </p>
           </section>
 
-          {d.derniere ? (
+          {d.dernierJour ? (
             <section className="apercu-bloc">
-              <h3>
-                Dernière séance · {d.derniere.type === "apprentissage" ? "apprentissage" : "révision"} ·{" "}
-                {libelleJourCourt(d.derniere.date)}
-                {d.derniere.dureeMin ? ` · ${formaterDuree(d.derniere.dureeMin)}` : ""}
-              </h3>
-              <ul>
-                {d.derniere.passages.map((p, i) => (
-                  <li key={i}>
-                    <span>{p.libelle}</span>
-                    <span
-                      className={`pastille-etat etat-${p.etat === "a_refaire" ? "ecoute" : p.etat === "valide" ? "valide" : "a-ecouter"}`}
-                    >
-                      {p.etat === "valide"
-                        ? "✓ Validé"
-                        : p.etat === "a_refaire"
-                          ? "↺ À refaire"
-                          : "Pas encore passé"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <h3>Dernier jour de travail · {libelleJourCourt(d.dernierJour.date)}</h3>
+              {d.dernierJour.seances.map((se) => (
+                <div key={se.type} className={`apercu-seance apercu-${se.type}`}>
+                  <p className="apercu-seance-type">
+                    {se.type === "apprentissage" ? "Apprentissage" : "Révision"}
+                    {se.dureeMin ? ` · ${formaterDuree(se.dureeMin)}` : ""}
+                  </p>
+                  <ul>
+                    {se.passages.map((p, i) => (
+                      <li key={i}>
+                        <span>{p.libelle}</span>
+                        <span
+                          className={`pastille-etat etat-${p.etat === "a_refaire" ? "ecoute" : p.etat === "valide" ? "valide" : "a-ecouter"}`}
+                        >
+                          {p.etat === "valide"
+                            ? "✓ Validé"
+                            : p.etat === "a_refaire"
+                              ? "↺ À refaire"
+                              : "À écouter"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </section>
           ) : (
             <p className="carte-graphique-sous">Pas encore de séance.</p>
@@ -148,7 +152,11 @@ export function ApercuEleve({
               <h3>
                 <RotateCcw size={15} aria-hidden="true" /> À refaire
               </h3>
-              <p className="apercu-liste">{d.aRefaire.join(" · ")}</p>
+              <ul className="apercu-liste">
+                {d.aRefaire.map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+              </ul>
             </section>
           ) : null}
 
