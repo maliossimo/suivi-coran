@@ -1,7 +1,8 @@
 name: CI
 
-# Une seule vérification par PR (vers main ou vers prod) : le contenu qui arrive ensuite
-# sur main ou prod est exactement celui qui a été vérifié. Relance manuelle possible.
+# Une seule vérification par PR : le contenu qui arrive ensuite sur main ou prod est exactement celui
+# qui a été vérifié. Une PR main → prod dont le contenu exact a déjà tout passé sur sa PR vers main
+# (même base, même tête : voir scripts/deja-verifie.sh) ne relance pas les mêmes tests. Relance manuelle possible.
 on:
   pull_request:
   workflow_dispatch:
@@ -14,9 +15,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # PR main → prod : si ce contenu exact a déjà tout passé sur sa PR vers main, inutile de tout relancer.
+  deja:
+    name: Déjà vérifié sur main ?
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: read
+    outputs:
+      verifie: ${{ steps.v.outputs.verifie }}
+    steps:
+      - uses: actions/checkout@v7
+        if: github.event_name == 'pull_request' && github.base_ref == 'prod'
+      - id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+          R: ${{ github.repository }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.base_ref }}" = "prod" ]; then
+            echo "verifie=$(scripts/deja-verifie.sh "${{ github.event.pull_request.head.sha }}")" >> "$GITHUB_OUTPUT"
+          else
+            echo "verifie=non" >> "$GITHUB_OUTPUT"
+          fi
+
   qualite:
     name: Qualité, types et tests unitaires
     runs-on: ubuntu-latest
+    needs: deja
+    if: needs.deja.outputs.verifie != 'oui'
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -48,6 +75,8 @@ jobs:
   tajwid:
     name: Moteur tajwid (Python)
     runs-on: ubuntu-latest
+    needs: deja
+    if: needs.deja.outputs.verifie != 'oui'
     steps:
       - uses: actions/checkout@v7
         with:
@@ -103,6 +132,8 @@ jobs:
   base:
     name: Migrations et règles d'accès (RLS)
     runs-on: ubuntu-latest
+    needs: deja
+    if: needs.deja.outputs.verifie != 'oui'
     steps:
       - uses: actions/checkout@v7
         with:
@@ -147,3 +178,23 @@ jobs:
       - name: Installation
         run: npm ci --no-audit --no-fund
       - run: npm run build
+
+  # PR vers main réussie : on note sur sa tête la base sur laquelle elle a été vérifiée (lu par « deja »).
+  verifie:
+    name: Noter le contenu vérifié
+    runs-on: ubuntu-latest
+    needs: [qualite, tajwid, base, build]
+    if: github.event_name == 'pull_request' && github.base_ref == 'main' && success()
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - name: Statut « Contenu vérifié (CI) »
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
+            -f state=success -f context="Contenu vérifié (CI)" -f description="$(git rev-parse HEAD^1)"
