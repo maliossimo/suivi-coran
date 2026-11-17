@@ -45,6 +45,8 @@ export interface Recitation {
   /** EveryAyah : dossier et identifiant des repères, pour le téléchargement hors ligne. */
   dossier: string | null;
   alignement: string | null;
+  /** On écoute seulement : le texte ne suit pas la voix (fichiers mal découpés). */
+  ecouteSeule?: boolean;
 }
 
 const REPERES_MOTS =
@@ -62,6 +64,7 @@ export function recitationsVersets(lecture: Lecture): Recitation[] {
     mots: lecture === "hafs" ? `${REPERES_MOTS}${r.alignement}/` : null,
     dossier: r.dossier,
     alignement: lecture === "hafs" ? r.alignement : null,
+    ecouteSeule: r.ecouteSeule ?? false,
   }));
 }
 

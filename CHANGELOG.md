@@ -9,6 +9,22 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.46.0] — 2026-11-17
+
+### Ajouté
+
+- Coran : zoom. Pincer à deux doigts grossit ou réduit le texte ; sur la page du Mushaf, grossir fait passer le texte à la ligne librement (pastille « Revenir au Mushaf »). Taille retenue. En plein écran, boutons A− / A+.
+- Coran : mots à revoir. Les mots ratés lors des récitations sont soulignés sur la page ; un bouton « N mots à revoir » les liste par verset, avec « Réciter » (texte caché, il se dévoile en récitant). Un mot sort de la liste après deux récitations réussies.
+- Coran : recherche (loupe en haut). Un mot arabe avec ou sans voyelles, un nom de sourate (« Maryam », « مريم ») ou une référence (« 2:255 ») ; un toucher ouvre le verset.
+
+### Amélioré
+
+- Barre du bas plus légère, et en lisant le Coran elle s'efface quand on descend (elle revient dès qu'on remonte).
+- Abdul Basit en Warsh : écoute seulement (le texte ne suit plus sa voix, ses fichiers étant mal découpés).
+- Cartes : chiffre principal plus grand, détails en retrait. Textes clairs sur fond vert un peu plus lisibles.
+- Bandeau de confirmation affiché un peu plus longtemps.
+- Chargement : silhouettes aussi pour le Coran de l'élève, la progression, « Ce que je connais », le journal et l'invitation.
+
 ## [1.45.0] — 2026-11-17
 
 ### Ajouté

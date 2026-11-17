@@ -5,6 +5,21 @@ test.describe("Coran (admin)", () => {
     await seConnecter(page, COMPTES.admin, /\/admin/);
   });
 
+  test("recherche dans le Coran : une référence, un nom de sourate, des mots arabes", async ({ page }) => {
+    await page.goto("/admin/coran?lecture=hafs&sourate=1");
+    await page.getByRole("button", { name: "Rechercher dans le Coran" }).click();
+    const champ = page.getByRole("searchbox", { name: "Mot, sourate ou référence" });
+    await champ.fill("2:255");
+    await expect(page.getByRole("link", { name: /2:255/ })).toBeVisible();
+    await champ.fill("maryam");
+    await expect(page.getByRole("link", { name: /Maryam/ })).toBeVisible();
+    await champ.fill("الحمد لله رب العالمين");
+    await expect(page.getByRole("link", { name: /1:2/ })).toBeVisible();
+    await capture(page, "43-coran-recherche");
+    await page.getByRole("link", { name: /1:2/ }).click();
+    await expect(page).toHaveURL(/#verset-1-2$/);
+  });
+
   test("page du Mushaf : les lignes du livre, sans débordement ; le texte caché se dévoile ligne par ligne", async ({
     page,
   }) => {

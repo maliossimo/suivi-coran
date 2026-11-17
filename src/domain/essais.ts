@@ -86,3 +86,51 @@ export function motsDifficiles(essais: readonly Essai[], sourate: number, nombre
     .slice(0, nombre)
     .map(({ verset, mot, fois }) => ({ verset, mot, fois }));
 }
+
+export interface MotARevoir {
+  verset: number;
+  mot: string;
+  /** Règle de la dernière faute (« oubli », « madd »…). */
+  regle: string;
+}
+
+/**
+ * Mots à revoir d'une sourate : tout mot raté lors d'une récitation, tant qu'il n'a pas été réussi deux fois
+ * depuis (deux essais plus récents qui couvraient son verset sans le compter faux). Du verset le plus petit au
+ * plus grand.
+ */
+export function motsARevoir(essais: readonly Essai[], sourate: number): MotARevoir[] {
+  const derniers = new Map<string, MotARevoir & { quand: string }>();
+  for (const e of essais) {
+    if (e.sourate !== sourate) continue;
+    for (const f of e.fautes) {
+      const cle = `${f.verset}|${f.mot}`;
+      const d = derniers.get(cle);
+      if (!d || e.quand > d.quand)
+        derniers.set(cle, { verset: f.verset, mot: f.mot, regle: f.regle, quand: e.quand });
+    }
+  }
+  return [...derniers.values()]
+    .filter(
+      (m) =>
+        essais.filter(
+          (e) =>
+            e.sourate === sourate &&
+            e.quand > m.quand &&
+            e.du <= m.verset &&
+            e.au >= m.verset &&
+            !e.fautes.some((f) => f.verset === m.verset && f.mot === m.mot),
+        ).length < 2,
+    )
+    .sort((a, b) => a.verset - b.verset)
+    .map(({ verset, mot, regle }) => ({ verset, mot, regle }));
+}
+
+/** Squelette d'un mot (ses lettres seules, formes de l'alif et du yâ' unifiées) : pour retrouver un mot écrit
+ * autrement (voyelles, signes de pause, graphie du moteur). */
+export function squeletteMot(mot: string): string {
+  return [...mot.normalize("NFC")]
+    .filter((c) => /[ء-يٱ]/.test(c))
+    .map((c) => (/[آأإٱا]/.test(c) ? "ا" : c === "ى" ? "ي" : c))
+    .join("");
+}
