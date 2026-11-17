@@ -15,31 +15,30 @@ const JOUR_COURT = new Intl.DateTimeFormat("fr-FR", {
 });
 
 /**
- * Les dates du jour dans la barre du haut (tous les profils) :
- * « Mar. 17 nov. 2026 · 7 Joumada ath-thania 1448 · ٧ جمادى الآخرة ١٤٤٨ هـ ».
- * Sur téléphone : sans le jour de la semaine, et l'arabe sur sa propre ligne.
+ * Bandeau fin sous la barre du haut (tous les profils), centré :
+ * « 17 nov. 2026 · 7 Joumada ath-thania 1448 · ٧ جمادى الآخرة ١٤٤٨ هـ ».
+ * Il n'est pas collé en haut : il part avec la page quand on fait défiler.
  */
-export function DateHegirienneBarre() {
+export function BandeauDates() {
   const jour = aujourdhui();
   const midi = new Date(`${jour}T12:00:00Z`);
   const semaine = JOUR_SEMAINE.format(midi).replace(/^./, (c) => c.toUpperCase());
-  const francais = JOUR_COURT.format(midi);
   const d = dateHegirienne(jour);
   return (
-    <span className="barre-app barre-hegire" suppressHydrationWarning>
-      <span className="barre-semaine">{semaine} </span>
-      {francais}
+    <p className="bandeau-dates" suppressHydrationWarning>
+      <span className="bandeau-semaine">{semaine} </span>
+      {JOUR_COURT.format(midi)}
       {d ? (
         <>
-          {" · "}
+          <span className="bandeau-point"> · </span>
           {libelleHegirien(d)}
-          <span className="barre-hegire-sep"> · </span>
-          <span className="barre-hegire-ar" lang="ar" dir="rtl">
+          <span className="bandeau-point"> · </span>
+          <span className="bandeau-ar" lang="ar" dir="rtl">
             {libelleHegirienArabe(d)}
           </span>
         </>
       ) : null}
-    </span>
+    </p>
   );
 }
 
