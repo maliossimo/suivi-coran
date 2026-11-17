@@ -16029,6 +16029,7 @@ body:has(.barre-vivante) {
   animation-duration: 48s;
 }
 .nav-frise-eclat,
+.nav-etoile-lueur,
 .nav-mihrab-lisere {
   display: none;
 }
@@ -16057,7 +16058,28 @@ body:has(.barre-vivante) {
   .nav-espace.avec-pastille .nav-pastille {
     animation: etoile-battement 3s ease-in-out var(--etoile-retard, 0s) infinite;
   }
-  .nav-espace.avec-pastille:has(.nav-mihrab[aria-current="page"]) .nav-frise-eclat {
+  /* Derrière l'étoile, un halo doré s'allume au même rythme. */
+  .nav-espace.avec-pastille .nav-etoile-lueur {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: -15px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 226, 140, 0.85) 0%,
+      rgba(255, 200, 90, 0.35) 40%,
+      transparent 70%
+    );
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    animation: etoile-lueur 3s ease-in-out var(--etoile-retard, 0s) infinite;
+  }
+  .nav-espace.avec-pastille:has(.nav-mihrab[aria-current="page"]) .nav-frise-eclat,
+  .nav-espace.avec-pastille:has(.nav-mihrab[aria-current="page"]) .nav-etoile-lueur {
     display: none;
   }
   /* L'arche du mihrab : une lumière en fait le tour quand un motif arrive à son pied. */
@@ -16095,17 +16117,29 @@ body:has(.barre-vivante) {
     animation: arche-lumiere 6s ease-in-out var(--arche-retard, 0s) infinite;
   }
 }
+/* Lumière seulement (la position de l'étoile est dans « transform » : on n'y touche pas). */
 @keyframes etoile-battement {
   0%,
   30%,
   70%,
   100% {
-    filter: drop-shadow(0 0 0 rgba(255, 214, 120, 0));
-    scale: 1;
+    filter: brightness(1);
   }
   50% {
-    filter: drop-shadow(0 0 5px rgba(255, 214, 120, 0.95));
-    scale: 1.3;
+    filter: brightness(1.5);
+  }
+}
+@keyframes etoile-lueur {
+  0%,
+  25%,
+  75%,
+  100% {
+    opacity: 0;
+    transform: translateX(calc(var(--etoile-x, -99px) - 14px)) scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(calc(var(--etoile-x, -99px) - 14px)) scale(1);
   }
 }
 @keyframes arche-lumiere {
@@ -16186,12 +16220,14 @@ body:has(.barre-vivante) {
 
 @media (prefers-reduced-motion: reduce) {
   .nav-espace .nav-pastille,
+  .nav-etoile-lueur,
   .nav-frise-eclat,
   .nav-mihrab-lisere path {
     animation: none !important;
   }
-  .nav-mihrab-lisere {
-    display: none;
+  .nav-mihrab-lisere,
+  .nav-etoile-lueur {
+    display: none !important;
   }
   .avatar-etoile-forme {
     transition: none;

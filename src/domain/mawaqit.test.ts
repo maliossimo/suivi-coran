@@ -26,7 +26,7 @@ function confFictive(retouche?: (c: ConfMawaqit) => void): ConfMawaqit {
 
 describe("page Mawaqit", () => {
   it("construit l'URL de la page d'une mosquée et refuse une adresse douteuse", () => {
-    expect(urlPageMawaqit("mosquee-exemple")).toBe("https://mawaqit.net/fr/m/mosquee-exemple");
+    expect(urlPageMawaqit("mosquee-exemple")).toBe("https://mawaqit.net/fr/mosquee-exemple");
     expect(() => urlPageMawaqit("../admin")).toThrow();
     expect(() => urlPageMawaqit("a?b=1")).toThrow();
   });
@@ -42,6 +42,11 @@ describe("page Mawaqit", () => {
       calendar: [{ "1": ["06:30"] }],
       txt: 'a " } b',
     });
+  });
+
+  it("lit aussi la version ordinateur de la page (let au lieu de var)", () => {
+    const html = `<script>let longitude = 2.5; let confData = {"times":["06:29"],"calendar":[]};</script>`;
+    expect(extraireConfData(html)).toEqual({ times: ["06:29"], calendar: [] });
   });
 
   it("renvoie null sans confData ou si le JSON est cassé", () => {
