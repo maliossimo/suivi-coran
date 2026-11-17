@@ -191,6 +191,7 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
       <span className="nav-pastille" ref={pastille} aria-hidden="true" />
       {/* Téléphone : les motifs de la frise s'allument en passant sous l'étoile. */}
       <span className="nav-frise-eclat" aria-hidden="true" />
+      <span className="nav-etoile-lueur" aria-hidden="true" />
       {[...principaux, ...secondaires].map((o) => {
         const actif = o.actif(chemin);
         const index = position(o);
