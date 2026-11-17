@@ -67,6 +67,21 @@ export function ApercuEleve({
       ouverte={eleve !== null}
       onFermer={onFermer}
       titre={eleve ? `${eleve.prenom} ${eleve.nom}`.trim() : "Élève"}
+      // Les boutons restent collés en bas : pas besoin de faire défiler sur téléphone.
+      pied={
+        eleve ? (
+          <div className="apercu-actions">
+            {aVoir ? (
+              <button type="button" className="bouton-secondaire" onClick={onEcouter}>
+                <Headphones size={18} aria-hidden="true" /> {aVoir} à écouter
+              </button>
+            ) : null}
+            <Link href={lienFiche} className="bouton" onClick={onFermer}>
+              Ouvrir sa fiche <ChevronRight size={18} aria-hidden="true" />
+            </Link>
+          </div>
+        ) : null
+      }
     >
       {donnees === "erreur" ? (
         <p className="message-erreur">L’aperçu n’a pas pu être chargé. Ouvre sa fiche.</p>
@@ -159,17 +174,6 @@ export function ApercuEleve({
               </ul>
             </section>
           ) : null}
-
-          <div className="apercu-actions">
-            {aVoir ? (
-              <button type="button" className="bouton-secondaire" onClick={onEcouter}>
-                <Headphones size={18} aria-hidden="true" /> {aVoir} à écouter
-              </button>
-            ) : null}
-            <Link href={lienFiche} className="bouton" onClick={onFermer}>
-              Ouvrir sa fiche <ChevronRight size={18} aria-hidden="true" />
-            </Link>
-          </div>
         </div>
       )}
     </Feuille>

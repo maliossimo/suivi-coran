@@ -1,3 +1,4 @@
+import { DateHegirienneBarre } from "./DateHegirienne";
 import Link from "next/link";
 import { LogoEtoile } from "./logo/LogoEtoile";
 /**
@@ -24,7 +25,7 @@ export function Chargement({
               <LogoEtoile />
             </span>
             <div className="barre-titres">
-              <span className="barre-app">Suivi cours Coran</span>
+              <DateHegirienneBarre />
               <span className="barre-titre">{titre}</span>
             </div>
           </Link>

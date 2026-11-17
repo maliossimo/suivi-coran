@@ -14789,3 +14789,70 @@ ul.apercu-liste li {
     font-size: 14px;
   }
 }
+
+/* Date hégirienne dans la barre du haut */
+.barre-hegire {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 640px) {
+  .barre-hegire-ar {
+    display: none;
+  }
+}
+
+/* Cartes de la classe compactes sur téléphone : une flèche de tendance à la place de la courbe */
+.carte-eleve-fleche {
+  display: none;
+  grid-area: courbe;
+  align-self: start;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 99px;
+}
+.fleche-hausse {
+  color: var(--vert-texte);
+  background: var(--vert-clair);
+}
+.fleche-stable {
+  color: var(--texte-doux);
+  background: var(--surface-2);
+}
+.fleche-baisse {
+  color: var(--rouge);
+  background: color-mix(in srgb, var(--rouge) 14%, transparent);
+}
+@media (max-width: 480px) {
+  .liste-eleves .carte-eleve {
+    gap: 2px 12px;
+    padding: 10px 12px;
+  }
+  .liste-eleves .courbe-quinzaine {
+    display: none;
+  }
+  .liste-eleves .carte-eleve-fleche {
+    display: grid;
+  }
+  .liste-eleves .carte-eleve-nom {
+    gap: 2px 8px;
+    font-size: 15px;
+  }
+  .liste-eleves .carte-eleve-nom small {
+    flex-basis: 100%;
+    font-size: 12.5px;
+  }
+  .liste-eleves .carte-eleve-stats {
+    gap: 2px 10px;
+    font-size: 12.5px;
+  }
+}
+:where(:root[data-theme="sombre"], :root[data-theme="nuit"]) .fleche-hausse {
+  background: rgba(93, 202, 165, 0.14);
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .fleche-hausse {
+    background: rgba(93, 202, 165, 0.14);
+  }
+}

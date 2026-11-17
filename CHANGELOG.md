@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.49.0] — 2026-11-17
+
+### Ajouté
+
+- Date hégirienne du jour dans la barre du haut, pour tous les profils (élève, Cheikh, admin) : « 7 Joumada ath-thania 1448 », et en arabe sur les écrans larges. Calendrier Umm al-Qura (La Mecque) : il peut y avoir un jour d'écart avec l'annonce de ta mosquée.
+
+### Modifié
+
+- Aperçu d'un élève : les boutons « à écouter » et « Ouvrir sa fiche » restent collés en bas, sans faire défiler.
+- Classe du Cheikh sur téléphone : cartes plus compactes, une flèche (hausse, stable, baisse sur 7 jours) remplace la petite courbe.
+
 ## [1.48.1] — 2026-11-17
 
 ### Corrigé

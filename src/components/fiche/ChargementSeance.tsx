@@ -1,5 +1,6 @@
 "use client";
 
+import { DateHegirienneBarre } from "@/components/DateHegirienne";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -41,7 +42,7 @@ export function ChargementSeance({ titreBarre }: { titreBarre: string }) {
               <LogoEtoile />
             </span>
             <div className="barre-titres">
-              <span className="barre-app">Suivi cours Coran</span>
+              <DateHegirienneBarre />
               <span className="barre-titre">{titreBarre}</span>
             </div>
           </Link>
