@@ -3,7 +3,14 @@
 import { Ellipsis, ScrollText, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLayoutEffect, useRef, useState, type ComponentType, type RefObject } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type CSSProperties,
+  type RefObject,
+} from "react";
 import { Feuille } from "./Feuille";
 import { CHOIX, useChoix } from "./RetenirChoix";
 import {
@@ -16,6 +23,7 @@ import {
   IconePresences,
   IconeProgression,
 } from "./IconesNav";
+import { titreArabe } from "@/domain/ciel";
 import type { Role } from "@/domain/roles";
 
 type Icone =
@@ -66,7 +74,7 @@ const ONGLETS: Record<Role, Onglet[]> = {
       icone: "progression",
       actif: commence("/eleve/progression"),
     },
-    COMPTE,
+    // « Mon compte » : l'avatar en haut à droite (la barre garde trois onglets, le Coran au centre).
   ],
   maitre: [
     {
@@ -117,6 +125,24 @@ const ICONES: Record<Icone, IconeComposant> = {
   nouveautes: Sparkles,
 };
 
+/** Nom arabe court d'un onglet (sous le nom français, sur téléphone). */
+function arabeOnglet(libelle: string): string {
+  return libelle === "Coran" ? "القرآن" : (titreArabe(libelle) ?? "");
+}
+
+/**
+ * Barre du téléphone : le Coran (sinon la page d'accueil du rôle) devient le mihrab, au centre de la barre
+ * quand le nombre de places est impair (« Plus » compte pour une place).
+ */
+function disposer(onglets: Onglet[], avecPlus: boolean): { principaux: Onglet[]; mihrab: Onglet | null } {
+  const places = onglets.length + (avecPlus ? 1 : 0);
+  const mihrab = onglets.find((o) => o.icone === "coran") ?? onglets[0] ?? null;
+  if (!mihrab || places < 3 || places % 2 === 0) return { principaux: onglets, mihrab: null };
+  const autres = onglets.filter((o) => o !== mihrab);
+  autres.splice(Math.floor(places / 2), 0, mihrab);
+  return { principaux: autres, mihrab };
+}
+
 /** Le Cheikh responsable de sa mosquée : ses élèves, sa mosquée et les présences. */
 const RESPONSABLE: Onglet[] = [
   {
@@ -151,10 +177,12 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
       : href === "/maitre" && classeCheikh && /^[0-9a-f-]{36}$/i.test(classeCheikh)
         ? `/maitre?groupe=${classeCheikh}`
         : href;
-  const principaux = onglets.filter((o) => !o.secondaire);
   const secondaires = onglets.filter((o) => o.secondaire);
+  // Ordre de l'ordinateur inchangé ; sur téléphone, le mihrab passe au centre (propriété CSS « order »).
+  const principaux = onglets.filter((o) => !o.secondaire);
+  const { principaux: surTelephone, mihrab } = disposer(principaux, secondaires.length > 0);
   // Position sur la barre du téléphone : un onglet rangé dans « Plus » est à la place de « Plus ».
-  const position = (o: Onglet) => (o.secondaire ? principaux.length : principaux.indexOf(o));
+  const position = (o: Onglet) => (o.secondaire ? principaux.length : surTelephone.indexOf(o));
   const ongletActif = onglets.find((o) => o.actif(chemin));
   const indexActif = ongletActif ? position(ongletActif) : -1;
   const plusActif = Boolean(ongletActif?.secondaire);
@@ -170,8 +198,15 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
           <Link
             key={o.href}
             href={adresse(o.href)}
-            className={o.secondaire ? "nav-onglet nav-secondaire" : "nav-onglet"}
+            className={
+              o.secondaire
+                ? "nav-onglet nav-secondaire"
+                : o === mihrab
+                  ? "nav-onglet nav-mihrab"
+                  : "nav-onglet"
+            }
             aria-current={actif ? "page" : undefined}
+            style={o.secondaire ? undefined : ({ "--ordre": index } as CSSProperties)}
             prefetch
             onClick={() => {
               // La page suivante arrive du côté de l'onglet touché.
@@ -180,6 +215,9 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
           >
             <IconeOnglet size={22} strokeWidth={1.9} aria-hidden="true" />
             <span>{o.libelle}</span>
+            <small className="nav-ar" lang="ar" aria-hidden="true">
+              {arabeOnglet(o.libelle)}
+            </small>
           </Link>
         );
       })}
@@ -225,6 +263,9 @@ function MenuPlus({
       >
         <Ellipsis size={22} strokeWidth={1.9} aria-hidden="true" />
         <span>Plus</span>
+        <small className="nav-ar" lang="ar" aria-hidden="true">
+          المزيد
+        </small>
       </button>
       <Feuille ouverte={ouvert} onFermer={() => setOuvert(false)} titre="Plus">
         <ul className="menu-plus-nav">

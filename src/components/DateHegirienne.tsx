@@ -1,46 +1,5 @@
 import type { ElementType } from "react";
-import { dateHegirienne, libelleHegirien, libelleHegirienArabe, moisHegiriensDuMois } from "@/domain/hegire";
-
-/** Jour d'aujourd'hui à Paris (AAAA-MM-JJ). */
-function aujourdhui(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(new Date());
-}
-
-const JOUR_SEMAINE = new Intl.DateTimeFormat("fr-FR", { weekday: "short", timeZone: "UTC" });
-const JOUR_COURT = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-/**
- * Bandeau fin sous la barre du haut (tous les profils), centré :
- * « 17 nov. 2026 · 7 Joumada ath-thania 1448 · ٧ جمادى الآخرة ١٤٤٨ هـ ».
- * Il n'est pas collé en haut : il part avec la page quand on fait défiler.
- */
-export function BandeauDates() {
-  const jour = aujourdhui();
-  const midi = new Date(`${jour}T12:00:00Z`);
-  const semaine = JOUR_SEMAINE.format(midi).replace(/^./, (c) => c.toUpperCase());
-  const d = dateHegirienne(jour);
-  return (
-    <p className="bandeau-dates" suppressHydrationWarning>
-      <span className="bandeau-semaine">{semaine} </span>
-      {JOUR_COURT.format(midi)}
-      {d ? (
-        <>
-          <span className="bandeau-point"> · </span>
-          {libelleHegirien(d)}
-          <span className="bandeau-point"> · </span>
-          <span className="bandeau-ar" lang="ar" dir="rtl">
-            {libelleHegirienArabe(d)}
-          </span>
-        </>
-      ) : null}
-    </p>
-  );
-}
+import { moisHegiriensDuMois } from "@/domain/hegire";
 
 /**
  * Titre d'un mois avec, dessous, les mois hégiriens qu'il couvre (phonétique et arabe) :
