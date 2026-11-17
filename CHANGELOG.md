@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.51.3] — 2026-11-17
+
+### Corrigé
+
+- Titre de la barre du haut : le titre calligraphié ou son nom français pouvait rester invisible après son animation d'arrivée (Chrome ne le redessinait pas). Il glisse maintenant depuis la droite en apparaissant.
+
 ## [1.51.2] — 2026-11-17
 
 ### Modifié

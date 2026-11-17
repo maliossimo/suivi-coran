@@ -15265,7 +15265,7 @@ ul.apercu-liste li {
   font-weight: 700;
   line-height: 1.2;
   color: var(--ciel-or);
-  animation: calame-trace 1s cubic-bezier(0.3, 0.7, 0.2, 1) both;
+  animation: calame-trace 0.7s cubic-bezier(0.3, 0.7, 0.2, 1) both;
 }
 .barre-titre-fr {
   font-family: var(--font-inter, system-ui), sans-serif;
@@ -15275,14 +15275,16 @@ ul.apercu-liste li {
   text-transform: uppercase;
   color: var(--ciel-texte-doux);
 }
+/* Arrivée de la calligraphie : elle glisse depuis la droite (sens de l'écriture) en apparaissant.
+   (Pas de découpe animée : Chrome oubliait parfois de redessiner le titre à la fin, il restait invisible.) */
 @keyframes calame-trace {
   from {
-    clip-path: inset(0 0 0 100%);
-    opacity: 0.2;
+    opacity: 0;
+    transform: translateX(10px);
   }
   to {
-    clip-path: inset(0 0 0 0);
     opacity: 1;
+    transform: none;
   }
 }
 .barre-vivante .barre-salutation,
