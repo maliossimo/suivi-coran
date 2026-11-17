@@ -9,6 +9,18 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.53.0] — 2026-11-17
+
+### Ajouté
+
+- Horaires de la mosquée : le ciel suit les heures exactes du calendrier de la mosquée (importé de Mawaqit : Fajr, Chourouq, Dhuhr, Asr, Maghrib, Icha) ; sans calendrier, le calcul reste en secours. Calendrier de la mosquée de Lieusaint importé.
+
+### Modifié
+
+- Un vrai ciel : dégradé du haut vers l'horizon, accordé au thème (clair ou sombre). La nuit, le ciel est noir, même en version claire.
+- Soleil et lune dessinés : lueur chaude et disque clair pour le soleil (orangé à l'aube et au Maghrib), lune modelée avec ses mers et une lueur argentée.
+- Fondu sous la barre : long et progressif, il part de la couleur exacte du bas de la barre et passe derrière le contenu (les textes restent nets).
+
 ## [1.52.0] — 2026-11-17
 
 ### Ajouté
