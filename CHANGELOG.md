@@ -9,7 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
-## [1.57.0] — 2026-11-17
+## [1.58.0] — 2026-11-17
+
+### Modifié
+
+- Nouvelle identité « nuit dorée », dans toute l'appli :
+  - toute la page prend l'ambiance du moment : rose et violet à l'aube, doré le jour, ambre et cuivre au Maghrib, vert profond la nuit (doré sur le parchemin en thème clair) ;
+  - fond et cartes en dégradés, liseré doré discret, mosquée en filigrane dans les grandes cartes, boutons principaux en dégradé vert bordé d'or ;
+  - barre du haut : ville bordée d'or aux fenêtres allumées, croissant doré, et la ville se tient derrière la ligne des dates (plus rien n'est écrit sur un minaret) ; sous la barre, un filet doré et un losange ;
+  - barre du bas : une vague de lumière dorée avec des reflets et des étincelles remplace la frise ; l'arche du Coran est plus basse et plus discrète ; l'onglet choisi a sa niche et un trait de lumière ; chaque onglet porte son nom arabe calligraphié sous le nom français.
+
+— 2026-11-17
 
 ### Modifié
 
