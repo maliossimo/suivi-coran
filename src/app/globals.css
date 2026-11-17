@@ -14856,3 +14856,14 @@ ul.apercu-liste li {
     background: rgba(93, 202, 165, 0.14);
   }
 }
+
+/* Pied de l'aperçu : les deux boutons prennent toute la largeur, sur une ligne */
+.feuille-pied .apercu-actions {
+  flex: 1 1 100%;
+  flex-wrap: nowrap;
+}
+.feuille-pied .apercu-actions > * {
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
+}
