@@ -242,10 +242,17 @@ select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 select public.enregistrer_seance('2026-11-06', 'revision', 10::smallint, null, null,
   '[{"sourateDebut":67,"versetDebut":1,"sourateFin":67,"versetFin":10},
     {"sourateDebut":68,"versetDebut":1,"sourateFin":68,"versetFin":5}]'::jsonb);
-select pg_temp.doit_echouer(
-  $q$select public.valider_seance((select id from public.seances where date = '2026-11-06'
-       and eleve_id = 'a0000000-0000-0000-0000-000000000001'))$q$,
-  'validation : l''élève ne peut pas valider sa propre séance');
+-- L'élève (majeur) valide lui-même sa séance après son passage chez le Cheikh.
+select public.valider_seance((select id from public.seances where date = '2026-11-06'
+       and eleve_id = 'a0000000-0000-0000-0000-000000000001'));
+select pg_temp.attendu(
+  (select bool_and(p.valide_le is not null and p.valide_par = 'a0000000-0000-0000-0000-000000000001')
+     from public.passages p join public.seances s on s.id = p.seance_id
+    where s.date = '2026-11-06' and s.eleve_id = 'a0000000-0000-0000-0000-000000000001'),
+  'validation : l''élève valide lui-même sa séance, en son nom');
+-- (on revient à « pas encore passé » pour la suite des tests)
+select public.marquer_passages((select id from public.seances where date = '2026-11-06'
+       and eleve_id = 'a0000000-0000-0000-0000-000000000001'), 'aucun');
 select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
 select pg_temp.doit_echouer(
   $q$select public.valider_seance('5e000000-0000-0000-0000-0000000000a1')$q$,
