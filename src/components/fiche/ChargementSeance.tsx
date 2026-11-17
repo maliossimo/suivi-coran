@@ -1,6 +1,6 @@
 "use client";
 
-import { DateHegirienneBarre } from "@/components/DateHegirienne";
+import { BandeauDates } from "@/components/DateHegirienne";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -42,11 +42,12 @@ export function ChargementSeance({ titreBarre }: { titreBarre: string }) {
               <LogoEtoile />
             </span>
             <div className="barre-titres">
-              <DateHegirienneBarre />
+              <span className="barre-app">Suivi cours Coran</span>
               <span className="barre-titre">{titreBarre}</span>
             </div>
           </Link>
         </div>
+        <BandeauDates />
       </header>
       <main className="espace espace-etroit" aria-busy="true" aria-live="polite">
         <span className="visuellement-cache">Chargement de la séance…</span>

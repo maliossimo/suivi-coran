@@ -14790,25 +14790,45 @@ ul.apercu-liste li {
   }
 }
 
-/* Date hégirienne dans la barre du haut */
-.barre-hegire {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Bandeau des dates sous la barre du haut : fin, centré, il part avec la page au défilement */
+.bandeau-dates {
+  margin: 0;
+  padding: 4px 12px 6px;
+  border-top: 1px solid rgba(214, 175, 92, 0.35);
+  background: rgba(0, 0, 0, 0.14);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
 }
-.barre-hegire-ar {
+.bandeau-point {
+  color: #e9c873;
+}
+.bandeau-ar {
   unicode-bidi: isolate;
 }
-/* Téléphone : sans le jour de la semaine, et la date arabe sur sa propre ligne */
 @media (max-width: 640px) {
-  .barre-semaine,
-  .barre-hegire-sep {
+  .bandeau-semaine {
     display: none;
   }
-  .barre-hegire-ar {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .barre-contenu {
+    flex-wrap: nowrap;
+  }
+  .barre-titres {
+    flex: 1 1 auto;
+  }
+}
+/* Téléphone : barre plus basse (la place va au contenu) */
+@media (max-width: 480px) {
+  .barre-contenu {
+    padding: 8px 14px;
+  }
+  .barre-app {
+    display: none;
+  }
+  .bandeau-dates {
+    padding: 3px 10px 5px;
+    font-size: 11.5px;
   }
 }
 
