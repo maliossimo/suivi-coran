@@ -20,10 +20,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # PR main → prod : si ce contenu exact a déjà tout passé sur sa PR vers main, inutile de tout relancer.
+  deja:
+    name: Déjà vérifié sur main ?
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: read
+    outputs:
+      verifie: ${{ steps.v.outputs.verifie }}
+    steps:
+      - uses: actions/checkout@v7
+        if: github.event_name == 'pull_request' && github.base_ref == 'prod'
+      - id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+          R: ${{ github.repository }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.base_ref }}" = "prod" ]; then
+            echo "verifie=$(scripts/deja-verifie.sh "${{ github.event.pull_request.head.sha }}")" >> "$GITHUB_OUTPUT"
+          else
+            echo "verifie=non" >> "$GITHUB_OUTPUT"
+          fi
+
   bout-en-bout:
     name: Parcours complets (navigateur)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    needs: deja
+    if: needs.deja.outputs.verifie != 'oui'
     # Écriture seulement pour enregistrer de nouvelles captures de référence (lancement à la main).
     permissions:
       contents: write
@@ -99,3 +125,23 @@ jobs:
           name: bout-en-bout
           path: e2e/resultats/
           retention-days: 14
+
+  # PR vers main réussie : on note sur sa tête la base sur laquelle elle a été vérifiée (lu par « deja »).
+  verifie:
+    name: Noter le contenu vérifié
+    runs-on: ubuntu-latest
+    needs: [bout-en-bout]
+    if: github.event_name == 'pull_request' && github.base_ref == 'main' && !inputs.captures && success()
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - name: Statut « Contenu vérifié (bout en bout) »
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
+            -f state=success -f context="Contenu vérifié (bout en bout)" -f description="$(git rev-parse HEAD^1)"

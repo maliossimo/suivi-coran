@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.50.3] — 2026-11-17
+
+### Interne
+
+- Mise en production plus rapide : la PR `main` → `prod` ne relance pas les vérifications quand la tête de `main` est exactement le contenu déjà vérifié sur sa PR (même base, même tête). Dans tous les autres cas, tout tourne comme avant. Rien ne change dans l'appli.
+
 ## [1.50.2] — 2026-11-17
 
 ### Corrigé
