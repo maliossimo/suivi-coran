@@ -7,6 +7,8 @@ export interface RecitationAffichee {
   style: string;
   /** Vrai : un fichier par verset, le texte suit la récitation. */
   suivi: boolean;
+  /** Écoute seulement : le texte ne suit pas la voix (fichiers mal découpés). */
+  ecouteSeule: boolean;
   source: string;
   mots: string | null;
   dossier: string | null;

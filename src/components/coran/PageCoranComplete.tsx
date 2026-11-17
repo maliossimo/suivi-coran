@@ -7,6 +7,7 @@ import { EnteteEspace } from "@/components/EnteteEspace";
 import { chiffresArabes } from "@/domain/coran";
 import { LIBELLE_LECTURE } from "@/domain/lectures";
 import type { Role } from "@/domain/roles";
+import type { MotARevoir } from "@/domain/essais";
 import type { PageCoran } from "@/services/coran";
 
 /**
@@ -20,6 +21,7 @@ export function PageCoranComplete({
   role,
   choixLecture,
   reciterInitial = null,
+  aRevoir = [],
 }: {
   p: PageCoran;
   base: string;
@@ -27,6 +29,8 @@ export function PageCoranComplete({
   role: Role;
   choixLecture: boolean;
   reciterInitial?: { du: number; au: number } | null;
+  /** Mots ratés en récitant (toutes sourates) : soulignés sur la page, listés sous le texte. */
+  aRevoir?: MotARevoir[];
 }) {
   const lienSourate = (lecture: string, sourate: number) => `${base}?lecture=${lecture}&sourate=${sourate}`;
   const lienPage = (lecture: string, page: number) => `${base}?lecture=${lecture}&vue=page&page=${page}`;
@@ -88,6 +92,7 @@ export function PageCoranComplete({
           vue={p.vue}
           blocs={p.blocs}
           lignes={p.lignes}
+          aRevoir={aRevoir.filter((m) => p.blocs.some((b) => b.sourate === m.sourate))}
           passageInitial={p.passage}
           correspondance={p.correspondance}
           recitations={p.recitations}

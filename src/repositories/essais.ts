@@ -38,3 +38,28 @@ export async function listerMesEssais(eleveId: string, lecture: Lecture, sourate
     quand: r.cree_le as string,
   }));
 }
+
+/** Les derniers essais de la personne connectée, toutes sourates (mots à revoir). */
+export async function listerMesEssaisRecents(
+  eleveId: string,
+  lecture: Lecture,
+  nombre = 300,
+): Promise<Essai[]> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("essais_recitation")
+    .select("sourate, du, au, score, fautes, cree_le")
+    .eq("eleve_id", eleveId)
+    .eq("lecture", lecture)
+    .order("cree_le", { ascending: false })
+    .limit(nombre);
+  if (error) throw new Error(`Lecture des essais impossible : ${error.message}`);
+  return (data ?? []).map((r) => ({
+    sourate: r.sourate as number,
+    du: r.du as number,
+    au: r.au as number,
+    score: r.score as number,
+    fautes: (Array.isArray(r.fautes) ? r.fautes : []) as FauteEssai[],
+    quand: r.cree_le as string,
+  }));
+}

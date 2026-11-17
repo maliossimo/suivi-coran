@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { profilConnecte } from "@/repositories/profils";
+import { notifier } from "./notification";
 import {
   changerEcoute,
   declarerAcquis,
@@ -28,7 +29,10 @@ function revalider(eleveId?: string) {
 export async function actionDeclarerAcquis(donnees: unknown): Promise<ResultatAcquis> {
   const profil = await acteur();
   const r = await declarerAcquis(profil, donnees);
-  if (r.ok) revalider();
+  if (r.ok) {
+    revalider();
+    await notifier("C’est noté : ta progression est à jour");
+  }
   return r;
 }
 
@@ -42,7 +46,10 @@ export async function actionPasserAcquis(): Promise<void> {
 export async function actionRetirerAcquis(id: unknown): Promise<ResultatAcquis> {
   const profil = await acteur();
   const r = await retirerUnAcquis(profil, id);
-  if (r.ok) revalider();
+  if (r.ok) {
+    revalider();
+    await notifier("Partie retirée");
+  }
   return r;
 }
 
@@ -61,6 +68,9 @@ export async function actionMarquerAcquis(
 ): Promise<ResultatAcquis> {
   const profil = await acteur();
   const r = await marquerUnAcquis(profil, id, etat);
-  if (r.ok) revalider(typeof eleveId === "string" ? eleveId : undefined);
+  if (r.ok) {
+    revalider(typeof eleveId === "string" ? eleveId : undefined);
+    await notifier("C’est noté");
+  }
   return r;
 }

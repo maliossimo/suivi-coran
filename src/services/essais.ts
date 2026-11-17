@@ -1,7 +1,14 @@
 import "server-only";
 import { z } from "zod";
-import { essaisDuPassage, motsDifficiles, type MotDifficile } from "@/domain/essais";
-import { enregistrerEssai, listerMesEssais } from "@/repositories/essais";
+import {
+  essaisDuPassage,
+  motsARevoir,
+  motsDifficiles,
+  type MotARevoir,
+  type MotDifficile,
+} from "@/domain/essais";
+import type { Lecture } from "@/domain/lectures";
+import { enregistrerEssai, listerMesEssais, listerMesEssaisRecents } from "@/repositories/essais";
 import { noterUsageCoran } from "@/repositories/usagesCoran";
 import type { Profil } from "@/repositories/profils";
 import { peutOuvrirCoran } from "@/services/coran";
@@ -60,4 +67,11 @@ export async function historiquePassage(profil: Profil | null, brut: unknown): P
       .map((e) => ({ score: e.score, quand: e.quand })),
     difficiles: motsDifficiles(essais, p.data.sourate),
   };
+}
+
+/** Les mots à revoir de la personne connectée (ratés en récitant, pas encore réussis deux fois depuis). */
+export async function chargerMotsARevoir(profil: Profil | null, lecture: Lecture): Promise<MotARevoir[]> {
+  if (!profil || !peutOuvrirCoran(profil)) return [];
+  const essais = await listerMesEssaisRecents(profil.id, lecture).catch(() => []);
+  return motsARevoir(essais);
 }

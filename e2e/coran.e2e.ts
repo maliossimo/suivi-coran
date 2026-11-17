@@ -47,6 +47,17 @@ test.describe("Coran (admin)", () => {
     await capture(page, "42-coran-panneau-tajwid");
     await panneau.getByRole("button", { name: "Toutes", exact: true }).click();
     await expect(page.locator(".coran-page")).not.toHaveClass(/sans-tj-/);
+    await page.keyboard.press("Escape");
+
+    // Recherche : des mots arabes sans voyelles trouvent le verset du Trône.
+    await page.getByRole("button", { name: "Rechercher dans le Coran" }).click();
+    const recherche = page.getByRole("dialog");
+    await recherche.getByRole("searchbox").fill("الكرسي");
+    const resultat = recherche.getByRole("link", { name: /2:255/ });
+    await expect(resultat).toBeVisible();
+    await capture(page, "43-coran-recherche");
+    await resultat.click();
+    await expect(page).toHaveURL(/sourate=2&du=255&au=255/);
   });
 
   test("toucher un verset ouvre ses actions, sans faire défiler la page", async ({ page }) => {

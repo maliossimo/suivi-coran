@@ -1,6 +1,7 @@
 import { PageCoranComplete } from "@/components/coran/PageCoranComplete";
 import { exigerEleveAvecLecture } from "@/services/acces";
 import { chargerPageCoran } from "@/services/coran";
+import { chargerMotsARevoir } from "@/services/essais";
 
 export const metadata = { title: "Coran" };
 
@@ -11,6 +12,7 @@ export default async function PageLireCoran({
 }) {
   const [profil, params] = await Promise.all([exigerEleveAvecLecture(), searchParams]);
   const p = await chargerPageCoran(profil, params);
+  const aRevoir = await chargerMotsARevoir(profil, p.lecture);
   const du = Number(params.du);
   const au = Number(params.au);
   const reciterInitial =
@@ -25,6 +27,7 @@ export default async function PageLireCoran({
       role={profil.role}
       choixLecture={profil.role === "admin"}
       reciterInitial={reciterInitial}
+      aRevoir={aRevoir}
     />
   );
 }

@@ -22,7 +22,10 @@ async function connecte() {
 /** Appel (aussi rejoué au retour du réseau) : données en JSON, pas de redirection. */
 export async function actionEnregistrerAppel(donnees: unknown): Promise<{ ok: boolean; erreur?: string }> {
   const r = await enregistrerUnAppel(await connecte(), donnees);
-  if (r.ok) revalidatePath("/presences", "layout");
+  if (r.ok) {
+    revalidatePath("/presences", "layout");
+    await notifier("Appel enregistré");
+  }
   return r.ok ? { ok: true } : { ok: false, erreur: r.erreur };
 }
 

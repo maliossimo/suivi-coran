@@ -3,6 +3,7 @@ import { z } from "zod";
 import { BASMALA, aBasmala, juzDePage, marquerIzhar, type SegmentTajwid } from "@/domain/coran";
 import { lireLecture, type Lecture } from "@/domain/lectures";
 import { lireLigne, type LigneMushaf } from "@/domain/mushaf";
+import { rechercher } from "@/domain/rechercheCoran";
 import type { Sourate } from "@/domain/versets";
 import {
   correspondanceWarsh,
@@ -133,6 +134,7 @@ export async function chargerPageCoran(
       nom: r.nom,
       style: r.style,
       suivi: false,
+      ecouteSeule: false,
       source: r.serveur,
       mots: null,
       dossier: null,
@@ -209,4 +211,40 @@ export async function chargerSourateSuivante(
   if (!n.success || !l.success || !peutOuvrirCoran(acteur)) return null;
   const page = await chargerPageCoran(acteur, { lecture: l.data, sourate: String(n.data + 1) });
   return page.blocs[0] ?? null;
+}
+
+export type ResultatCoran =
+  | { type: "sourate"; sourate: number; nomLatin: string; nomAr: string; nbVersets: number }
+  | { type: "verset"; sourate: number; nomLatin: string; verset: number; texte: string; mots: number[] };
+
+/** Recherche dans le Coran (référence, nom de sourate, mots arabes) : 40 résultats au plus. */
+export async function rechercherDansLeCoran(
+  acteur: Profil,
+  lectureBrute: unknown,
+  requeteBrute: unknown,
+): Promise<ResultatCoran[]> {
+  const l = z.enum(["hafs", "warsh"]).safeParse(lectureBrute);
+  const q = z.string().trim().min(1).max(80).safeParse(requeteBrute);
+  if (!l.success || !q.success || !peutOuvrirCoran(acteur)) return [];
+  const lecture = acteur.role === "eleve" ? lireLecture(acteur.lecture ?? "hafs") : l.data;
+  const sourates = await listerSourates(lecture);
+  const textes = new Map(
+    await Promise.all(
+      sourates.map(async (s) => [s.numero, await versetsSourate(lecture, s.numero)] as const),
+    ),
+  );
+  const parNumero = new Map(sourates.map((s) => [s.numero, s]));
+  return rechercher(q.data, sourates, (s) => textes.get(s) ?? []).map((r) => {
+    const s = parNumero.get(r.sourate)!;
+    return r.type === "sourate"
+      ? { type: "sourate", sourate: s.numero, nomLatin: s.nomLatin, nomAr: s.nomAr, nbVersets: s.nbVersets }
+      : {
+          type: "verset",
+          sourate: s.numero,
+          nomLatin: s.nomLatin,
+          verset: r.verset,
+          texte: r.texte,
+          mots: r.mots,
+        };
+  });
 }
