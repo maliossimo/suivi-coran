@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  adresseMawaqitDepuis,
   extraireConfData,
   heureEnMinutes,
   horairesDepuisConf,
@@ -53,6 +54,26 @@ describe("page Mawaqit", () => {
     expect(extraireConfData("<html>rien</html>")).toBeNull();
     expect(extraireConfData('var confData = {"a": };')).toBeNull();
     expect(extraireConfData('var confData = {"a": 1')).toBeNull();
+  });
+});
+
+describe("adresse collée par l'admin", () => {
+  it("reconnaît le lien de la page sous toutes ses formes", () => {
+    expect(adresseMawaqitDepuis("https://mawaqit.net/fr/m/mosquee-exemple")).toBe("mosquee-exemple");
+    expect(adresseMawaqitDepuis("https://mawaqit.net/fr/mosquee-exemple?view=desktop")).toBe(
+      "mosquee-exemple",
+    );
+    expect(adresseMawaqitDepuis("mawaqit.net/en/Mosquee-Exemple/")).toBe("mosquee-exemple");
+    expect(adresseMawaqitDepuis("https://www.mawaqit.net/m/mosquee-exemple")).toBe("mosquee-exemple");
+    expect(adresseMawaqitDepuis("  mosquee-exemple ")).toBe("mosquee-exemple");
+  });
+
+  it("refuse ce qui n'est pas une page de mosquée Mawaqit", () => {
+    expect(adresseMawaqitDepuis("")).toBeNull();
+    expect(adresseMawaqitDepuis("https://exemple.fr/fr/mosquee")).toBeNull();
+    expect(adresseMawaqitDepuis("https://mawaqit.net/fr/backoffice/login")).toBeNull();
+    expect(adresseMawaqitDepuis("mosquée de lieusaint")).toBeNull();
+    expect(adresseMawaqitDepuis("../admin")).toBeNull();
   });
 });
 

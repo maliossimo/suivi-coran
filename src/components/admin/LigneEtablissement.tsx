@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import {
   actionPlacerEtablissement,
+  actionRelierMawaqit,
   actionRenommerEtablissement,
   actionSupprimerEtablissement,
 } from "@/app/actions/admin";
@@ -23,6 +24,7 @@ export function LigneEtablissement({
   activite,
   classes = [],
   position = null,
+  mawaqit = null,
 }: {
   id: string;
   nom: string;
@@ -36,6 +38,8 @@ export function LigneEtablissement({
   classes?: { id: string; nom: string; jours: number[]; cheikhs: { nom: string }[]; nbMembres: number }[];
   /** Position de la mosquée (heures de prière du ciel de la barre), null si pas encore placée. */
   position?: { latitude: number; longitude: number } | null;
+  /** Page Mawaqit reliée (horaires mis à jour chaque mois), null sinon. */
+  mawaqit?: { adresse: string; importeLe: string | null; erreur: string | null } | null;
 }) {
   const [etatNom, renommer, renommage] = useActionState<EtatSaisie, FormData>(
     actionRenommerEtablissement,
@@ -113,6 +117,7 @@ export function LigneEtablissement({
         <Link href={`/maitre?classe=${id}`} className="lien-discret">
           Voir les élèves
         </Link>
+        <HorairesMawaqit id={id} mawaqit={mawaqit} />
         <PositionMosquee id={id} position={position} />
         <details>
           <summary className="lien-discret">Renommer</summary>
@@ -185,6 +190,58 @@ function MiniCourbe({ valeurs }: { valeurs: number[] }) {
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+const DATE_IMPORT = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Europe/Paris",
+});
+
+/**
+ * Horaires de la mosquée depuis Mawaqit : on colle le lien de sa page, les heures des prières de
+ * l'année sont importées tout de suite, puis mises à jour seules chaque mois (le ciel les suit).
+ */
+function HorairesMawaqit({
+  id,
+  mawaqit,
+}: {
+  id: string;
+  mawaqit: { adresse: string; importeLe: string | null; erreur: string | null } | null;
+}) {
+  const [etat, relier, enCours] = useActionState<EtatSaisie, FormData>(actionRelierMawaqit, {});
+  return (
+    <details>
+      <summary className="lien-discret">
+        {mawaqit?.importeLe ? "Horaires Mawaqit ✓" : "Horaires Mawaqit"}
+      </summary>
+      <form action={relier} className="formulaire-ligne formulaire-mawaqit">
+        <input type="hidden" name="id" value={id} />
+        <input
+          name="mawaqit"
+          inputMode="url"
+          defaultValue={mawaqit ? `https://mawaqit.net/fr/m/${mawaqit.adresse}` : ""}
+          placeholder="https://mawaqit.net/fr/m/ma-mosquee"
+          aria-label="Lien de la page de la mosquée sur Mawaqit"
+          autoComplete="off"
+        />
+        <button type="submit" className="bouton bouton-auto" disabled={enCours}>
+          {enCours ? "Import…" : "Enregistrer"}
+        </button>
+        {etat.erreur ? <p className="message-erreur">{etat.erreur}</p> : null}
+        <p className="carte-graphique-sous">
+          {mawaqit?.importeLe
+            ? `Importés le ${DATE_IMPORT.format(new Date(mawaqit.importeLe))} · mis à jour chaque mois.`
+            : mawaqit?.erreur
+              ? `Dernier import en échec : ${mawaqit.erreur}`
+              : "Colle le lien de la page de la mosquée sur mawaqit.net : le ciel suivra ses horaires."}{" "}
+          Vide : retire la page (le ciel revient au calcul).
+        </p>
+      </form>
+    </details>
   );
 }
 

@@ -9,6 +9,32 @@
 /** Adresse Mawaqit d'une mosquée (fin de l'URL de sa page), ex. « mosquee-de-lieusaint ». */
 export const MOTIF_ADRESSE_MAWAQIT = /^[a-z0-9-]{1,160}$/;
 
+/**
+ * Ce que l'admin colle (lien de la page, avec ou sans langue, « /m/ » ou non, ou l'adresse seule)
+ * → l'adresse de la mosquée ; null si ce n'est pas une page de mosquée Mawaqit.
+ */
+export function adresseMawaqitDepuis(saisie: string): string | null {
+  const brut = saisie.trim();
+  if (!brut) return null;
+  let chemin = brut;
+  if (/^(https?:\/\/)?(www\.)?mawaqit\.net(\/|$)/i.test(brut)) {
+    try {
+      const url = new URL(/^https?:/i.test(brut) ? brut : `https://${brut}`);
+      chemin = url.pathname;
+    } catch {
+      return null;
+    }
+    const morceaux = chemin.split("/").filter(Boolean);
+    // /fr/m/<adresse>, /fr/<adresse>, /m/<adresse>, /<adresse>
+    if (morceaux[0] && /^[a-z]{2}$/i.test(morceaux[0])) morceaux.shift();
+    if (morceaux[0] === "m") morceaux.shift();
+    if (morceaux.length !== 1) return null;
+    chemin = morceaux[0]!;
+  } else if (brut.includes("/") || brut.includes(".")) return null;
+  const adresse = decodeURIComponent(chemin).toLowerCase();
+  return MOTIF_ADRESSE_MAWAQIT.test(adresse) ? adresse : null;
+}
+
 export function urlPageMawaqit(adresse: string): string {
   if (!MOTIF_ADRESSE_MAWAQIT.test(adresse)) throw new Error("Adresse Mawaqit invalide");
   // Version ordinateur : c'est celle que Mawaqit sert à un serveur (la version mobile y redirige).

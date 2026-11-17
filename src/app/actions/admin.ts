@@ -11,6 +11,7 @@ import {
   reglerErreur,
   deplacerUnUtilisateur,
   placerUnEtablissement,
+  relierMawaqitEtablissement,
   renommerUnEtablissement,
   renvoyerUneInvitation,
   supprimerUnEtablissement,
@@ -104,6 +105,17 @@ export async function actionModeVueAdmin(form: FormData): Promise<void> {
   const profil = await admin();
   await choisirModeVueAdmin(profil, form.get("mode"));
   revalidatePath("/maitre", "layout");
+}
+
+export async function actionRelierMawaqit(_: EtatSaisie, form: FormData): Promise<EtatSaisie> {
+  const profil = await admin();
+  const resultat = await relierMawaqitEtablissement(profil, form.get("id"), form.get("mawaqit"));
+  revalidatePath("/admin");
+  if (!resultat.ok) return { erreur: resultat.erreur };
+  await notifier(
+    resultat.jours ? `Horaires de la mosquée importés (${resultat.jours} jours)` : "Page Mawaqit enregistrée",
+  );
+  return { enregistre: true };
 }
 
 export async function actionPlacerEtablissement(_: EtatSaisie, form: FormData): Promise<EtatSaisie> {
