@@ -112,6 +112,7 @@ export function ModeReciter({
   peutReduire = true,
   onTaille,
   reveler: revelerImpose = false,
+  motsARevoir = true,
 }: {
   sourate: number;
   nomSourate: string;
@@ -138,6 +139,8 @@ export function ModeReciter({
   onTaille?: (pas: 1 | -1) => void;
   /** Ouvert depuis la page cachée : les mots n'apparaissent qu'une fois récités. */
   reveler?: boolean;
+  /** Réglage du lecteur : afficher les mots à revoir de la sourate. */
+  motsARevoir?: boolean;
 }) {
   useFermerAuRetour(true, onFermer);
   const dernierVerset = versets.at(-1)?.n ?? depart;
@@ -445,7 +448,10 @@ export function ModeReciter({
   // Mots à revoir de la sourate (ratés lors des récitations, pas encore réussis deux fois).
   const [aRevoir, setARevoir] = useState<MotARevoir[]>([]);
   useEffect(() => {
-    if (etape !== "pret") return;
+    if (etape !== "pret" || !motsARevoir) {
+      setARevoir([]);
+      return;
+    }
     let actif = true;
     void actionMotsARevoir({ lecture, sourates: [sourate] })
       .then((r) => actif && setARevoir(r[sourate] ?? []))
@@ -453,7 +459,7 @@ export function ModeReciter({
     return () => {
       actif = false;
     };
-  }, [etape, lecture, sourate]);
+  }, [etape, lecture, sourate, motsARevoir]);
 
   // Avant de réciter : les essais précédents sur ce passage et les mots difficiles.
   useEffect(() => {
