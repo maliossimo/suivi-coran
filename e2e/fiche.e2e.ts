@@ -148,15 +148,16 @@ test.describe("Mode révision", () => {
     // La couleur donnée au toucher laisse la main à la page une fois la fiche affichée.
     await expect(page.locator("html")).not.toHaveAttribute("data-mode-force", /./);
     await expect(page.locator('.onglet-revision[aria-current="page"]')).toBeVisible();
-    // Barre d'état du téléphone en or : notre balise est la première theme-color du document.
-    await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute("id", "theme-color-fiche");
+    // Barre d'état du téléphone : elle suit le ciel de la barre du haut (même en révision).
+    await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute("id", "theme-color-ciel");
+    await expect(page.locator("#theme-color-fiche")).toHaveCount(0);
     await page.locator(".onglets .onglet-apprentissage").click();
     await expect(page).toHaveURL(/type=apprentissage/);
     await expect(page.locator(".mode-revision")).toHaveCount(0);
     await expect.poll(fond).toBe(vert);
     await expect(page.locator("html")).not.toHaveAttribute("data-mode-force", /./);
-    // La barre d'état du téléphone suit la fiche : la balise de la révision est retirée.
-    await expect(page.locator("#theme-color-fiche")).toHaveCount(0);
+    // La barre d'état suit toujours le ciel.
+    await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute("id", "theme-color-ciel");
   });
 });
 
