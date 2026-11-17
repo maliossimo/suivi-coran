@@ -15070,8 +15070,10 @@ ul.apercu-liste li {
   width: 360px;
   height: 138px;
 }
+.ciel-halo-degrade {
+  color: var(--ciel-halo);
+}
 .ciel-halo {
-  fill: var(--ciel-halo);
   opacity: var(--ciel-halo-opacite);
   animation: ciel-respire 8s ease-in-out infinite;
 }
@@ -15148,9 +15150,11 @@ ul.apercu-liste li {
   animation: ciel-flamme 2.2s ease-in-out infinite;
 }
 /* Jours particuliers */
+.ciel[data-particulier="vendredi"] .ciel-halo-degrade {
+  color: #e9c873;
+}
 .ciel[data-particulier="vendredi"] .ciel-halo {
-  fill: #e9c873;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 .ciel[data-particulier="jours-blancs"] .ciel-lune-halo {
   opacity: 0.3;
@@ -15721,5 +15725,8 @@ html[data-ouverture] .ouverture-calligraphie {
 }
 .barre-vivante .barre-identite,
 .barre-vivante .barre-nom small {
+  color: var(--ciel-texte);
+}
+.barre-vivante .barre-salutation-prenom {
   color: var(--ciel-texte);
 }

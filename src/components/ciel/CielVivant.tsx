@@ -128,7 +128,20 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
     <div className="ciel" data-moment={moment} data-particulier={fete ?? undefined} aria-hidden="true">
       <div className="ciel-motif" />
       <svg className="ciel-scene" viewBox="0 0 360 138">
-        <circle className="ciel-halo" cx={bas ? 268 : 246} cy={bas ? 108 : 48} r="74" />
+        <defs>
+          <radialGradient id="ciel-halo-degrade" className="ciel-halo-degrade">
+            <stop offset="0" stopColor="currentColor" stopOpacity="1" />
+            <stop offset="0.45" stopColor="currentColor" stopOpacity="0.45" />
+            <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <circle
+          className="ciel-halo"
+          cx={bas ? 268 : 246}
+          cy={bas ? 108 : 48}
+          r="80"
+          fill="url(#ciel-halo-degrade)"
+        />
         {moment === "jour" ? <circle className="ciel-soleil" cx="246" cy="48" r="10" /> : null}
         {bas ? <circle className="ciel-soleil-bas" cx="268" cy="108" r="13" /> : null}
         {!fixe && jourHegire !== null && moment !== "jour" ? <Lune jour={jourHegire} /> : null}
