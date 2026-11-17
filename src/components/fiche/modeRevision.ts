@@ -35,7 +35,9 @@ function sombre(): boolean {
  */
 export function colorerBarreEtat(type: TypeSeance): void {
   let balise = document.getElementById(ID_BALISE) as HTMLMetaElement | null;
-  if (type === "apprentissage") {
+  // Depuis la barre vivante (1.51), le haut de l'écran est le ciel : la barre d'état suit le ciel
+  // (CielDecor), la révision ne la colore plus.
+  if (type === "apprentissage" || document.querySelector(".barre-vivante")) {
     balise?.remove();
     return;
   }

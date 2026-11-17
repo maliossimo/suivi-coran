@@ -13,7 +13,7 @@ import { useSousTitreEntete } from "./SousTitreEntete";
  * et le petit arrive à sa place. Elle ne prend aucune place dans la page : rien ne saute.
  * Un toucher remonte en haut de la page, le logo fait un tour.
  */
-export function EnteteCompact({ titre }: { titre: string }) {
+export function EnteteCompact({ titre, nomPage }: { titre: string; nomPage?: string }) {
   const repere = useRef<HTMLSpanElement>(null);
   const [visible, setVisible] = useState(false);
   const [joue, setJoue] = useState(false);
@@ -83,7 +83,7 @@ export function EnteteCompact({ titre }: { titre: string }) {
                 {titreArabe(titre)}
               </span>
             ) : null}
-            {titre}
+            {nomPage ?? titre}
           </span>
           {sousTitre ? <span className="barre-compacte-sous-titre">{sousTitre}</span> : null}
         </span>
