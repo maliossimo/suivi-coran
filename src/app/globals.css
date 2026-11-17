@@ -14935,26 +14935,6 @@ ul.apercu-liste li {
   --nav-texte: #5b6660;
   --nav-or: #8a5f12;
 }
-.ciel[data-moment="fajr"] {
-  --ciel: #e9e2d8;
-  --ciel-halo: #e9a8a0;
-  --ciel-halo-opacite: 0.38;
-}
-.ciel[data-moment="jour"] {
-  --ciel: #f4ecd9;
-  --ciel-halo: #e9c873;
-  --ciel-halo-opacite: 0.4;
-}
-.ciel[data-moment="maghrib"] {
-  --ciel: #f3dcc3;
-  --ciel-halo: #e8955a;
-  --ciel-halo-opacite: 0.42;
-}
-.ciel[data-moment="nuit"] {
-  --ciel: #e3ded2;
-  --ciel-halo: #c9a24a;
-  --ciel-halo-opacite: 0.16;
-}
 
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-theme="clair"])) .barre-vivante {
@@ -14975,26 +14955,6 @@ ul.apercu-liste li {
     --nav-texte: #a9c9bb;
     --nav-or: #f0cf7a;
   }
-  :where(:root:not([data-theme="clair"])) .ciel[data-moment="fajr"] {
-    --ciel: #1d3b48;
-    --ciel-halo: #f0a7a0;
-    --ciel-halo-opacite: 0.35;
-  }
-  :where(:root:not([data-theme="clair"])) .ciel[data-moment="jour"] {
-    --ciel: #174d3b;
-    --ciel-halo: #e9c873;
-    --ciel-halo-opacite: 0.25;
-  }
-  :where(:root:not([data-theme="clair"])) .ciel[data-moment="maghrib"] {
-    --ciel: #5a3020;
-    --ciel-halo: #f2a65a;
-    --ciel-halo-opacite: 0.5;
-  }
-  :where(:root:not([data-theme="clair"])) .ciel[data-moment="nuit"] {
-    --ciel: #0b2a20;
-    --ciel-halo: #e9c873;
-    --ciel-halo-opacite: 0.12;
-  }
 }
 :where(:root[data-theme="sombre"]) .barre-vivante {
   --ciel-texte: #eef4f0;
@@ -15013,26 +14973,6 @@ ul.apercu-liste li {
   --nav-fond: #123c2e;
   --nav-texte: #a9c9bb;
   --nav-or: #f0cf7a;
-}
-:where(:root[data-theme="sombre"]) .ciel[data-moment="fajr"] {
-  --ciel: #1d3b48;
-  --ciel-halo: #f0a7a0;
-  --ciel-halo-opacite: 0.35;
-}
-:where(:root[data-theme="sombre"]) .ciel[data-moment="jour"] {
-  --ciel: #174d3b;
-  --ciel-halo: #e9c873;
-  --ciel-halo-opacite: 0.25;
-}
-:where(:root[data-theme="sombre"]) .ciel[data-moment="maghrib"] {
-  --ciel: #5a3020;
-  --ciel-halo: #f2a65a;
-  --ciel-halo-opacite: 0.5;
-}
-:where(:root[data-theme="sombre"]) .ciel[data-moment="nuit"] {
-  --ciel: #0b2a20;
-  --ciel-halo: #e9c873;
-  --ciel-halo-opacite: 0.12;
 }
 
 .barre.barre-vivante {
@@ -15858,4 +15798,139 @@ html[data-ouverture] .ouverture-calligraphie {
   .nav-mihrab:not([aria-current="page"]) > span {
     color: var(--nav-texte);
   }
+}
+
+/* ---------- Ciel réel (1.53) : dégradés du haut vers l'horizon, nuit noire, soleil et lune dessinés ---------- */
+.ciel[data-moment="fajr"] {
+  --ciel-haut: #c9d3df;
+  --ciel: #f1dccf;
+  --ciel-halo: #f0a7a0;
+  --ciel-halo-opacite: 0.35;
+}
+.ciel[data-moment="jour"] {
+  --ciel-haut: #ece2c8;
+  --ciel: #f6efdf;
+  --ciel-halo: #e9c873;
+  --ciel-halo-opacite: 0.35;
+}
+.ciel[data-moment="maghrib"] {
+  --ciel-haut: #e1cabb;
+  --ciel: #f3c79f;
+  --ciel-halo: #e8955a;
+  --ciel-halo-opacite: 0.4;
+}
+.ciel[data-moment="nuit"] {
+  --ciel-haut: #030507;
+  --ciel: #151a20;
+  --ciel-halo: #e9e2c8;
+  --ciel-halo-opacite: 0.1;
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .ciel[data-moment="fajr"] {
+    --ciel-haut: #0b1626;
+    --ciel: #4a4560;
+    --ciel-halo: #f0a7a0;
+    --ciel-halo-opacite: 0.35;
+  }
+  :where(:root:not([data-theme="clair"])) .ciel[data-moment="jour"] {
+    --ciel-haut: #0c3a2b;
+    --ciel: #2b6a53;
+    --ciel-halo: #e9c873;
+    --ciel-halo-opacite: 0.25;
+  }
+  :where(:root:not([data-theme="clair"])) .ciel[data-moment="maghrib"] {
+    --ciel-haut: #1a1020;
+    --ciel: #7a3d22;
+    --ciel-halo: #f2a65a;
+    --ciel-halo-opacite: 0.45;
+  }
+  :where(:root:not([data-theme="clair"])) .ciel[data-moment="nuit"] {
+    --ciel-haut: #000000;
+    --ciel: #0b1712;
+    --ciel-halo: #e9e2c8;
+    --ciel-halo-opacite: 0.08;
+  }
+}
+:where(:root[data-theme="sombre"]) .ciel[data-moment="fajr"] {
+  --ciel-haut: #0b1626;
+  --ciel: #4a4560;
+  --ciel-halo: #f0a7a0;
+  --ciel-halo-opacite: 0.35;
+}
+:where(:root[data-theme="sombre"]) .ciel[data-moment="jour"] {
+  --ciel-haut: #0c3a2b;
+  --ciel: #2b6a53;
+  --ciel-halo: #e9c873;
+  --ciel-halo-opacite: 0.25;
+}
+:where(:root[data-theme="sombre"]) .ciel[data-moment="maghrib"] {
+  --ciel-haut: #1a1020;
+  --ciel: #7a3d22;
+  --ciel-halo: #f2a65a;
+  --ciel-halo-opacite: 0.45;
+}
+:where(:root[data-theme="sombre"]) .ciel[data-moment="nuit"] {
+  --ciel-haut: #000000;
+  --ciel: #0b1712;
+  --ciel-halo: #e9e2c8;
+  --ciel-halo-opacite: 0.08;
+}
+.ciel {
+  background-color: var(--ciel);
+  background-image: linear-gradient(180deg, var(--ciel-haut, var(--ciel)) 0%, var(--ciel) 100%);
+}
+/* La nuit, même en version claire, le ciel est noir : textes clairs, ق crème. */
+.barre-vivante:has(.ciel[data-moment="nuit"]) {
+  --ciel-texte: #eef4f0;
+  --ciel-texte-doux: #c9dbd2;
+  --ciel-or: #f0cf7a;
+  --ciel-etoile: #f6eedb;
+  --ciel-ombre: #000000;
+  --frise-fond: #0b1210;
+}
+.barre-vivante:has(.ciel[data-moment="nuit"]) .logo-sur-vert .logo-etoile-lettre {
+  fill: #faf3e0;
+}
+/* Soleil et lune : une vraie lueur, un disque modelé, quelques mers sur la lune. */
+.ciel-soleil,
+.ciel-soleil-bas {
+  fill: none;
+}
+.ciel-lune-disque {
+  fill: url(#lune-modele);
+}
+.ciel-lune-halo {
+  fill: url(#lune-lueur);
+  opacity: 1;
+}
+.ciel-lune-mers {
+  fill: #a9a28c;
+  opacity: 0.32;
+}
+.ciel[data-particulier="jours-blancs"] .ciel-lune-halo {
+  opacity: 1;
+  transform: scale(1.25);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* Fondu du ciel vers la page : long et progressif (plus marqué la nuit). */
+.ciel-fondu::before {
+  height: 120px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ciel-actuel, transparent) 88%, transparent) 0%,
+    color-mix(in srgb, var(--ciel-actuel, transparent) 64%, transparent) 18%,
+    color-mix(in srgb, var(--ciel-actuel, transparent) 40%, transparent) 38%,
+    color-mix(in srgb, var(--ciel-actuel, transparent) 20%, transparent) 60%,
+    color-mix(in srgb, var(--ciel-actuel, transparent) 7%, transparent) 82%,
+    transparent 100%
+  );
+}
+/* Le fondu passe DERRIÈRE le contenu (les textes et les cartes restent nets) : sur les pages à barre vivante,
+   le fond de la page est porté par <html> seul, et le fondu se glisse entre ce fond et le contenu. */
+body:has(.barre-vivante) {
+  background: transparent;
+}
+.ciel-fondu {
+  z-index: -1;
 }

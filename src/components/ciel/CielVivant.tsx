@@ -57,7 +57,12 @@ function useBarreEtatDuCiel(ciel: RefObject<HTMLDivElement | null>, moment: Mome
     const el = ciel.current;
     if (!el) return;
     const appliquer = () => {
-      const couleur = getComputedStyle(el).getPropertyValue("--ciel").trim();
+      const style = getComputedStyle(el);
+      // Barre d'état : le haut du ciel ; fondu sous la barre : l'horizon.
+      const couleur = (style.getPropertyValue("--ciel-haut") || style.getPropertyValue("--ciel")).trim();
+      // Le fondu part de la couleur exacte du sol (coupoles du premier plan) : aucune marche visible.
+      const sol = el.querySelector(".ciel-pres");
+      const horizon = (sol ? getComputedStyle(sol).fill : "") || style.getPropertyValue("--ciel").trim();
       if (!couleur) return;
       let balise = document.getElementById(ID_BARRE_ETAT) as HTMLMetaElement | null;
       if (!balise) {
@@ -68,7 +73,7 @@ function useBarreEtatDuCiel(ciel: RefObject<HTMLDivElement | null>, moment: Mome
       if (document.head.firstElementChild !== balise) document.head.prepend(balise);
       balise.content = couleur;
       // Le fondu sous la barre (ciel-fondu) prend la même couleur.
-      document.documentElement.style.setProperty("--ciel-actuel", couleur);
+      document.documentElement.style.setProperty("--ciel-actuel", horizon || couleur);
     };
     appliquer();
     const schema = matchMedia("(prefers-color-scheme: dark)");
@@ -120,8 +125,17 @@ function Lune({ jour }: { jour: number }) {
           <circle cx={246 + decalage} cy="60" r={r + 0.4} fill="#000" />
         </mask>
       </defs>
-      <circle cx="246" cy="60" r={r + 6} className="ciel-lune-halo" />
-      <circle cx="246" cy="60" r={r} mask="url(#masque-lune)" className="ciel-lune-disque" />
+      <circle cx="246" cy="60" r={r + 18} className="ciel-lune-halo" />
+      <g mask="url(#masque-lune)">
+        <circle cx="246" cy="60" r={r} className="ciel-lune-disque" />
+        {/* Quelques « mers » sombres : la lune ressemble à la lune. */}
+        <g className="ciel-lune-mers">
+          <circle cx="243" cy="56.5" r="2.6" />
+          <circle cx="249.5" cy="58" r="1.8" />
+          <circle cx="245" cy="63.5" r="2.1" />
+          <circle cx="250" cy="64" r="1.1" />
+        </g>
+      </g>
     </g>
   );
 }
@@ -187,8 +201,53 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
           r="80"
           fill="url(#ciel-halo-degrade)"
         />
-        {moment === "jour" ? <circle className="ciel-soleil" cx="246" cy="60" r="10" /> : null}
-        {bas ? <circle className="ciel-soleil-bas" cx="224" cy="84" r="13" /> : null}
+        <defs>
+          {/* Soleil du jour : une lueur chaude et un disque clair au cœur. */}
+          <radialGradient id="soleil-lueur">
+            <stop offset="0" stopColor="#fff4c8" stopOpacity="0.95" />
+            <stop offset="0.35" stopColor="#ffd56e" stopOpacity="0.5" />
+            <stop offset="1" stopColor="#ffb84d" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="soleil-disque" cx="0.42" cy="0.4">
+            <stop offset="0" stopColor="#fffef5" />
+            <stop offset="0.65" stopColor="#ffe48f" />
+            <stop offset="1" stopColor="#f5b947" />
+          </radialGradient>
+          {/* Soleil bas (aube, Maghrib) : plus grand, orangé. */}
+          <radialGradient id="soleil-bas-lueur">
+            <stop offset="0" stopColor="#ffd9a8" stopOpacity="0.9" />
+            <stop offset="0.4" stopColor="#ff9a55" stopOpacity="0.45" />
+            <stop offset="1" stopColor="#ff7a3a" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="soleil-bas-disque" cx="0.45" cy="0.42">
+            <stop offset="0" stopColor="#fff3dc" />
+            <stop offset="0.7" stopColor="#ffb36b" />
+            <stop offset="1" stopColor="#f0813f" />
+          </radialGradient>
+          {/* Lune : disque modelé (éclairé en haut à gauche) et lueur argentée. */}
+          <radialGradient id="lune-modele" cx="0.38" cy="0.35">
+            <stop offset="0" stopColor="#fdfcf6" />
+            <stop offset="0.7" stopColor="#ebe7d9" />
+            <stop offset="1" stopColor="#cdc7b3" />
+          </radialGradient>
+          <radialGradient id="lune-lueur">
+            <stop offset="0" stopColor="#f6f3e6" stopOpacity="0.35" />
+            <stop offset="0.5" stopColor="#f6f3e6" stopOpacity="0.1" />
+            <stop offset="1" stopColor="#f6f3e6" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {moment === "jour" ? (
+          <g className="ciel-soleil-reel">
+            <circle cx="246" cy="60" r="32" fill="url(#soleil-lueur)" />
+            <circle cx="246" cy="60" r="10" fill="url(#soleil-disque)" />
+          </g>
+        ) : null}
+        {bas ? (
+          <g className="ciel-soleil-reel">
+            <circle cx="224" cy="84" r="40" fill="url(#soleil-bas-lueur)" />
+            <circle cx="224" cy="84" r="13" fill="url(#soleil-bas-disque)" />
+          </g>
+        ) : null}
         {!fixe && jourHegire !== null && moment !== "jour" ? <Lune jour={jourHegire} /> : null}
         <g className="ciel-nuages">
           <ellipse cx="40" cy="30" rx="26" ry="7" />

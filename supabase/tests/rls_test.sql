@@ -446,6 +446,28 @@ select pg_temp.doit_echouer(
 select pg_temp.doit_echouer(
   $q$update public.etablissements set latitude = null where id = 'aaaaaaaa-0000-0000-0000-000000000000'$q$,
   'position : latitude et longitude vont ensemble');
+insert into public.horaires_priere (etablissement_id, mois, jour, fajr, chourouq, dhuhr, asr, maghrib, isha)
+values ('aaaaaaaa-0000-0000-0000-000000000000', 11, 17, 389, 481, 755, 887, 1031, 1160);
+select pg_temp.attendu(
+  (select count(*) from public.horaires_priere) = 1,
+  'horaires : l''admin importe le calendrier de la mosquée');
+select pg_temp.doit_echouer(
+  $q$insert into public.horaires_priere (etablissement_id, mois, jour, fajr, chourouq, dhuhr, asr, maghrib, isha)
+     values ('aaaaaaaa-0000-0000-0000-000000000000', 11, 18, 600, 481, 755, 887, 1031, 1160)$q$,
+  'horaires : ordre des prières vérifié');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu(
+  (select count(*) from public.horaires_priere) = 1,
+  'horaires : l''élève lit ceux de sa mosquée');
+update public.horaires_priere set fajr = 300;
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.attendu(
+  (select count(*) from public.horaires_priere) = 0,
+  'horaires : un Cheikh d''une autre mosquée ne les voit pas');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu(
+  (select fajr from public.horaires_priere where mois = 11 and jour = 17) = 389,
+  'horaires : un élève ne les modifie pas');
 select pg_temp.doit_echouer(
   $q$delete from public.etablissements where id = 'bbbbbbbb-0000-0000-0000-000000000000'$q$,
   'établissement : pas de suppression tant qu''il a des comptes');
