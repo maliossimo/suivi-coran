@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Seance } from "./fiche";
-import { lundi, tendanceEleve } from "./tendance";
+import { lundi, sensQuinzaine, tendanceEleve } from "./tendance";
 import { creerReferentiel } from "./versets";
 
 const ref = creerReferentiel([
@@ -42,5 +42,16 @@ describe("tendanceEleve", () => {
     expect(tendanceEleve(ref, [...avant, seance("2026-11-10", 60)], "2026-11-17").sens).toBe("stable");
     expect(tendanceEleve(ref, [...avant, seance("2026-11-10", 120)], "2026-11-17").sens).toBe("hausse");
     expect(tendanceEleve(ref, [seance("2026-11-10", 10)], "2026-11-17").sens).toBe("hausse");
+  });
+});
+
+describe("sensQuinzaine", () => {
+  const semaine = (m: number) => Array<number>(7).fill(m);
+  it("compare la dernière semaine à la précédente", () => {
+    expect(sensQuinzaine([...semaine(0), ...semaine(0)])).toBe("aucune");
+    expect(sensQuinzaine([...semaine(10), ...semaine(20)])).toBe("hausse");
+    expect(sensQuinzaine([...semaine(20), ...semaine(10)])).toBe("baisse");
+    expect(sensQuinzaine([...semaine(20), ...semaine(21)])).toBe("stable");
+    expect(sensQuinzaine([...semaine(0), ...semaine(5)])).toBe("hausse");
   });
 });

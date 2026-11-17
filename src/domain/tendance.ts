@@ -65,3 +65,18 @@ export function tendanceEleve(
   else sens = "stable";
   return { semaines: liste, sens };
 }
+
+/**
+ * Sens des 14 derniers jours (minutes par jour, le plus ancien d'abord) : la dernière semaine comparée à
+ * la précédente (± 15 % : stable). Sert à la petite flèche des cartes de la classe.
+ */
+export function sensQuinzaine(minutes: readonly number[]): SensTendance {
+  const moitie = Math.floor(minutes.length / 2);
+  const somme = (l: readonly number[]) => l.reduce((t, m) => t + m, 0);
+  const avant = somme(minutes.slice(0, moitie));
+  const recente = somme(minutes.slice(moitie));
+  if (!avant && !recente) return "aucune";
+  if (!avant || recente > avant * 1.15) return "hausse";
+  if (recente < avant * 0.85) return "baisse";
+  return "stable";
+}

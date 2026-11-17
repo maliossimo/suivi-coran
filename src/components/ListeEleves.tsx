@@ -9,6 +9,9 @@ import {
   RotateCcw,
   Search,
   Target,
+  TrendingDown,
+  TrendingUp,
+  MoveRight,
 } from "lucide-react";
 import Link from "next/link";
 import { ApercuEleve } from "./ApercuEleve";
@@ -28,6 +31,7 @@ import { retoursActives } from "./retourSensoriel";
 import { actionArchiverEleve } from "@/app/actions/classe";
 import { correspondARecherche, JOURS_A_VOIR, phraseEleve, type ResumeEleve } from "@/domain/classe";
 import { formaterDuree } from "@/domain/fiche";
+import { sensQuinzaine } from "@/domain/tendance";
 
 /**
  * Liste de la classe (déjà triée par prénom) avec recherche instantanée,
@@ -156,6 +160,8 @@ export function ListeEleves({
                 </small>
               </span>
               <StatsEleve r={r} />
+              {/* Téléphone : une flèche à la place de la courbe (la carte tient sur deux lignes). */}
+              {r.quinzaine ? <FlecheTendance minutes={r.quinzaine} /> : null}
               {r.quinzaine?.some((m) => m > 0) ? <CourbeQuinzaine minutes={r.quinzaine} /> : null}
               <span className="chevron" aria-hidden="true">
                 <ChevronRight size={20} />
@@ -215,6 +221,25 @@ export function ListeEleves({
  * Petite courbe de régularité : une barre par jour sur les 14 derniers jours
  * (hauteur = temps de travail, jour sans séance = simple point). Aujourd'hui à droite.
  */
+const FLECHES = {
+  hausse: { Icone: TrendingUp, libelle: "En hausse sur 7 jours" },
+  stable: { Icone: MoveRight, libelle: "Stable sur 7 jours" },
+  baisse: { Icone: TrendingDown, libelle: "En baisse sur 7 jours" },
+} as const;
+
+/** Flèche de tendance (7 derniers jours contre les 7 d'avant). */
+function FlecheTendance({ minutes }: { minutes: number[] }) {
+  const sens = sensQuinzaine(minutes);
+  if (sens === "aucune") return null;
+  const { Icone, libelle } = FLECHES[sens];
+  return (
+    <span className={`carte-eleve-fleche fleche-${sens}`} title={libelle}>
+      <Icone size={16} strokeWidth={2.4} aria-hidden="true" />
+      <span className="visuellement-cache">{libelle}</span>
+    </span>
+  );
+}
+
 function CourbeQuinzaine({ minutes }: { minutes: number[] }) {
   const max = Math.max(30, ...minutes);
   const jours = minutes.filter((m) => m > 0).length;
