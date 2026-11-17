@@ -55,6 +55,8 @@ ESLint bloque les imports qui violent ces frontières.
   l'historique ou les artifacts (les sauvegardes sont toujours chiffrées). Ces conventions sont à
   respecter scrupuleusement, même si GitHub ne les impose pas toutes.
 - Vérifications (CI) : une seule fois par PR ; les tests de la base ne tournent que si `supabase/` change.
+  La PR `main` → `prod` ne relance pas les tests si la tête de `main` est exactement le contenu déjà vérifié
+  sur sa PR (fusion « squash », même base : statuts « Contenu vérifié », `scripts/deja-verifie.sh`) ; sinon tout tourne.
   Les tests de bout en bout (`e2e/`, workflow « Tests de bout en bout ») tournent sur une base jetable
   avec des comptes fictifs ; leurs captures d'écran sont jointes au passage.
 - Avant de proposer une PR : `npm run check` (format, lint, types, tests) et, si la base change, `npm run db:test`.
