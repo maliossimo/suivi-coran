@@ -9,7 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
-## [1.54.1] — 2026-11-17
+## [1.55.0] — 2026-11-17
+
+### Modifié
+
+- En-tête compact (quand on descend dans la page) : il a maintenant le même ciel que la grande barre (moment de la journée, lune du mois ou soleil, coupoles en petit), sa frise dorée et son fondu ; le nom arabe de la page n'est plus collé au nom français.
+- Barre du bas : les motifs de la frise s'allument en or en passant sous l'étoile, qui scintille à chaque passage ; une lumière fait le tour de l'arche du mihrab quand un motif y arrive. La frise ne saute plus en fin de boucle.
+- Avatar de la barre du haut : une étoile à 8 branches dorée comme le logo, en verre sur le ciel, avec les initiales en or (lueur argentée la nuit). L'étoile du ciel qui faisait un point à côté a été déplacée.
+- Horaires de la mosquée : seules les heures des prières sont gardées (Sobh, Chourouq, Dhuhr, Asr, Maghrib, Icha) ; l'iqama et Joumou'a sont retirées.
 
 ### Corrigé
 

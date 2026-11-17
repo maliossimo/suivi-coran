@@ -22,15 +22,11 @@ const TAILLE_MAX = 3_000_000;
 const jours = z.record(z.string(), z.array(z.string()));
 const schemaConf = z.object({
   calendar: z.array(jours).length(12),
-  iqamaCalendar: z.array(jours).nullish(),
-  jumua: z.string().nullish(),
-  jumua2: z.string().nullish(),
-  jumua3: z.string().nullish(),
   timezone: z.string().nullish(),
 });
 
 export type ResultatImport =
-  | { adresse: string; etat: "importe"; jours: number; jumua: number[] }
+  | { adresse: string; etat: "importe"; jours: number }
   | { adresse: string; etat: "a-jour" }
   | { adresse: string; etat: "erreur"; message: string };
 
@@ -66,9 +62,9 @@ export async function importerMosquee(id: string, adresse: string): Promise<Resu
     if (brut === null) throw new Error(`confData introuvable dans la page Mawaqit (${page.resume})`);
     const conf = schemaConf.safeParse(brut);
     if (!conf.success) throw new Error(`confData inattendu : ${conf.error.issues[0]?.path.join(".") ?? "?"}`);
-    const horaires = horairesDepuisConf(conf.data);
-    await enregistrerHorairesMawaqit(id, horaires);
-    return { adresse, etat: "importe", jours: horaires.jours.length, jumua: horaires.jumua };
+    const jours = horairesDepuisConf(conf.data);
+    await enregistrerHorairesMawaqit(id, jours);
+    return { adresse, etat: "importe", jours: jours.length };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     await noterErreurMawaqit(id, message).catch(() => undefined);
