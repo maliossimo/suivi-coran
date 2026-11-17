@@ -9,6 +9,19 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.52.0] — 2026-11-17
+
+### Ajouté
+
+- Fondu du ciel : sous la barre du haut, la couleur du ciel du moment descend doucement sur le haut de la page (rosée à l'aube, ambrée au Maghrib…) ; plus de coupure nette entre le ciel et la page. La frise laisse passer le ciel.
+- Au-dessus de la barre du bas, le contenu s'efface doucement au lieu d'être coupé net.
+
+### Modifié
+
+- Le mihrab de la barre du bas est en creux au repos, plein et lumineux seulement quand on est sur sa page (on ne croit plus que « Ma classe » est sélectionné).
+- Titres : « Inviter » (دعوة) sur la page d'invitation ; « سجلّ الطالب » et le nom de l'élève aussi sur ses séances. Calligraphie un peu plus grande.
+- « Ma classe » : la date n'est plus répétée sous « Salam Cheikh … » (elle est dans la barre).
+
 ## [1.51.3] — 2026-11-17
 
 ### Corrigé

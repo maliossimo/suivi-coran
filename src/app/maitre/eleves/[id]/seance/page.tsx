@@ -35,7 +35,8 @@ export default async function PageSeanceMaitre({
   return (
     <>
       <EnteteEspace
-        titre={`${eleve.prenom} ${eleve.nom}`}
+        titre="Fiche de l'élève"
+        sousTitre={`${eleve.prenom} ${eleve.nom}`.trim()}
         nom={`${profil.prenom} ${profil.nom}`.trim()}
         role={profil.role}
       />

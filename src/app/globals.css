@@ -15261,7 +15261,7 @@ ul.apercu-liste li {
 }
 .barre-titre-ar {
   font-family: var(--font-calligraphie), var(--font-arabe), serif;
-  font-size: 27px;
+  font-size: 30px;
   font-weight: 700;
   line-height: 1.2;
   color: var(--ciel-or);
@@ -15802,5 +15802,60 @@ html[data-ouverture] .ouverture-calligraphie {
 @media (max-width: 760px) {
   .bandeau-vue-admin a {
     display: none;
+  }
+}
+
+/* ---------- Fondu du ciel (1.52) ---------- */
+/* Sous la barre : la couleur du ciel descend doucement sur le haut de la page (aube rosée, Maghrib ambré…),
+   pour qu'il n'y ait pas de coupure nette entre le ciel et la page. Couleur posée par CielDecor. */
+.ciel-fondu {
+  position: relative;
+  height: 0;
+  pointer-events: none;
+}
+.ciel-fondu::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 64px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ciel-actuel, transparent) 42%, transparent),
+    color-mix(in srgb, var(--ciel-actuel, transparent) 14%, transparent) 45%,
+    transparent
+  );
+  transition: background 1.2s ease;
+}
+/* La frise laisse passer le ciel : plus de barrière entre la barre et la page. */
+.barre-vivante .frise-zellige {
+  opacity: 0.55;
+}
+@media (max-width: 760px) {
+  /* Au-dessus de la barre du bas : le contenu s'efface doucement au lieu d'être coupé net. */
+  .nav-espace::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -40px;
+    height: 33px;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--fond) 75%, transparent));
+    pointer-events: none;
+  }
+  .nav-espace::before {
+    opacity: 0.7;
+  }
+  /* Le mihrab au repos : en creux (or léger), plein et lumineux seulement quand on est sur sa page. */
+  .nav-mihrab:not([aria-current="page"])::after {
+    background: color-mix(in srgb, #c9a24a 26%, var(--nav-fond));
+    filter: none;
+  }
+  .nav-mihrab:not([aria-current="page"]) > svg {
+    color: var(--nav-or);
+  }
+  .nav-mihrab:not([aria-current="page"]) > span {
+    color: var(--nav-texte);
   }
 }
