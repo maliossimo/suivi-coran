@@ -16496,3 +16496,350 @@ html {
     display: none;
   }
 }
+
+/* =====================================================================
+   1.58 : « nuit dorée » — toute l'appli prend l'ambiance du moment (aube rosée,
+   jour doré, Maghrib ambré, nuit verte), cartes et fond en dégradés, ville dorée
+   derrière la ligne des dates, vague de lumière au-dessus de la barre du bas
+   ===================================================================== */
+/* Ambiance du moment (posée sur <html> par le ciel). */
+:root {
+  --ambiance: rgba(233, 200, 115, 0.16);
+  --ambiance-2: rgba(47, 122, 94, 0.06);
+  --carte-bord: color-mix(in srgb, var(--or) 30%, var(--ligne));
+}
+html[data-moment="fajr"] {
+  --ambiance: rgba(240, 160, 160, 0.22);
+  --ambiance-2: rgba(140, 130, 210, 0.14);
+}
+html[data-moment="jour"] {
+  --ambiance: rgba(233, 200, 115, 0.2);
+  --ambiance-2: rgba(47, 122, 94, 0.07);
+}
+html[data-moment="maghrib"] {
+  --ambiance: rgba(242, 146, 76, 0.24);
+  --ambiance-2: rgba(170, 70, 60, 0.13);
+}
+/* La nuit : lueur dorée sur le parchemin, verte sur la nuit (thème sombre). */
+html[data-moment="nuit"] {
+  --ambiance: rgba(201, 162, 74, 0.16);
+  --ambiance-2: rgba(47, 122, 94, 0.05);
+}
+@media (prefers-color-scheme: dark) {
+  html:where(:not([data-theme="clair"]))[data-moment="nuit"] {
+    --ambiance: rgba(47, 122, 94, 0.22);
+    --ambiance-2: rgba(231, 196, 111, 0.07);
+  }
+}
+html[data-theme="sombre"][data-moment="nuit"] {
+  --ambiance: rgba(47, 122, 94, 0.22);
+  --ambiance-2: rgba(231, 196, 111, 0.07);
+}
+html {
+  background:
+    radial-gradient(130% 55% at 50% 0%, var(--ambiance), transparent 72%),
+    radial-gradient(90% 50% at 100% 100%, var(--ambiance-2), transparent 70%), var(--motif-doux), var(--fond);
+  background-attachment: fixed;
+}
+
+/* Cartes : un dégradé de l'ambiance depuis le coin haut, un liseré doré discret. */
+:is(
+  .carte-unie,
+  .a-ecouter,
+  .accueil-cheikh,
+  .archives,
+  .auth-boite,
+  .bloc,
+  .carte-accueil,
+  .carte-classe,
+  .carte-compte,
+  .carte-coran,
+  .carte-eleve,
+  .carte-graphique,
+  .carte-lecture,
+  .carte-invitation,
+  .classe-carte,
+  .enchainements-carte,
+  .resume-mois,
+  .etat-vide,
+  .seance-resume,
+  .semaine,
+  .tuile,
+  .bilan-tuiles li,
+  .bilan-chiffres li,
+  .ligne-appel,
+  .liste-passages,
+  .reciter-detail,
+  .ecoute-cheikh
+) {
+  background-image: linear-gradient(155deg, var(--ambiance), transparent 58%);
+  border-color: var(--carte-bord);
+}
+/* Les grandes cartes portent une mosquée en filigrane dans leur coin. */
+:is(.carte-unie, .a-ecouter, .accueil-cheikh, .carte-accueil, .carte-invitation, .etat-vide) {
+  background-image:
+    linear-gradient(155deg, var(--ambiance), transparent 58%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg fill='%23c9a24a' fill-opacity='.09'%3E%3Cpath d='M20 120V80Q20 50 60 38Q100 50 100 80V120Z'/%3E%3Cpath d='M58.5 38V24H61.5V38Z'/%3E%3Cpath d='M104 120V40H111V120Z'/%3E%3Cpath d='M101.5 42H113.5L107.5 22Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position:
+    0 0,
+    right -6px bottom -10px;
+  background-size:
+    auto,
+    118px 118px;
+}
+/* Boutons principaux : vert profond en dégradé, liseré doré. */
+.bouton {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--vert) 82%, #ffffff), var(--vert-fonce));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 0 1px color-mix(in srgb, var(--or) 38%, transparent),
+    0 6px 16px color-mix(in srgb, var(--vert) 28%, transparent);
+}
+.bouton:hover {
+  background: linear-gradient(180deg, var(--vert), var(--vert-fonce));
+}
+
+/* ---------- Barre du haut ---------- */
+/* La ville se tient derrière la ligne des dates : les dates sont écrites sur le sol, jamais sur un minaret. */
+.barre-vivante .barre-dates {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--ciel-actuel, transparent) 88%, transparent) 38%,
+    var(--ciel-actuel, transparent)
+  );
+}
+/* Coupoles et minarets bordés d'or, fenêtres allumées. */
+.ciel-pres > * {
+  stroke: color-mix(in srgb, var(--ciel-or) 75%, transparent);
+  stroke-width: 0.9;
+}
+.ciel-loin > * {
+  stroke: color-mix(in srgb, var(--ciel-or) 35%, transparent);
+  stroke-width: 0.7;
+}
+.ciel-fenetres {
+  fill: #f3d27c;
+  opacity: 0;
+  transition: opacity 1.2s;
+}
+.ciel[data-moment="nuit"] .ciel-fenetres,
+.ciel[data-moment="maghrib"] .ciel-fenetres {
+  opacity: 0.9;
+}
+.ciel[data-moment="fajr"] .ciel-fenetres {
+  opacity: 0.5;
+}
+.ciel-lune-halo {
+  fill: #f3d27c;
+  opacity: 0.12;
+}
+/* Sous la barre : un filet doré et un losange (plus de bandeau qui défile). */
+.barre-vivante > .frise-zellige,
+.barre-compacte-frise {
+  height: 12px;
+  border: 0;
+  opacity: 1;
+  animation: none;
+  background: linear-gradient(90deg, transparent, var(--ciel-or) 22%, var(--ciel-or) 78%, transparent)
+    center / 100% 1px no-repeat;
+}
+.barre-vivante > .frise-zellige::after,
+.barre-compacte-frise::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border: 1.2px solid var(--ciel-or);
+  background: var(--ciel-actuel, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ciel-or) 60%, transparent);
+}
+.barre-vivante > .frise-zellige {
+  position: relative;
+  background-color: var(--ciel-actuel, transparent);
+}
+.barre-compacte-frise {
+  bottom: -12px;
+  background-color: transparent;
+}
+
+/* ---------- Barre du bas (téléphone) ---------- */
+.nav-vague,
+.nav-etincelles {
+  display: none;
+}
+@media (max-width: 760px) {
+  .nav-espace {
+    background-image:
+      linear-gradient(180deg, color-mix(in srgb, var(--ambiance) 60%, transparent), transparent 70%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23c9a24a' stroke-opacity='.08' stroke-width='1.4'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3C/g%3E%3C/svg%3E"),
+      linear-gradient(180deg, var(--nav-verre), color-mix(in srgb, var(--fond) 96%, transparent));
+    background-size:
+      auto,
+      56px 56px,
+      auto;
+    box-shadow: 0 -14px 30px rgba(0, 0, 0, 0.14);
+  }
+  /* La vague remplace la frise. */
+  .nav-espace::before,
+  .nav-espace.avec-pastille .nav-frise-eclat,
+  .nav-mihrab-chapiteau {
+    display: none;
+  }
+  .nav-vague {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: -12px;
+    width: 100%;
+    height: 24px;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .nav-vague path {
+    fill: none;
+  }
+  .nav-vague-halo {
+    stroke: color-mix(in srgb, #e7c46f 45%, transparent);
+    stroke-width: 5;
+    filter: blur(2.5px);
+  }
+  .nav-vague-fil {
+    stroke: #e2be6e;
+    stroke-width: 1.3;
+  }
+  .nav-vague-reflet {
+    stroke: #fff4cc;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-dasharray: 3 22;
+    animation: vague-reflet 7s linear infinite;
+  }
+  @keyframes vague-reflet {
+    to {
+      stroke-dashoffset: -100;
+    }
+  }
+  .nav-etincelles {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -22px;
+    height: 20px;
+    pointer-events: none;
+  }
+  .nav-etincelles i {
+    position: absolute;
+    top: 4px;
+    width: 9px;
+    height: 9px;
+    background: #fff1bf;
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    filter: drop-shadow(0 0 3px #f3d27c);
+    animation: etincelle 3.4s ease-in-out infinite;
+  }
+  .nav-etincelles i:nth-child(2n) {
+    top: 10px;
+    width: 6px;
+    height: 6px;
+  }
+  @keyframes etincelle {
+    0%,
+    100% {
+      opacity: 0.15;
+      transform: scale(0.6);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+  /* L'arche du Coran, plus discrète : plus basse, contour doré fin, intérieur de la couleur de la barre. */
+  .nav-espace .nav-mihrab::after,
+  .nav-espace .nav-mihrab:not([aria-current="page"])::after {
+    top: -14px;
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(180deg, #e2be6e, color-mix(in srgb, #b98f33 70%, transparent));
+    filter: none;
+    animation: none;
+  }
+  .nav-espace .nav-mihrab::before {
+    top: -12px;
+    width: 42px;
+    height: 44px;
+  }
+  .nav-espace {
+    --mihrab-fond: linear-gradient(180deg, color-mix(in srgb, var(--fond) 92%, #c9a24a), var(--fond));
+    --mihrab-icone: #8a5f12;
+  }
+  .nav-espace .nav-mihrab[aria-current="page"],
+  :where(:root) .nav-espace .nav-mihrab[aria-current="page"] {
+    --mihrab-fond: linear-gradient(180deg, #f6dc94, #d4ac54);
+    --mihrab-icone: #123c2e;
+  }
+  .nav-espace .nav-onglet.nav-mihrab > svg,
+  .nav-espace.avec-pastille .nav-onglet.nav-mihrab > svg {
+    top: -4px;
+  }
+  .nav-mihrab-lisere {
+    top: -14px;
+    width: 46px;
+    height: 46px;
+  }
+  /* Chaque onglet : le nom français, puis le nom arabe calligraphié. */
+  .nav-espace .nav-onglet .nav-ar,
+  .nav-espace .nav-plus .nav-ar,
+  .nav-espace .nav-mihrab .nav-ar {
+    display: block;
+    order: 3;
+    font-size: 12px;
+    line-height: 1;
+    opacity: 0.9;
+    color: inherit;
+  }
+  .nav-espace .nav-onglet,
+  .nav-espace .nav-plus {
+    gap: 2px;
+    height: 64px;
+  }
+  /* L'onglet choisi : la niche, et un trait de lumière dorée à sa base. */
+  .nav-espace.avec-pastille .nav-pastille {
+    height: 64px;
+    clip-path: path("M3 64V17Q3 7 23 1.5Q43 7 43 17V64Z");
+  }
+  .nav-espace.avec-pastille .nav-pastille::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 3px;
+    height: 2.5px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--nav-or), transparent);
+  }
+}
+@media (max-width: 760px) and (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .nav-espace {
+    --mihrab-fond: linear-gradient(180deg, #17473a, #0c2a20);
+    --mihrab-icone: #e7c46f;
+  }
+}
+@media (max-width: 760px) {
+  :where(:root[data-theme="sombre"]) .nav-espace {
+    --mihrab-fond: linear-gradient(180deg, #17473a, #0c2a20);
+    --mihrab-icone: #e7c46f;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-vague-reflet,
+  .nav-etincelles i {
+    animation: none !important;
+  }
+}

@@ -74,6 +74,8 @@ function useBarreEtatDuCiel(ciel: RefObject<HTMLDivElement | null>, moment: Mome
       balise.content = couleur;
       // Le fondu sous la barre (ciel-fondu) prend la même couleur.
       document.documentElement.style.setProperty("--ciel-actuel", horizon || couleur);
+      // Toute la page prend l'ambiance du moment (aube rosée, Maghrib ambré, nuit, jour).
+      document.documentElement.dataset.moment = moment;
     };
     appliquer();
     const schema = matchMedia("(prefers-color-scheme: dark)");
@@ -108,6 +110,14 @@ function Silhouettes() {
         <rect x="-20" y="128" width="400" height="10" />
       </g>
       <rect className="ciel-lanterne" x="303.5" y="64" width="3" height="6" rx="1.5" />
+      {/* Fenêtres allumées : la ville vit la nuit. */}
+      <g className="ciel-fenetres">
+        <path d="M209 104V96Q209 92 212 91Q215 92 215 96V104Z" />
+        <path d="M221 104V94Q221 90 224 89Q227 90 227 94V104Z" />
+        <path d="M233 104V96Q233 92 236 91Q239 92 239 96V104Z" />
+        <rect x="303.5" y="86" width="3" height="7" rx="1.5" />
+        <rect x="106" y="90" width="2" height="6" rx="1" />
+      </g>
     </>
   );
 }
@@ -238,14 +248,14 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
           </radialGradient>
           {/* Lune : disque modelé (éclairé en haut à gauche) et lueur argentée. */}
           <radialGradient id="lune-modele" cx="0.38" cy="0.35">
-            <stop offset="0" stopColor="#fdfcf6" />
-            <stop offset="0.7" stopColor="#ebe7d9" />
-            <stop offset="1" stopColor="#cdc7b3" />
+            <stop offset="0" stopColor="#fff7dc" />
+            <stop offset="0.6" stopColor="#f3d27c" />
+            <stop offset="1" stopColor="#c99a3a" />
           </radialGradient>
           <radialGradient id="lune-lueur">
-            <stop offset="0" stopColor="#f6f3e6" stopOpacity="0.35" />
-            <stop offset="0.5" stopColor="#f6f3e6" stopOpacity="0.1" />
-            <stop offset="1" stopColor="#f6f3e6" stopOpacity="0" />
+            <stop offset="0" stopColor="#f3d27c" stopOpacity="0.45" />
+            <stop offset="0.5" stopColor="#f3d27c" stopOpacity="0.12" />
+            <stop offset="1" stopColor="#f3d27c" stopOpacity="0" />
           </radialGradient>
         </defs>
         {moment === "jour" ? (

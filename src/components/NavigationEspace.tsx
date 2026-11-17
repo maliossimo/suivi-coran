@@ -189,8 +189,32 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
   return (
     <nav className="nav-espace" aria-label="Navigation principale" ref={nav}>
       <span className="nav-pastille" ref={pastille} aria-hidden="true" />
-      {/* Téléphone : les motifs de la frise s'allument en passant au-dessus de l'onglet choisi. */}
-      <span className="nav-frise-eclat" aria-hidden="true" />
+      {/* Téléphone : une vague de lumière dorée ondule au-dessus de la barre, des étincelles y brillent. */}
+      <svg className="nav-vague" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true">
+        <path
+          className="nav-vague-halo"
+          d="M0 14C40 8 80 20 120 12S170 8 200 12 280 20 320 12 380 8 400 14"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          className="nav-vague-fil"
+          d="M0 14C40 8 80 20 120 12S170 8 200 12 280 20 320 12 380 8 400 14"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          className="nav-vague-reflet"
+          d="M0 14C40 8 80 20 120 12S170 8 200 12 280 20 320 12 380 8 400 14"
+          vectorEffect="non-scaling-stroke"
+          pathLength={100}
+        />
+      </svg>
+      <span className="nav-etincelles" aria-hidden="true">
+        <i style={{ left: "9%", animationDelay: "0.2s" }} />
+        <i style={{ left: "27%", animationDelay: "1.4s" }} />
+        <i style={{ left: "66%", animationDelay: "0.8s" }} />
+        <i style={{ left: "84%", animationDelay: "2.1s" }} />
+        <i style={{ left: "47%", animationDelay: "2.8s" }} />
+      </span>
       {[...principaux, ...secondaires].map((o) => {
         const actif = o.actif(chemin);
         const index = position(o);
