@@ -1,7 +1,17 @@
 "use client";
 
-import { BookPlus, CalendarCheck, ChevronRight, RotateCcw, Search, Target } from "lucide-react";
+import {
+  BookPlus,
+  CalendarCheck,
+  ChevronRight,
+  Eye,
+  Headphones,
+  RotateCcw,
+  Search,
+  Target,
+} from "lucide-react";
 import Link from "next/link";
+import { ApercuEleve } from "./ApercuEleve";
 import { Avatar } from "./Avatar";
 import { EtiquetteLecture } from "./ChoixLecture";
 import { EtatVide } from "./EtatVide";
@@ -35,6 +45,8 @@ export function ListeEleves({
   const [recherche, setRecherche] = useState("");
   /** Élève dont les séances à écouter sont ouvertes dans la feuille du bas. */
   const [ecoute, setEcoute] = useState<{ id: string; prenom: string; nom: string } | null>(null);
+  /** Élève dont l'aperçu rapide est ouvert (toucher sa photo, ou appui long sur sa carte). */
+  const [apercu, setApercu] = useState<ResumeEleve | null>(null);
   const visibles = actifs.filter((r) => correspondARecherche(r.eleve, recherche));
   const archivesVisibles = archives.filter((r) => correspondARecherche(r.eleve, recherche));
 
@@ -48,6 +60,27 @@ export function ListeEleves({
           aEcouter ? ` · ${aEcouter} séance${aEcouter > 1 ? "s" : ""} à écouter` : ""
         }`}
       />
+      {aEcouter ? (
+        <section className="a-ecouter" aria-labelledby="a-ecouter-titre">
+          <h2 id="a-ecouter-titre">
+            <Headphones size={18} aria-hidden="true" /> À écouter
+            <span className="a-ecouter-total">{aEcouter}</span>
+          </h2>
+          <ul>
+            {actifs
+              .filter((r) => r.aVoir > 0)
+              .map((r) => (
+                <li key={r.eleve.id}>
+                  <button type="button" className="a-ecouter-eleve" onClick={() => setEcoute(r.eleve)}>
+                    <Avatar prenom={r.eleve.prenom} nom={r.eleve.nom} cle={r.eleve.id} />
+                    <span>{r.eleve.prenom}</span>
+                    <strong aria-label={`${r.aVoir} séance${r.aVoir > 1 ? "s" : ""}`}>{r.aVoir}</strong>
+                  </button>
+                </li>
+              ))}
+          </ul>
+        </section>
+      ) : null}
       {actifs.length + archives.length > 1 ? (
         <div className="recherche">
           <span className="recherche-icone" aria-hidden="true">
@@ -84,9 +117,18 @@ export function ListeEleves({
               }
               className="carte-eleve"
               data-ouvre-en-page
-              {...(r.aVoir > 0 ? appuiLong(() => setEcoute(r.eleve)) : {})}
+              {...appuiLong(
+                () => setApercu(r),
+                () => setEcoute(r.eleve),
+              )}
             >
-              <Avatar prenom={r.eleve.prenom} nom={r.eleve.nom} cle={r.eleve.id} />
+              {/* La photo ouvre l'aperçu rapide (la carte, elle, ouvre la fiche). */}
+              <span className="carte-eleve-apercu" data-apercu title="Aperçu rapide">
+                <Avatar prenom={r.eleve.prenom} nom={r.eleve.nom} cle={r.eleve.id} />
+                <span className="carte-eleve-oeil" aria-hidden="true">
+                  <Eye size={11} strokeWidth={2.6} />
+                </span>
+              </span>
               <span className="carte-eleve-nom">
                 {r.eleve.prenom} {r.eleve.nom}
                 <EtiquetteLecture lecture={r.eleve.lecture ?? null} />
@@ -114,6 +156,9 @@ export function ListeEleves({
                 <ChevronRight size={20} />
               </span>
             </Link>
+            <button type="button" className="visuellement-cache" onClick={() => setApercu(r)}>
+              Aperçu rapide de {r.eleve.prenom}
+            </button>
             {r.aVoir > 0 ? (
               // Clavier et lecteurs d'écran : la même écoute rapide, par un vrai bouton.
               <button type="button" className="visuellement-cache" onClick={() => setEcoute(r.eleve)}>
@@ -124,6 +169,17 @@ export function ListeEleves({
         ))}
       </ul>
       <EcouteRapide eleve={ecoute} onFermer={() => setEcoute(null)} />
+      <ApercuEleve
+        eleve={apercu?.eleve ?? null}
+        aVoir={apercu?.aVoir ?? 0}
+        lienFiche={apercu ? `/maitre/eleves/${apercu.eleve.id}?mois=${cleMois}${onglet}` : "#"}
+        onEcouter={() => {
+          const e = apercu?.eleve ?? null;
+          setApercu(null);
+          setEcoute(e);
+        }}
+        onFermer={() => setApercu(null)}
+      />
 
       {archivesVisibles.length > 0 ? (
         <details className="archives" open={recherche.trim() !== "" || undefined}>
@@ -258,7 +314,8 @@ function StatsEleve({ r }: { r: ResumeEleve }) {
 const APPUI_LONG_MS = 450;
 
 /**
- * Écoute rapide d'un élève : appui long sur sa carte (ou toucher sa pastille « à écouter »).
+ * Appui long sur la carte ou toucher sa photo : aperçu rapide de l'élève.
+ * Toucher sa pastille « à écouter » : écoute rapide.
  * La carte reste un lien : un toucher simple ouvre la fiche comme avant.
  * (État hors du rendu : la feuille qui s'ouvre fait un nouveau rendu pendant que le doigt est posé.)
  */
@@ -272,7 +329,7 @@ function arreterAppui() {
   appui.depart = null;
 }
 
-function appuiLong(ouvrir: () => void) {
+function appuiLong(ouvrir: () => void, ecouter: () => void) {
   return {
     onTouchStart: (e: ToucherReact) => {
       appui.ouvert = false;
@@ -303,11 +360,16 @@ function appuiLong(ouvrir: () => void) {
       appui.ouvert = true;
     },
     onClickCapture: (e: SourisReact) => {
-      const surPastille = e.target instanceof Element && e.target.closest("[data-sans-navigation]");
-      if (!appui.ouvert && !surPastille) return;
+      const cible = e.target instanceof Element ? e.target : null;
+      const surPastille = cible?.closest("[data-sans-navigation]");
+      const surPhoto = cible?.closest("[data-apercu]");
+      if (!appui.ouvert && !surPastille && !surPhoto) return;
       e.preventDefault();
       e.stopPropagation();
-      if (surPastille && !appui.ouvert) ouvrir();
+      if (!appui.ouvert) {
+        if (surPastille) ecouter();
+        else ouvrir();
+      }
       appui.ouvert = false;
     },
   };

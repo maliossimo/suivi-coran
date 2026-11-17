@@ -14397,3 +14397,333 @@ html[data-plein-ecran] .remonter-en-haut {
     display: none;
   }
 }
+
+/* ===== Vue du Cheikh (1.48) : salutation, à écouter, aperçu rapide, chiffres compacts ===== */
+.salutation-cheikh {
+  margin: 2px 0 12px;
+  font-size: 15px;
+  color: var(--texte-doux);
+}
+.salutation-cheikh strong {
+  color: var(--texte);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.carte-eleve .carte-eleve-apercu {
+  grid-area: avatar;
+  position: relative;
+  display: inline-flex;
+  border-radius: 14px;
+  cursor: zoom-in;
+}
+.carte-eleve .carte-eleve-apercu .avatar {
+  grid-area: auto;
+}
+.carte-eleve-oeil {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  background: var(--carte);
+  color: var(--vert-texte);
+  border: 1px solid var(--ligne);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+@media (hover: hover) {
+  .carte-eleve-apercu:hover .carte-eleve-oeil {
+    background: var(--vert);
+    color: #fff;
+    border-color: var(--vert);
+  }
+}
+
+.a-ecouter {
+  margin: 0 0 14px;
+  padding: 12px 14px 14px;
+  border-radius: 18px;
+  background: var(--or-clair);
+  border: 1px solid var(--bord-or);
+}
+.a-ecouter h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: var(--or-texte);
+}
+.a-ecouter-total {
+  margin-left: auto;
+  min-width: 24px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--or);
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+}
+.a-ecouter ul {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0 0 2px;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.a-ecouter-eleve {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 5px 10px 5px 5px;
+  border: 1px solid var(--bord-or);
+  border-radius: 99px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.a-ecouter-eleve .avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+  border-radius: 99px;
+}
+.a-ecouter-eleve strong {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 99px;
+  background: var(--or-clair);
+  color: var(--or-texte);
+  font-size: 12px;
+}
+.a-ecouter-eleve:active {
+  transform: scale(0.97);
+}
+
+.chiffres-classe {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 18px;
+  margin: 18px 0 4px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--ligne);
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.chiffres-classe div {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.chiffres-classe dt {
+  font-weight: 400;
+}
+.chiffres-classe dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--texte);
+}
+.chiffres-classe .chiffre-alerte dd {
+  color: var(--rouge);
+}
+
+.accueil-cheikh {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  margin: 8px 0;
+  padding: 22px 18px;
+  border: 1px solid var(--ligne);
+  border-radius: 20px;
+  background: var(--carte) var(--motif-doux);
+  box-shadow: var(--ombre);
+  text-align: center;
+}
+.accueil-cheikh h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.accueil-etapes {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: etape;
+  text-align: left;
+}
+.accueil-etapes li {
+  position: relative;
+  padding-left: 38px;
+  color: var(--texte-doux);
+  font-size: 14.5px;
+  line-height: 1.4;
+  counter-increment: etape;
+}
+.accueil-etapes li::before {
+  content: counter(etape);
+  position: absolute;
+  left: 0;
+  top: -2px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 99px;
+  background: var(--vert);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+}
+.accueil-etapes strong {
+  color: var(--texte);
+}
+.accueil-qr {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  width: 100%;
+  max-width: 320px;
+}
+
+.apercu-eleve {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 6px;
+}
+.apercu-chiffres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 8px;
+}
+.apercu-chiffres div {
+  display: grid;
+  gap: 2px;
+  padding: 10px 8px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--ligne);
+  text-align: center;
+}
+.apercu-chiffres strong {
+  font-size: 19px;
+  color: var(--vert-texte);
+}
+.apercu-chiffres span {
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+.apercu-tendance {
+  padding: 12px 12px 8px;
+  border-radius: 16px;
+  border: 1px solid var(--ligne);
+}
+.apercu-courbe {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 120px;
+}
+.apercu-courbe .barre {
+  fill: var(--teinte-2);
+}
+.apercu-courbe .barre-courante {
+  fill: var(--vert);
+}
+.apercu-courbe .barre-vide {
+  fill: var(--teinte-0);
+}
+.apercu-courbe .point-versets {
+  fill: var(--or);
+}
+.apercu-courbe .etiquette-semaine {
+  fill: var(--texte-doux);
+  font-size: 9px;
+}
+.apercu-sens {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 6px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.tendance-hausse {
+  color: var(--vert-texte);
+}
+.tendance-stable {
+  color: var(--texte);
+}
+.tendance-baisse {
+  color: var(--rouge);
+}
+.tendance-aucune {
+  color: var(--texte-doux);
+}
+.apercu-bloc h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--texte-doux);
+  font-weight: 600;
+}
+.apercu-bloc ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.apercu-bloc li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+}
+.apercu-bloc li .pastille-etat {
+  flex-shrink: 0;
+}
+.apercu-liste {
+  margin: 0;
+  font-size: 14.5px;
+}
+.apercu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.apercu-actions > * {
+  flex: 1 1 140px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+:where(:root[data-theme="sombre"]) .a-ecouter,
+:where(:root[data-theme="nuit"]) .a-ecouter {
+  background: rgba(201, 162, 74, 0.1);
+  border-color: rgba(201, 162, 74, 0.3);
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .a-ecouter {
+    background: rgba(201, 162, 74, 0.1);
+    border-color: rgba(201, 162, 74, 0.3);
+  }
+}

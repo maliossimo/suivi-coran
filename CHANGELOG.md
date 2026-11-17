@@ -9,6 +9,19 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.48.0] — 2026-11-17
+
+### Ajouté
+
+- Vue du Cheikh : **aperçu rapide d'un élève** sans quitter la liste (toucher sa photo, ou appui long sur sa carte) : où il en est dans le Coran, sa dernière séance passage par passage, ce qui est à refaire, ses mots à revoir, et un bouton vers sa fiche.
+- **Tendance d'un élève** dans l'aperçu : son travail semaine par semaine sur 8 semaines (les points dorés marquent les semaines où il a appris de nouveaux versets) et s'il est en progrès, régulier ou en baisse (4 dernières semaines comparées aux 4 d'avant).
+- « À écouter » en haut de la classe : un toucher sur un élève ouvre ses séances à écouter.
+- Classe encore vide : trois étapes pour accueillir les premiers élèves, avec le QR code et le lien à partager directement sur la page.
+
+### Modifié
+
+- Vue du Cheikh plus claire, sur une seule colonne : « Salam Cheikh … » et la date en haut, la liste des élèves d'abord, les chiffres du mois sur une ligne discrète en bas (plus de tuiles à zéro).
+
 ## [1.47.0] — 2026-11-17
 
 ### Ajouté
