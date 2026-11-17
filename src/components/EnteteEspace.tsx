@@ -15,7 +15,18 @@ import { TitreBarre } from "./Salutation";
  * Barre du haut des espaces élève, maître et admin : logo (retour à l'accueil),
  * navigation principale et accès au compte.
  */
-export async function EnteteEspace({ titre, nom, role }: { titre: string; nom: string; role: Role }) {
+export async function EnteteEspace({
+  titre,
+  sousTitre,
+  nom,
+  role,
+}: {
+  titre: string;
+  /** Remplace le nom français sous la calligraphie (ex. le nom de l'élève sur sa fiche). */
+  sousTitre?: string;
+  nom: string;
+  role: Role;
+}) {
   // Même lecture que la page (mise en cache pour la requête) : aucun aller-retour de plus.
   const compte = await compteConnecte();
   const responsable = role === "maitre" && Boolean(compte?.responsable);
@@ -25,12 +36,12 @@ export async function EnteteEspace({ titre, nom, role }: { titre: string; nom: s
     <header className="barre barre-vivante">
       <CielDecor {...ciel} />
       <SignalerOuverture />
-      <EnteteCompact titre={titre} />
+      <EnteteCompact titre={titre} nomPage={sousTitre} />
       {nom ? null : <DemandePrenom />}
       <div className="barre-contenu">
         <LogoAccueil accueil={accueilDuRole(role)} label="Accueil — Suivi cours Coran">
           <div className="barre-titres" aria-hidden="true">
-            <TitreBarre titre={titre} prenom={nom.split(/\s+/)[0] ?? ""} />
+            <TitreBarre titre={titre} sousTitre={sousTitre} prenom={nom.split(/\s+/)[0] ?? ""} />
           </div>
         </LogoAccueil>
         <NavigationEspace role={role} responsable={responsable} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import {
   LIBELLE_JOUR_PARTICULIER,
   momentDuCiel,
@@ -45,6 +45,41 @@ function useMinutes(initiales: number): { minutes: number; fixe: MomentCiel | nu
   return { minutes, fixe };
 }
 
+const ID_BARRE_ETAT = "theme-color-ciel";
+
+/**
+ * Barre d'état du téléphone (heure, batterie) : la couleur du ciel du moment, pour que le ciel monte
+ * jusqu'en haut de l'écran. Notre balise theme-color est placée en tête (le navigateur prend la première) ;
+ * elle suit aussi le passage du mode clair au mode sombre.
+ */
+function useBarreEtatDuCiel(ciel: RefObject<HTMLDivElement | null>, moment: MomentCiel) {
+  useEffect(() => {
+    const el = ciel.current;
+    if (!el) return;
+    const appliquer = () => {
+      const couleur = getComputedStyle(el).getPropertyValue("--ciel").trim();
+      if (!couleur) return;
+      let balise = document.getElementById(ID_BARRE_ETAT) as HTMLMetaElement | null;
+      if (!balise) {
+        balise = document.createElement("meta");
+        balise.id = ID_BARRE_ETAT;
+        balise.name = "theme-color";
+      }
+      if (document.head.firstElementChild !== balise) document.head.prepend(balise);
+      balise.content = couleur;
+    };
+    appliquer();
+    const schema = matchMedia("(prefers-color-scheme: dark)");
+    schema.addEventListener("change", appliquer);
+    const observateur = new MutationObserver(appliquer);
+    observateur.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => {
+      schema.removeEventListener("change", appliquer);
+      observateur.disconnect();
+    };
+  }, [ciel, moment]);
+}
+
 /** Coupoles (deux plans), minaret et sa lanterne. */
 function Silhouettes() {
   return (
@@ -79,12 +114,12 @@ function Lune({ jour }: { jour: number }) {
     <g className="ciel-lune">
       <defs>
         <mask id="masque-lune">
-          <circle cx="246" cy="48" r={r} fill="#fff" />
-          <circle cx={246 + decalage} cy="48" r={r + 0.4} fill="#000" />
+          <circle cx="246" cy="60" r={r} fill="#fff" />
+          <circle cx={246 + decalage} cy="60" r={r + 0.4} fill="#000" />
         </mask>
       </defs>
-      <circle cx="246" cy="48" r={r + 6} className="ciel-lune-halo" />
-      <circle cx="246" cy="48" r={r} mask="url(#masque-lune)" className="ciel-lune-disque" />
+      <circle cx="246" cy="60" r={r + 6} className="ciel-lune-halo" />
+      <circle cx="246" cy="60" r={r} mask="url(#masque-lune)" className="ciel-lune-disque" />
     </g>
   );
 }
@@ -121,11 +156,19 @@ function Lanternes() {
  */
 export function CielDecor({ horaires, jourHegire, particulier, maintenant }: CielProps) {
   const { minutes, fixe } = useMinutes(maintenant);
+  const ciel = useRef<HTMLDivElement>(null);
   const moment = fixe ?? momentDuCiel(minutes, horaires);
   const fete = fixe ? null : particulier;
   const bas = moment === "fajr" || moment === "maghrib";
+  useBarreEtatDuCiel(ciel, moment);
   return (
-    <div className="ciel" data-moment={moment} data-particulier={fete ?? undefined} aria-hidden="true">
+    <div
+      ref={ciel}
+      className="ciel"
+      data-moment={moment}
+      data-particulier={fete ?? undefined}
+      aria-hidden="true"
+    >
       <div className="ciel-motif" />
       <svg className="ciel-scene" viewBox="0 0 360 138">
         <defs>
@@ -138,11 +181,11 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
         <circle
           className="ciel-halo"
           cx={bas ? 224 : 246}
-          cy={bas ? 84 : 48}
+          cy={bas ? 84 : 60}
           r="80"
           fill="url(#ciel-halo-degrade)"
         />
-        {moment === "jour" ? <circle className="ciel-soleil" cx="246" cy="48" r="10" /> : null}
+        {moment === "jour" ? <circle className="ciel-soleil" cx="246" cy="60" r="10" /> : null}
         {bas ? <circle className="ciel-soleil-bas" cx="224" cy="84" r="13" /> : null}
         {!fixe && jourHegire !== null && moment !== "jour" ? <Lune jour={jourHegire} /> : null}
         <g className="ciel-nuages">

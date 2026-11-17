@@ -9,6 +9,18 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.51.2] — 2026-11-17
+
+### Modifié
+
+- Barre d'état du téléphone (heure, batterie) : elle prend la couleur du ciel du moment ; le ciel monte jusqu'en haut de l'écran, sans bande verte au-dessus.
+- Coupoles pleines : le soleil couchant passe vraiment derrière la grande coupole. Lune et soleil un peu plus bas, jamais coupés.
+- Barre du bas plus légère : le nom arabe seulement sous l'onglet choisi, frise plus fine (en haut aussi).
+- Mois : les mois hégiriens plus discrets et jamais coupés (« ath-thania 14… »).
+- Fiche d'un élève (vue du Cheikh) : la barre affiche « سجلّ الطالب » et le nom de l'élève, au lieu de « Ma classe ».
+- « Vue du Cheikh » (administration) tient sur une ligne.
+- Cartes « Aujourd'hui » : en grand texte, les mots se coupent proprement au lieu d'être tronqués.
+
 ## [1.51.1] — 2026-11-17
 
 ### Corrigé
