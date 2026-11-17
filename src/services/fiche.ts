@@ -175,6 +175,8 @@ export interface DonneesSeance {
   suggestion: Passage | null;
   /** Passage à préremplir (déjà ajouté au formulaire). */
   propose: Passage | null;
+  /** Passages « à refaire » de la séance précédente (passés chez le Cheikh, pas validés). */
+  aRefaire: Passage[];
 }
 
 export async function chargerSeance(
@@ -195,7 +197,15 @@ export async function chargerSeance(
   const dernier = precedente?.passages.at(-1);
   const suggestion = dernier ? passageSuivant(ref, dernier) : null;
   const propose = lirePassageTexte(ref, passagePropose);
-  return { date, type, seance, commentaires, sourates, lecture, suggestion, propose };
+  const aRefaire = (precedente?.passages ?? [])
+    .filter((p) => p.corrige && !p.valide)
+    .map(({ sourateDebut, versetDebut, sourateFin, versetFin }) => ({
+      sourateDebut,
+      versetDebut,
+      sourateFin,
+      versetFin,
+    }));
+  return { date, type, seance, commentaires, sourates, lecture, suggestion, propose, aRefaire };
 }
 
 // ---------- Saisie d'une séance ----------------------------------------
@@ -289,8 +299,9 @@ export async function validerSeanceEleve(
   acteur: { role: string },
   seanceBrute: unknown,
 ): Promise<ResultatSaisie> {
-  if (acteur.role !== "maitre" && acteur.role !== "admin") {
-    return { ok: false, erreur: "Seul le Cheikh peut valider une séance." };
+  // L'élève (sa séance) ou son Cheikh : la base vérifie qui a le droit (valider_seance).
+  if (!["eleve", "maitre", "admin"].includes(acteur.role)) {
+    return { ok: false, erreur: "Validation impossible pour ce compte." };
   }
   const seanceId = z.string().uuid().safeParse(seanceBrute);
   if (!seanceId.success) return { ok: false, erreur: "Séance introuvable." };
@@ -314,9 +325,8 @@ export async function marquerPassagesSeance(
   acteur: { role: string; actif: boolean },
   brut: unknown,
 ): Promise<ResultatSaisie> {
-  if (!acteur.actif || (acteur.role !== "maitre" && acteur.role !== "admin")) {
-    return { ok: false, erreur: "Seul le Cheikh marque les passages." };
-  }
+  // L'élève (ses passages) ou son Cheikh : la base vérifie qui a le droit (marquer_passages).
+  if (!acteur.actif) return { ok: false, erreur: "Compte désactivé." };
   const m = schemaMarquage.safeParse(brut);
   if (!m.success) return { ok: false, erreur: "Passage introuvable : recharge la page." };
   try {

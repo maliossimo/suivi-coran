@@ -289,7 +289,7 @@ function ListeAcquis({ acquis }: { acquis: PageAcquis["acquis"] }) {
 /** Où en est une partie déclarée : validée, écoutée, à écouter, ou connue sans écoute. */
 export function EtatAcquis({ a }: { a: { aEcouter: boolean; ecoute: boolean; valide: boolean } }) {
   if (a.valide) return <span className="pastille-etat etat-valide">✓ Validé</span>;
-  if (a.ecoute) return <span className="pastille-etat etat-ecoute">Écouté</span>;
+  if (a.ecoute) return <span className="pastille-etat etat-ecoute">↺ À refaire</span>;
   if (a.aEcouter) return <span className="pastille-etat etat-a-ecouter">À écouter</span>;
   return <span className="pastille-etat acquis-declare">Déclaré</span>;
 }

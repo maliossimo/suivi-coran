@@ -599,9 +599,31 @@ select pg_temp.attendu(
 select pg_temp.console();
 
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+-- L'élève (majeur) marque lui-même « passé avec le Cheikh » : à refaire, puis validé.
+select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'ecoute');
+select pg_temp.attendu(
+  (select bool_and(corrige_le is not null and valide_le is null
+                   and corrige_par = 'a0000000-0000-0000-0000-000000000001')
+     from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
+  'élève : marque lui-même ses passages « à refaire », en son nom');
+select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'valide');
+select pg_temp.attendu(
+  (select bool_and(valide_le is not null and valide_par = 'a0000000-0000-0000-0000-000000000001')
+     from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
+  'élève : marque lui-même ses passages « validés » (le dernier qui marque a raison)');
+update public.passages set valide_le = null, valide_par = null
+ where seance_id = '5e000000-0000-0000-0000-0000000000a1';
+select pg_temp.attendu(
+  (select bool_and(valide_le is not null)
+     from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
+  'élève : les marques ne se forgent pas par une mise à jour directe (seulement par marquer_passages)');
+select pg_temp.console();
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000002');
 select pg_temp.doit_echouer(
   $q$select public.marquer_passages('5e000000-0000-0000-0000-0000000000a1', 'valide')$q$,
-  'élève : ne marque pas lui-même ses passages');
+  'un autre élève : ne marque pas les passages d''un camarade');
+select pg_temp.console();
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 update public.passages set valide_par = null, valide_le = null, corrige_le = null where seance_id = '5e000000-0000-0000-0000-0000000000a1';
 -- Réenregistrer la séance telle quelle (mêmes passages).
 select public.enregistrer_seance(s.date, s.type, s.duree_min, null, s.note_libre,
@@ -612,7 +634,7 @@ select public.enregistrer_seance(s.date, s.type, s.duree_min, null, s.note_libre
 select pg_temp.console();
 select pg_temp.attendu(
   (select bool_and(valide_le is not null) from public.passages where seance_id = '5e000000-0000-0000-0000-0000000000a1'),
-  'élève : ne peut pas retirer la validation, et réenregistrer sans changement la garde');
+  'élève : une mise à jour directe ne retire pas la validation, et réenregistrer sans changement la garde');
 
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 -- Un seul passage, modifié (un verset de plus que le premier passage).
@@ -728,13 +750,20 @@ select pg_temp.doit_echouer(
   $q$insert into public.acquis (eleve_id, sourate_debut, verset_debut, sourate_fin, verset_fin)
      values ('a0000000-0000-0000-0000-000000000001', 67, 1, 67, 31)$q$,
   'acquis : un verset hors de la sourate est refusé');
-select pg_temp.doit_echouer(
-  $q$select public.marquer_acquis('ac000000-0000-0000-0000-000000000001', 'valide')$q$,
-  'acquis : l''élève ne valide pas lui-même');
 update public.acquis set valide_le = now() where id = 'ac000000-0000-0000-0000-000000000001';
 select pg_temp.attendu(
   (select valide_le is null from public.acquis where id = 'ac000000-0000-0000-0000-000000000001'),
-  'acquis : la validation reste réservée au Cheikh, même par une mise à jour directe');
+  'acquis : une mise à jour directe ne forge pas de validation');
+select public.marquer_acquis('ac000000-0000-0000-0000-000000000001', 'ecoute');
+select pg_temp.attendu(
+  (select ecoute_le is not null and valide_le is null
+          and ecoute_par = 'a0000000-0000-0000-0000-000000000001'
+     from public.acquis where id = 'ac000000-0000-0000-0000-000000000001'),
+  'acquis : l''élève marque lui-même « passé · à refaire »');
+select public.marquer_acquis('ac000000-0000-0000-0000-000000000001', 'aucun');
+select pg_temp.attendu(
+  (select ecoute_le is null from public.acquis where id = 'ac000000-0000-0000-0000-000000000001'),
+  'acquis : l''élève peut revenir à « pas encore passé »');
 select public.acquis_repondu();
 select pg_temp.attendu(
   (select acquis_repondu from public.profils where id = 'a0000000-0000-0000-0000-000000000001'),

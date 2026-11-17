@@ -92,6 +92,18 @@ export function EcranSeance({
         </>
       ) : null}
 
+      {/* L'élève marque lui-même son passage chez le Cheikh : validé ou à refaire. */}
+      {!vueMaitre && donnees.seance ? (
+        <EcouteCheikh
+          key={donnees.seance.passages.map((p) => `${p.sourateDebut}:${p.versetDebut}-${p.versetFin}`).join()}
+          eleveId={eleveId}
+          seanceId={donnees.seance.id}
+          passages={donnees.seance.passages}
+          sourates={donnees.sourates}
+          pourEleve
+        />
+      ) : null}
+
       <FormulaireSeance
         eleveId={eleveId}
         retour={retour}
@@ -99,6 +111,7 @@ export function EcranSeance({
         type={type}
         initiale={donnees.seance}
         suggestion={donnees.suggestion}
+        aRefaire={donnees.aRefaire}
         propose={donnees.propose}
         vueMaitre={vueMaitre}
         // Côté Cheikh, la saisie de l'élève est résumée : on ne la modifie que si besoin.

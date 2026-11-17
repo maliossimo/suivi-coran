@@ -1,5 +1,6 @@
 import { SousTitreDefilant } from "@/components/SousTitreEntete";
 import Link from "next/link";
+import { preload } from "react-dom";
 import { LectureCoran } from "@/components/coran/LectureCoran";
 import { NavigationCoran } from "@/components/coran/NavigationCoran";
 import { SuiteCoran } from "@/components/coran/SuiteCoran";
@@ -49,6 +50,13 @@ export function PageCoranComplete({
       : p.sourate < 114
         ? lienSourate(p.lecture, p.sourate + 1)
         : null;
+
+  // La police du Mushaf part avec la page (en tête du HTML) : le texte s'affiche tout de suite dans la bonne police.
+  preload(p.lecture === "warsh" ? "/polices/warsh.10.woff2" : "/polices/hafs.18.woff2", {
+    as: "font",
+    type: "font/woff2",
+    crossOrigin: "anonymous",
+  });
 
   return (
     <>
