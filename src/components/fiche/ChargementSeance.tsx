@@ -1,6 +1,8 @@
 "use client";
 
-import { BandeauDates } from "@/components/DateHegirienne";
+import { CielDates, CielDecor } from "@/components/ciel/CielVivant";
+import { cielParDefaut } from "@/components/ciel/defaut";
+import { TitreCalligraphie } from "@/components/ciel/TitreCalligraphie";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -33,21 +35,23 @@ function TitreDuJour() {
  * apparaissent dès le toucher ; seuls les champs attendent la base.
  */
 export function ChargementSeance({ titreBarre }: { titreBarre: string }) {
+  const ciel = cielParDefaut();
   return (
     <>
-      <header className="barre">
+      <header className="barre barre-vivante">
+        <CielDecor {...ciel} />
         <div className="barre-contenu">
           <Link href="/" className="barre-marque" aria-label="Retour à l’accueil">
             <span className="barre-logo" aria-hidden="true">
               <LogoEtoile />
             </span>
             <div className="barre-titres">
-              <span className="barre-app">Suivi cours Coran</span>
-              <span className="barre-titre">{titreBarre}</span>
+              <TitreCalligraphie titre={titreBarre} />
             </div>
           </Link>
         </div>
-        <BandeauDates />
+        <CielDates {...ciel} />
+        <span className="frise-zellige" aria-hidden="true" />
       </header>
       <main className="espace espace-etroit" aria-busy="true" aria-live="polite">
         <span className="visuellement-cache">Chargement de la séance…</span>

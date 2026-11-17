@@ -10,36 +10,49 @@ export interface ClasseDuJour {
 }
 
 /**
- * Carte « Appel du jour » en haut de « Ma classe » : bien visible tant que l'appel
- * n'est pas fait, discrète ensuite.
+ * Carte « Appel du jour » en haut de « Ma classe » : une seule carte, une ligne par classe
+ * (« Faire l'appel » tant qu'il n'est pas fait, le résumé ensuite).
  */
 export function AppelDuJour({ classes }: { classes: ClasseDuJour[] }) {
   if (!classes.length) return null;
-  const aFaire = classes.filter((c) => !c.resume);
+  const aFaire = classes.filter((c) => !c.resume).length;
   return (
-    <section className={aFaire.length ? "appel-du-jour" : "appel-du-jour fait"} aria-label="Appel du jour">
-      {classes.map((c) =>
-        c.resume ? (
-          <Link key={c.id} href={`/presences/${c.id}/appel`} className="appel-du-jour-ligne">
-            <Check size={16} aria-hidden="true" />
-            <span className="appel-du-jour-texte">
-              Appel fait · <b>{c.nom}</b> · {libelleResume(c.resume)}
-            </span>
-            <ChevronRight size={16} aria-hidden="true" />
-          </Link>
-        ) : (
-          <Link key={c.id} href={`/presences/${c.id}/appel`} className="appel-du-jour-ligne a-faire">
-            <CalendarCheck size={20} aria-hidden="true" />
-            <span className="appel-du-jour-texte">
-              <b>Appel du jour · {c.nom}</b>
-              <small>
-                {c.nbMembres} élève{c.nbMembres > 1 ? "s" : ""} · tout le monde est présent au départ
-              </small>
-            </span>
-            <ChevronRight size={18} aria-hidden="true" />
-          </Link>
-        ),
-      )}
+    <section
+      className={aFaire ? "carte-unie appel-du-jour" : "carte-unie appel-du-jour fait"}
+      aria-labelledby="appel-du-jour-titre"
+    >
+      <h2 className="carte-unie-titre" id="appel-du-jour-titre">
+        <CalendarCheck size={18} aria-hidden="true" /> Appel du jour
+      </h2>
+      <ul>
+        {classes.map((c) => (
+          <li key={c.id}>
+            <Link
+              href={`/presences/${c.id}/appel`}
+              className={c.resume ? "appel-ligne" : "appel-ligne a-faire"}
+            >
+              <span className="appel-ligne-classe">
+                <b>{c.nom}</b>
+                <small>
+                  {c.resume
+                    ? libelleResume(c.resume)
+                    : `${c.nbMembres} élève${c.nbMembres > 1 ? "s" : ""} · tous présents au départ`}
+                </small>
+              </span>
+              <span className="appel-ligne-action">
+                {c.resume ? (
+                  <>
+                    <Check size={15} aria-hidden="true" /> Fait
+                  </>
+                ) : (
+                  "Faire l’appel"
+                )}
+                <ChevronRight size={16} aria-hidden="true" />
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

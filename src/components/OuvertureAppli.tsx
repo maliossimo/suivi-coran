@@ -4,6 +4,7 @@
  * le logo est d'abord là, tel qu'Android le montre ; un trait d'or vif parcourt l'étoile,
  * un calame doré repasse sur le ق (le corps, puis les deux points), l'étoile pivote d'un
  * huitième de tour, un reflet traverse la lettre, le nom apparaît ; un court temps figé,
+ * « القرآن الكريم » s'écrit en calligraphie sous le logo ;
  * puis le logo file vers l'en-tête et la page s'ouvre. Environ 2,5 s.
  * Une fois par ouverture, seulement dans l'appli installée, jamais si le téléphone
  * demande de réduire les animations ; un appui la passe.
@@ -51,6 +52,10 @@ export function OuvertureAppli() {
           />
         </g>
       </svg>
+      {/* Signature : « القرآن الكريم » s'écrit au calame, de droite à gauche, sous le logo. */}
+      <p className="ouverture-calligraphie" lang="ar" dir="rtl">
+        القرآن الكريم
+      </p>
       <p className="ouverture-version">
         Suivi cours Coran
         <span>{LIBELLE_VERSION}</span>

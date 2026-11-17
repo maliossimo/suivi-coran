@@ -34,6 +34,7 @@ import {
 } from "@/repositories/admin";
 import { MISE_EN_LIGNE, VERSION } from "@/lib/version";
 import { renvoyerInvitation } from "@/repositories/invitations";
+import { placerEtablissement, positionsEtablissements } from "@/repositories/etablissements";
 import { seancesSuiviDepuis } from "@/repositories/seances";
 import type { Profil } from "@/repositories/profils";
 import { aujourdhuiParis, type ResultatSaisie } from "./fiche";
@@ -371,4 +372,43 @@ export async function signalerErreur(acteur: Profil | null, page: unknown, messa
     String(message ?? "").slice(0, 500) || "Erreur inconnue",
     version,
   );
+}
+
+const schemaPosition = z.object({
+  latitude: z.coerce.number().min(-90, "Latitude entre -90 et 90.").max(90, "Latitude entre -90 et 90."),
+  longitude: z.coerce
+    .number()
+    .min(-180, "Longitude entre -180 et 180.")
+    .max(180, "Longitude entre -180 et 180."),
+});
+
+/** Place une mosquée (latitude, longitude) pour les heures de prière ; champs vides : on la retire. */
+export async function placerUnEtablissement(
+  acteur: Profil,
+  idBrut: unknown,
+  latitudeBrute: unknown,
+  longitudeBrute: unknown,
+): Promise<ResultatSaisie> {
+  exigerAdmin(acteur);
+  const id = z.string().uuid().safeParse(idBrut);
+  if (!id.success) return { ok: false, erreur: "Établissement introuvable." };
+  const vide = (v: unknown) => typeof v !== "string" || v.trim() === "";
+  if (vide(latitudeBrute) && vide(longitudeBrute)) {
+    await placerEtablissement(id.data, null);
+    return { ok: true };
+  }
+  const position = schemaPosition.safeParse({
+    latitude: String(latitudeBrute).replace(",", "."),
+    longitude: String(longitudeBrute).replace(",", "."),
+  });
+  if (!position.success)
+    return { ok: false, erreur: position.error.issues[0]?.message ?? "Position invalide." };
+  await placerEtablissement(id.data, position.data);
+  return { ok: true };
+}
+
+/** Positions des mosquées (admin), pour le formulaire « Position ». */
+export async function positionsDesEtablissements(acteur: Profil) {
+  exigerAdmin(acteur);
+  return positionsEtablissements();
 }

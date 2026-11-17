@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { TitreCalligraphie } from "./ciel/TitreCalligraphie";
 
 /**
  * Titre de la barre du haut avec la salutation : une fois par visite, « السلام عليكم » + prénom
@@ -27,7 +28,7 @@ export function TitreBarre({ titre, prenom }: { titre: string; prenom: string })
 
   return (
     <span className={salue ? "barre-titre-zone salue" : "barre-titre-zone"}>
-      <span className="barre-titre">{titre}</span>
+      <TitreCalligraphie titre={titre} />
       <span className="barre-salutation" aria-hidden={!salue}>
         <span className="barre-salutation-arabe" lang="ar" dir="rtl">
           السلام عليكم

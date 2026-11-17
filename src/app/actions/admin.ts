@@ -10,6 +10,7 @@ import {
   nommerResponsable,
   reglerErreur,
   deplacerUnUtilisateur,
+  placerUnEtablissement,
   renommerUnEtablissement,
   renvoyerUneInvitation,
   supprimerUnEtablissement,
@@ -103,4 +104,18 @@ export async function actionModeVueAdmin(form: FormData): Promise<void> {
   const profil = await admin();
   await choisirModeVueAdmin(profil, form.get("mode"));
   revalidatePath("/maitre", "layout");
+}
+
+export async function actionPlacerEtablissement(_: EtatSaisie, form: FormData): Promise<EtatSaisie> {
+  const profil = await admin();
+  const resultat = await placerUnEtablissement(
+    profil,
+    form.get("id"),
+    form.get("latitude"),
+    form.get("longitude"),
+  );
+  if (!resultat.ok) return { erreur: resultat.erreur };
+  await notifier("Position de la mosquée enregistrée");
+  revalidatePath("/admin");
+  return { enregistre: true };
 }

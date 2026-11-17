@@ -31,6 +31,13 @@ const amiri = localFont({
   variable: "--font-arabe",
   display: "swap",
 });
+// Calligraphie Ruqʿa (Aref Ruqaa, licence OFL, lettres arabes seulement) : titres de la barre, dates, ouverture.
+const calligraphie = localFont({
+  src: "./polices/aref-ruqaa-gras.woff",
+  weight: "700",
+  variable: "--font-calligraphie",
+  display: "swap",
+});
 // Titres : une serif élégante qui s'accorde à la calligraphie arabe (Amiri).
 const fraunces = localFont({
   src: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2",
@@ -139,7 +146,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${amiri.variable} ${fraunces.variable}`}
+      className={`${inter.variable} ${amiri.variable} ${fraunces.variable} ${calligraphie.variable}`}
       // Le script d'ouverture ajoute data-ouverture avant React : pas une erreur.
       suppressHydrationWarning
     >

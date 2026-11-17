@@ -9,6 +9,25 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.51.0] — 2026-11-17
+
+### Ajouté
+
+- **Une barre du haut vivante, à l'identité de l'appli** : le ciel suit les vraies heures de prière de la mosquée (aube, jour, coucher du soleil, nuit), au-dessus de coupoles et d'un minaret dont la lanterne s'allume le soir ; nuages le jour, étoiles et étoile filante la nuit, motif qui dérive lentement, frise de zellige dorée.
+- **La vraie lune** : le croissant suit le jour du mois hégirien (fin au début du mois, pleine lune le 14).
+- **Les moments qui comptent** : touche dorée le vendredi, pleine lune des jours blancs, lanternes pendant le Ramadan, étoiles d'or pour les deux Aïd.
+- **Titres en calligraphie arabe** (Ruqʿa) avec le nom français dessous : حلقتي, الطلاب, القرآن الكريم, الحضور… La calligraphie se trace à l'arrivée sur la page. Sous le titre : la date française, le temps de prière en cours (« وقت الضحى »…) et la date hégirienne calligraphiée.
+- **Barre du bas en arcade** : l'onglet choisi s'illumine d'un arc doré, une étoile à huit branches glisse vers lui, chaque onglet porte son nom arabe ; au centre, un **mihrab doré** pour le Coran (ou la classe du Cheikh).
+- **Fêtes à l'image de l'appli** : une étoile de zellige s'ouvre quand une sourate ou un juz est terminé ; pour un juz, un cadre enluminé.
+- **Ouverture signée** : « القرآن الكريم » s'écrit au calame sous le logo à l'ouverture de l'appli installée.
+- **Version claire** : en mode clair, ciel de parchemin et coupoles ocre ; en sombre, la nuit verte.
+- Administration : position de chaque mosquée (« Ma position » sur place, ou latitude et longitude) pour les heures de prière ; Paris en attendant.
+
+### Modifié
+
+- Le bandeau des dates disparaît : les dates sont dans la barre. « Appel du jour » tient dans une seule carte (une ligne par classe), « À écouter » prend le style des autres cartes, « Inviter » devient un petit bouton.
+- Élève : « Mon compte » s'ouvre par l'avatar en haut à droite ; la barre du bas garde trois onglets, le Coran au centre.
+
 ## [1.50.3] — 2026-11-17
 
 ### Interne
