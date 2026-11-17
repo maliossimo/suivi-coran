@@ -14922,6 +14922,7 @@ ul.apercu-liste li {
   --ciel-texte-doux: #4b5a52;
   --ciel-or: #8a5f12;
   --ciel-sil: rgba(122, 79, 14, 0.17);
+  --ciel-ombre: #7a4f0e;
   --ciel-sil-loin: rgba(122, 79, 14, 0.08);
   --ciel-astre: #d9a93f;
   --ciel-lune: #b98a2c;
@@ -14961,6 +14962,7 @@ ul.apercu-liste li {
     --ciel-texte-doux: #c9dbd2;
     --ciel-or: #f0cf7a;
     --ciel-sil: rgba(0, 0, 0, 0.3);
+    --ciel-ombre: #000000;
     --ciel-sil-loin: rgba(0, 0, 0, 0.16);
     --ciel-astre: #f6d77a;
     --ciel-lune: #f6eedb;
@@ -14999,6 +15001,7 @@ ul.apercu-liste li {
   --ciel-texte-doux: #c9dbd2;
   --ciel-or: #f0cf7a;
   --ciel-sil: rgba(0, 0, 0, 0.3);
+  --ciel-ombre: #000000;
   --ciel-sil-loin: rgba(0, 0, 0, 0.16);
   --ciel-astre: #f6d77a;
   --ciel-lune: #f6eedb;
@@ -15134,11 +15137,11 @@ ul.apercu-liste li {
   animation: ciel-filante 11s ease-out infinite;
 }
 .ciel-loin {
-  fill: var(--ciel-sil-loin);
+  fill: color-mix(in srgb, var(--ciel) 86%, var(--ciel-ombre));
   animation: ciel-plan-loin 16s ease-in-out infinite alternate;
 }
 .ciel-pres {
-  fill: var(--ciel-sil);
+  fill: color-mix(in srgb, var(--ciel) 70%, var(--ciel-ombre));
   animation: ciel-plan-pres 16s ease-in-out infinite alternate;
 }
 .ciel-lanterne {
@@ -15735,4 +15738,67 @@ html[data-ouverture] .ouverture-calligraphie {
 }
 .barre-vivante .barre-salutation-prenom {
   color: var(--ciel-texte);
+}
+
+/* ---------- Retouches de l'identité (1.51.2) ---------- */
+/* Barre du bas : le nom arabe seulement sur l'onglet choisi (moins chargé) ; frise plus fine. */
+@media (max-width: 760px) {
+  .nav-onglet:not([aria-current="page"]) .nav-ar,
+  .nav-plus:not([data-actif]) .nav-ar {
+    display: none;
+  }
+  .nav-espace::before {
+    top: -7px;
+    height: 6px;
+    background-size: 12px 6px;
+  }
+}
+.frise-zellige {
+  height: 6px;
+  background-size: 12px 6px;
+}
+/* Mois : les mois hégiriens plus discrets, jamais coupés (deux lignes s'il le faut). */
+.mois-hegire {
+  font-size: 11.5px;
+  line-height: 1.3;
+  white-space: normal;
+  text-overflow: clip;
+  text-wrap: balance;
+}
+@media (max-width: 480px) {
+  .mois-hegire-ar {
+    font-size: 11.5px;
+    white-space: normal;
+  }
+}
+/* Cartes « Aujourd'hui » : en grand texte, le mot se coupe proprement au lieu d'être tronqué. */
+.aujourdhui-texte b,
+.aujourdhui-texte small {
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+/* « Vue du Cheikh » sur une seule ligne ; sur téléphone, « Administration » est déjà dans la barre du bas. */
+.bandeau-vue-admin {
+  flex-wrap: nowrap;
+  padding: 6px 6px 6px 12px;
+}
+.bandeau-vue-admin p {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.choix-mode-admin {
+  flex: 0 0 auto;
+}
+.choix-mode-admin button {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .bandeau-vue-admin a {
+    display: none;
+  }
 }

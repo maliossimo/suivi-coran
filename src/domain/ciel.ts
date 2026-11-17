@@ -80,6 +80,7 @@ const TITRES_ARABES: Record<string, string> = {
   Nouveautés: "الجديد",
   Enchaînements: "وصل الآيات",
   "Ce que je connais": "محفوظاتي",
+  "Fiche de l'élève": "سجلّ الطالب",
   Plus: "المزيد",
 };
 

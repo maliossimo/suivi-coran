@@ -32,7 +32,12 @@ export default async function PageEleveMaitre({
 
   return (
     <>
-      <EnteteEspace titre="Ma classe" nom={`${profil.prenom} ${profil.nom}`.trim()} role={profil.role} />
+      <EnteteEspace
+        titre="Fiche de l'élève"
+        sousTitre={`${eleve.prenom} ${eleve.nom}`.trim()}
+        nom={`${profil.prenom} ${profil.nom}`.trim()}
+        role={profil.role}
+      />
       <main className="espace">
         <VueAdmin actif={profil.role === "admin"}>
           <Link href="/maitre" className="lien-retour">

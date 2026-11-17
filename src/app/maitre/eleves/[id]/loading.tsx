@@ -1,5 +1,5 @@
 import { Chargement } from "@/components/Chargement";
 
 export default function ChargementFicheEleve() {
-  return <Chargement titre="Ma classe" forme="fiche" />;
+  return <Chargement titre="Fiche de l'élève" forme="fiche" />;
 }

@@ -8,7 +8,15 @@ import { TitreCalligraphie } from "./ciel/TitreCalligraphie";
  * prend la place du titre (après l'animation d'ouverture dans l'appli), puis le titre revient
  * en douceur. Rien ne recouvre la page.
  */
-export function TitreBarre({ titre, prenom }: { titre: string; prenom: string }) {
+export function TitreBarre({
+  titre,
+  sousTitre,
+  prenom,
+}: {
+  titre: string;
+  sousTitre?: string;
+  prenom: string;
+}) {
   const [salue, setSalue] = useState(false);
 
   useEffect(() => {
@@ -28,7 +36,7 @@ export function TitreBarre({ titre, prenom }: { titre: string; prenom: string })
 
   return (
     <span className={salue ? "barre-titre-zone salue" : "barre-titre-zone"}>
-      <TitreCalligraphie titre={titre} />
+      <TitreCalligraphie titre={titre} sousTitre={sousTitre} />
       <span className="barre-salutation" aria-hidden={!salue}>
         <span className="barre-salutation-arabe" lang="ar" dir="rtl">
           السلام عليكم
