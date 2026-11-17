@@ -15110,9 +15110,7 @@ ul.apercu-liste li {
 .ciel[data-moment="jour"] .ciel-nuages {
   opacity: 0.16;
 }
-.ciel[data-moment="maghrib"] .ciel-nuages {
-  opacity: 0.1;
-}
+
 .ciel-etoiles {
   opacity: 0;
   transition: opacity 1.2s;
@@ -15318,7 +15316,7 @@ ul.apercu-liste li {
   white-space: nowrap;
 }
 .barre-dates-temps {
-  margin-inline-start: 8px;
+  margin-left: 6px;
   font-size: 13px;
 }
 .barre-dates-hegire {
@@ -15467,9 +15465,9 @@ ul.apercu-liste li {
     content: "";
     position: absolute;
     left: 50%;
-    top: -24px;
-    width: 56px;
-    height: 58px;
+    top: -26px;
+    width: 52px;
+    height: 54px;
     transform: translateX(-50%);
     background: linear-gradient(180deg, #f0cf7a, #c9a24a);
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 58'%3E%3Cpath fill-rule='evenodd' d='M2 58V28Q2 11 28 2Q54 11 54 28V58Z M9 58V31Q9 18 28 10Q47 18 47 31V58Z M10.6 58V31.6Q10.6 19.2 28 11.8Q45.4 19.2 45.4 31.6V58Z'/%3E%3C/svg%3E")
@@ -15486,12 +15484,17 @@ ul.apercu-liste li {
   .nav-mihrab > svg,
   .nav-espace.avec-pastille .nav-mihrab > svg {
     position: relative;
-    top: -10px;
+    top: -8px;
     color: #123c2e;
     fill: none;
   }
-  .nav-mihrab .nav-ar,
+  /* Dans le mihrab : l'icône seule ; le nom français dessous, le nom arabe n'y tient pas. */
+  .nav-mihrab .nav-ar {
+    display: none;
+  }
   .nav-mihrab > span {
+    position: relative;
+    top: 2px;
     color: var(--nav-or);
   }
 }
