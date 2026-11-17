@@ -1,6 +1,6 @@
 import "server-only";
 import { z } from "zod";
-import { HEURES_ENTRE_DEUX_ESSAIS, type HorairesMawaqit } from "@/domain/mawaqit";
+import { HEURES_ENTRE_DEUX_ESSAIS, type JourHoraires } from "@/domain/mawaqit";
 import { clientAdmin } from "@/lib/supabase/admin";
 
 /**
@@ -48,14 +48,17 @@ export async function mosqueesMawaqit(): Promise<MosqueeMawaqit[]> {
 }
 
 /**
- * Enregistre le calendrier (un upsert par jour, en une requête : tout ou rien), puis Joumou'a et la date.
+ * Enregistre le calendrier (un upsert par jour, en une requête : tout ou rien), puis la date de l'import.
  * Le 29 février reste d'une année à l'autre s'il manque (calendrier d'une année type).
  */
-export async function enregistrerHorairesMawaqit(etablissementId: string, h: HorairesMawaqit): Promise<void> {
+export async function enregistrerHorairesMawaqit(
+  etablissementId: string,
+  jours: JourHoraires[],
+): Promise<void> {
   const c = client();
   const maintenant = new Date().toISOString();
   const { error } = await c.from("horaires_priere").upsert(
-    h.jours.map((j) => ({
+    jours.map((j) => ({
       etablissement_id: etablissementId,
       mois: j.mois,
       jour: j.jour,
@@ -65,11 +68,6 @@ export async function enregistrerHorairesMawaqit(etablissementId: string, h: Hor
       asr: j.asr,
       maghrib: j.maghrib,
       isha: j.isha,
-      iqama_fajr: j.iqamaFajr,
-      iqama_dhuhr: j.iqamaDhuhr,
-      iqama_asr: j.iqamaAsr,
-      iqama_maghrib: j.iqamaMaghrib,
-      iqama_isha: j.iqamaIsha,
       importe_le: maintenant,
     })),
     { onConflict: "etablissement_id,mois,jour" },
@@ -77,7 +75,7 @@ export async function enregistrerHorairesMawaqit(etablissementId: string, h: Hor
   if (error) throw new Error(`Enregistrement des horaires : ${error.message}`);
   const { error: e2 } = await c
     .from("etablissements")
-    .update({ jumua: h.jumua.length ? h.jumua : null, mawaqit_importe_le: maintenant, mawaqit_erreur: null })
+    .update({ mawaqit_importe_le: maintenant, mawaqit_erreur: null })
     .eq("id", etablissementId);
   if (e2) throw new Error(`Suivi de l'import : ${e2.message}`);
 }

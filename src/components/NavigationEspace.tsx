@@ -189,6 +189,8 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
   return (
     <nav className="nav-espace" aria-label="Navigation principale" ref={nav}>
       <span className="nav-pastille" ref={pastille} aria-hidden="true" />
+      {/* Téléphone : les motifs de la frise s'allument en passant sous l'étoile. */}
+      <span className="nav-frise-eclat" aria-hidden="true" />
       {[...principaux, ...secondaires].map((o) => {
         const actif = o.actif(chemin);
         const index = position(o);
@@ -213,6 +215,14 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
               sensOnglet = actif || indexActif < 0 ? null : index > indexActif ? "droite" : "gauche";
             }}
           >
+            {o === mihrab ? (
+              // Une lumière fait le tour de l'arche quand un motif de la frise y arrive.
+              <i className="nav-mihrab-lisere" aria-hidden="true">
+                <svg viewBox="0 0 56 58">
+                  <path d="M2 58V28Q2 11 28 2Q54 11 54 28V58" pathLength={100} />
+                </svg>
+              </i>
+            ) : null}
             <IconeOnglet size={22} strokeWidth={1.9} aria-hidden="true" />
             <span>{o.libelle}</span>
             <small className="nav-ar" lang="ar" aria-hidden="true">
@@ -339,6 +349,22 @@ function useArriveeDansLeSens(chemin: string) {
   }, [chemin]);
 }
 
+/**
+ * La frise du bas avance de 4 px par seconde, un motif tous les 12 px : un motif passe donc
+ * en un point toutes les 3 s. Phase (en secondes) à laquelle un motif est centré sur x.
+ */
+const VITESSE_FRISE = 4;
+const PAS_FRISE = 12;
+const PERIODE_FRISE = PAS_FRISE / VITESSE_FRISE;
+function phaseFrise(x: number): number {
+  const reste = (((x - PAS_FRISE / 2) % PAS_FRISE) + PAS_FRISE) % PAS_FRISE;
+  return reste / VITESSE_FRISE;
+}
+/** Retard (négatif) à donner à une animation de période `periode` pour que son instant `pic` tombe à `t0`. */
+function retardPour(t0: number, pic: number, periode: number): string {
+  return `${-((((pic - t0) % periode) + periode) % periode).toFixed(3)}s`;
+}
+
 /** Position de la pastille sur la page précédente : gardée d'une page à l'autre (même session). */
 let positionPrecedente: number | null = null;
 
@@ -359,6 +385,12 @@ function usePastilleQuiGlisse(
     const actif = [
       ...barre.querySelectorAll<HTMLElement>('.nav-onglet[aria-current="page"], .nav-plus[data-actif]'),
     ].find((el) => el.offsetParent !== null);
+    // La lumière de l'arche part quand un motif de la frise arrive à son pied gauche.
+    const mihrab = barre.querySelector<HTMLElement>(".nav-mihrab");
+    if (mihrab && mihrab.offsetParent !== null) {
+      const pied = mihrab.offsetLeft + mihrab.offsetWidth / 2 - 24;
+      mihrab.style.setProperty("--arche-retard", retardPour(phaseFrise(pied), 0, PERIODE_FRISE * 2));
+    }
     if (!actif) {
       barre.classList.remove("avec-pastille");
       return;
@@ -382,5 +414,12 @@ function usePastilleQuiGlisse(
       placer(position);
     }
     positionPrecedente = position;
+    // Les animations de la frise et de l'étoile démarrent ensemble avec la barre : l'étoile scintille
+    // quand un motif passe sous elle.
+    barre.style.setProperty("--etoile-x", `${position}px`);
+    p.style.setProperty(
+      "--etoile-retard",
+      retardPour(phaseFrise(position), PERIODE_FRISE / 2, PERIODE_FRISE),
+    );
   }, [nav, pastille, chemin]);
 }

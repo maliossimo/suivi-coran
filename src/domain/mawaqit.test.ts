@@ -4,7 +4,6 @@ import {
   heureEnMinutes,
   horairesDepuisConf,
   importADesuet,
-  iqamaEnMinutes,
   urlPageMawaqit,
   type ConfMawaqit,
 } from "./mawaqit";
@@ -19,10 +18,6 @@ function confFictive(retouche?: (c: ConfMawaqit) => void): ConfMawaqit {
     );
   const conf: ConfMawaqit = {
     calendar: jours(["06:30", "08:00", "12:30", "14:45", "17:10", "19:20"]),
-    iqamaCalendar: jours(["+10", "+10", "+10", "+5", "20:00"]),
-    jumua: "13:00",
-    jumua2: null,
-    jumua3: "12:15",
     timezone: "Europe/Paris",
   };
   retouche?.(conf);
@@ -64,23 +59,13 @@ describe("heures", () => {
     expect(heureEnMinutes("")).toBeNull();
     expect(heureEnMinutes(null)).toBeNull();
   });
-
-  it("calcule l'iqama : décalage ou heure fixe, jamais avant l'adhan", () => {
-    expect(iqamaEnMinutes("+10", 389)).toBe(399);
-    expect(iqamaEnMinutes("5", 1031)).toBe(1036);
-    expect(iqamaEnMinutes("13:45", 755)).toBe(825);
-    expect(iqamaEnMinutes("12:00", 755)).toBeNull();
-    expect(iqamaEnMinutes("+30", 1430)).toBeNull();
-    expect(iqamaEnMinutes("", 389)).toBeNull();
-    expect(iqamaEnMinutes(undefined, 389)).toBeNull();
-  });
 });
 
 describe("calendrier de la mosquée", () => {
-  it("donne les 366 jours, l'iqama et Joumou'a triées", () => {
+  it("donne les heures des 366 jours", () => {
     const h = horairesDepuisConf(confFictive());
-    expect(h.jours).toHaveLength(366);
-    expect(h.jours[0]).toEqual({
+    expect(h).toHaveLength(366);
+    expect(h[0]).toEqual({
       mois: 1,
       jour: 1,
       fajr: 390,
@@ -89,24 +74,12 @@ describe("calendrier de la mosquée", () => {
       asr: 885,
       maghrib: 1030,
       isha: 1160,
-      iqamaFajr: 400,
-      iqamaDhuhr: 760,
-      iqamaAsr: 895,
-      iqamaMaghrib: 1035,
-      iqamaIsha: 1200,
     });
-    expect(h.jumua).toEqual([735, 780]);
   });
 
-  it("accepte un février de 28 jours et un calendrier sans iqama", () => {
-    const h = horairesDepuisConf(
-      confFictive((c) => {
-        delete c.calendar[1]!["29"];
-        c.iqamaCalendar = null;
-      }),
-    );
-    expect(h.jours).toHaveLength(365);
-    expect(h.jours[0]!.iqamaFajr).toBeNull();
+  it("accepte un février de 28 jours", () => {
+    const h = horairesDepuisConf(confFictive((c) => delete c.calendar[1]!["29"]));
+    expect(h).toHaveLength(365);
   });
 
   it("refuse un calendrier incomplet, désordonné ou d'un autre fuseau", () => {

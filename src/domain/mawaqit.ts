@@ -1,8 +1,8 @@
 /**
  * Lecture des horaires publiés par une mosquée sur sa page Mawaqit (https://mawaqit.net/fr/m/<adresse>).
  * La page publique contient un objet JSON `var confData = {…};` : calendrier de l'année (12 mois,
- * pour chaque jour [Fajr, Chourouq, Dhuhr, Asr, Maghrib, Icha]), calendrier d'iqama (décalage
- * « +10 » ou heure fixe « 13:45 » par prière), heures de Joumou'a et fuseau horaire.
+ * pour chaque jour [Fajr, Chourouq, Dhuhr, Asr, Maghrib, Icha]) et fuseau horaire. On n'en garde
+ * que les heures des prières (elles règlent le ciel de la barre du haut).
  * Règles pures : aucune requête ici (voir services/mawaqit).
  */
 
@@ -57,25 +57,9 @@ export function heureEnMinutes(hhmm: string | null | undefined): number | null {
   return h * 60 + min;
 }
 
-/**
- * Iqama d'une prière : « +10 » = 10 min après l'adhan, « 13:45 » = heure fixe.
- * null si absente, illisible, avant l'adhan ou après minuit.
- */
-export function iqamaEnMinutes(valeur: string | null | undefined, adhan: number): number | null {
-  const v = String(valeur ?? "").trim();
-  const decalage = /^\+?(\d{1,3})$/.exec(v);
-  const heure = decalage ? adhan + Number(decalage[1]) : heureEnMinutes(v);
-  if (heure === null || heure < adhan || heure > 1439) return null;
-  return heure;
-}
-
 /** Ce que l'on retient de confData (après validation de forme côté serveur). */
 export interface ConfMawaqit {
   calendar: Record<string, string[]>[];
-  iqamaCalendar?: Record<string, string[]>[] | null;
-  jumua?: string | null;
-  jumua2?: string | null;
-  jumua3?: string | null;
   timezone?: string | null;
 }
 
@@ -89,17 +73,6 @@ export interface JourHoraires {
   asr: number;
   maghrib: number;
   isha: number;
-  iqamaFajr: number | null;
-  iqamaDhuhr: number | null;
-  iqamaAsr: number | null;
-  iqamaMaghrib: number | null;
-  iqamaIsha: number | null;
-}
-
-export interface HorairesMawaqit {
-  jours: JourHoraires[];
-  /** Heures de Joumou'a (1 à 3), en minutes. */
-  jumua: number[];
 }
 
 /** Seul fuseau géré par l'appli (le ciel et les dates sont à l'heure de Paris). */
@@ -111,7 +84,7 @@ const JOURS_PAR_MOIS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
  * Transforme confData en calendrier vérifié : 12 mois complets, prières dans l'ordre.
  * Lève une erreur explicite sinon (rien n'est alors enregistré).
  */
-export function horairesDepuisConf(conf: ConfMawaqit): HorairesMawaqit {
+export function horairesDepuisConf(conf: ConfMawaqit): JourHoraires[] {
   if (conf.timezone && conf.timezone !== FUSEAU_GERE)
     throw new Error(`Fuseau horaire non géré : ${conf.timezone}`);
   if (conf.calendar.length !== 12) throw new Error("Calendrier incomplet : 12 mois attendus");
@@ -125,7 +98,6 @@ export function horairesDepuisConf(conf: ConfMawaqit): HorairesMawaqit {
     const cles = Object.keys(joursDuMois);
     if (cles.length < mini || cles.length > maxi)
       throw new Error(`Mois ${mois} : ${cles.length} jours au lieu de ${maxi}`);
-    const iqamas = conf.iqamaCalendar?.[i] ?? {};
 
     for (const cle of cles) {
       const jour = Number(cle);
@@ -144,29 +116,10 @@ export function horairesDepuisConf(conf: ConfMawaqit): HorairesMawaqit {
       ];
       if (!(fajr < chourouq && chourouq < dhuhr && dhuhr < asr && asr < maghrib && maghrib < isha))
         throw new Error(`${jour}/${mois} : prières dans le désordre`);
-      const iq = iqamas[cle] ?? [];
-      jours.push({
-        mois,
-        jour,
-        fajr,
-        chourouq,
-        dhuhr,
-        asr,
-        maghrib,
-        isha,
-        iqamaFajr: iqamaEnMinutes(iq[0], fajr),
-        iqamaDhuhr: iqamaEnMinutes(iq[1], dhuhr),
-        iqamaAsr: iqamaEnMinutes(iq[2], asr),
-        iqamaMaghrib: iqamaEnMinutes(iq[3], maghrib),
-        iqamaIsha: iqamaEnMinutes(iq[4], isha),
-      });
+      jours.push({ mois, jour, fajr, chourouq, dhuhr, asr, maghrib, isha });
     }
   });
-
-  const jumua = [conf.jumua, conf.jumua2, conf.jumua3]
-    .map(heureEnMinutes)
-    .filter((m): m is number => m !== null);
-  return { jours, jumua: [...new Set(jumua)].sort((a, b) => a - b) };
+  return jours;
 }
 
 /** Faut-il relire la page ? Une fois par mois suffit (les horaires changent rarement). */
