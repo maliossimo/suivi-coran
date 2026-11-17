@@ -1,6 +1,12 @@
 import "server-only";
 import { z } from "zod";
-import { essaisDuPassage, motsDifficiles, type MotDifficile } from "@/domain/essais";
+import {
+  essaisDuPassage,
+  motsARevoir,
+  motsDifficiles,
+  type MotARevoir,
+  type MotDifficile,
+} from "@/domain/essais";
 import { enregistrerEssai, listerMesEssais } from "@/repositories/essais";
 import { noterUsageCoran } from "@/repositories/usagesCoran";
 import type { Profil } from "@/repositories/profils";
@@ -60,4 +66,28 @@ export async function historiquePassage(profil: Profil | null, brut: unknown): P
       .map((e) => ({ score: e.score, quand: e.quand })),
     difficiles: motsDifficiles(essais, p.data.sourate),
   };
+}
+
+const schemaSourates = z.object({
+  lecture: z.enum(["hafs", "warsh"]),
+  sourates: z.array(z.number().int().min(1).max(114)).min(1).max(4),
+});
+
+/** Mots à revoir de l'élève dans les sourates affichées (mots ratés pas encore réussis deux fois). */
+export async function motsARevoirAffiches(
+  profil: Profil | null,
+  brut: unknown,
+): Promise<Record<number, MotARevoir[]>> {
+  if (!profil || !peutOuvrirCoran(profil)) return {};
+  const p = schemaSourates.safeParse(brut);
+  if (!p.success) return {};
+  const resultat: Record<number, MotARevoir[]> = {};
+  await Promise.all(
+    [...new Set(p.data.sourates)].map(async (s) => {
+      const essais = await listerMesEssais(profil.id, p.data.lecture, s).catch(() => []);
+      const mots = motsARevoir(essais, s);
+      if (mots.length) resultat[s] = mots;
+    }),
+  );
+  return resultat;
 }

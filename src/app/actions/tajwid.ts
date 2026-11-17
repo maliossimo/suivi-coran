@@ -1,7 +1,13 @@
 "use server";
 
 import { profilConnecte } from "@/repositories/profils";
-import { garderEssai, historiquePassage, type HistoriquePassage } from "@/services/essais";
+import {
+  garderEssai,
+  historiquePassage,
+  motsARevoirAffiches,
+  type HistoriquePassage,
+} from "@/services/essais";
+import type { MotARevoir } from "@/domain/essais";
 import { revalidatePath } from "next/cache";
 import { correctionsDuPassage, refuserCorrectionTajwid, signalerErreurTajwid } from "@/services/tajwid";
 
@@ -34,4 +40,9 @@ export async function actionGarderEssai(essai: unknown): Promise<void> {
 /** Mode Réciter : les essais précédents sur ce passage et les mots difficiles. */
 export async function actionHistoriquePassage(passage: unknown): Promise<HistoriquePassage> {
   return historiquePassage(await profilConnecte(), passage);
+}
+
+/** Lecture du Coran : les mots à revoir de l'élève dans les sourates affichées. */
+export async function actionMotsARevoir(demande: unknown): Promise<Record<number, MotARevoir[]>> {
+  return motsARevoirAffiches(await profilConnecte(), demande);
 }

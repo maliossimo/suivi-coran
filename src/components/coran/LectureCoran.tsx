@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import {
+  BookOpen,
   Eye,
   Palette,
   EyeOff,
@@ -9,6 +10,7 @@ import {
   Moon,
   Pause,
   Play,
+  RotateCcw,
   Repeat,
   Settings2,
   SkipBack,
@@ -62,6 +64,10 @@ import { useExplication } from "./explications";
 import { adresseAudio, adresseMots, garderSourateOuverte, useHorsLigne } from "./horsLigne";
 import { MemoriserCoran } from "./MemoriserCoran";
 import { PanneauTajwid } from "./PanneauTajwid";
+import { actionMotsARevoir } from "@/app/actions/tajwid";
+import { Feuille } from "@/components/Feuille";
+import { squeletteMot, type MotARevoir } from "@/domain/essais";
+import { usePincer } from "./pincer";
 import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
 import type { BlocAffiche, RecitationAffichee } from "./types";
 
@@ -80,6 +86,7 @@ const DEFAUT: Reglages = {
   favoris: [],
   theme: "auto",
   tajwidEteintes: [],
+  mushafLibre: false,
 };
 
 function lireReglages(): Reglages {
@@ -169,6 +176,27 @@ export function LectureCoran({
   /** Lignes (« l3 ») ou versets (« 2:255 ») dévoilés d'un toucher en mode caché. */
   const [devoiles, setDevoiles] = useState<ReadonlySet<string>>(new Set());
   const [emplacementCache, setEmplacementCache] = useState<HTMLElement | null>(null);
+  /** Mots ratés lors des récitations, pas encore réussis deux fois (par sourate). */
+  const [aRevoir, setARevoir] = useState<Record<number, MotARevoir[]>>({});
+  const [listeARevoir, setListeARevoir] = useState(false);
+  const souratesAffichees = useMemo(() => blocs.map((b) => b.sourate).join(","), [blocs]);
+  const chargerARevoir = useCallback(() => {
+    const sourates = souratesAffichees.split(",").map(Number).slice(0, 4);
+    void actionMotsARevoir({ lecture: lecture === "warsh" ? "warsh" : "hafs", sourates })
+      .then(setARevoir)
+      .catch(() => undefined);
+  }, [souratesAffichees, lecture]);
+  useEffect(chargerARevoir, [chargerARevoir]);
+  const aRevoirParVerset = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    for (const [s, mots] of Object.entries(aRevoir))
+      for (const x of mots) {
+        const cle = cleVerset(Number(s), x.verset);
+        m.set(cle, (m.get(cle) ?? new Set()).add(squeletteMot(x.mot)));
+      }
+    return m;
+  }, [aRevoir]);
+  const nbARevoir = Object.values(aRevoir).reduce((n, l) => n + l.length, 0);
   useEffect(() => setEmplacementCache(document.getElementById("coran-outil-cache")), []);
   /** Arrêt automatique : heure de fin, « à la fin du passage », ou rien. */
   const [minuterie, setMinuterie] = useState<{ fin: number; choix: ChoixMinuterie } | "fin" | null>(null);
@@ -297,7 +325,9 @@ export function LectureCoran({
   );
 
   const piste = position ? pistes[position.piste] : undefined;
-  const clesActives = useMemo(() => new Set(piste?.cles ?? []), [piste]);
+  // « Écoute seulement » : le texte ne suit pas cette voix (ses fichiers ne tombent pas juste sur les versets).
+  const ecouteSeule = Boolean(recitation?.ecouteSeule);
+  const clesActives = useMemo(() => new Set(ecouteSeule ? [] : (piste?.cles ?? [])), [piste, ecouteSeule]);
 
   // Page du Mushaf : les lignes du livre, chacune avec ses morceaux de versets.
   const versetsParCle = useMemo(
@@ -305,7 +335,7 @@ export function LectureCoran({
     [blocs],
   );
   const lignesParSourate = useMemo(() => {
-    if (vue !== "page" || !lignes?.length) return null;
+    if (vue !== "page" || !lignes?.length || reglages.mushafLibre) return null;
     const derniers = new Map(blocs.map((b) => [b.sourate, b.versets.at(-1)?.n ?? 0]));
     const fragments = fragmentsDesLignes(lignes, (s) => derniers.get(s) ?? 0);
     const parSourate = new Map<number, { ligne: LigneMushaf; fragments: FragmentLigne[]; rang: number }[]>();
@@ -516,11 +546,11 @@ export function LectureCoran({
   // Le verset récité reste au centre de l'écran.
   const premiereCle = piste?.cles[0];
   useEffect(() => {
-    if (!premiereCle || !reglages.suivre) return;
+    if (!premiereCle || !reglages.suivre || ecouteSeule) return;
     texte.current
       ?.querySelector<HTMLElement>(`[data-cle="${premiereCle}"]`)
       ?.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, [premiereCle, reglages.suivre]);
+  }, [premiereCle, reglages.suivre, ecouteSeule]);
 
   // Écran verrouillé, casque, montre : titre et commandes.
   useEffect(() => {
@@ -543,6 +573,63 @@ export function LectureCoran({
   /** La carte de la page : déplacée directement pendant le glissement (sans recalculer le texte). */
   const cartePage = useRef<HTMLElement>(null);
   useAjusterLignes(cartePage, lignesParSourate !== null, avecTajwid);
+
+  // En lisant : la barre du bas s'efface quand on descend dans le texte, revient dès qu'on remonte.
+  useEffect(() => {
+    const html = document.documentElement;
+    let dernier = window.scrollY;
+    const surDefilement = () => {
+      const y = window.scrollY;
+      if (y < 80 || y < dernier - 6) delete html.dataset.navCachee;
+      else if (y > dernier + 6) html.dataset.navCachee = "";
+      if (Math.abs(y - dernier) > 6) dernier = y;
+    };
+    window.addEventListener("scroll", surDefilement, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", surDefilement);
+      delete html.dataset.navCachee;
+    };
+  }, []);
+
+  // Zoom : pincer (ou A− / A+ en plein écran). En vue sourate, la taille du texte change ; sur la page du
+  // Mushaf, grossir fait passer le texte à la ligne librement (pastille « Revenir au Mushaf »).
+  const mushafPossible = vue === "page" && Boolean(lignes?.length);
+  const zoomer = useCallback(
+    (pas: number) => {
+      if (!pas) return;
+      const largeur = cartePage.current?.querySelector<HTMLElement>(".coran-versets")?.clientWidth ?? 360;
+      const em = lireCalibrage(avecTajwid);
+      const tailleMushaf =
+        parseFloat(cartePage.current?.style.getPropertyValue("--taille-mushaf") ?? "") ||
+        (em ? (largeur * 0.98) / em : 30);
+      const borne = (i: number) => Math.min(TAILLES.length - 1, Math.max(0, i));
+      if (mushafPossible && !reglages.mushafLibre) {
+        if (pas < 0) return;
+        const premier = TAILLES.findIndex((t) => t > tailleMushaf * 1.05);
+        modifier({
+          mushafLibre: true,
+          taille: borne((premier < 0 ? TAILLES.length - 1 : premier) + pas - 1),
+        });
+      } else if (mushafPossible && pas < 0) {
+        const i = reglages.taille + pas;
+        if (i < 0 || (TAILLES[i] ?? 0) <= tailleMushaf) modifier({ mushafLibre: false });
+        else modifier({ taille: i });
+      } else modifier({ taille: borne(reglages.taille + pas) });
+    },
+    [avecTajwid, modifier, mushafPossible, reglages.mushafLibre, reglages.taille],
+  );
+  usePincer(
+    texte,
+    useCallback(
+      (f: number) =>
+        zoomer(
+          f > 1
+            ? Math.max(1, Math.round(Math.log(f) / Math.log(1.18)))
+            : -Math.max(1, Math.round(Math.log(1 / f) / Math.log(1.18))),
+        ),
+      [zoomer],
+    ),
+  );
   const suivreDoigt = (dx: number | null) => {
     const el = cartePage.current;
     if (!el) return;
@@ -862,7 +949,11 @@ export function LectureCoran({
           lecture={lecture === "warsh" ? "warsh" : "hafs"}
           adresseVerset={(n) => adresseVerset(blocReciter.sourate, n)}
           onAvantEcoute={() => audio.current?.pause()}
-          onFermer={() => setReciter(null)}
+          onFermer={() => {
+            setReciter(null);
+            // Une récitation vient peut-être d'ajouter (ou de faire sortir) des mots à revoir.
+            chargerARevoir();
+          }}
           reveler={reciter.reveler}
           taille={TAILLES[reglages.taille] ?? 30}
           peutAgrandir={reglages.taille < TAILLES.length - 1}
@@ -978,6 +1069,66 @@ export function LectureCoran({
         onEteintes={(e) => modifier({ tajwidEteintes: e })}
         compte={compteTajwid}
       />
+      {nbARevoir ? (
+        <button type="button" className="coran-a-revoir-bouton" onClick={() => setListeARevoir(true)}>
+          <RotateCcw size={16} aria-hidden="true" />
+          {nbARevoir} mot{nbARevoir > 1 ? "s" : ""} à revoir
+        </button>
+      ) : null}
+      <Feuille ouverte={listeARevoir} onFermer={() => setListeARevoir(false)} titre="Mots à revoir">
+        <p className="coran-a-revoir-aide">
+          Les mots ratés lors de tes récitations. Ils sont soulignés sur la page et sortent de la liste après
+          deux récitations réussies.
+        </p>
+        <ul className="coran-a-revoir-liste">
+          {Object.entries(aRevoir).flatMap(([s, mots]) => {
+            const sourate = Number(s);
+            const parVerset = new Map<number, MotARevoir[]>();
+            for (const m of mots) parVerset.set(m.verset, [...(parVerset.get(m.verset) ?? []), m]);
+            return [...parVerset.entries()].map(([v, liste]) => (
+              <li key={`${s}:${v}`}>
+                <span className="coran-a-revoir-ref">
+                  {blocs.find((b) => b.sourate === sourate)?.nomLatin ?? sourate} {v}
+                </span>
+                <span lang="ar" dir="rtl" className="coran-a-revoir-mots">
+                  {liste.map((m) => m.mot).join("  ·  ")}
+                </span>
+                <button
+                  type="button"
+                  className="bouton-secondaire"
+                  onClick={() => {
+                    setListeARevoir(false);
+                    audio.current?.pause();
+                    setReciter({ sourate, depart: v, fin: v, reveler: true });
+                  }}
+                >
+                  <Mic size={16} aria-hidden="true" />
+                  Réciter
+                </button>
+              </li>
+            ));
+          })}
+        </ul>
+      </Feuille>
+      {mushafPossible && reglages.mushafLibre ? (
+        <button
+          type="button"
+          className="coran-retour-mushaf"
+          onClick={() => modifier({ mushafLibre: false })}
+        >
+          <BookOpen size={16} aria-hidden="true" />
+          Texte agrandi · Revenir au Mushaf
+        </button>
+      ) : null}
+      {/* Plein écran : A− / A+ pour ceux qui ne pincent pas (cachés ailleurs). */}
+      <div className="coran-zoom-boutons" role="group" aria-label="Taille du texte">
+        <button type="button" onClick={() => zoomer(-1)} aria-label="Réduire le texte">
+          A−
+        </button>
+        <button type="button" onClick={() => zoomer(1)} aria-label="Agrandir le texte">
+          A+
+        </button>
+      </div>
       {cache ? (
         <p className="coran-cache-aide" role="status">
           <EyeOff size={16} aria-hidden="true" />
@@ -1063,6 +1214,7 @@ export function LectureCoran({
       >
         <div
           ref={texte}
+          className="coran-zone-texte"
           {...appui}
           onClick={(e) => {
             if (!cache) return appui.onClick(e);
@@ -1126,6 +1278,7 @@ export function LectureCoran({
                             horsPassage={Boolean(passage && (f.verset < passage.du || f.verset > passage.au))}
                             marque={marques.has(cle)}
                             fragment={f}
+                            aRevoir={aRevoirParVerset.get(cle) ?? null}
                           />
                         );
                       })}
@@ -1149,6 +1302,7 @@ export function LectureCoran({
                         horsPassage={Boolean(passage && (v.n < passage.du || v.n > passage.au))}
                         marque={marques.has(cle)}
                         devoile={devoiles.has(cle)}
+                        aRevoir={aRevoirParVerset.get(cle) ?? null}
                       />
                     );
                   })}
@@ -1285,6 +1439,7 @@ const Verset = memo(function Verset({
   marque,
   fragment = null,
   devoile = false,
+  aRevoir = null,
 }: {
   cle: string;
   n: number;
@@ -1298,7 +1453,17 @@ const Verset = memo(function Verset({
   fragment?: FragmentLigne | null;
   /** Mode caché : verset dévoilé d'un toucher. */
   devoile?: boolean;
+  /** Mots à revoir de ce verset (squelettes) : soulignés. */
+  aRevoir?: ReadonlySet<string> | null;
 }) {
+  const classeMot = (numero: number | null, texteMot: string) =>
+    [
+      "mot",
+      numero !== null && numero === mot ? "actif" : "",
+      aRevoir?.has(squeletteMot(texteMot)) ? "a-revoir" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
   const classes = [
     "coran-verset",
     devoile ? "devoile" : "",
@@ -1318,7 +1483,11 @@ const Verset = memo(function Verset({
           ).map((m, i) => (
             <span
               key={i}
-              className={m.mot !== null && m.mot === mot ? "mot actif" : m.mot ? "mot" : undefined}
+              className={
+                m.mot
+                  ? classeMot(m.mot, m.segments.map((x) => (typeof x === "string" ? x : x[1])).join(""))
+                  : undefined
+              }
             >
               {m.segments.map((s, j) =>
                 typeof s === "string" ? (
@@ -1344,7 +1513,7 @@ const Verset = memo(function Verset({
           m.mot === null ? (
             m.texte
           ) : (
-            <span key={i} className={m.mot === mot ? "mot actif" : "mot"}>
+            <span key={i} className={classeMot(m.mot, m.texte)}>
               {m.texte}
             </span>
           ),

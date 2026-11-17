@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { essaisDuPassage, fautesAGarder, motsDifficiles, type Essai } from "./essais";
+import {
+  essaisDuPassage,
+  fautesAGarder,
+  motsARevoir,
+  motsDifficiles,
+  squeletteMot,
+  type Essai,
+} from "./essais";
 
 const essai = (quand: string, du: number, au: number, fautes: [number, string][], score = 80): Essai => ({
   sourate: 1,
@@ -63,5 +70,42 @@ describe("motsDifficiles", () => {
       essai("2026-11-13T10:00", 1, 7, [[2, "x"]]),
     ];
     expect(motsDifficiles(e, 1)).toEqual([]);
+  });
+});
+
+describe("motsARevoir", () => {
+  const essai = (quand: string, du: number, au: number, fautes: Essai["fautes"]): Essai => ({
+    sourate: 2,
+    du,
+    au,
+    score: 80,
+    fautes,
+    quand,
+  });
+  const faute = { verset: 3, mot: "يُؤْمِنُونَ", regle: "madd" };
+
+  it("un mot raté une seule fois est à revoir", () => {
+    expect(motsARevoir([essai("2026-01-01", 1, 5, [faute])], 2)).toEqual([faute]);
+  });
+  it("il sort de la liste après deux réussites sur son verset", () => {
+    const essais = [essai("2026-01-01", 1, 5, [faute]), essai("2026-01-02", 3, 3, [])];
+    expect(motsARevoir(essais, 2)).toHaveLength(1);
+    expect(motsARevoir([...essais, essai("2026-01-03", 2, 4, [])], 2)).toEqual([]);
+  });
+  it("un essai qui ne couvre pas le verset ne compte pas", () => {
+    const essais = [
+      essai("2026-01-01", 1, 5, [faute]),
+      essai("2026-01-02", 4, 5, []),
+      essai("2026-01-03", 6, 7, []),
+    ];
+    expect(motsARevoir(essais, 2)).toHaveLength(1);
+  });
+});
+
+describe("squeletteMot", () => {
+  it("retrouve un mot écrit avec d'autres voyelles ou une autre forme d'alif", () => {
+    // Graphie du moteur (sukûn U+0652) et du Complexe (sukûn U+06E1) : même mot.
+    expect(squeletteMot("ٱلْعَٰلَمِينَ")).toBe(squeletteMot("ٱلۡعَٰلَمِينَ"));
+    expect(squeletteMot("إِنَّ")).toBe(squeletteMot("ان"));
   });
 });

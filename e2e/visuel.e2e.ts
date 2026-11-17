@@ -9,6 +9,13 @@ import { COMPTES, expect, seConnecter, test } from "./outils";
  */
 const OPTIONS = { fullPage: true, animations: "disabled", maxDiffPixelRatio: 0.02 } as const;
 
+/**
+ * « Mots à revoir » : ils dépendent des récitations faites par d'autres tests (même compte), et arrivent après
+ * l'affichage. Masqués ici pour que la capture ne change pas selon l'ordre des tests.
+ */
+const SANS_MOTS_A_REVOIR =
+  ".coran-a-revoir-bouton { display: none !important; } .mot.a-revoir { text-decoration: none !important; }";
+
 test.describe("Apparence", () => {
   test.use({ colorScheme: "light" });
 
@@ -25,6 +32,7 @@ test.describe("Apparence", () => {
     await seConnecter(page, COMPTES.admin, /\/admin/);
     await page.goto("/admin/coran?lecture=hafs&sourate=1");
     await expect(page.locator('.coran-verset[data-cle="1:7"]')).toBeVisible();
+    await page.addStyleTag({ content: SANS_MOTS_A_REVOIR });
     await page.evaluate(() => document.fonts.ready);
     await expect(page).toHaveScreenshot("coran-sourate-1.png", {
       ...OPTIONS,
@@ -37,6 +45,7 @@ test.describe("Apparence", () => {
     await seConnecter(page, COMPTES.admin, /\/admin/);
     await page.goto("/admin/coran?lecture=hafs&sourate=112");
     await expect(page.locator('.coran-verset[data-cle="112:4"]')).toBeVisible();
+    await page.addStyleTag({ content: SANS_MOTS_A_REVOIR });
     await page.evaluate(() => document.fonts.ready);
     await expect(page).toHaveScreenshot("coran-sombre.png", {
       ...OPTIONS,
@@ -55,6 +64,7 @@ test.describe("Apparence", () => {
       await seConnecter(page, COMPTES.eleveA, /\/eleve/);
       await page.goto(`/eleve?mois=2026-01&type=${type}`);
       await expect(page.locator(`.onglet-${type}[aria-current="page"]`)).toBeVisible();
+      await page.addStyleTag({ content: SANS_MOTS_A_REVOIR });
       await page.evaluate(() => document.fonts.ready);
       await expect(page).toHaveScreenshot(`fiche-${type}${sombre ? "-sombre" : ""}.png`, {
         ...OPTIONS,
