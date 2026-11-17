@@ -35,7 +35,7 @@ export interface Reglages {
   tajwidEteintes: string[];
   /** Vue page : texte grossi au-delà de la page du Mushaf (il passe alors à la ligne librement). */
   mushafLibre: boolean;
-  /** Souligner sur la page les mots ratés lors des récitations. */
+  /** Mots à revoir (ratés en récitation) : soulignés sur la page, listés dans Réciter et la progression. */
   soulignerARevoir: boolean;
 }
 
@@ -229,7 +229,7 @@ export function ReglagesCoran({
           />
           <Interrupteur
             icone={<Undo2 size={18} aria-hidden="true" />}
-            libelle="Souligner mes mots à revoir"
+            libelle="Mots à revoir (soulignés, et listés dans Réciter)"
             actif={reglages.soulignerARevoir}
             onChange={(v) => modifier({ soulignerARevoir: v })}
           />
