@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { COMPTES, expect, seConnecter, test } from "./outils";
 
 /**
@@ -16,8 +17,22 @@ const OPTIONS = { fullPage: true, animations: "disabled", maxDiffPixelRatio: 0.0
 const SANS_MOTS_A_REVOIR =
   ".coran-a-revoir-bouton { display: none !important; } .mot.a-revoir { text-decoration: none !important; }";
 
+/** La date hégirienne de la barre change chaque jour : remplacée par un texte fixe de même style. */
+function dateHegirienneFixe(page: Page): Promise<void> {
+  return page.addInitScript(() => {
+    document.addEventListener("DOMContentLoaded", () => {
+      const style = document.createElement("style");
+      style.textContent =
+        ".barre-hegire { font-size: 0 !important; } .barre-hegire::after { content: '1 Mouharram 1448'; font-size: 12px; }";
+      document.head.append(style);
+    });
+  });
+}
+
 test.describe("Apparence", () => {
   test.use({ colorScheme: "light" });
+
+  test.beforeEach(({ page }) => dateHegirienneFixe(page));
 
   test("écran de connexion", async ({ page }) => {
     await page.goto("/connexion");

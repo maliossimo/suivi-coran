@@ -1,3 +1,4 @@
+import { DateHegirienneBarre } from "./DateHegirienne";
 import Link from "next/link";
 import { accueilDuRole, LIBELLE_ROLE_LONG, type Role } from "@/domain/roles";
 import { compteConnecte } from "@/services/acces";
@@ -25,7 +26,7 @@ export async function EnteteEspace({ titre, nom, role }: { titre: string; nom: s
       <div className="barre-contenu">
         <LogoAccueil accueil={accueilDuRole(role)} label="Accueil — Suivi cours Coran">
           <div className="barre-titres" aria-hidden="true">
-            <span className="barre-app">Suivi cours Coran</span>
+            <DateHegirienneBarre />
             <TitreBarre titre={titre} prenom={nom.split(/\s+/)[0] ?? ""} />
           </div>
         </LogoAccueil>
