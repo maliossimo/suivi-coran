@@ -187,7 +187,7 @@ export function LectureCoran({
   useEffect(chargerARevoir, [chargerARevoir]);
   const aRevoirParVerset = useMemo(() => {
     const m = new Map<string, Set<string>>();
-    // Réglage « souligner les mots à revoir » coupé : rien sur la page (la liste reste dans Réciter).
+    // Réglage « mots à revoir » coupé : rien sur la page, ni dans Réciter, ni dans la progression.
     if (!reglages.soulignerARevoir) return m;
     for (const [s, mots] of Object.entries(aRevoir))
       for (const x of mots) {
@@ -937,6 +937,7 @@ export function LectureCoran({
 
       {reciter && blocReciter ? (
         <ModeReciter
+          motsARevoir={reglages.soulignerARevoir}
           sourate={blocReciter.sourate}
           nomSourate={blocReciter.nomLatin}
           nomArabe={blocReciter.nomAr}
