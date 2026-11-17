@@ -189,9 +189,8 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
   return (
     <nav className="nav-espace" aria-label="Navigation principale" ref={nav}>
       <span className="nav-pastille" ref={pastille} aria-hidden="true" />
-      {/* Téléphone : les motifs de la frise s'allument en passant sous l'étoile. */}
+      {/* Téléphone : les motifs de la frise s'allument en passant au-dessus de l'onglet choisi. */}
       <span className="nav-frise-eclat" aria-hidden="true" />
-      <span className="nav-etoile-lueur" aria-hidden="true" />
       {[...principaux, ...secondaires].map((o) => {
         const actif = o.actif(chemin);
         const index = position(o);
@@ -220,7 +219,10 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
               // Une lumière fait le tour de l'arche quand un motif de la frise y arrive.
               <i className="nav-mihrab-lisere" aria-hidden="true">
                 <svg viewBox="0 0 56 58">
-                  <path d="M2 28Q2 11 28 2Q54 11 54 28" pathLength={100} />
+                  {/* Les deux chapiteaux où la frise entre dans l'arche et en ressort. */}
+                  <path className="nav-mihrab-chapiteau" d="M2 11.3L5.2 15.1L2 18.9L-1.2 15.1Z" />
+                  <path className="nav-mihrab-chapiteau" d="M54 11.3L57.2 15.1L54 18.9L50.8 15.1Z" />
+                  <path className="nav-mihrab-lumiere" d="M2 28Q2 11 28 2Q54 11 54 28" pathLength={100} />
                 </svg>
               </i>
             ) : null}
@@ -389,9 +391,11 @@ function usePastilleQuiGlisse(
     // La lumière de l'arche part quand un motif de la frise arrive à son pied gauche.
     const mihrab = barre.querySelector<HTMLElement>(".nav-mihrab");
     if (mihrab && mihrab.offsetParent !== null) {
-      const pied = mihrab.offsetLeft + mihrab.offsetWidth / 2 - 24;
-      mihrab.style.setProperty("--arche-retard", retardPour(phaseFrise(pied), 0, PERIODE_FRISE * 2));
-    }
+      const centre = mihrab.offsetLeft + mihrab.offsetWidth / 2;
+      // La frise entre dans l'arche comme par une porte (elle s'efface entre ses pieds).
+      barre.style.setProperty("--arche-x", `${centre}px`);
+      mihrab.style.setProperty("--arche-retard", retardPour(phaseFrise(centre - 24), 0, PERIODE_FRISE * 2));
+    } else barre.style.removeProperty("--arche-x");
     if (!actif) {
       barre.classList.remove("avec-pastille");
       return;
@@ -415,12 +419,7 @@ function usePastilleQuiGlisse(
       placer(position);
     }
     positionPrecedente = position;
-    // Les animations de la frise et de l'étoile démarrent ensemble avec la barre : l'étoile scintille
-    // quand un motif passe sous elle.
+    // Au-dessus de l'onglet choisi, les motifs de la frise s'allument en passant.
     barre.style.setProperty("--etoile-x", `${position}px`);
-    p.style.setProperty(
-      "--etoile-retard",
-      retardPour(phaseFrise(position), PERIODE_FRISE / 2, PERIODE_FRISE),
-    );
   }, [nav, pastille, chemin]);
 }

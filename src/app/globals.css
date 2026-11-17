@@ -16310,3 +16310,189 @@ body:has(.barre-vivante) {
   flex: 1 1 220px;
   min-width: 0;
 }
+
+/* =====================================================================
+   1.57 : identité — thème clair parchemin, barre du bas : la frise entre dans
+   le mihrab par deux chapiteaux, l'onglet choisi devient une niche dorée
+   ===================================================================== */
+/* Thème clair : un parchemin chaud au lieu d'un blanc froid ; cartes ivoire. */
+@media (prefers-color-scheme: light) {
+  :root:where(:not([data-theme="sombre"])) {
+    --fond: #f1e9d8;
+    --carte: #fffaf1;
+    --surface-2: #f8f1e3;
+    --surface-3: #e9dec8;
+    --ligne: #e2d5bb;
+    --champ: #d3c4a6;
+    --teinte-0: #e6dcc6;
+    --fond-revision: #f4e9d3;
+  }
+}
+:root[data-theme="clair"] {
+  --fond: #f1e9d8;
+  --carte: #fffaf1;
+  --surface-2: #f8f1e3;
+  --surface-3: #e9dec8;
+  --ligne: #e2d5bb;
+  --champ: #d3c4a6;
+  --teinte-0: #e6dcc6;
+  --fond-revision: #f4e9d3;
+}
+html {
+  background-color: var(--fond);
+  background-image: var(--motif-doux);
+}
+/* Thème clair : sous la barre, le ciel descend en lueur dorée (plus de dégradé gris la nuit). */
+@media (prefers-color-scheme: light) {
+  :where(:root:not([data-theme="sombre"])) .ciel-fondu::before {
+    height: 56px;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ciel-actuel, transparent) 18%, color-mix(in srgb, #c9a24a 26%, transparent)),
+      color-mix(in srgb, #c9a24a 9%, transparent) 45%,
+      transparent
+    );
+  }
+}
+:where(:root[data-theme="clair"]) .ciel-fondu::before {
+  height: 56px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ciel-actuel, transparent) 18%, color-mix(in srgb, #c9a24a 26%, transparent)),
+    color-mix(in srgb, #c9a24a 9%, transparent) 45%,
+    transparent
+  );
+}
+
+/* Ordinateur : la scène du ciel se décale pour que la lune passe entre les onglets et le nom. */
+@media (min-width: 761px) {
+  .barre-vivante > .ciel > .ciel-scene {
+    right: max(190px, calc((100% - 1100px) / 2 + 190px));
+  }
+}
+
+@media (max-width: 760px) {
+  /* La frise s'arrête net de chaque côté de l'arche : elle y entre et en ressort. */
+  .nav-espace::before,
+  .nav-espace.avec-pastille .nav-frise-eclat {
+    --porte: linear-gradient(
+      90deg,
+      #000 calc(var(--arche-x, -999px) - 27px),
+      transparent calc(var(--arche-x, -999px) - 27px),
+      transparent calc(var(--arche-x, -999px) + 27px),
+      #000 calc(var(--arche-x, -999px) + 27px)
+    );
+  }
+  .nav-espace::before {
+    -webkit-mask: var(--porte);
+    mask: var(--porte);
+  }
+  .nav-espace.avec-pastille .nav-frise-eclat {
+    -webkit-mask-image:
+      radial-gradient(circle 20px at var(--etoile-x, -99px) 50%, #000 25%, transparent 100%), var(--porte);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      radial-gradient(circle 20px at var(--etoile-x, -99px) 50%, #000 25%, transparent 100%), var(--porte);
+    mask-composite: intersect;
+  }
+  /* Le mihrab : contour doré plein, intérieur profond (vert la nuit, ivoire le jour). */
+  .nav-espace .nav-mihrab::after,
+  .nav-espace .nav-mihrab:not([aria-current="page"])::after {
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 58'%3E%3Cpath d='M2 58V28Q2 11 28 2Q54 11 54 28V58Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 58'%3E%3Cpath d='M2 58V28Q2 11 28 2Q54 11 54 28V58Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    background: linear-gradient(180deg, #f4d98f, #b98f33);
+    filter: drop-shadow(0 4px 10px rgba(185, 143, 51, 0.3));
+    z-index: -2;
+  }
+  .nav-espace .nav-mihrab::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -22px;
+    width: 44px;
+    height: 50px;
+    transform: translateX(-50%);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 58'%3E%3Cpath d='M2 58V28Q2 11 28 2Q54 11 54 28V58Z'/%3E%3C/svg%3E")
+      center / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 58'%3E%3Cpath d='M2 58V28Q2 11 28 2Q54 11 54 28V58Z'/%3E%3C/svg%3E")
+      center / 100% 100% no-repeat;
+    background: var(--mihrab-fond);
+    z-index: -1;
+    pointer-events: none;
+    transition: background 0.3s ease;
+  }
+  .nav-espace {
+    --mihrab-fond: linear-gradient(180deg, #fffaf0, #efdfb8);
+    --mihrab-icone: #1d5c47;
+  }
+  .nav-espace .nav-mihrab[aria-current="page"] {
+    --mihrab-fond: radial-gradient(circle at 50% 30%, #fff1c4, #e7c46f 60%, #c9a24a);
+    --mihrab-icone: #123c2e;
+  }
+  .nav-espace .nav-onglet.nav-mihrab > svg,
+  .nav-espace.avec-pastille .nav-onglet.nav-mihrab > svg {
+    color: var(--mihrab-icone);
+  }
+  .nav-mihrab-lisere .nav-mihrab-chapiteau {
+    animation: none;
+    stroke-dasharray: none;
+    opacity: 1;
+    filter: drop-shadow(0 0 1.5px rgba(226, 190, 110, 0.6));
+    fill: #e2be6e;
+    stroke: color-mix(in srgb, #7a4f0e 45%, transparent);
+    stroke-width: 0.6;
+  }
+  .nav-mihrab-lumiere {
+    fill: none;
+  }
+  /* L'onglet choisi : une niche dorée (même arche que son contour) au lieu de l'étoile. */
+  .nav-espace.avec-pastille .nav-pastille {
+    top: -2px !important;
+    width: 46px;
+    height: 60px;
+    border-radius: 0;
+    clip-path: path("M3 60V17Q3 7 23 1.5Q43 7 43 17V60Z");
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--nav-or) 32%, transparent),
+      color-mix(in srgb, var(--nav-or) 4%, transparent)
+    );
+    transform: translateX(calc(var(--pastille-x, 0px) - 23px));
+    animation: none;
+    filter: none;
+    z-index: 0;
+  }
+  .nav-espace.avec-pastille:has(.nav-mihrab[aria-current="page"]) .nav-pastille {
+    opacity: 0;
+  }
+  /* En lisant le Coran, la barre s'efface entièrement, arche comprise. */
+  html[data-nav-cachee] .nav-espace {
+    transform: translateY(calc(100% + 34px));
+  }
+}
+@media (max-width: 760px) and (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .nav-espace {
+    --mihrab-fond: linear-gradient(180deg, #1f5c47, #0e3125);
+    --mihrab-icone: #f0cf7a;
+  }
+}
+@media (max-width: 760px) {
+  :where(:root[data-theme="sombre"]) .nav-espace {
+    --mihrab-fond: linear-gradient(180deg, #1f5c47, #0e3125);
+    --mihrab-icone: #f0cf7a;
+  }
+  :where(:root) .nav-espace .nav-mihrab[aria-current="page"] {
+    --mihrab-fond: radial-gradient(circle at 50% 30%, #fff1c4, #e7c46f 60%, #c9a24a);
+    --mihrab-icone: #123c2e;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-mihrab-lisere {
+    display: block !important;
+  }
+  .nav-mihrab-lumiere {
+    display: none;
+  }
+}
