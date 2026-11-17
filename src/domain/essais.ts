@@ -126,11 +126,14 @@ export function motsARevoir(essais: readonly Essai[], sourate: number): MotARevo
     .map(({ verset, mot, regle }) => ({ verset, mot, regle }));
 }
 
-/** Squelette d'un mot (ses lettres seules, formes de l'alif et du yâ' unifiées) : pour retrouver un mot écrit
- * autrement (voyelles, signes de pause, graphie du moteur). */
+/**
+ * Squelette d'un mot : ses lettres seules, sans voyelles ni signes, et sans alif (le Mushaf l'écrit souvent en
+ * petit au-dessus de la lettre, « العٰلمين », quand on le tape en entier, « العالمين ») ; yâ' et alif maqsûra
+ * unifiés. Pour retrouver un mot écrit autrement (recherche, graphie du moteur).
+ */
 export function squeletteMot(mot: string): string {
   return [...mot.normalize("NFC")]
-    .filter((c) => /[ء-يٱ]/.test(c))
-    .map((c) => (/[آأإٱا]/.test(c) ? "ا" : c === "ى" ? "ي" : c))
+    .filter((c) => /[\u0621-\u064a]/.test(c) && !/[\u0622\u0623\u0625\u0627]/.test(c))
+    .map((c) => (c === "\u0649" ? "\u064a" : c))
     .join("");
 }

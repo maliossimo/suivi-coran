@@ -25,6 +25,8 @@ describe("rechercherCoran", () => {
   });
   it("des mots arabes, avec ou sans voyelles", () => {
     expect(chercher("الحمد لله").resultats).toMatchObject([{ type: "verset", sourate: 1, verset: 2 }]);
+    // Alif écrit en entier, alors que le Mushaf le met en petit au-dessus (ٱلۡعَٰلَمِينَ).
+    expect(chercher("رب العالمين").resultats).toMatchObject([{ type: "verset", sourate: 1, verset: 2 }]);
     expect(chercher("ٱلرَّحِيمِ").resultats).toMatchObject([{ type: "verset", sourate: 1, verset: 1 }]);
   });
   it("simplifie les noms latins", () => {
