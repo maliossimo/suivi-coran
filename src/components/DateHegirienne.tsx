@@ -6,29 +6,39 @@ function aujourdhui(): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(new Date());
 }
 
+const JOUR_SEMAINE = new Intl.DateTimeFormat("fr-FR", { weekday: "short", timeZone: "UTC" });
 const JOUR_COURT = new Intl.DateTimeFormat("fr-FR", {
-  weekday: "short",
   day: "numeric",
   month: "short",
+  year: "numeric",
   timeZone: "UTC",
 });
 
 /**
- * Les deux dates du jour dans la barre du haut (tous les profils) :
- * « Mar. 17 nov. · 7 Joumada ath-thania 1448 », et l'arabe sur les écrans larges.
+ * Les dates du jour dans la barre du haut (tous les profils) :
+ * « Mar. 17 nov. 2026 · 7 Joumada ath-thania 1448 · ٧ جمادى الآخرة ١٤٤٨ هـ ».
+ * Sur téléphone : sans le jour de la semaine, et l'arabe sur sa propre ligne.
  */
 export function DateHegirienneBarre() {
   const jour = aujourdhui();
+  const midi = new Date(`${jour}T12:00:00Z`);
+  const semaine = JOUR_SEMAINE.format(midi).replace(/^./, (c) => c.toUpperCase());
+  const francais = JOUR_COURT.format(midi);
   const d = dateHegirienne(jour);
-  const francais = JOUR_COURT.format(new Date(`${jour}T12:00:00Z`)).replace(/^./, (c) => c.toUpperCase());
-  if (!d) return <span className="barre-app">{francais}</span>;
   return (
-    <span className="barre-app barre-hegire" title={libelleHegirienArabe(d)} suppressHydrationWarning>
-      {francais} · {libelleHegirien(d)}
-      <span className="barre-hegire-ar" lang="ar" dir="rtl">
-        {" · "}
-        {libelleHegirienArabe(d)}
-      </span>
+    <span className="barre-app barre-hegire" suppressHydrationWarning>
+      <span className="barre-semaine">{semaine} </span>
+      {francais}
+      {d ? (
+        <>
+          {" · "}
+          {libelleHegirien(d)}
+          <span className="barre-hegire-sep"> · </span>
+          <span className="barre-hegire-ar" lang="ar" dir="rtl">
+            {libelleHegirienArabe(d)}
+          </span>
+        </>
+      ) : null}
     </span>
   );
 }

@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.50.1] — 2026-11-17
+
+### Modifié
+
+- Barre du haut : les trois dates, aussi sur téléphone : date française avec l'année, date hégirienne en français et en arabe (« 17 nov. 2026 · 7 Joumada ath-thania 1448 », puis « ٧ جمادى الآخرة ١٤٤٨ هـ » sur la ligne suivante).
+
 ## [1.50.0] — 2026-11-17
 
 ### Ajouté
