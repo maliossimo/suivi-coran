@@ -84,18 +84,12 @@ async function ContenuClasse({
   );
 }
 
-/** « Salam Cheikh Malek · mardi 17 novembre » */
+/** « Salam Cheikh Malek » */
 function Salutation({ prenom }: { prenom: string }) {
-  const jour = new Intl.DateTimeFormat("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    timeZone: "Europe/Paris",
-  }).format(new Date());
+  // (La date est dans la barre du haut.)
   return (
     <p className="salutation-cheikh">
       <strong>Salam {/^cheikh\b/i.test(prenom) ? prenom : `Cheikh ${prenom}`.trim()}</strong>
-      <span>{jour}</span>
     </p>
   );
 }

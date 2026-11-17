@@ -67,6 +67,8 @@ function useBarreEtatDuCiel(ciel: RefObject<HTMLDivElement | null>, moment: Mome
       }
       if (document.head.firstElementChild !== balise) document.head.prepend(balise);
       balise.content = couleur;
+      // Le fondu sous la barre (ciel-fondu) prend la même couleur.
+      document.documentElement.style.setProperty("--ciel-actuel", couleur);
     };
     appliquer();
     const schema = matchMedia("(prefers-color-scheme: dark)");
