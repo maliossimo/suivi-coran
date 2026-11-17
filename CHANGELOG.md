@@ -9,7 +9,20 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
-## [1.56.0] — 2026-11-17
+## [1.57.0] — 2026-11-17
+
+### Modifié
+
+- Thème clair : un parchemin chaud remplace le blanc (fond, cartes ivoire, léger motif) ; sous la barre, le ciel descend en lueur dorée au lieu d'un dégradé gris la nuit.
+- Barre du bas : la frise s'arrête de chaque côté de l'arche du mihrab, sur deux chapiteaux dorés, comme si elle y entrait et en ressortait. L'arche est pleine : contour doré, intérieur vert profond en sombre et ivoire en clair, toute dorée quand on est sur sa page.
+- L'onglet choisi est marqué par une niche dorée (la même arche que son contour) au lieu de l'étoile ; les motifs de la frise s'allument en passant au-dessus.
+- Ordinateur : la lune ne passe plus sous le nom, elle se place entre les onglets et le compte.
+
+### Corrigé
+
+- En lisant le Coran, quand la barre du bas s'efface, l'arche et l'étoile ne dépassent plus en bas de l'écran.
+
+— 2026-11-17
 
 ### Ajouté
 
