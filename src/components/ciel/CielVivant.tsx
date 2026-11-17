@@ -19,9 +19,11 @@ export interface CielProps {
   maintenant: number;
 }
 
-/** Tests visuels : <html data-ciel-fixe="jour"> fige le ciel (moment donné, ni lune ni fête). */
+/** Tests visuels : window.__cielFixe (ou <html data-ciel-fixe>) fige le ciel (moment donné, ni lune ni fête). */
 function cielFixe(): MomentCiel | null {
-  const v = typeof document === "undefined" ? undefined : document.documentElement.dataset.cielFixe;
+  if (typeof window === "undefined") return null;
+  const v =
+    (window as unknown as { __cielFixe?: string }).__cielFixe ?? document.documentElement.dataset.cielFixe;
   return v === "fajr" || v === "jour" || v === "maghrib" || v === "nuit" ? v : null;
 }
 
@@ -77,12 +79,12 @@ function Lune({ jour }: { jour: number }) {
     <g className="ciel-lune">
       <defs>
         <mask id="masque-lune">
-          <circle cx="272" cy="48" r={r} fill="#fff" />
-          <circle cx={272 + decalage} cy="48" r={r + 0.4} fill="#000" />
+          <circle cx="246" cy="48" r={r} fill="#fff" />
+          <circle cx={246 + decalage} cy="48" r={r + 0.4} fill="#000" />
         </mask>
       </defs>
-      <circle cx="272" cy="48" r={r + 6} className="ciel-lune-halo" />
-      <circle cx="272" cy="48" r={r} mask="url(#masque-lune)" className="ciel-lune-disque" />
+      <circle cx="246" cy="48" r={r + 6} className="ciel-lune-halo" />
+      <circle cx="246" cy="48" r={r} mask="url(#masque-lune)" className="ciel-lune-disque" />
     </g>
   );
 }
@@ -126,8 +128,8 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
     <div className="ciel" data-moment={moment} data-particulier={fete ?? undefined} aria-hidden="true">
       <div className="ciel-motif" />
       <svg className="ciel-scene" viewBox="0 0 360 138">
-        <circle className="ciel-halo" cx={bas ? 268 : 272} cy={bas ? 108 : 48} r="74" />
-        {moment === "jour" ? <circle className="ciel-soleil" cx="272" cy="48" r="10" /> : null}
+        <circle className="ciel-halo" cx={bas ? 268 : 246} cy={bas ? 108 : 48} r="74" />
+        {moment === "jour" ? <circle className="ciel-soleil" cx="246" cy="48" r="10" /> : null}
         {bas ? <circle className="ciel-soleil-bas" cx="268" cy="108" r="13" /> : null}
         {!fixe && jourHegire !== null && moment !== "jour" ? <Lune jour={jourHegire} /> : null}
         <g className="ciel-nuages">

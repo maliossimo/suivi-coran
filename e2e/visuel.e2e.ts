@@ -23,7 +23,8 @@ const SANS_MOTS_A_REVOIR =
  */
 function dateHegirienneFixe(page: Page): Promise<void> {
   return page.addInitScript(() => {
-    document.documentElement.dataset.cielFixe = "jour";
+    // (Le script passe avant que la page existe : drapeau sur window, lu par le ciel.)
+    (window as unknown as { __cielFixe?: string }).__cielFixe = "jour";
     document.addEventListener("DOMContentLoaded", () => {
       const style = document.createElement("style");
       style.textContent = ".barre-dates, .mois-hegire { visibility: hidden !important; }";
