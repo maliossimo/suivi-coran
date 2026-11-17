@@ -36,7 +36,7 @@ export async function EnteteEspace({
     <header className="barre barre-vivante">
       <CielDecor {...ciel} />
       <SignalerOuverture />
-      <EnteteCompact titre={titre} sousTitre={sousTitre} />
+      <EnteteCompact titre={titre} nomPage={sousTitre} />
       {nom ? null : <DemandePrenom />}
       <div className="barre-contenu">
         <LogoAccueil accueil={accueilDuRole(role)} label="Accueil — Suivi cours Coran">
