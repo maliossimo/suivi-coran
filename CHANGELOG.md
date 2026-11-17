@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.46.1] — 2026-11-17
+
+### Corrigé
+
+- Coran : en haut, « Sourate | Mushaf » ne passe plus sous les boutons. La loupe disparaît : la recherche (sourate, mots arabes, « 2:255 ») se fait dans le menu « Aller à » (toucher le nom de la sourate). Trois outils plus étroits, sans icône sur les petits écrans.
+- Lecteur : sur les petits écrans, plus de nom de récitateur coupé (« M… A… ») ; seulement le verset ou le temps pendant l'écoute (le récitateur se choisit d'un toucher sur cette zone).
+
+### Amélioré
+
+- Mots à revoir : plus de bandeau au-dessus du texte. La liste est dans Réciter (« N mots à revoir dans cette sourate » : un toucher prépare le verset, texte caché) et dans « Ma progression ». Le soulignement sur la page reste, et se coupe dans les réglages (« Souligner mes mots à revoir »).
+
 ## [1.46.0] — 2026-11-17
 
 ### Ajouté

@@ -5,18 +5,19 @@ test.describe("Coran (admin)", () => {
     await seConnecter(page, COMPTES.admin, /\/admin/);
   });
 
-  test("recherche dans le Coran : une référence, un nom de sourate, des mots arabes", async ({ page }) => {
+  test("recherche dans « Aller à » : une sourate, une référence, des mots arabes", async ({ page }) => {
     await page.goto("/admin/coran?lecture=hafs&sourate=1");
-    await page.getByRole("button", { name: "Rechercher dans le Coran" }).click();
-    const champ = page.getByRole("searchbox", { name: "Mot, sourate ou référence" });
-    await champ.fill("2:255");
-    await expect(page.getByRole("link", { name: /2:255/ })).toBeVisible();
+    await page.locator(".coran-aller").click();
+    const aller = page.getByRole("dialog", { name: "Aller à" });
+    const champ = aller.getByRole("searchbox", { name: "Chercher une sourate ou un verset" });
     await champ.fill("maryam");
-    await expect(page.getByRole("link", { name: /Maryam/ })).toBeVisible();
+    await expect(aller.getByRole("button", { name: /Maryam/ })).toBeVisible();
+    await champ.fill("2:255");
+    await expect(aller.getByRole("button", { name: /2:255/ })).toBeVisible();
     await champ.fill("الحمد لله رب العالمين");
-    await expect(page.getByRole("link", { name: /1:2/ })).toBeVisible();
+    await expect(aller.getByRole("button", { name: /· 1:2/ })).toBeVisible();
     await capture(page, "43-coran-recherche");
-    await page.getByRole("link", { name: /1:2/ }).click();
+    await aller.getByRole("button", { name: /· 1:2/ }).click();
     await expect(page).toHaveURL(/#verset-1-2$/);
   });
 
@@ -178,7 +179,7 @@ test.describe("Coran (admin)", () => {
     // Une sourate choisie depuis « Aller à » s'ouvre ; un seul retour ramène à la précédente.
     await page.locator(".coran-aller").click();
     const aller = page.getByRole("dialog", { name: "Aller à" });
-    await aller.getByRole("searchbox", { name: "Chercher une sourate" }).fill("kahf");
+    await aller.getByRole("searchbox", { name: "Chercher une sourate ou un verset" }).fill("kahf");
     await aller
       .getByRole("button", { name: /Al-Kahf/ })
       .first()
@@ -193,7 +194,7 @@ test.describe("Coran (admin)", () => {
     await page.goto("/admin/coran?lecture=hafs&sourate=1");
     await page.locator(".coran-aller").click();
     const feuille = page.getByRole("dialog", { name: "Aller à" });
-    await feuille.getByRole("searchbox", { name: "Chercher une sourate" }).fill("kahf");
+    await feuille.getByRole("searchbox", { name: "Chercher une sourate ou un verset" }).fill("kahf");
     await capture(page, "42-aller-a");
     await feuille
       .getByRole("button", { name: /Al-Kahf/ })
