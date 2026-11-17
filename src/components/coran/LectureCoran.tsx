@@ -10,7 +10,6 @@ import {
   Moon,
   Pause,
   Play,
-  RotateCcw,
   Repeat,
   Settings2,
   SkipBack,
@@ -65,7 +64,6 @@ import { adresseAudio, adresseMots, garderSourateOuverte, useHorsLigne } from ".
 import { MemoriserCoran } from "./MemoriserCoran";
 import { PanneauTajwid } from "./PanneauTajwid";
 import { actionMotsARevoir } from "@/app/actions/tajwid";
-import { Feuille } from "@/components/Feuille";
 import { squeletteMot, type MotARevoir } from "@/domain/essais";
 import { usePincer } from "./pincer";
 import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
@@ -87,6 +85,7 @@ const DEFAUT: Reglages = {
   theme: "auto",
   tajwidEteintes: [],
   mushafLibre: false,
+  soulignerARevoir: true,
 };
 
 function lireReglages(): Reglages {
@@ -178,7 +177,6 @@ export function LectureCoran({
   const [emplacementCache, setEmplacementCache] = useState<HTMLElement | null>(null);
   /** Mots ratés lors des récitations, pas encore réussis deux fois (par sourate). */
   const [aRevoir, setARevoir] = useState<Record<number, MotARevoir[]>>({});
-  const [listeARevoir, setListeARevoir] = useState(false);
   const souratesAffichees = useMemo(() => blocs.map((b) => b.sourate).join(","), [blocs]);
   const chargerARevoir = useCallback(() => {
     const sourates = souratesAffichees.split(",").map(Number).slice(0, 4);
@@ -189,14 +187,16 @@ export function LectureCoran({
   useEffect(chargerARevoir, [chargerARevoir]);
   const aRevoirParVerset = useMemo(() => {
     const m = new Map<string, Set<string>>();
+    // Réglage « souligner les mots à revoir » coupé : rien sur la page (la liste reste dans Réciter).
+    if (!reglages.soulignerARevoir) return m;
     for (const [s, mots] of Object.entries(aRevoir))
       for (const x of mots) {
         const cle = cleVerset(Number(s), x.verset);
         m.set(cle, (m.get(cle) ?? new Set()).add(squeletteMot(x.mot)));
       }
     return m;
-  }, [aRevoir]);
-  const nbARevoir = Object.values(aRevoir).reduce((n, l) => n + l.length, 0);
+  }, [aRevoir, reglages.soulignerARevoir]);
+
   useEffect(() => setEmplacementCache(document.getElementById("coran-outil-cache")), []);
   /** Arrêt automatique : heure de fin, « à la fin du passage », ou rien. */
   const [minuterie, setMinuterie] = useState<{ fin: number; choix: ChoixMinuterie } | "fin" | null>(null);
@@ -1069,47 +1069,6 @@ export function LectureCoran({
         onEteintes={(e) => modifier({ tajwidEteintes: e })}
         compte={compteTajwid}
       />
-      {nbARevoir ? (
-        <button type="button" className="coran-a-revoir-bouton" onClick={() => setListeARevoir(true)}>
-          <RotateCcw size={16} aria-hidden="true" />
-          {nbARevoir} mot{nbARevoir > 1 ? "s" : ""} à revoir
-        </button>
-      ) : null}
-      <Feuille ouverte={listeARevoir} onFermer={() => setListeARevoir(false)} titre="Mots à revoir">
-        <p className="coran-a-revoir-aide">
-          Les mots ratés lors de tes récitations. Ils sont soulignés sur la page et sortent de la liste après
-          deux récitations réussies.
-        </p>
-        <ul className="coran-a-revoir-liste">
-          {Object.entries(aRevoir).flatMap(([s, mots]) => {
-            const sourate = Number(s);
-            const parVerset = new Map<number, MotARevoir[]>();
-            for (const m of mots) parVerset.set(m.verset, [...(parVerset.get(m.verset) ?? []), m]);
-            return [...parVerset.entries()].map(([v, liste]) => (
-              <li key={`${s}:${v}`}>
-                <span className="coran-a-revoir-ref">
-                  {blocs.find((b) => b.sourate === sourate)?.nomLatin ?? sourate} {v}
-                </span>
-                <span lang="ar" dir="rtl" className="coran-a-revoir-mots">
-                  {liste.map((m) => m.mot).join("  ·  ")}
-                </span>
-                <button
-                  type="button"
-                  className="bouton-secondaire"
-                  onClick={() => {
-                    setListeARevoir(false);
-                    audio.current?.pause();
-                    setReciter({ sourate, depart: v, fin: v, reveler: true });
-                  }}
-                >
-                  <Mic size={16} aria-hidden="true" />
-                  Réciter
-                </button>
-              </li>
-            ));
-          })}
-        </ul>
-      </Feuille>
       {mushafPossible && reglages.mushafLibre ? (
         <button
           type="button"

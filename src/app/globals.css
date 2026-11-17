@@ -13849,7 +13849,8 @@ html[data-plein-ecran] .coran-zoom-boutons button {
   padding: 0;
   list-style: none;
 }
-.recherche-coran-liste a {
+.recherche-coran-liste a,
+.recherche-coran-liste button {
   display: grid;
   gap: 4px;
   padding: 10px 14px;
@@ -13859,7 +13860,14 @@ html[data-plein-ecran] .coran-zoom-boutons button {
   color: var(--texte);
   text-decoration: none;
 }
-.recherche-coran-liste a:active {
+.recherche-coran-liste button {
+  width: 100%;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.recherche-coran-liste a:active,
+.recherche-coran-liste button:active {
   transform: scale(0.99);
 }
 .recherche-coran-ref {
@@ -13949,4 +13957,91 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 .carte-graphique-sous {
   font-size: 13.5px;
   line-height: 1.45;
+}
+
+/* ---------- En-tête du Coran : « Sourate | Mushaf » toujours lisible, outils étroits ---------- */
+.coran-outils {
+  gap: 5px;
+}
+.coran-outils .coran-plein-ecran {
+  width: 40px;
+}
+.coran-segments {
+  min-width: 0;
+  overflow: hidden;
+}
+.coran-segments a {
+  min-width: 0;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+@media (max-width: 420px) {
+  /* Petit écran : les mots seuls (sans icône) tiennent à côté des trois outils. */
+  .coran-segments svg {
+    display: none;
+  }
+  .coran-outils .coran-plein-ecran {
+    width: 38px;
+  }
+}
+
+/* ---------- Progression : mots à revoir ---------- */
+.mots-a-revoir {
+  margin-top: 16px;
+}
+.mots-a-revoir h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mots-a-revoir ul {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.mots-a-revoir li > a,
+.mots-a-revoir li > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--texte);
+  text-decoration: none;
+}
+.mots-a-revoir-sourate {
+  display: grid;
+}
+.mots-a-revoir-sourate small {
+  color: var(--texte-doux);
+  font-size: 12.5px;
+}
+.mots-a-revoir-mots {
+  overflow: hidden;
+  font-family: "KFGQPC Hafs", var(--font-arabe), serif;
+  font-size: 18px;
+  text-align: right;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.reciter-a-revoir summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.reciter-difficile.choisi {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+}
+/* Lecteur, petit écran : pas de nom coupé en « M… A… ». Seulement l'état (verset, temps) pendant l'écoute ;
+   le récitateur se choisit (et se lit en entier) dans les réglages, d'un toucher sur cette zone. */
+@media (max-width: 420px) {
+  .coran-barre-infos strong {
+    display: none;
+  }
 }

@@ -2,7 +2,7 @@
 
 import { IndicateurGlissant } from "@/components/IndicateurGlissant";
 import { PleinEcranCoran } from "./PleinEcranCoran";
-import { RechercheCoran } from "./RechercheCoran";
+import { VersetsTrouves, chercheDesVersets } from "./RechercheCoran";
 import { annoncerTourDePage } from "./tourDePage";
 import { Bookmark, BookOpen, ChevronDown, ChevronLeft, ChevronRight, ScrollText, Search } from "lucide-react";
 import Link from "next/link";
@@ -102,7 +102,6 @@ export function NavigationCoran({
         </nav>
         <div className="coran-outils">
           {/* Le bouton « cacher le texte » de la lecture vient se poser ici. */}
-          <RechercheCoran lecture={lecture} base={base} />
           <span id="coran-outil-cache" />
           <PleinEcranCoran />
         </div>
@@ -192,8 +191,8 @@ export function NavigationCoran({
                 type="search"
                 value={recherche}
                 onChange={(e) => setRecherche(e.target.value)}
-                placeholder="Nom ou numéro (ex. Kahf, 18)"
-                aria-label="Chercher une sourate"
+                placeholder="Sourate, mot arabe ou 2:255"
+                aria-label="Chercher une sourate ou un verset"
                 enterKeyHint="search"
               />
             </label>
@@ -216,10 +215,16 @@ export function NavigationCoran({
                   </button>
                 </li>
               ))}
-              {trouvees.length === 0 ? (
+              {trouvees.length === 0 && !chercheDesVersets(recherche) ? (
                 <li className="carte-graphique-sous">Aucune sourate trouvée.</li>
               ) : null}
             </ul>
+            {/* Mots arabes ou référence : les versets, sous les sourates. */}
+            <VersetsTrouves
+              requete={recherche}
+              lecture={lecture}
+              onChoisir={(s, v) => aller(`${lienSourate(s)}#verset-${s}-${v}`)}
+            />
           </>
         ) : onglet === "marques" ? (
           marques.length ? (

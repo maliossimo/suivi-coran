@@ -7,7 +7,8 @@ import {
   type MotARevoir,
   type MotDifficile,
 } from "@/domain/essais";
-import { enregistrerEssai, listerMesEssais } from "@/repositories/essais";
+import { enregistrerEssai, listerEssaisEleve, listerMesEssais } from "@/repositories/essais";
+import { listerSourates } from "@/repositories/sourates";
 import { noterUsageCoran } from "@/repositories/usagesCoran";
 import type { Profil } from "@/repositories/profils";
 import { peutOuvrirCoran } from "@/services/coran";
@@ -90,4 +91,38 @@ export async function motsARevoirAffiches(
     }),
   );
   return resultat;
+}
+
+export interface MotsARevoirSourate {
+  lecture: "hafs" | "warsh";
+  sourate: number;
+  nomLatin: string;
+  nomAr: string;
+  mots: MotARevoir[];
+}
+
+/** Progression : les mots à revoir de l'élève, sourate par sourate (vide si rien, ou en cas d'échec). */
+export async function motsARevoirEleve(eleveId: string): Promise<MotsARevoirSourate[]> {
+  const essais = await listerEssaisEleve(eleveId).catch(() => []);
+  if (!essais.length) return [];
+  const groupes = new Map<string, typeof essais>();
+  for (const e of essais) {
+    const cle = `${e.lecture}:${e.sourate}`;
+    groupes.set(cle, [...(groupes.get(cle) ?? []), e]);
+  }
+  const resultat: MotsARevoirSourate[] = [];
+  for (const liste of groupes.values()) {
+    const { lecture, sourate } = liste[0]!;
+    const mots = motsARevoir(liste, sourate);
+    if (!mots.length) continue;
+    const s = (await listerSourates(lecture).catch(() => [])).find((x) => x.numero === sourate);
+    resultat.push({
+      lecture,
+      sourate,
+      nomLatin: s?.nomLatin ?? `Sourate ${sourate}`,
+      nomAr: s?.nomAr ?? "",
+      mots,
+    });
+  }
+  return resultat.sort((a, b) => a.sourate - b.sourate);
 }
