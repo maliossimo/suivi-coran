@@ -18,11 +18,14 @@ export interface ApercuEleve {
   pourcentage: number;
   pages: number | null;
   juz: number | null;
-  derniere: {
+  /** Dernier jour travaillé : ses séances (apprentissage puis révision). */
+  dernierJour: {
     date: string;
-    type: "apprentissage" | "revision";
-    dureeMin: number;
-    passages: { libelle: string; etat: "valide" | "a_refaire" | "aucun" }[];
+    seances: {
+      type: "apprentissage" | "revision";
+      dureeMin: number;
+      passages: { libelle: string; etat: "valide" | "a_refaire" | "aucun" }[];
+    }[];
   } | null;
   /** Passages « à refaire » des 60 derniers jours (les plus récents d'abord, 5 au plus). */
   aRefaire: string[];
@@ -54,7 +57,10 @@ export async function apercuEleve(acteur: Profil | null, brut: unknown): Promise
       return "Passage";
     }
   };
-  const derniere = seances.at(-1);
+  const dateDerniere = seances.at(-1)?.date;
+  const duDernierJour = seances
+    .filter((s) => s.date === dateDerniere)
+    .sort((a, b) => (a.type === b.type ? 0 : a.type === "apprentissage" ? -1 : 1));
   const depuis = ajouterJours(aujourdhui, -60);
   const aRefaire = [
     ...new Set(
@@ -71,14 +77,16 @@ export async function apercuEleve(acteur: Profil | null, brut: unknown): Promise
     pourcentage: progression.pourcentageCoran,
     pages: progression.pagesApprises ?? null,
     juz: progression.juzComplets,
-    derniere: derniere
+    dernierJour: dateDerniere
       ? {
-          date: derniere.date,
-          type: derniere.type,
-          dureeMin: derniere.dureeMin,
-          passages: derniere.passages.map((p) => ({
-            libelle: libelle(p),
-            etat: p.valide ? ("valide" as const) : p.corrige ? ("a_refaire" as const) : ("aucun" as const),
+          date: dateDerniere,
+          seances: duDernierJour.map((se) => ({
+            type: se.type,
+            dureeMin: se.dureeMin,
+            passages: se.passages.map((p) => ({
+              libelle: libelle(p),
+              etat: p.valide ? ("valide" as const) : p.corrige ? ("a_refaire" as const) : ("aucun" as const),
+            })),
           })),
         }
       : null,

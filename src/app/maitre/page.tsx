@@ -94,7 +94,7 @@ function Salutation({ prenom }: { prenom: string }) {
   return (
     <p className="salutation-cheikh">
       <strong>Salam {/^cheikh\b/i.test(prenom) ? prenom : `Cheikh ${prenom}`.trim()}</strong>
-      <span> · {jour}</span>
+      <span>{jour}</span>
     </p>
   );
 }

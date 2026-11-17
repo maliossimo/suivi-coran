@@ -51,6 +51,9 @@ export function ListeEleves({
   const archivesVisibles = archives.filter((r) => correspondARecherche(r.eleve, recherche));
 
   const aEcouter = actifs.reduce((t, r) => t + r.aVoir, 0);
+  // La lecture de la plupart des élèves ne s'affiche pas : seule l'exception se voit (moins de bruit sur téléphone).
+  const nbWarsh = actifs.filter((r) => r.eleve.lecture === "warsh").length;
+  const lectureCourante = nbWarsh > actifs.length / 2 ? "warsh" : "hafs";
   // La fiche s'ouvre sur l'onglet choisi la dernière fois (apprentissage ou révision).
   const onglet = useChoix(CHOIX.ongletFiche) === "revision" ? "&type=revision" : "";
   return (
@@ -131,7 +134,9 @@ export function ListeEleves({
               </span>
               <span className="carte-eleve-nom">
                 {r.eleve.prenom} {r.eleve.nom}
-                <EtiquetteLecture lecture={r.eleve.lecture ?? null} />
+                {r.eleve.lecture !== lectureCourante ? (
+                  <EtiquetteLecture lecture={r.eleve.lecture ?? null} />
+                ) : null}
                 {r.aVoir > 0 ? (
                   // Toucher la pastille : les séances s'ouvrent ici, dans une feuille, sans quitter la liste.
                   <span

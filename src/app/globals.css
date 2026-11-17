@@ -14727,3 +14727,65 @@ html[data-plein-ecran] .remonter-en-haut {
     border-color: rgba(201, 162, 74, 0.3);
   }
 }
+
+/* 1.48.1 : aperçu et liste du Cheikh sur téléphone */
+.carte-eleve-oeil {
+  right: -6px;
+  bottom: -6px;
+  width: 22px;
+  height: 22px;
+  background: var(--vert);
+  color: #fff;
+  border: 2px solid var(--carte);
+}
+.carte-eleve-oeil svg {
+  width: 13px;
+  height: 13px;
+}
+.a-ecouter ul {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.apercu-seance + .apercu-seance {
+  margin-top: 10px;
+}
+.apercu-seance-type {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--vert-texte);
+}
+.apercu-revision .apercu-seance-type {
+  color: var(--or-texte);
+}
+ul.apercu-liste {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+ul.apercu-liste li {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  font-size: 14px;
+}
+.salutation-cheikh span::before {
+  content: " · ";
+}
+@media (max-width: 480px) {
+  .salutation-cheikh span::before {
+    content: none;
+  }
+  .salutation-cheikh {
+    margin-bottom: 8px;
+  }
+  .salutation-cheikh span {
+    display: block;
+    font-size: 14px;
+  }
+  .apercu-bloc li {
+    font-size: 14px;
+  }
+}
