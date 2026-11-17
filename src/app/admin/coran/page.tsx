@@ -1,6 +1,7 @@
 import { PageCoranComplete } from "@/components/coran/PageCoranComplete";
 import { exigerEspace } from "@/services/acces";
 import { chargerPageCoran } from "@/services/coran";
+import { chargerMotsARevoir } from "@/services/essais";
 
 export const metadata = { title: "Coran" };
 
@@ -11,6 +12,7 @@ export default async function PageCoran({
 }) {
   const profil = await exigerEspace("admin");
   const p = await chargerPageCoran(profil, await searchParams);
+  const aRevoir = await chargerMotsARevoir(profil, p.lecture);
   return (
     <PageCoranComplete
       p={p}
@@ -18,6 +20,7 @@ export default async function PageCoran({
       nom={`${profil.prenom} ${profil.nom}`.trim()}
       role={profil.role}
       choixLecture
+      aRevoir={aRevoir}
     />
   );
 }

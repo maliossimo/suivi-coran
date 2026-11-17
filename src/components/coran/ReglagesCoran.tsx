@@ -37,7 +37,8 @@ const THEMES: { valeur: ThemeCoran; libelle: string }[] = [
 export const MINUTERIES = [0, 15, 30, 60, -1] as const;
 export type ChoixMinuterie = (typeof MINUTERIES)[number];
 
-export const TAILLES = [22, 26, 30, 34, 40, 46];
+// Les deux dernières tailles servent surtout au zoom (pincer le texte).
+export const TAILLES = [22, 26, 30, 34, 40, 46, 54, 62];
 const VITESSES = [0.75, 1, 1.25, 1.5];
 
 /** Feuille des réglages : récitation, affichage, hors ligne. */
@@ -103,12 +104,15 @@ export function ReglagesCoran({
             valeur={recitation?.id ?? ""}
             onChange={(id) => modifier({ recitation: { ...reglages.recitation, [lecture]: id } })}
             options={[...recitations]
-              .sort((a, b) => Number(b.suivi) - Number(a.suivi))
+              .sort((a, b) => Number(b.suivi && !b.ecouteSeule) - Number(a.suivi && !a.ecouteSeule))
               .map((r) => ({
                 valeur: r.id,
                 libelle: r.nom,
                 detail: r.style || undefined,
-                groupe: r.suivi ? "Le texte suit la récitation" : "Écoute seule (sourate entière)",
+                groupe:
+                  r.suivi && !r.ecouteSeule
+                    ? "Le texte suit la récitation"
+                    : "Écoute seule (le texte ne suit pas)",
               }))}
             favoris={{
               valeurs: favoris,

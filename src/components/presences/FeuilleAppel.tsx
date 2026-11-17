@@ -1,11 +1,13 @@
 "use client";
 
-import { Check, CloudOff, MessageSquareText, X } from "lucide-react";
+import { Check, CloudOff, MessageSquareText, UserPlus, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { LIBELLE_STATUT, STATUTS, libelleResume, resumeAppel, type StatutPresence } from "@/domain/presences";
 import { envoyerAppel } from "./appelsEnAttente";
 import { Avatar } from "@/components/Avatar";
+import { EtatVide } from "@/components/EtatVide";
 import { retoursActives, retourSensoriel } from "@/components/retourSensoriel";
 
 interface Membre {
@@ -92,7 +94,14 @@ export function FeuilleAppel({
   const autreJour = date !== datePage;
 
   if (!membres.length) {
-    return <p className="message-info">Aucun élève dans cette classe : ajoute-les d’abord.</p>;
+    return (
+      <EtatVide titre="Aucun élève dans cette classe">
+        <p>Ajoute d’abord les élèves : l’appel se fait ensuite en un toucher par élève.</p>
+        <Link href={`/presences/${classeId}/modifier`} className="bouton bouton-lien">
+          <UserPlus size={16} aria-hidden="true" /> Ajouter des élèves
+        </Link>
+      </EtatVide>
+    );
   }
 
   return (

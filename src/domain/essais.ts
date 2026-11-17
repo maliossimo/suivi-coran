@@ -86,3 +86,49 @@ export function motsDifficiles(essais: readonly Essai[], sourate: number, nombre
     .slice(0, nombre)
     .map(({ verset, mot, fois }) => ({ verset, mot, fois }));
 }
+
+export interface MotARevoir {
+  sourate: number;
+  verset: number;
+  mot: string;
+  /** Raté pour la dernière fois (date de l'essai). */
+  quand: string;
+  /** Réussites depuis (essais qui couvraient le verset sans cette faute) : 2 → le mot sort de la liste. */
+  reussites: number;
+}
+
+/**
+ * Les mots à revoir : ratés lors d'une récitation et pas encore réussis deux fois depuis, les plus récents
+ * d'abord. Un essai « réussit » un mot s'il couvrait son verset sans le compter parmi ses fautes.
+ */
+export function motsARevoir(essais: readonly Essai[], nombre = 60): MotARevoir[] {
+  const derniers = new Map<string, MotARevoir>();
+  for (const e of essais)
+    for (const f of e.fautes) {
+      const cle = `${e.sourate}|${f.verset}|${f.mot}`;
+      const d = derniers.get(cle);
+      if (!d || e.quand > d.quand)
+        derniers.set(cle, { sourate: e.sourate, verset: f.verset, mot: f.mot, quand: e.quand, reussites: 0 });
+    }
+  for (const m of derniers.values())
+    m.reussites = essais.filter(
+      (e) =>
+        e.sourate === m.sourate &&
+        e.quand > m.quand &&
+        e.du <= m.verset &&
+        e.au >= m.verset &&
+        !e.fautes.some((f) => f.verset === m.verset && f.mot === m.mot),
+    ).length;
+  return [...derniers.values()]
+    .filter((m) => m.reussites < 2)
+    .sort((a, b) => (a.quand < b.quand ? 1 : a.quand > b.quand ? -1 : a.verset - b.verset))
+    .slice(0, nombre);
+}
+
+/** Squelette d'un mot (lettres seules, formes de l'alif ramenées à une) : pour retrouver un mot d'un texte à l'autre. */
+export function squeletteMot(mot: string): string {
+  return [...mot]
+    .filter((c) => /[ء-يٱ]/.test(c))
+    .map((c) => (/[آأإٱا]/.test(c) ? "ا" : c === "ى" ? "ي" : c))
+    .join("");
+}

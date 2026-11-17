@@ -13,6 +13,11 @@ export interface RecitateurVersets {
   nom: string;
   style: "Murattal" | "Mujawwad" | "Muallim";
   lecture: Lecture;
+  /**
+   * Écoute seulement : les fichiers ne sont pas coupés aux bons endroits (la fin d'un verset commence le fichier
+   * suivant), le texte ne suit donc pas la voix. Écoutés à la suite, ils redonnent la récitation complète.
+   */
+  ecouteSeule?: boolean;
 }
 
 export const RECITATEURS_VERSETS: readonly RecitateurVersets[] = [
@@ -358,5 +363,7 @@ export const RECITATEURS_VERSETS: readonly RecitateurVersets[] = [
     nom: "Abdul Basit Abdus-Samad",
     style: "Mujawwad",
     lecture: "warsh",
+    // Banc d'essai Warsh : la fin de presque chaque verset manque dans son fichier (1:2 sans « رب العالمين »…).
+    ecouteSeule: true,
   },
 ];

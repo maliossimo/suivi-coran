@@ -5,6 +5,7 @@ import { ContinuerLecture } from "@/components/coran/ContinuerLecture";
 import { LIBELLE_LECTURE } from "@/domain/lectures";
 import { exigerEleveAvecLecture } from "@/services/acces";
 import { chargerAccueilCoran } from "@/services/accueilCoran";
+import { chargerMotsARevoir } from "@/services/essais";
 
 export const metadata = { title: "Coran" };
 
@@ -18,6 +19,7 @@ const JOUR = new Intl.DateTimeFormat("fr-FR", {
 export default async function PageCoranEleve() {
   const profil = await exigerEleveAvecLecture();
   const { lecture, passage } = await chargerAccueilCoran(profil);
+  const aRevoir = await chargerMotsARevoir(profil, lecture);
   const lire = `/eleve/coran/lire?lecture=${lecture}`;
   const reciter = passage
     ? `${lire}&sourate=${passage.sourate}&du=${passage.du}&au=${passage.au}&reciter=1`
@@ -88,6 +90,33 @@ export default async function PageCoranEleve() {
             Ta voix n’est jamais enregistrée : seuls ton score et tes mots à revoir sont gardés.
           </p>
         </section>
+
+        {aRevoir.length ? (
+          <section className="carte-coran coran-a-revoir" aria-labelledby="titre-a-revoir">
+            <h2 id="titre-a-revoir">
+              <span className="coran-a-revoir-nombre">{aRevoir.length}</span>
+              {aRevoir.length > 1 ? "mots à revoir" : "mot à revoir"}
+            </h2>
+            <p>
+              Ratés en récitant. Touche un mot pour réciter son verset ; réussi deux fois, il sort de la
+              liste.
+            </p>
+            <ul>
+              {aRevoir.slice(0, 12).map((m) => (
+                <li key={`${m.sourate}-${m.verset}-${m.mot}`}>
+                  <Link href={`${lire}&sourate=${m.sourate}&du=${m.verset}&au=${m.verset}&reciter=1`}>
+                    <span lang="ar" dir="rtl">
+                      {m.mot}
+                    </span>
+                    <small>
+                      {m.sourate}:{m.verset}
+                    </small>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         <section className="carte-coran" aria-labelledby="titre-lire">
           <h2 id="titre-lire">

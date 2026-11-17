@@ -38,6 +38,8 @@ export interface Recitation {
   style: string;
   /** Vrai : un fichier par verset (le texte suit). Faux : un fichier par sourate. */
   suivi: boolean;
+  /** Fichiers par verset mal découpés : on écoute, le texte ne suit pas (voir recitateurs.ts). */
+  ecouteSeule: boolean;
   /** Dossier des fichiers MP3. */
   source: string;
   /** Dossier des repères mot par mot (Hafs uniquement) ; null sinon. */
@@ -57,6 +59,7 @@ export function recitationsVersets(lecture: Lecture): Recitation[] {
     nom: r.nom,
     style: r.style,
     suivi: true,
+    ecouteSeule: r.ecouteSeule ?? false,
     source: `https://everyayah.com/data/${r.dossier}/`,
     // Les repères sont alignés sur le texte Hafs : en Warsh, le suivi reste verset par verset.
     mots: lecture === "hafs" ? `${REPERES_MOTS}${r.alignement}/` : null,

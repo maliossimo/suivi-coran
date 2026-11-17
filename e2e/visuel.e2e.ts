@@ -26,6 +26,11 @@ test.describe("Apparence", () => {
     await page.goto("/admin/coran?lecture=hafs&sourate=1");
     await expect(page.locator('.coran-verset[data-cle="1:7"]')).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
+    // Les mots à revoir dépendent des récitations faites par les autres tests (même compte) : hors capture.
+    await page.addStyleTag({
+      content:
+        ".coran-a-revoir { display: none !important } .mot.a-revoir { text-decoration: none !important }",
+    });
     await expect(page).toHaveScreenshot("coran-sourate-1.png", {
       ...OPTIONS,
       mask: [page.locator(".barre-identite, time")],

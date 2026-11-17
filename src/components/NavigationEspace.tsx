@@ -325,9 +325,9 @@ function usePastilleQuiGlisse(
     // D'abord la classe (les onglets deviennent des repères de position), puis les mesures.
     barre.classList.add("avec-pastille");
     const position = actif.offsetLeft + actif.offsetWidth / 2;
-    // Hauteur : juste au-dessus du libellé (icône de 22 px + 2 px de marge, 3 px d'écart), comme avant.
+    // Hauteur : centrée sur l'icône (21 px, 2 px au-dessus du libellé) ; pastille de 24 px.
     const libelle = actif.querySelector<HTMLElement>("span");
-    if (libelle) p.style.setProperty("--pastille-y", `${actif.offsetTop + libelle.offsetTop - 3 - 26}px`);
+    if (libelle) p.style.setProperty("--pastille-y", `${actif.offsetTop + libelle.offsetTop - 25}px`);
     const placer = (x: number) => p.style.setProperty("--pastille-x", `${x}px`);
     if (positionPrecedente === null || positionPrecedente === position) {
       p.classList.remove("glisse");
