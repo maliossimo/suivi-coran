@@ -14790,27 +14790,8 @@ ul.apercu-liste li {
   }
 }
 
-/* Bandeau des dates sous la barre du haut : fin, centré, il part avec la page au défilement */
-.bandeau-dates {
-  margin: 0;
-  padding: 4px 12px 6px;
-  border-top: 1px solid rgba(214, 175, 92, 0.35);
-  background: rgba(0, 0, 0, 0.14);
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 12px;
-  line-height: 1.45;
-  text-align: center;
-}
-.bandeau-point {
-  color: #e9c873;
-}
-.bandeau-ar {
-  unicode-bidi: isolate;
-}
+/* Téléphone : barre d'une seule rangée (logo, titre, avatar), sans retour à la ligne */
 @media (max-width: 640px) {
-  .bandeau-semaine {
-    display: none;
-  }
   .barre-contenu {
     flex-wrap: nowrap;
   }
@@ -14818,17 +14799,9 @@ ul.apercu-liste li {
     flex: 1 1 auto;
   }
 }
-/* Téléphone : barre plus basse (la place va au contenu) */
 @media (max-width: 480px) {
   .barre-contenu {
     padding: 8px 14px;
-  }
-  .barre-app {
-    display: none;
-  }
-  .bandeau-dates {
-    padding: 3px 10px 5px;
-    font-size: 11.5px;
   }
 }
 
@@ -14936,4 +14909,827 @@ ul.apercu-liste li {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+/* =====================================================================
+   Identité (1.51) : barre du haut vivante — le ciel suit les heures de prière de la mosquée,
+   la lune le mois hégirien, les jours particuliers s'y voient — titres en calligraphie Ruqʿa,
+   frise de zellige, barre du bas en arcade avec le mihrab au centre. Version claire (parchemin)
+   et sombre (nuit verte). Tout mouvement s'arrête si le téléphone demande moins d'animations.
+   ===================================================================== */
+.barre-vivante {
+  --ciel-texte: #1f3a2f;
+  --ciel-texte-doux: #4b5a52;
+  --ciel-or: #8a5f12;
+  --ciel-sil: rgba(122, 79, 14, 0.17);
+  --ciel-sil-loin: rgba(122, 79, 14, 0.08);
+  --ciel-astre: #d9a93f;
+  --ciel-lune: #b98a2c;
+  --ciel-etoile: #b98a2c;
+  --ciel-nuage: #ffffff;
+  --frise-fond: #efe4cc;
+}
+.nav-espace {
+  --nav-fond: #f6efe0;
+  --nav-texte: #5b6660;
+  --nav-or: #8a5f12;
+}
+.ciel[data-moment="fajr"] {
+  --ciel: #e9e2d8;
+  --ciel-halo: #e9a8a0;
+  --ciel-halo-opacite: 0.38;
+}
+.ciel[data-moment="jour"] {
+  --ciel: #f4ecd9;
+  --ciel-halo: #e9c873;
+  --ciel-halo-opacite: 0.4;
+}
+.ciel[data-moment="maghrib"] {
+  --ciel: #f3dcc3;
+  --ciel-halo: #e8955a;
+  --ciel-halo-opacite: 0.42;
+}
+.ciel[data-moment="nuit"] {
+  --ciel: #e3ded2;
+  --ciel-halo: #c9a24a;
+  --ciel-halo-opacite: 0.16;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .barre-vivante {
+    --ciel-texte: #eef4f0;
+    --ciel-texte-doux: #c9dbd2;
+    --ciel-or: #f0cf7a;
+    --ciel-sil: rgba(0, 0, 0, 0.3);
+    --ciel-sil-loin: rgba(0, 0, 0, 0.16);
+    --ciel-astre: #f6d77a;
+    --ciel-lune: #f6eedb;
+    --ciel-etoile: #f6eedb;
+    --ciel-nuage: #ffffff;
+    --frise-fond: #0f1a16;
+  }
+  :where(:root:not([data-theme="clair"])) .nav-espace {
+    --nav-fond: #123c2e;
+    --nav-texte: #a9c9bb;
+    --nav-or: #f0cf7a;
+  }
+  :where(:root:not([data-theme="clair"])) .ciel[data-moment="fajr"] {
+    --ciel: #1d3b48;
+    --ciel-halo: #f0a7a0;
+    --ciel-halo-opacite: 0.35;
+  }
+  :where(:root:not([data-theme="clair"])) .ciel[data-moment="jour"] {
+    --ciel: #174d3b;
+    --ciel-halo: #e9c873;
+    --ciel-halo-opacite: 0.25;
+  }
+  :where(:root:not([data-theme="clair"])) .ciel[data-moment="maghrib"] {
+    --ciel: #5a3020;
+    --ciel-halo: #f2a65a;
+    --ciel-halo-opacite: 0.5;
+  }
+  :where(:root:not([data-theme="clair"])) .ciel[data-moment="nuit"] {
+    --ciel: #0b2a20;
+    --ciel-halo: #e9c873;
+    --ciel-halo-opacite: 0.12;
+  }
+}
+:where(:root[data-theme="sombre"]) .barre-vivante {
+  --ciel-texte: #eef4f0;
+  --ciel-texte-doux: #c9dbd2;
+  --ciel-or: #f0cf7a;
+  --ciel-sil: rgba(0, 0, 0, 0.3);
+  --ciel-sil-loin: rgba(0, 0, 0, 0.16);
+  --ciel-astre: #f6d77a;
+  --ciel-lune: #f6eedb;
+  --ciel-etoile: #f6eedb;
+  --ciel-nuage: #ffffff;
+  --frise-fond: #0f1a16;
+}
+:where(:root[data-theme="sombre"]) .nav-espace {
+  --nav-fond: #123c2e;
+  --nav-texte: #a9c9bb;
+  --nav-or: #f0cf7a;
+}
+:where(:root[data-theme="sombre"]) .ciel[data-moment="fajr"] {
+  --ciel: #1d3b48;
+  --ciel-halo: #f0a7a0;
+  --ciel-halo-opacite: 0.35;
+}
+:where(:root[data-theme="sombre"]) .ciel[data-moment="jour"] {
+  --ciel: #174d3b;
+  --ciel-halo: #e9c873;
+  --ciel-halo-opacite: 0.25;
+}
+:where(:root[data-theme="sombre"]) .ciel[data-moment="maghrib"] {
+  --ciel: #5a3020;
+  --ciel-halo: #f2a65a;
+  --ciel-halo-opacite: 0.5;
+}
+:where(:root[data-theme="sombre"]) .ciel[data-moment="nuit"] {
+  --ciel: #0b2a20;
+  --ciel-halo: #e9c873;
+  --ciel-halo-opacite: 0.12;
+}
+
+.barre.barre-vivante {
+  /* Calque propre (le ciel reste derrière), au niveau de l'ancienne barre du bas (50) : la barre du bas,
+     rangée dans la barre du haut, reste au-dessus du contenu de la page. */
+  position: relative;
+  z-index: 50;
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  color: var(--ciel-texte);
+}
+.barre-vivante .barre-contenu,
+.barre-vivante .barre-dates,
+.barre-vivante .frise-zellige {
+  position: relative;
+  z-index: 1;
+}
+.ciel {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background-color: var(--ciel);
+  transition: background-color 1.2s ease;
+}
+.ciel-motif {
+  position: absolute;
+  inset: -60px;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23c9a24a' stroke-width='1.4'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3C/g%3E%3C/svg%3E");
+  animation: ciel-derive 80s linear infinite;
+}
+/* La scène (coupoles, minaret, astre) garde sa taille, calée en bas à droite de la barre. */
+.ciel-scene {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 360px;
+  height: 138px;
+}
+.ciel-halo-degrade {
+  color: var(--ciel-halo);
+}
+.ciel-halo {
+  opacity: var(--ciel-halo-opacite);
+  animation: ciel-respire 8s ease-in-out infinite;
+}
+.ciel-soleil {
+  fill: var(--ciel-astre);
+  opacity: 0.9;
+}
+.ciel-soleil-bas {
+  fill: var(--ciel-halo);
+  opacity: 0.85;
+}
+.ciel-lune-disque {
+  fill: var(--ciel-lune);
+}
+.ciel-lune-halo {
+  fill: var(--ciel-lune);
+  opacity: 0.08;
+}
+.ciel-nuages {
+  fill: var(--ciel-nuage);
+  opacity: 0;
+  transition: opacity 1.2s;
+}
+.ciel-nuages ellipse {
+  animation: ciel-vent 40s linear infinite;
+}
+.ciel-nuages ellipse + ellipse {
+  animation-duration: 55s;
+  animation-delay: -22s;
+}
+.ciel[data-moment="jour"] .ciel-nuages {
+  opacity: 0.16;
+}
+.ciel[data-moment="maghrib"] .ciel-nuages {
+  opacity: 0.1;
+}
+.ciel-etoiles {
+  opacity: 0;
+  transition: opacity 1.2s;
+}
+.ciel-etoiles circle {
+  fill: var(--ciel-etoile);
+  animation: ciel-scintille 3s ease-in-out infinite;
+}
+.ciel[data-moment="nuit"] .ciel-etoiles {
+  opacity: 1;
+}
+.ciel[data-moment="fajr"] .ciel-etoiles {
+  opacity: 0.5;
+}
+.ciel-filante {
+  stroke: var(--ciel-etoile);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 0 60;
+  opacity: 0;
+  animation: ciel-filante 11s ease-out infinite;
+}
+.ciel-loin {
+  fill: var(--ciel-sil-loin);
+  animation: ciel-plan-loin 16s ease-in-out infinite alternate;
+}
+.ciel-pres {
+  fill: var(--ciel-sil);
+  animation: ciel-plan-pres 16s ease-in-out infinite alternate;
+}
+.ciel-lanterne {
+  fill: #ffcf6b;
+  opacity: 0;
+  transition: opacity 1.2s;
+}
+.ciel:is([data-moment="fajr"], [data-moment="maghrib"], [data-moment="nuit"]) .ciel-lanterne {
+  opacity: 1;
+  animation: ciel-flamme 2.2s ease-in-out infinite;
+}
+/* Jours particuliers */
+.ciel[data-particulier="vendredi"] .ciel-halo-degrade {
+  color: #e9c873;
+}
+.ciel[data-particulier="vendredi"] .ciel-halo {
+  opacity: 0.6;
+}
+.ciel[data-particulier="jours-blancs"] .ciel-lune-halo {
+  opacity: 0.3;
+}
+.ciel:is([data-particulier="aid-fitr"], [data-particulier="aid-adha"]) .ciel-etoiles {
+  opacity: 1;
+}
+.ciel:is([data-particulier="aid-fitr"], [data-particulier="aid-adha"]) .ciel-etoiles circle {
+  fill: #e9c873;
+  animation-duration: 1.6s;
+}
+.ciel-fanous {
+  fill: #e9c873;
+  stroke: #c9a24a;
+  stroke-width: 0.8;
+}
+.ciel-fanous-un {
+  animation: ciel-balance 3.2s ease-in-out infinite alternate;
+}
+.ciel-fanous-flamme {
+  fill: #fff2c4;
+  stroke: none;
+  animation: ciel-flamme 1.8s ease-in-out infinite;
+}
+@keyframes ciel-derive {
+  to {
+    transform: translate(56px, 56px);
+  }
+}
+@keyframes ciel-respire {
+  50% {
+    opacity: calc(var(--ciel-halo-opacite) * 0.55);
+  }
+}
+@keyframes ciel-scintille {
+  50% {
+    opacity: 0.15;
+  }
+}
+@keyframes ciel-vent {
+  from {
+    transform: translateX(-140px);
+  }
+  to {
+    transform: translateX(420px);
+  }
+}
+@keyframes ciel-filante {
+  0%,
+  80% {
+    stroke-dasharray: 0 60;
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  82% {
+    opacity: 1;
+  }
+  94% {
+    stroke-dasharray: 18 60;
+    stroke-dashoffset: -40;
+    opacity: 0.9;
+  }
+  100% {
+    stroke-dashoffset: -60;
+    opacity: 0;
+  }
+}
+@keyframes ciel-plan-loin {
+  to {
+    transform: translateX(-4px);
+  }
+}
+@keyframes ciel-plan-pres {
+  to {
+    transform: translateX(-10px);
+  }
+}
+@keyframes ciel-flamme {
+  50% {
+    opacity: 0.55;
+  }
+}
+@keyframes ciel-balance {
+  from {
+    transform: rotate(-4deg);
+  }
+  to {
+    transform: rotate(4deg);
+  }
+}
+
+/* Titre calligraphié (Ruqʿa) et nom français en petites capitales */
+.barre-vivante .barre-titre {
+  color: var(--ciel-texte);
+}
+.barre-titre-double {
+  display: grid;
+  justify-items: start;
+  gap: 1px;
+}
+.barre-titre-ar {
+  font-family: var(--font-calligraphie), var(--font-arabe), serif;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ciel-or);
+  animation: calame-trace 1s cubic-bezier(0.3, 0.7, 0.2, 1) both;
+}
+.barre-titre-fr {
+  font-family: var(--font-inter, system-ui), sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ciel-texte-doux);
+}
+@keyframes calame-trace {
+  from {
+    clip-path: inset(0 0 0 100%);
+    opacity: 0.2;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+.barre-vivante .barre-salutation,
+.barre-vivante .barre-nom {
+  color: var(--ciel-texte);
+}
+.barre-vivante .barre-salutation-arabe {
+  font-family: var(--font-calligraphie), var(--font-arabe), serif;
+  color: var(--ciel-or);
+}
+.barre-compacte-ar {
+  font-family: var(--font-calligraphie), var(--font-arabe), serif;
+  color: #c9a24a;
+  font-size: 17px;
+  margin-inline-end: 8px;
+}
+
+/* Ligne des dates : jour français · temps de prière | date hégirienne calligraphiée */
+.barre-dates {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px 8px;
+  font-size: 11.5px;
+  color: var(--ciel-texte-doux);
+}
+.barre-dates-temps,
+.barre-dates-hegire {
+  font-family: var(--font-calligraphie), var(--font-arabe), serif;
+  color: var(--ciel-or);
+  white-space: nowrap;
+}
+.barre-dates-temps {
+  margin-inline-start: 8px;
+  font-size: 13px;
+}
+.barre-dates-hegire {
+  font-size: 15px;
+}
+@media (max-width: 480px) {
+  .barre-dates {
+    padding: 0 14px 6px;
+  }
+}
+
+/* Frise de zellige (sous la barre du haut et au-dessus de la barre du bas) */
+.frise-zellige {
+  display: block;
+  height: 8px;
+  background-color: var(--frise-fond);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8'%3E%3Cpath d='M8 0L10 2H12V4L14 6H10L8 8L6 6H2L4 4V2H6Z' fill='%23c9a24a' opacity='.8'/%3E%3C/svg%3E");
+  background-size: 16px 8px;
+  border-top: 1px solid rgba(201, 162, 74, 0.6);
+  animation: frise-defile 40s linear infinite;
+}
+@keyframes frise-defile {
+  to {
+    background-position: 160px 0;
+  }
+}
+
+/* Ordinateur : les onglets de la barre du haut suivent les couleurs du ciel */
+@media (min-width: 761px) {
+  .barre-vivante .nav-onglet {
+    color: var(--ciel-texte);
+  }
+  .barre-vivante .nav-onglet[aria-current="page"] {
+    background: color-mix(in srgb, var(--ciel-or) 18%, transparent);
+    color: var(--ciel-texte);
+  }
+  .nav-ar {
+    display: none;
+  }
+}
+
+/* Téléphone : barre du bas en arcade, mihrab au centre, étoile qui glisse vers l'onglet choisi */
+@media (max-width: 760px) {
+  .nav-espace {
+    background: var(--nav-fond);
+    border-top: 1px solid rgba(201, 162, 74, 0.6);
+    padding-top: 8px;
+    overflow: visible;
+  }
+  .nav-espace::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -9px;
+    height: 8px;
+    background-color: var(--nav-fond);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8'%3E%3Cpath d='M8 0L10 2H12V4L14 6H10L8 8L6 6H2L4 4V2H6Z' fill='%23c9a24a' opacity='.8'/%3E%3C/svg%3E");
+    background-size: 16px 8px;
+    border-top: 1px solid rgba(201, 162, 74, 0.6);
+    animation: frise-defile 40s linear infinite;
+    pointer-events: none;
+  }
+  .nav-onglet {
+    order: var(--ordre, 0);
+    gap: 1px;
+    height: 60px;
+    color: var(--nav-texte);
+  }
+  .nav-plus {
+    order: 50;
+  }
+  .nav-onglet > svg {
+    order: 0;
+  }
+  .nav-ar {
+    order: 1;
+    display: block;
+    font-family: var(--font-calligraphie), var(--font-arabe), serif;
+    font-size: 11.5px;
+    line-height: 1.1;
+    opacity: 0.85;
+  }
+  .nav-onglet > span {
+    order: 2;
+  }
+  .nav-onglet[aria-current="page"],
+  .nav-plus[data-actif] {
+    color: var(--nav-or);
+  }
+  .nav-onglet[aria-current="page"] svg,
+  .nav-espace.avec-pastille .nav-onglet[aria-current="page"] svg {
+    background: transparent;
+    padding: 0;
+  }
+  .nav-onglet:not(.nav-mihrab)[aria-current="page"]::before,
+  .nav-plus[data-actif]::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    width: 46px;
+    height: 34px;
+    transform: translateX(-50%);
+    background: var(--nav-or);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 34'%3E%3Cpath d='M3 34V17Q3 7 23 1.5Q43 7 43 17V34' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 34'%3E%3Cpath d='M3 34V17Q3 7 23 1.5Q43 7 43 17V34' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    pointer-events: none;
+  }
+  .nav-espace.avec-pastille .nav-pastille {
+    top: -7px !important;
+    width: 12px;
+    height: 12px;
+    border-radius: 0;
+    background: var(--nav-or);
+    clip-path: polygon(
+      50% 0%,
+      38.5% 22.3%,
+      14.6% 14.6%,
+      22.3% 38.5%,
+      0% 50%,
+      22.3% 61.5%,
+      14.6% 85.4%,
+      38.5% 77.7%,
+      50% 100%,
+      61.5% 77.7%,
+      85.4% 85.4%,
+      77.7% 61.5%,
+      100% 50%,
+      77.7% 38.5%,
+      85.4% 14.6%,
+      61.5% 22.3%
+    );
+    transform: translateX(calc(var(--pastille-x, 0px) - 6px));
+    z-index: 3;
+  }
+  .nav-espace.avec-pastille:has(.nav-mihrab[aria-current="page"]) .nav-pastille {
+    top: -38px !important;
+  }
+  .nav-mihrab {
+    z-index: 2;
+  }
+  .nav-mihrab::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -24px;
+    width: 56px;
+    height: 58px;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, #f0cf7a, #c9a24a);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 58'%3E%3Cpath fill-rule='evenodd' d='M2 58V28Q2 11 28 2Q54 11 54 28V58Z M9 58V31Q9 18 28 10Q47 18 47 31V58Z M10.6 58V31.6Q10.6 19.2 28 11.8Q45.4 19.2 45.4 31.6V58Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 58'%3E%3Cpath fill-rule='evenodd' d='M2 58V28Q2 11 28 2Q54 11 54 28V58Z M9 58V31Q9 18 28 10Q47 18 47 31V58Z M10.6 58V31.6Q10.6 19.2 28 11.8Q45.4 19.2 45.4 31.6V58Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    filter: drop-shadow(0 4px 10px rgba(201, 162, 74, 0.35));
+    z-index: -1;
+    pointer-events: none;
+  }
+  .nav-mihrab[aria-current="page"]::after {
+    animation: mihrab-lueur 2.6s ease-in-out infinite;
+  }
+  .nav-mihrab > svg,
+  .nav-espace.avec-pastille .nav-mihrab > svg {
+    position: relative;
+    top: -10px;
+    color: #123c2e;
+    fill: none;
+  }
+  .nav-mihrab .nav-ar,
+  .nav-mihrab > span {
+    color: var(--nav-or);
+  }
+}
+@keyframes mihrab-lueur {
+  50% {
+    filter: drop-shadow(0 0 14px rgba(240, 207, 122, 0.75));
+  }
+}
+
+/* Cartes harmonisées : même fond, même bordure, même titre avec une icône */
+.carte-unie {
+  padding: 12px 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 16px;
+  background: var(--carte);
+}
+.carte-unie-titre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--texte);
+}
+.carte-unie-titre svg {
+  color: var(--vert-texte);
+}
+.appel-du-jour.carte-unie {
+  display: block;
+  margin-bottom: 12px;
+}
+.appel-du-jour ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.appel-ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid var(--ligne);
+  color: var(--texte);
+  text-decoration: none;
+}
+.appel-ligne-classe {
+  display: grid;
+  min-width: 0;
+}
+.appel-ligne-classe small {
+  color: var(--texte-doux);
+  font-size: 12.5px;
+}
+.appel-ligne-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.appel-ligne.a-faire .appel-ligne-action {
+  color: var(--vert-texte);
+  font-weight: 700;
+}
+.a-ecouter {
+  background: var(--carte);
+  border-color: var(--ligne);
+}
+.a-ecouter h2 {
+  color: var(--texte);
+}
+.a-ecouter h2 svg {
+  color: var(--or);
+}
+.a-ecouter-eleve {
+  border-color: var(--ligne);
+  background: var(--surface-2);
+}
+:where(:root[data-theme="sombre"]) .a-ecouter {
+  background: var(--carte);
+  border-color: var(--ligne);
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .a-ecouter {
+    background: var(--carte);
+    border-color: var(--ligne);
+  }
+}
+.bouton-inviter-discret {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--carte);
+  color: var(--vert-texte);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Fête à l'image de l'appli : une étoile de zellige s'ouvre ; un juz : cadre enluminé */
+.fete-zellige {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--bord-or);
+  border-radius: 16px;
+  background: var(--carte);
+}
+.fete-zellige button {
+  align-self: flex-start;
+  margin-left: auto;
+  border: 0;
+  background: none;
+  color: var(--texte-doux);
+  min-height: 0;
+  padding: 4px;
+}
+.fete-etoile {
+  flex: none;
+  width: 54px;
+  height: 54px;
+  overflow: visible;
+}
+.fete-etoile-corps {
+  fill: none;
+  stroke: #c9a24a;
+  stroke-width: 3;
+  transform-origin: 50px 50px;
+  animation: fete-ouvre 0.9s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+.fete-etoile-corps circle {
+  fill: #e9c873;
+  stroke: none;
+}
+.fete-eclat {
+  fill: #e9c873;
+  opacity: 0;
+  transform-origin: 50px 50px;
+  animation: fete-eclat 1.1s ease-out both;
+}
+.fete-texte {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+.fete-dua {
+  font-family: var(--font-calligraphie), var(--font-arabe), serif;
+  font-size: 20px;
+  color: var(--or-texte);
+}
+.fete-juz {
+  border: 2px double #c9a24a;
+  outline: 1px solid rgba(201, 162, 74, 0.4);
+  outline-offset: 3px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23c9a24a' stroke-width='1.4'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 56px 56px;
+}
+@keyframes fete-ouvre {
+  from {
+    transform: rotate(-90deg) scale(0.2);
+    opacity: 0;
+  }
+}
+@keyframes fete-eclat {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(-46px);
+  }
+}
+
+/* Ouverture signée : « القرآن الكريم » s'écrit sous le logo */
+.ouverture-calligraphie {
+  display: none;
+}
+html[data-ouverture] .ouverture-calligraphie {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + min(152px, 41vw) + 4px);
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-calligraphie), var(--font-arabe), serif;
+  font-size: 34px;
+  color: #f0cf7a;
+  animation: calame-trace 0.75s cubic-bezier(0.3, 0.7, 0.2, 1) 1.05s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ciel *,
+  .ciel,
+  .barre-titre-ar,
+  .frise-zellige,
+  .nav-espace::before,
+  .nav-mihrab::after,
+  .fete-zellige * {
+    animation: none !important;
+  }
+}
+
+/* Barre vivante en version claire : ق vert sur le parchemin (crème sur la nuit verte en sombre) */
+.barre-vivante .logo-sur-vert .logo-etoile-lettre {
+  fill: #1d5c47;
+}
+.barre-vivante .logo-etoile-branches rect {
+  stroke: #c9a24a;
+  fill: rgba(201, 162, 74, 0.1);
+}
+:where(:root[data-theme="sombre"]) .barre-vivante .logo-sur-vert .logo-etoile-lettre {
+  fill: #faf3e0;
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .barre-vivante .logo-sur-vert .logo-etoile-lettre {
+    fill: #faf3e0;
+  }
+}
+@media (max-width: 760px) {
+  .nav-espace .nav-onglet,
+  .nav-espace .nav-mihrab {
+    position: relative;
+  }
+}
+.barre-vivante .barre-identite,
+.barre-vivante .barre-nom small {
+  color: var(--ciel-texte);
+}
+.barre-vivante .barre-salutation-prenom {
+  color: var(--ciel-texte);
 }

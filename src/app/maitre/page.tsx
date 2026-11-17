@@ -1,5 +1,5 @@
 import { TitreMoisDouble } from "@/components/DateHegirienne";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { cleMois, decalerMois, formaterDuree, libelleMois, lireMois } from "@/domain/fiche";
@@ -151,8 +151,8 @@ export default async function PageClasse({
           </nav>
           {/* Le Cheikh a l'onglet « Inviter » en bas ; l'admin n'a que ce bouton. */}
           {admin && !classe ? (
-            <Link href="/maitre/inviter" className="bouton bouton-lien">
-              + Inviter des élèves
+            <Link href="/maitre/inviter" className="bouton-inviter-discret">
+              <UserPlus size={17} aria-hidden="true" /> Inviter
             </Link>
           ) : null}
         </div>

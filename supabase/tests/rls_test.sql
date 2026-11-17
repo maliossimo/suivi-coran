@@ -418,11 +418,13 @@ select pg_temp.console();
 -- ---------- Administration : établissements, erreurs, sauvegardes --------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 update public.etablissements set nom = 'Piratée' where id = 'aaaaaaaa-0000-0000-0000-000000000000';
+update public.etablissements set latitude = 10, longitude = 10 where id = 'aaaaaaaa-0000-0000-0000-000000000000';
 delete from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000';
 select pg_temp.console();
 select pg_temp.attendu(
-  (select nom from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') = 'École A',
-  'établissement : un Cheikh ne le renomme ni ne le supprime (rien n''est modifié)');
+  (select nom from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') = 'École A'
+  and (select latitude from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') is null,
+  'établissement : un Cheikh ne le renomme, ne le place ni ne le supprime (rien n''est modifié)');
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 select pg_temp.doit_echouer(
   $q$update public.profils set etablissement_id = 'bbbbbbbb-0000-0000-0000-000000000000'
@@ -434,6 +436,16 @@ update public.etablissements set nom = 'École A bis' where id = 'aaaaaaaa-0000-
 select pg_temp.attendu(
   (select nom from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') = 'École A bis',
   'établissement : l''admin le renomme');
+update public.etablissements set latitude = 48.6, longitude = 2.55 where id = 'aaaaaaaa-0000-0000-0000-000000000000';
+select pg_temp.attendu(
+  (select latitude from public.etablissements where id = 'aaaaaaaa-0000-0000-0000-000000000000') = 48.6,
+  'position : l''admin place la mosquée');
+select pg_temp.doit_echouer(
+  $q$update public.etablissements set latitude = 120, longitude = 2 where id = 'aaaaaaaa-0000-0000-0000-000000000000'$q$,
+  'position : latitude impossible refusée');
+select pg_temp.doit_echouer(
+  $q$update public.etablissements set latitude = null where id = 'aaaaaaaa-0000-0000-0000-000000000000'$q$,
+  'position : latitude et longitude vont ensemble');
 select pg_temp.doit_echouer(
   $q$delete from public.etablissements where id = 'bbbbbbbb-0000-0000-0000-000000000000'$q$,
   'établissement : pas de suppression tant qu''il a des comptes');

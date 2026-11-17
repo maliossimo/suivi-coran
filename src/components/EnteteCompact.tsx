@@ -2,6 +2,7 @@
 
 import { ChevronUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { titreArabe } from "@/domain/ciel";
 import { LogoEtoile } from "./logo/LogoEtoile";
 import { useSousTitreEntete } from "./SousTitreEntete";
 
@@ -76,7 +77,14 @@ export function EnteteCompact({ titre }: { titre: string }) {
       >
         <LogoEtoile className="barre-compacte-logo" />
         <span className="barre-compacte-textes">
-          <span className="barre-compacte-titre">{titre}</span>
+          <span className="barre-compacte-titre">
+            {titreArabe(titre) ? (
+              <span className="barre-compacte-ar" lang="ar" dir="rtl">
+                {titreArabe(titre)}
+              </span>
+            ) : null}
+            {titre}
+          </span>
           {sousTitre ? <span className="barre-compacte-sous-titre">{sousTitre}</span> : null}
         </span>
         <ChevronUp className="barre-compacte-haut" size={18} aria-hidden="true" />

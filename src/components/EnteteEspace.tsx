@@ -1,8 +1,9 @@
-import { BandeauDates } from "./DateHegirienne";
 import Link from "next/link";
 import { accueilDuRole, LIBELLE_ROLE_LONG, type Role } from "@/domain/roles";
 import { compteConnecte } from "@/services/acces";
+import { chargerCiel } from "@/services/ciel";
 import { Avatar } from "./Avatar";
+import { CielDates, CielDecor } from "./ciel/CielVivant";
 import { DemandePrenom } from "./DemandePrenom";
 import { EnteteCompact } from "./EnteteCompact";
 import { LogoAccueil } from "./logo/LogoAccueil";
@@ -18,15 +19,17 @@ export async function EnteteEspace({ titre, nom, role }: { titre: string; nom: s
   // Même lecture que la page (mise en cache pour la requête) : aucun aller-retour de plus.
   const compte = await compteConnecte();
   const responsable = role === "maitre" && Boolean(compte?.responsable);
+  // Ciel du jour : heures de prière de la mosquée (Paris si elle n'est pas encore placée), lune, fêtes.
+  const ciel = await chargerCiel(compte?.etablissementId ?? null);
   return (
-    <header className="barre">
+    <header className="barre barre-vivante">
+      <CielDecor {...ciel} />
       <SignalerOuverture />
       <EnteteCompact titre={titre} />
       {nom ? null : <DemandePrenom />}
       <div className="barre-contenu">
         <LogoAccueil accueil={accueilDuRole(role)} label="Accueil — Suivi cours Coran">
           <div className="barre-titres" aria-hidden="true">
-            <span className="barre-app">Suivi cours Coran</span>
             <TitreBarre titre={titre} prenom={nom.split(/\s+/)[0] ?? ""} />
           </div>
         </LogoAccueil>
@@ -40,7 +43,8 @@ export async function EnteteEspace({ titre, nom, role }: { titre: string; nom: s
           </span>
         </Link>
       </div>
-      <BandeauDates />
+      <CielDates {...ciel} />
+      <span className="frise-zellige" aria-hidden="true" />
     </header>
   );
 }

@@ -12,13 +12,13 @@ import { GraphiqueUsage } from "@/components/admin/GraphiqueUsage";
 import { semainesUtiles } from "@/domain/usage";
 import { formaterDuree } from "@/domain/fiche";
 import { exigerEspace } from "@/services/acces";
-import { chargerTableauAdmin } from "@/services/admin";
+import { chargerTableauAdmin, positionsDesEtablissements } from "@/services/admin";
 import { dateCourte } from "@/domain/format";
 import { LIBELLE_ROLE } from "@/domain/roles";
 
 export default async function PageAdmin() {
   const profil = await exigerEspace("admin");
-  const t = await chargerTableauAdmin(profil);
+  const [t, positions] = await Promise.all([chargerTableauAdmin(profil), positionsDesEtablissements(profil)]);
   const nomEtab = new Map(t.etablissements.map((e) => [e.id, e.nom]));
   const st = t.stats;
   const activite = new Map(st.parEtablissement.map((e) => [e.id, e]));
@@ -102,6 +102,7 @@ export default async function PageAdmin() {
                   comptes={e.comptes}
                   activite={activite.get(e.id)}
                   classes={t.classes.filter((c) => c.etablissementId === e.id)}
+                  position={positions.get(e.id) ?? null}
                 />
               ))}
             </ul>

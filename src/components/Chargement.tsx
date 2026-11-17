@@ -1,4 +1,6 @@
-import { BandeauDates } from "./DateHegirienne";
+import { CielDates, CielDecor } from "@/components/ciel/CielVivant";
+import { cielParDefaut } from "@/components/ciel/defaut";
+import { TitreCalligraphie } from "@/components/ciel/TitreCalligraphie";
 import Link from "next/link";
 import { LogoEtoile } from "./logo/LogoEtoile";
 /**
@@ -16,21 +18,23 @@ export function Chargement({
   /** Silhouette de la page attendue : la fiche du mois, une liste (élèves, classes) ou des cartes. */
   forme?: "fiche" | "liste" | "cartes";
 }) {
+  const ciel = cielParDefaut();
   return (
     <>
-      <header className="barre">
+      <header className="barre barre-vivante">
+        <CielDecor {...ciel} />
         <div className="barre-contenu">
           <Link href="/" className="barre-marque" aria-label="Retour à l’accueil">
             <span className="barre-logo" aria-hidden="true">
               <LogoEtoile />
             </span>
             <div className="barre-titres">
-              <span className="barre-app">Suivi cours Coran</span>
-              <span className="barre-titre">{titre}</span>
+              <TitreCalligraphie titre={titre} />
             </div>
           </Link>
         </div>
-        <BandeauDates />
+        <CielDates {...ciel} />
+        <span className="frise-zellige" aria-hidden="true" />
       </header>
       <main className="espace" aria-busy="true" aria-live="polite">
         <span className="visuellement-cache">Chargement…</span>

@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { actionRenommerEtablissement, actionSupprimerEtablissement } from "@/app/actions/admin";
+import {
+  actionPlacerEtablissement,
+  actionRenommerEtablissement,
+  actionSupprimerEtablissement,
+} from "@/app/actions/admin";
 import type { EtatSaisie } from "@/app/actions/fiche";
 import { confirmationValide } from "@/domain/classe";
 import type { EtablissementUsage } from "@/domain/usage";
@@ -18,6 +22,7 @@ export function LigneEtablissement({
   comptes,
   activite,
   classes = [],
+  position = null,
 }: {
   id: string;
   nom: string;
@@ -29,6 +34,8 @@ export function LigneEtablissement({
   activite?: EtablissementUsage;
   /** Classes en cours de l'établissement. */
   classes?: { id: string; nom: string; jours: number[]; cheikhs: { nom: string }[]; nbMembres: number }[];
+  /** Position de la mosquée (heures de prière du ciel de la barre), null si pas encore placée. */
+  position?: { latitude: number; longitude: number } | null;
 }) {
   const [etatNom, renommer, renommage] = useActionState<EtatSaisie, FormData>(
     actionRenommerEtablissement,
@@ -106,6 +113,7 @@ export function LigneEtablissement({
         <Link href={`/maitre?classe=${id}`} className="lien-discret">
           Voir les élèves
         </Link>
+        <PositionMosquee id={id} position={position} />
         <details>
           <summary className="lien-discret">Renommer</summary>
           <form action={renommer} className="formulaire-ligne">
@@ -177,5 +185,73 @@ function MiniCourbe({ valeurs }: { valeurs: number[] }) {
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+/**
+ * Position de la mosquée : le ciel de la barre du haut suit les vraies heures de prière du lieu.
+ * « Ma position » la remplit depuis le téléphone (à faire sur place) ; sinon, coordonnées d'une carte.
+ */
+function PositionMosquee({
+  id,
+  position,
+}: {
+  id: string;
+  position: { latitude: number; longitude: number } | null;
+}) {
+  const [etat, placer, enCours] = useActionState<EtatSaisie, FormData>(actionPlacerEtablissement, {});
+  const [lat, setLat] = useState(position ? String(position.latitude) : "");
+  const [lon, setLon] = useState(position ? String(position.longitude) : "");
+  const [geo, setGeo] = useState<string | null>(null);
+  return (
+    <details>
+      <summary className="lien-discret">{position ? "Position ✓" : "Position (heures de prière)"}</summary>
+      <form action={placer} className="formulaire-ligne formulaire-position">
+        <input type="hidden" name="id" value={id} />
+        <input
+          name="latitude"
+          inputMode="decimal"
+          placeholder="Latitude (48.60)"
+          aria-label="Latitude"
+          value={lat}
+          onChange={(e) => setLat(e.target.value)}
+        />
+        <input
+          name="longitude"
+          inputMode="decimal"
+          placeholder="Longitude (2.55)"
+          aria-label="Longitude"
+          value={lon}
+          onChange={(e) => setLon(e.target.value)}
+        />
+        <button
+          type="button"
+          className="bouton-secondaire bouton-auto"
+          onClick={() => {
+            if (!navigator.geolocation) return setGeo("Position indisponible sur cet appareil.");
+            setGeo("Recherche de la position…");
+            navigator.geolocation.getCurrentPosition(
+              (p) => {
+                setLat(p.coords.latitude.toFixed(4));
+                setLon(p.coords.longitude.toFixed(4));
+                setGeo(null);
+              },
+              () => setGeo("Position refusée ou introuvable."),
+              { enableHighAccuracy: false, timeout: 10000 },
+            );
+          }}
+        >
+          Ma position
+        </button>
+        <button type="submit" className="bouton bouton-auto" disabled={enCours}>
+          Enregistrer
+        </button>
+        {geo ? <p className="carte-graphique-sous">{geo}</p> : null}
+        {etat.erreur ? <p className="message-erreur">{etat.erreur}</p> : null}
+        <p className="carte-graphique-sous">
+          Vide : Paris par défaut. Les heures servent au ciel de la barre du haut (aube, jour, coucher, nuit).
+        </p>
+      </form>
+    </details>
   );
 }
