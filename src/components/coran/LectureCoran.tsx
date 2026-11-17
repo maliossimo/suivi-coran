@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 import {
-  BookOpenText,
   Eye,
+  Palette,
   EyeOff,
   Mic,
   Moon,
@@ -61,6 +61,7 @@ import { retourSensoriel } from "@/components/retourSensoriel";
 import { useExplication } from "./explications";
 import { adresseAudio, adresseMots, garderSourateOuverte, useHorsLigne } from "./horsLigne";
 import { MemoriserCoran } from "./MemoriserCoran";
+import { PanneauTajwid } from "./PanneauTajwid";
 import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
 import type { BlocAffiche, RecitationAffichee } from "./types";
 
@@ -148,7 +149,7 @@ export function LectureCoran({
 }) {
   const router = useRouter();
   const [reglages, setReglages] = useState<Reglages>(DEFAUT);
-  const [ouvert, setOuvert] = useState<"reglages" | "memoriser" | null>(null);
+  const [ouvert, setOuvert] = useState<"reglages" | "memoriser" | "tajwid" | null>(null);
   /** Verset touché (actions) ou appuyé longuement (explication) : sa feuille est ouverte. */
   const [choix, setChoix] = useState<{ cle: string; mode: ModeVerset } | null>(null);
   /** Mode « Réciter » ouvert : sourate et verset de départ. */
@@ -239,6 +240,18 @@ export function LectureCoran({
   }, [lecture, numeroSourate, base]);
   const avecTajwid = lecture === "hafs" && reglages.tajwid;
   const motsActifs = Boolean(recitation?.mots && reglages.motParMot);
+  /** Combien de fois chaque règle du tajwid revient dans le texte affiché (panneau du tajwid). */
+  const compteTajwid = useMemo(() => {
+    const compte = new Map<string, number>();
+    for (const b of blocs)
+      for (const v of b.versets)
+        for (const seg of v.tajwid ?? []) {
+          if (typeof seg === "string") continue;
+          const f = familleTajwid(seg[0]);
+          if (f) compte.set(f, (compte.get(f) ?? 0) + 1);
+        }
+    return compte;
+  }, [blocs]);
 
   // Fichiers à réciter, limités au passage choisi.
   const pistes = useMemo<Piste[]>(() => {
@@ -620,10 +633,10 @@ export function LectureCoran({
               ? ` · tour ${position.foisPassage + 1}${repetition.passage ? `/${repetition.passage}` : ""}`
               : ""
           }`
-        : "▶ ou touche un verset"
+        : null
       : progression.duree
         ? `${minutes(progression.temps)} / ${minutes(progression.duree)}`
-        : "Écoute de la sourate entière");
+        : null);
 
   const memorisation = Boolean(sourateUnique && recitation?.suivi);
   const explication = useExplication(lecture, choix?.mode === "explication" ? choix.cle : null);
@@ -729,7 +742,8 @@ export function LectureCoran({
                 ? `${recitation.nom}${recitation.style ? ` · ${recitation.style}` : ""}`
                 : "Aucune récitation"}
             </strong>
-            <span className={erreur ? "erreur" : undefined}>{etat}</span>
+            {/* Rien d'autre au repos : le nom du récitateur se lit en entier. */}
+            {etat ? <span className={erreur ? "erreur" : undefined}>{etat}</span> : null}
           </button>
           {/* Réciter : dans la barre, à portée du pouce, sans jamais cacher de verset. */}
           {blocs[0] ? (
@@ -937,6 +951,33 @@ export function LectureCoran({
             emplacementCache,
           )
         : null}
+      {/* Tajwid : un bouton palette, à côté, qui ouvre le panneau des règles (texte Hafs seulement). */}
+      {emplacementCache && lecture === "hafs"
+        ? createPortal(
+            <button
+              type="button"
+              className={
+                avecTajwid ? "coran-plein-ecran coran-palette actif" : "coran-plein-ecran coran-palette"
+              }
+              onClick={() => setOuvert("tajwid")}
+              aria-haspopup="dialog"
+              aria-label="Couleurs du tajwid"
+              title="Couleurs du tajwid : choisir les règles à voir"
+            >
+              <Palette size={18} aria-hidden="true" />
+            </button>,
+            emplacementCache,
+          )
+        : null}
+      <PanneauTajwid
+        ouverte={ouvert === "tajwid"}
+        onFermer={() => setOuvert(null)}
+        actif={reglages.tajwid}
+        onActif={(v) => modifier({ tajwid: v })}
+        eteintes={reglages.tajwidEteintes}
+        onEteintes={(e) => modifier({ tajwidEteintes: e })}
+        compte={compteTajwid}
+      />
       {cache ? (
         <p className="coran-cache-aide" role="status">
           <EyeOff size={16} aria-hidden="true" />
@@ -1120,78 +1161,96 @@ export function LectureCoran({
       </article>
 
       {avecTajwid ? (
-        <details className="coran-legende" open>
-          <summary>
-            <BookOpenText size={16} aria-hidden="true" />
-            Couleurs du tajwid
-          </summary>
-          <p className="coran-legende-aide">Touche une règle pour l’allumer ou l’éteindre sur la page.</p>
+        <section className="coran-legende" aria-label="Couleurs du tajwid">
           <ul>
-            {FAMILLES_TAJWID.map((f) => {
-              const allumee = !reglages.tajwidEteintes.includes(f.cle);
-              return (
-                <li key={f.cle}>
-                  <button
-                    type="button"
-                    className={allumee ? "coran-regle" : "coran-regle eteinte"}
-                    aria-pressed={allumee}
-                    onClick={() =>
-                      modifier({
-                        tajwidEteintes: allumee
-                          ? [...reglages.tajwidEteintes, f.cle]
-                          : reglages.tajwidEteintes.filter((c) => c !== f.cle),
-                      })
-                    }
-                  >
-                    <span className={`tj-pastille tj-${f.cle}`} aria-hidden="true" />
-                    <span>{f.libelle}</span>
-                    <span lang="ar" dir="rtl">
-                      {f.arabe}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
+            {FAMILLES_TAJWID.filter(
+              (f) => !reglages.tajwidEteintes.includes(f.cle) && compteTajwid.get(f.cle),
+            ).map((f) => (
+              <li key={f.cle}>
+                <span className={`tj-pastille tj-${f.cle}`} aria-hidden="true" />
+                <span>{f.libelle}</span>
+              </li>
+            ))}
           </ul>
-          {reglages.tajwidEteintes.length ? (
-            <div className="coran-legende-tout">
-              <button type="button" className="lien-discret" onClick={() => modifier({ tajwidEteintes: [] })}>
-                Tout rallumer
-              </button>
-            </div>
-          ) : null}
-        </details>
+          <button type="button" className="bouton-secondaire" onClick={() => setOuvert("tajwid")}>
+            <Palette size={16} aria-hidden="true" />
+            Choisir les règles à voir
+          </button>
+        </section>
       ) : null}
     </>
   );
 }
 
 /**
- * Page du Mushaf : chaque ligne tient sur la largeur, comme dans le livre. La taille du texte se règle sur la
- * ligne la plus longue de la page (mesurée sans étirement), puis chaque ligne s'étire jusqu'aux bords.
+ * Page du Mushaf : une seule taille de texte pour toutes les pages (comme un livre), choisie pour que la ligne
+ * ordinaire remplisse la largeur. La longueur « ordinaire » d'une ligne (médiane, en em) est mesurée sur les pages
+ * lues et retenue sur l'appareil : la taille ne saute plus d'une page à l'autre. Une ligne un peu plus longue que
+ * les autres est resserrée, elle seule ; les plus courtes s'étirent jusqu'aux bords.
  */
+const CLE_CALIBRAGE = "coran-mushaf-em";
+
+function lireCalibrage(tajwid: boolean): number | null {
+  try {
+    const v = (JSON.parse(localStorage.getItem(CLE_CALIBRAGE) ?? "{}") as Record<string, unknown>)[
+      tajwid ? "tajwid" : "texte"
+    ];
+    return typeof v === "number" && v > 3 && v < 40 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function retenirCalibrage(tajwid: boolean, em: number) {
+  try {
+    const tout = JSON.parse(localStorage.getItem(CLE_CALIBRAGE) ?? "{}") as Record<string, number>;
+    const ancien = tout[tajwid ? "tajwid" : "texte"];
+    // Moyenne lente : la mesure s'affine au fil des pages sans faire bouger la taille d'un coup.
+    tout[tajwid ? "tajwid" : "texte"] = typeof ancien === "number" ? ancien * 0.9 + em * 0.1 : em;
+    localStorage.setItem(CLE_CALIBRAGE, JSON.stringify(tout));
+  } catch {
+    // stockage indisponible : la mesure de la page suffit
+  }
+}
+
 function useAjusterLignes(carte: RefObject<HTMLElement | null>, actif: boolean, tajwid: boolean) {
   useLayoutEffect(() => {
     const page = carte.current;
     if (!actif || !page) return;
     let image = 0;
+    let retenu = false;
     const ajuster = () => {
       const blocs = [...page.querySelectorAll<HTMLElement>(".coran-lignes")];
       if (!blocs.length) return;
       const largeur = blocs[0]!.clientWidth;
       if (!largeur) return;
+      const lignes = [...page.querySelectorAll<HTMLElement>(".coran-ligne")];
+      for (const l of lignes) {
+        l.classList.remove("serree");
+        l.style.removeProperty("--serrage");
+      }
       page.classList.add("mesure-lignes");
       const taille = parseFloat(getComputedStyle(blocs[0]!).fontSize) || 30;
-      let plusLongue = 0;
-      for (const l of page.querySelectorAll<HTMLElement>(".coran-ligne:not(.centree)"))
-        plusLongue = Math.max(plusLongue, l.getBoundingClientRect().width);
-      if (!plusLongue)
-        for (const l of page.querySelectorAll<HTMLElement>(".coran-ligne"))
-          plusLongue = Math.max(plusLongue, l.getBoundingClientRect().width);
+      const ems = lignes.map((l) => l.getBoundingClientRect().width / taille);
       page.classList.remove("mesure-lignes");
-      if (!plusLongue) return;
-      const nouvelle = Math.max(12, Math.min(60, (taille * largeur * 0.985) / plusLongue));
+      // Longueur ordinaire d'une ligne pleine sur cette page (les lignes centrées ne comptent pas).
+      const pleines = ems.filter((_, i) => !lignes[i]!.classList.contains("centree")).sort((x, y) => x - y);
+      const mediane = pleines.length >= 5 ? pleines[Math.floor(pleines.length / 2)]! : null;
+      if (mediane && !retenu) {
+        retenu = true;
+        retenirCalibrage(tajwid, mediane);
+      }
+      const em = lireCalibrage(tajwid) ?? mediane ?? Math.max(...ems, 1);
+      const nouvelle = Math.max(12, Math.min(48, (largeur * 0.98) / em));
       page.style.setProperty("--taille-mushaf", `${nouvelle.toFixed(2)}px`);
+      // Les lignes plus longues que la largeur sont resserrées (au plus 15 %), elles seules.
+      lignes.forEach((l, i) => {
+        const naturelle = ems[i]! * nouvelle;
+        if (naturelle > largeur) {
+          l.classList.add("serree");
+          l.style.setProperty("--serrage", Math.max(0.85, largeur / naturelle).toFixed(4));
+        }
+      });
     };
     const planifier = () => {
       cancelAnimationFrame(image);

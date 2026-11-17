@@ -53,21 +53,109 @@ export interface FamilleTajwid {
   libelle: string;
   arabe: string;
   codes: readonly CodeTajwid[];
+  /** Ce qu'il faut faire, en quelques mots (panneau du tajwid). */
+  aide: string;
+  /** Groupe du panneau : prolongations, nûn / mîm, autres. */
+  groupe: "madd" | "noun" | "autre";
 }
 
 export const FAMILLES_TAJWID: readonly FamilleTajwid[] = [
-  { cle: "madd-2", libelle: "Madd naturel (2 temps)", arabe: "مد طبيعي", codes: ["o"] },
-  { cle: "madd-246", libelle: "Madd facultatif (2, 4 ou 6)", arabe: "مد جائز", codes: ["m"] },
-  { cle: "madd-45", libelle: "Madd obligatoire / séparé (4-5)", arabe: "مد واجب ومنفصل", codes: ["t", "s"] },
-  { cle: "madd-6", libelle: "Madd nécessaire (6 temps)", arabe: "مد لازم", codes: ["x"] },
-  { cle: "ghunna", libelle: "Ghunna", arabe: "غنة", codes: ["g"] },
-  { cle: "ikhfa", libelle: "Ikhfâ'", arabe: "إخفاء", codes: ["k", "w"] },
-  { cle: "idgham", libelle: "Idghâm avec ghunna", arabe: "إدغام بغنة", codes: ["d", "f"] },
-  { cle: "idgham-sans", libelle: "Idghâm sans ghunna", arabe: "إدغام بلا غنة", codes: ["n", "j", "b"] },
-  { cle: "iqlab", libelle: "Iqlâb", arabe: "إقلاب", codes: ["i"] },
-  { cle: "izhar", libelle: "Izhâr (nûn prononcé clairement)", arabe: "إظهار", codes: ["z"] },
-  { cle: "qalqala", libelle: "Qalqala", arabe: "قلقلة", codes: ["q"] },
-  { cle: "muette", libelle: "Lettre non prononcée", arabe: "لا يُلفظ", codes: ["h", "l", "e"] },
+  {
+    cle: "madd-2",
+    libelle: "Madd naturel (2 temps)",
+    arabe: "مد طبيعي",
+    codes: ["o"],
+    aide: "Allonger de 2 temps",
+    groupe: "madd",
+  },
+  {
+    cle: "madd-246",
+    libelle: "Madd facultatif (2, 4 ou 6)",
+    arabe: "مد جائز",
+    codes: ["m"],
+    aide: "À l’arrêt : 2, 4 ou 6 temps",
+    groupe: "madd",
+  },
+  {
+    cle: "madd-45",
+    libelle: "Madd obligatoire / séparé (4-5)",
+    arabe: "مد واجب ومنفصل",
+    codes: ["t", "s"],
+    aide: "Allonger de 4 ou 5 temps",
+    groupe: "madd",
+  },
+  {
+    cle: "madd-6",
+    libelle: "Madd nécessaire (6 temps)",
+    arabe: "مد لازم",
+    codes: ["x"],
+    aide: "Allonger toujours de 6 temps",
+    groupe: "madd",
+  },
+  {
+    cle: "ghunna",
+    libelle: "Ghunna",
+    arabe: "غنة",
+    codes: ["g"],
+    aide: "Nasaliser 2 temps (نّ et مّ)",
+    groupe: "noun",
+  },
+  {
+    cle: "ikhfa",
+    libelle: "Ikhfâ'",
+    arabe: "إخفاء",
+    codes: ["k", "w"],
+    aide: "Cacher le nûn ou le mîm, avec nasalisation",
+    groupe: "noun",
+  },
+  {
+    cle: "idgham",
+    libelle: "Idghâm avec ghunna",
+    arabe: "إدغام بغنة",
+    codes: ["d", "f"],
+    aide: "Fondre le nûn dans ي ن م و, avec nasalisation",
+    groupe: "noun",
+  },
+  {
+    cle: "idgham-sans",
+    libelle: "Idghâm sans ghunna",
+    arabe: "إدغام بلا غنة",
+    codes: ["n", "j", "b"],
+    aide: "Fondre sans nasaliser (ل ر…)",
+    groupe: "noun",
+  },
+  {
+    cle: "iqlab",
+    libelle: "Iqlâb",
+    arabe: "إقلاب",
+    codes: ["i"],
+    aide: "Le nûn devient mîm devant ب",
+    groupe: "noun",
+  },
+  {
+    cle: "izhar",
+    libelle: "Izhâr (nûn prononcé clairement)",
+    arabe: "إظهار",
+    codes: ["z"],
+    aide: "Prononcer le nûn clairement",
+    groupe: "noun",
+  },
+  {
+    cle: "qalqala",
+    libelle: "Qalqala",
+    arabe: "قلقلة",
+    codes: ["q"],
+    aide: "Faire rebondir ق ط ب ج د",
+    groupe: "autre",
+  },
+  {
+    cle: "muette",
+    libelle: "Lettre non prononcée",
+    arabe: "لا يُلفظ",
+    codes: ["h", "l", "e"],
+    aide: "Écrite, mais ne se prononce pas",
+    groupe: "autre",
+  },
 ];
 
 const FAMILLE_PAR_CODE = new Map<string, string>(

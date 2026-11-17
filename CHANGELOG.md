@@ -9,6 +9,23 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.45.0] — 2026-11-17
+
+### Ajouté
+
+- Coran : panneau du tajwid (bouton palette en haut). Un interrupteur, des raccourcis d'un toucher (toutes, les madd, nûn et mîm, qalqala), puis chaque règle en tuile à sa couleur, avec ce qu'il faut faire et combien de fois elle revient sur la page. Le texte change en direct au-dessus. Sous le texte, la légende ne montre que les règles présentes.
+
+### Corrigé
+
+- Coran : en lisant la suite (sourate suivante sous la page), le titre du haut suit la sourate affichée (il restait sur la première).
+- Mushaf : une seule taille de texte pour toutes les pages (elle changeait d'une page à l'autre, et les pages 1-2 étaient énormes) ; une ligne un peu plus longue est resserrée, elle seule.
+
+### Amélioré
+
+- Lecteur : le nom du récitateur s'affiche en entier (plus de phrase d'aide au repos).
+- Vue page : le sélecteur montre la sourate de la page (l'en-tête dit déjà « Page · Juz »).
+- Tajwid : les couleurs les plus pâles (lettres muettes, idghâm sans ghunna, iqlâb…) sont un peu plus foncées sur fond clair.
+
 ## [1.44.1] — 2026-11-16
 
 ### Corrigé
