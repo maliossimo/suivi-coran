@@ -137,13 +137,13 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
         </defs>
         <circle
           className="ciel-halo"
-          cx={bas ? 268 : 246}
-          cy={bas ? 108 : 48}
+          cx={bas ? 224 : 246}
+          cy={bas ? 84 : 48}
           r="80"
           fill="url(#ciel-halo-degrade)"
         />
         {moment === "jour" ? <circle className="ciel-soleil" cx="246" cy="48" r="10" /> : null}
-        {bas ? <circle className="ciel-soleil-bas" cx="268" cy="108" r="13" /> : null}
+        {bas ? <circle className="ciel-soleil-bas" cx="224" cy="84" r="13" /> : null}
         {!fixe && jourHegire !== null && moment !== "jour" ? <Lune jour={jourHegire} /> : null}
         <g className="ciel-nuages">
           <ellipse cx="40" cy="30" rx="26" ry="7" />
@@ -183,7 +183,7 @@ export function CielDates({
   return (
     <p className="barre-dates">
       <span className="barre-dates-fr">
-        {dateFrancaise}
+        {dateFrancaise}{" "}
         <span className="barre-dates-temps" lang="ar" dir="rtl">
           {fete ? LIBELLE_JOUR_PARTICULIER[fete] : tempsDePriere(minutes, horaires)}
         </span>
