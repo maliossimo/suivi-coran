@@ -9,6 +9,16 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.48.1] — 2026-11-17
+
+### Corrigé
+
+- Aperçu d'un élève : « Dernier jour de travail » montre toutes les séances du jour (apprentissage puis révision), plus seulement la dernière.
+
+### Modifié
+
+- Vue du Cheikh sur téléphone : pastille « aperçu » plus visible sur la photo, élèves « À écouter » sur plusieurs lignes (plus rien de coupé), passages à refaire en liste, date sous la salutation, et l'étiquette de lecture n'apparaît plus que pour l'élève qui ne lit pas comme les autres (ex. Warsh dans une classe Hafs).
+
 ## [1.48.0] — 2026-11-17
 
 ### Ajouté
