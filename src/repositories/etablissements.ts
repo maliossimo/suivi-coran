@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { z } from "zod";
-import type { Coordonnees } from "@/domain/priere";
+import type { Coordonnees, HorairesPriere } from "@/domain/priere";
 import { creerClientServeur } from "@/lib/supabase/server";
 
 const schemaPosition = z.object({ latitude: z.number().nullable(), longitude: z.number().nullable() });
@@ -45,3 +45,34 @@ export async function placerEtablissement(id: string, position: Coordonnees | nu
     .eq("id", id);
   if (error) throw new Error(`Position impossible à enregistrer : ${error.message}`);
 }
+
+const schemaHoraires = z.object({
+  fajr: z.number(),
+  chourouq: z.number(),
+  dhuhr: z.number(),
+  asr: z.number(),
+  maghrib: z.number(),
+  isha: z.number(),
+});
+
+/**
+ * Horaires de la mosquée pour un jour (calendrier importé de Mawaqit), en minutes depuis minuit ;
+ * null s'il n'y a pas de calendrier (ou si la base n'a pas encore la table).
+ */
+export const horairesMosquee = cache(
+  async (etablissementId: string, mois: number, jour: number): Promise<HorairesPriere | null> => {
+    const supabase = await creerClientServeur();
+    const { data, error } = await supabase
+      .from("horaires_priere")
+      .select("fajr, chourouq, dhuhr, asr, maghrib, isha")
+      .eq("etablissement_id", etablissementId)
+      .eq("mois", mois)
+      .eq("jour", jour)
+      .maybeSingle();
+    if (error || !data) return null;
+    const h = schemaHoraires.safeParse(data);
+    if (!h.success) return null;
+    const { chourouq, ...reste } = h.data;
+    return { ...reste, lever: chourouq };
+  },
+);
