@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronRight, Headphones, Sparkles } from "lucide-react";
+import { Check, ChevronRight, RotateCcw, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { actionMarquerAcquis } from "@/app/actions/acquis";
@@ -17,8 +17,8 @@ interface AcquisAffiche {
 }
 
 /**
- * Progression : « Ce que je connais déjà ». L'élève voit ses parties et peut les modifier ;
- * le Cheikh voit ce que l'élève a déclaré et marque « Écouté » ou « Validé » ce qu'il veut lui faire écouter.
+ * Progression : « Ce que je connais déjà ». L'élève voit ses parties et peut les modifier ; lui comme son
+ * Cheikh marquent « À refaire » ou « Validé » une partie récitée devant le Cheikh.
  */
 export function AcquisProgression({ acquis, vueEleve }: { acquis: AcquisAffiche[]; vueEleve: boolean }) {
   const [etats, setEtats] = useState<Record<string, { ecoute: boolean; valide: boolean }>>({});
@@ -73,6 +73,7 @@ export function AcquisProgression({ acquis, vueEleve }: { acquis: AcquisAffiche[
         {vueEleve
           ? "Ce que tu savais par cœur en arrivant : compté dans ta progression."
           : "Ce que l’élève savait en arrivant. « À écouter » : il souhaite te le réciter."}
+        {vueEleve ? " Passé chez le Cheikh : marque « Validé » ou « À refaire »." : ""}
       </p>
       {erreur ? (
         <p className="message-erreur" role="alert">
@@ -86,11 +87,11 @@ export function AcquisProgression({ acquis, vueEleve }: { acquis: AcquisAffiche[
             <li key={a.id}>
               <span className="acquis-liste-libelle">{a.libelle}</span>
               <EtatAcquis a={etat} />
-              {!vueEleve && !etat.valide ? (
+              {!etat.valide ? (
                 <span className="acquis-progression-actions">
                   {!etat.ecoute ? (
                     <button type="button" className="bouton-secondaire" onClick={() => marquer(a, "ecoute")}>
-                      <Headphones size={16} aria-hidden="true" /> Écouté
+                      <RotateCcw size={16} aria-hidden="true" /> À refaire
                     </button>
                   ) : null}
                   <button type="button" className="bouton" onClick={() => marquer(a, "valide")}>

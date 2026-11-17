@@ -35,16 +35,19 @@ export interface Reglages {
   tajwidEteintes: string[];
   /** Vue page : texte grossi au-delà de la page du Mushaf (il passe alors à la ligne librement). */
   mushafLibre: boolean;
+  /** Numéros des versets : chiffres arabes (rosace du Mushaf) ou occidentaux. */
+  chiffres: "arabes" | "occidentaux";
   /** Mots à revoir (ratés en récitation) : soulignés sur la page, listés dans Réciter et la progression. */
   soulignerARevoir: boolean;
 }
 
-export type ThemeCoran = "auto" | "clair" | "sepia" | "sombre";
+export type ThemeCoran = "auto" | "clair" | "sepia" | "sombre" | "nuit";
 const THEMES: { valeur: ThemeCoran; libelle: string }[] = [
   { valeur: "auto", libelle: "Auto" },
   { valeur: "clair", libelle: "Clair" },
   { valeur: "sepia", libelle: "Sépia" },
   { valeur: "sombre", libelle: "Sombre" },
+  { valeur: "nuit", libelle: "Nuit" },
 ];
 
 /** Arrêt automatique de l'écoute : minutes, 0 = jamais, -1 = à la fin du passage. */
@@ -174,6 +177,26 @@ export function ReglagesCoran({
                 {t.libelle}
               </button>
             ))}
+          </div>
+        </div>
+        <div className="coran-reglage">
+          <span>Numéros des versets</span>
+          <div className="coran-choix-ligne" role="group" aria-label="Numéros des versets">
+            <button
+              type="button"
+              aria-pressed={reglages.chiffres !== "occidentaux"}
+              onClick={() => modifier({ chiffres: "arabes" })}
+              lang="ar"
+            >
+              ١٢
+            </button>
+            <button
+              type="button"
+              aria-pressed={reglages.chiffres === "occidentaux"}
+              onClick={() => modifier({ chiffres: "occidentaux" })}
+            >
+              12
+            </button>
           </div>
         </div>
         <div className="coran-reglage">

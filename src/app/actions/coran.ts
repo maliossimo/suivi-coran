@@ -2,6 +2,7 @@
 
 import { profilConnecte } from "@/repositories/profils";
 import type { ResultatRecherche } from "@/domain/rechercheCoran";
+import { textesPourEnchainement } from "@/services/enchainements";
 import { chargerSourateSuivante, rechercherDansLeCoran, type BlocCoran } from "@/services/coran";
 
 /** Lecture en continu : la sourate qui suit celle affichée. */
@@ -18,4 +19,9 @@ export async function actionRechercherCoran(
   const profil = await profilConnecte();
   if (!profil) return { resultats: [], total: 0 };
   return rechercherDansLeCoran(profil, demande).catch(() => ({ resultats: [], total: 0 }));
+}
+
+/** Tester les enchaînements : les versets d'une sourate (lecture de l'élève). */
+export async function actionTextesEnchainement(sourate: unknown): Promise<string[]> {
+  return textesPourEnchainement(await profilConnecte(), sourate);
 }

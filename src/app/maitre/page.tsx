@@ -66,7 +66,7 @@ async function ContenuClasse({
 
       {classe.actifs.length === 0 ? (
         <EtatVide titre="Aucun élève pour l’instant">
-          <p>Invite tes élèves : ils recevront un e-mail pour choisir leur mot de passe.</p>
+          <p>Invite tes élèves : envoie-leur le lien d’invitation ou fais-leur scanner le QR code.</p>
           <Link href="/maitre/inviter" className="bouton bouton-auto">
             Inviter un élève
           </Link>

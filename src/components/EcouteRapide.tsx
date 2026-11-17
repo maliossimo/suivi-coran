@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronRight, Headphones } from "lucide-react";
+import { Check, ChevronRight, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { actionMarquerAcquis } from "@/app/actions/acquis";
@@ -12,7 +12,7 @@ import { retoursActives } from "./retourSensoriel";
 
 /**
  * Écoute rapide : depuis la liste de sa classe, le Cheikh voit les séances à écouter d'un élève
- * dans une feuille du bas, et les marque « Écouté » ou « Validé » sans ouvrir la fiche.
+ * dans une feuille du bas, et les marque « À refaire » ou « Validé » sans ouvrir la fiche.
  * La ligne part tout de suite ; si l'enregistrement échoue, elle revient avec un message.
  */
 export function EcouteRapide({
@@ -126,7 +126,7 @@ export function EcouteRapide({
                 {s.noteLibre ? <p className="ecoute-rapide-note">« {s.noteLibre} »</p> : null}
                 <div className="ecoute-rapide-actions">
                   <button type="button" className="bouton-secondaire" onClick={() => marquer(s, "ecoute")}>
-                    <Headphones size={17} aria-hidden="true" /> Écouté
+                    <RotateCcw size={17} aria-hidden="true" /> À refaire
                   </button>
                   <button type="button" className="bouton" onClick={() => marquer(s, "valide")}>
                     <Check size={17} aria-hidden="true" /> Validé
@@ -161,7 +161,7 @@ export function EcouteRapide({
                     className="bouton-secondaire"
                     onClick={() => marquerAcquis(a.id, "ecoute")}
                   >
-                    <Headphones size={17} aria-hidden="true" /> Écouté
+                    <RotateCcw size={17} aria-hidden="true" /> À refaire
                   </button>
                   <button type="button" className="bouton" onClick={() => marquerAcquis(a.id, "valide")}>
                     <Check size={17} aria-hidden="true" /> Validé

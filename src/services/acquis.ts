@@ -130,8 +130,8 @@ export async function marquerUnAcquis(
   const id = uuid.safeParse(idBrut);
   const etat = z.enum(["aucun", "ecoute", "valide"]).safeParse(etatBrut);
   if (!id.success || !etat.success) return { ok: false, erreur: "Partie introuvable." };
-  if (!profil.actif || (profil.role !== "maitre" && profil.role !== "admin"))
-    return { ok: false, erreur: "Seul le Cheikh écoute les parties déclarées." };
+  // L'élève (pour lui-même, la base le vérifie) ou son Cheikh : « passé avec le Cheikh ».
+  if (!profil.actif) return { ok: false, erreur: "Compte désactivé." };
   try {
     await marquerAcquis(id.data, etat.data);
     return { ok: true };

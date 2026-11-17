@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Headphones } from "lucide-react";
+import { Check, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { actionMarquerPassages } from "@/app/actions/fiche";
 import { retourSensoriel } from "@/components/retourSensoriel";
@@ -10,27 +10,30 @@ type Etat = "aucun" | "ecoute" | "valide";
 
 const etatDe = (p: Passage): Etat => (p.valide ? "valide" : p.corrige ? "ecoute" : "aucun");
 
-const CHOIX: { etat: Etat; libelle: string }[] = [
-  { etat: "aucun", libelle: "À écouter" },
-  { etat: "ecoute", libelle: "Écouté" },
-  { etat: "valide", libelle: "Validé" },
-];
-
 /**
- * Vue du Cheikh : pour chaque passage, « écouté » (récité devant lui, à retravailler)
- * puis « validé » (acquis). Un toucher suffit, pour un passage ou pour toute la séance.
+ * « Passé avec le Cheikh » : pour chaque passage, pas encore passé, à refaire (récité devant le Cheikh,
+ * à retravailler) ou validé (acquis). L'élève le marque lui-même, son Cheikh aussi ; le dernier qui marque
+ * a raison. Un toucher suffit, pour un passage ou pour toute la séance.
  */
 export function EcouteCheikh({
   eleveId,
   seanceId,
   passages,
   sourates,
+  pourEleve = false,
 }: {
   eleveId: string;
   seanceId: string;
   passages: readonly Passage[];
   sourates: readonly Sourate[];
+  /** Vue de l'élève : « Passé avec le Cheikh ? » (sinon, vue du Cheikh : « Récitation »). */
+  pourEleve?: boolean;
 }) {
+  const CHOIX: { etat: Etat; libelle: string }[] = [
+    { etat: "aucun", libelle: pourEleve ? "Pas encore" : "À écouter" },
+    { etat: "ecoute", libelle: "À refaire" },
+    { etat: "valide", libelle: "Validé" },
+  ];
   const ref = useMemo(() => creerReferentiel(sourates), [sourates]);
   const [etats, setEtats] = useState<Etat[]>(() => passages.map(etatDe));
   const [erreur, setErreur] = useState<string | null>(null);
@@ -57,13 +60,18 @@ export function EcouteCheikh({
   const tous = (etat: Etat) => etats.every((e) => e === etat);
 
   return (
-    <section className="ecoute-cheikh" aria-label="Écoute du Cheikh">
+    <section className="ecoute-cheikh" aria-label={pourEleve ? "Passé avec le Cheikh" : "Écoute du Cheikh"}>
       <div className="ecoute-cheikh-entete">
-        <h2>Récitation</h2>
+        <h2>{pourEleve ? "Passé avec le Cheikh ?" : "Récitation"}</h2>
         <span className="ecoute-compte">
-          {etats.filter((e) => e !== "aucun").length} / {etats.length} écouté{etats.length > 1 ? "s" : ""}
+          {etats.filter((e) => e === "valide").length} / {etats.length} validé{etats.length > 1 ? "s" : ""}
         </span>
       </div>
+      {pourEleve ? (
+        <p className="ecoute-cheikh-aide">
+          Après ton passage chez le Cheikh : « Validé » s’il a accepté, « À refaire » sinon.
+        </p>
+      ) : null}
       <ul>
         {passages.map((p, i) => {
           let libelle: string;
@@ -85,9 +93,7 @@ export function EcouteCheikh({
                     className={`choix-${c.etat}`}
                     onClick={() => void marquer(c.etat, i)}
                   >
-                    {c.etat === "ecoute" ? (
-                      <Headphones size={15} strokeWidth={1.6} aria-hidden="true" />
-                    ) : null}
+                    {c.etat === "ecoute" ? <RotateCcw size={14} aria-hidden="true" /> : null}
                     {c.etat === "valide" ? <Check size={14} aria-hidden="true" /> : null}
                     {c.libelle}
                   </button>
@@ -99,8 +105,8 @@ export function EcouteCheikh({
       </ul>
       <div className="ecoute-cheikh-tout">
         <button type="button" onClick={() => void marquer("ecoute")} aria-pressed={tous("ecoute")}>
-          <Headphones size={16} strokeWidth={1.6} aria-hidden="true" />
-          Tout écouté
+          <RotateCcw size={16} aria-hidden="true" />
+          Tout à refaire
         </button>
         <button
           type="button"

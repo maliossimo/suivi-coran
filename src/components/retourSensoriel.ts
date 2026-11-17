@@ -47,10 +47,17 @@ function jouerNotes(frequences: readonly number[]): void {
   });
 }
 
-/** « succes » : enregistré ; « leger » : petite action (marque-page…). */
-export function retourSensoriel(type: "succes" | "leger" = "succes"): void {
+/**
+ * « succes » : enregistré ; « leger » : petite action (marque-page…) ; « toucher » : geste répété
+ * (tourner une page, + / − d'un verset) : une vibration à peine perceptible, sans son.
+ */
+export function retourSensoriel(type: "succes" | "leger" | "toucher" = "succes"): void {
   if (typeof window === "undefined" || !retoursActives()) return;
   try {
+    if (type === "toucher") {
+      navigator.vibrate?.(6);
+      return;
+    }
     navigator.vibrate?.(type === "succes" ? [12, 40, 18] : 10);
     jouerNotes(type === "succes" ? [660, 990] : [880]);
   } catch {

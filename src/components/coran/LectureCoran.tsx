@@ -66,6 +66,7 @@ import { PanneauTajwid } from "./PanneauTajwid";
 import { actionMotsARevoir } from "@/app/actions/tajwid";
 import { squeletteMot, type MotARevoir } from "@/domain/essais";
 import { usePincer } from "./pincer";
+import { Astuce } from "@/components/Astuce";
 import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
 import type { BlocAffiche, RecitationAffichee } from "./types";
 
@@ -86,6 +87,7 @@ const DEFAUT: Reglages = {
   tajwidEteintes: [],
   mushafLibre: false,
   soulignerARevoir: true,
+  chiffres: "arabes",
 };
 
 function lireReglages(): Reglages {
@@ -1098,6 +1100,18 @@ export function LectureCoran({
           </span>
         </p>
       ) : null}
+      {/* Une fois l'astuce de l'appui long vue : celles du Mushaf et du mode caché, chacune une fois. */}
+      {!astuce && vue === "page" ? (
+        <Astuce id="coran-mushaf-gestes">
+          glisse vers la gauche ou la droite pour tourner la page, et <b>pince à deux doigts</b> pour agrandir
+          le texte.
+        </Astuce>
+      ) : null}
+      {!astuce && cache ? (
+        <Astuce id="coran-cache-reciter">
+          lance <b>Réciter</b> pendant que le texte est caché : les mots se dévoilent au fil de ta récitation.
+        </Astuce>
+      ) : null}
       {astuce ? (
         <p className="coran-astuce" role="note">
           <span>
@@ -1239,6 +1253,7 @@ export function LectureCoran({
                             marque={marques.has(cle)}
                             fragment={f}
                             aRevoir={aRevoirParVerset.get(cle) ?? null}
+                            occidentaux={reglages.chiffres === "occidentaux"}
                           />
                         );
                       })}
@@ -1263,6 +1278,7 @@ export function LectureCoran({
                         marque={marques.has(cle)}
                         devoile={devoiles.has(cle)}
                         aRevoir={aRevoirParVerset.get(cle) ?? null}
+                        occidentaux={reglages.chiffres === "occidentaux"}
                       />
                     );
                   })}
@@ -1388,6 +1404,17 @@ function useAjusterLignes(carte: RefObject<HTMLElement | null>, actif: boolean, 
 }
 
 /** Un verset : texte du Complexe du Roi Fahd (rosace intégrée) ou texte coloré du tajwid. */
+/** Numéro d'un verset : rosace de la police du Complexe (chiffres arabes), ou petit cercle en chiffres occidentaux. */
+function NumeroVerset({ n, occidentaux }: { n: number; occidentaux: boolean }) {
+  if (!occidentaux) return <>{`\u00a0${chiffresArabes(n)}`}</>;
+  return (
+    <>
+      {"\u00a0"}
+      <span className="numero-occidental">{n}</span>
+    </>
+  );
+}
+
 const Verset = memo(function Verset({
   cle,
   n,
@@ -1400,6 +1427,7 @@ const Verset = memo(function Verset({
   fragment = null,
   devoile = false,
   aRevoir = null,
+  occidentaux = false,
 }: {
   cle: string;
   n: number;
@@ -1415,6 +1443,8 @@ const Verset = memo(function Verset({
   devoile?: boolean;
   /** Mots à revoir de ce verset (squelettes) : soulignés. */
   aRevoir?: ReadonlySet<string> | null;
+  /** Numéro en chiffres occidentaux (dans un petit cercle) au lieu de la rosace du Mushaf. */
+  occidentaux?: boolean;
 }) {
   const classeMot = (numero: number | null, texteMot: string) =>
     [
@@ -1461,7 +1491,7 @@ const Verset = memo(function Verset({
             </span>
           ))}
           {/* Numéro dessiné en rosace par la police du Complexe (espace insécable + chiffres). */}
-          {!fragment || fragment.fin ? `\u00a0${chiffresArabes(n)}` : null}
+          {!fragment || fragment.fin ? <NumeroVerset n={n} occidentaux={occidentaux} /> : null}
         </>
       ) : (
         (fragment
@@ -1471,7 +1501,13 @@ const Verset = memo(function Verset({
           : decouperMots(texte)
         ).map((m, i) =>
           m.mot === null ? (
-            m.texte
+            occidentaux && /^[\u0660-\u0669]+$/.test(m.texte) ? (
+              <span key={i} className="numero-occidental">
+                {n}
+              </span>
+            ) : (
+              m.texte
+            )
           ) : (
             <span key={i} className={classeMot(m.mot, m.texte)}>
               {m.texte}

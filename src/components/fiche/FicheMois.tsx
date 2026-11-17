@@ -422,11 +422,11 @@ function LegendePastilles({ vueMaitre }: { vueMaitre: boolean }) {
       <ul>
         <li>
           <PastilleCheikh etat="partielle" />
-          {vueMaitre ? "pas encore écouté." : "ton Cheikh ne l’a pas encore écouté."}
+          {vueMaitre ? "pas encore passé." : "pas encore passé chez ton Cheikh."}
         </li>
         <li>
           <PastilleCheikh etat="ecoute" />
-          {vueMaitre ? "écouté, à retravailler." : "écouté par ton Cheikh, à retravailler."}
+          {vueMaitre ? "passé, à refaire." : "passé chez ton Cheikh, à refaire."}
         </li>
         <li>
           <PastilleCheikh etat="valide" />

@@ -14045,3 +14045,355 @@ html[data-plein-ecran] .coran-zoom-boutons button {
     display: none;
   }
 }
+
+/* « Passé avec le Cheikh ? » (vue de l'élève) */
+.ecoute-cheikh-aide {
+  margin: -4px 0 10px;
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.suggestion-a-refaire {
+  border-color: color-mix(in srgb, var(--or) 55%, var(--ligne));
+}
+.suggestion-a-refaire .suggestion-titre {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---------- Tester les enchaînements ---------- */
+.enchainements {
+  display: grid;
+  gap: 14px;
+}
+.enchainements-tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.enchainements-filtre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--texte-doux);
+  font-size: 14px;
+}
+.enchainements-filtre select {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--carte);
+  color: var(--texte);
+  font: inherit;
+}
+.enchainements-score {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+  font-weight: 700;
+}
+.enchainements-carte {
+  display: grid;
+  gap: 14px;
+  padding: 20px 18px;
+  border: 1px solid var(--ligne);
+  border-radius: 20px;
+  background: var(--carte);
+  box-shadow: var(--ombre);
+}
+.enchainements-ref {
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 13px;
+  font-weight: 600;
+}
+.enchainements-texte {
+  margin: 0;
+  min-height: 1.9em;
+  font-family: "KFGQPC Hafs", var(--font-arabe), serif;
+  font-size: 30px;
+  line-height: 1.9;
+  text-align: center;
+}
+.enchainements-reponse {
+  padding-top: 12px;
+  border-top: 1px dashed var(--ligne);
+  color: var(--vert-texte);
+  animation: apparition 0.25s ease-out;
+}
+.enchainements-attente {
+  display: inline-block;
+  width: 70%;
+  height: 1.2em;
+}
+.enchainements-consigne {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 14px;
+}
+.enchainements-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.enchainements-actions > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.enchainements-passer {
+  display: inline-flex;
+  align-items: center;
+  justify-self: center;
+  gap: 6px;
+}
+
+/* ---------- Remonter en haut (longues pages) ---------- */
+.remonter-en-haut {
+  position: fixed;
+  right: 16px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 44;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--ligne);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--carte) 88%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--vert-texte);
+  box-shadow: var(--ombre);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(12px) scale(0.9);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.remonter-en-haut.visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+@media (max-width: 760px) {
+  .remonter-en-haut {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+  html[data-nav-cachee] .remonter-en-haut {
+    bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+}
+/* Lecture du Coran : au-dessus du lecteur. */
+html:has(.coran-lecteur) .remonter-en-haut {
+  bottom: calc(150px + env(safe-area-inset-bottom));
+}
+html[data-nav-cachee]:has(.coran-lecteur) .remonter-en-haut {
+  bottom: calc(96px + env(safe-area-inset-bottom));
+}
+html[data-plein-ecran] .remonter-en-haut {
+  display: none;
+}
+
+/* ---------- Versets : boutons − / + (sans clavier) ---------- */
+.pas-a-pas {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: stretch;
+  gap: 4px;
+}
+.pas-a-pas input {
+  min-width: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.pas-a-pas button {
+  display: grid;
+  place-items: center;
+  min-height: 46px;
+  border: 1px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--vert-texte);
+  cursor: pointer;
+}
+.pas-a-pas button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- Lecture de nuit : fond noir, texte ambré doux (moins de lumière bleue) ---------- */
+.coran-page.theme-nuit {
+  --carte: #050505;
+  --texte: #e9c79a;
+  --texte-doux: #a88d6a;
+  --bord-or: #3a2d18;
+  --or-clair: #241b0e;
+  --vert-clair: #1d1a12;
+  --vert-texte: #d9b57d;
+  --tj-madd-2: #c9a46a;
+  --tj-madd-246: #c9a46a;
+  --tj-madd-45: #d8a35a;
+  --tj-madd-6: #e7b05a;
+  --tj-ghunna: #e58a4e;
+  --tj-ikhfa: #c98aa8;
+  --tj-idgham: #a9b46a;
+  --tj-idgham-sans: #bfa36b;
+  --tj-izhar: #d98a7a;
+  --tj-iqlab: #b9a07a;
+  --tj-qalqala: #e0705a;
+  --tj-muette: #6e604c;
+  color: var(--texte);
+  border-color: #1a140b;
+  box-shadow: none;
+}
+.coran-page.theme-nuit::before,
+.coran-page.theme-nuit::after {
+  opacity: 0.25;
+}
+.theme-pastille.theme-nuit[aria-pressed="true"] {
+  background: #050505;
+  color: #e9c79a;
+}
+/* La nuit, le reste de l'écran s'assombrit aussi autour de la page. */
+:root:has(.coran-page.theme-nuit) .espace-coran {
+  --fond: #000;
+}
+
+/* Numéro de verset en chiffres occidentaux : un petit cercle doré, à la place de la rosace. */
+.numero-occidental {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.35em;
+  height: 1.35em;
+  padding: 0 0.15em;
+  border: 1.5px solid color-mix(in srgb, var(--or, #c9a227) 70%, transparent);
+  border-radius: 999px;
+  color: var(--texte-doux);
+  font-family: var(--font-texte, system-ui), sans-serif;
+  font-size: 0.48em;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: 0.35em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Cartes d'accueil à ranger soi-même ---------- */
+.cartes-deplacables {
+  display: grid;
+  gap: 14px;
+}
+.carte-deplacable {
+  display: grid;
+  gap: 6px;
+}
+.carte-deplacable > .carte-coran {
+  animation: arrivee-ressort 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+.cartes-deplacables.en-edition .carte-deplacable > :not(.carte-deplacable-barre) {
+  opacity: 0.55;
+  pointer-events: none;
+}
+.carte-deplacable-barre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 12px;
+  border: 1px dashed var(--bord-or);
+  border-radius: 14px;
+  background: var(--or-clair);
+  color: var(--texte);
+  font-weight: 600;
+}
+.carte-deplacable-barre span {
+  flex: 1;
+}
+.carte-deplacable-barre button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 36px;
+  border: 1px solid var(--ligne);
+  border-radius: 10px;
+  background: var(--carte);
+  color: var(--vert-texte);
+  cursor: pointer;
+}
+.carte-deplacable-barre button:disabled {
+  opacity: 0.35;
+}
+.cartes-deplacables-bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-self: center;
+  gap: 6px;
+}
+
+/* ---------- Petite fête discrète : une ligne dorée, un reflet qui passe une fois ---------- */
+.fete-discrete {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 12px 10px 12px 14px;
+  overflow: hidden;
+  border: 1px solid var(--bord-or);
+  border-radius: 16px;
+  background: var(--or-clair);
+  color: var(--texte);
+  font-weight: 600;
+  animation: apparition 0.4s ease-out;
+}
+.fete-discrete > svg {
+  flex-shrink: 0;
+  color: var(--or-texte, #9a7a1f);
+}
+.fete-discrete > span {
+  flex: 1;
+}
+.fete-discrete [lang="ar"] {
+  font-family: var(--font-arabe), serif;
+  font-weight: 400;
+}
+.fete-discrete button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--texte-doux);
+  cursor: pointer;
+}
+/* Le reflet : une seule traversée, lente et douce. */
+.fete-discrete::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 236, 170, 0.55) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: reflet-fete 1.6s ease-in-out 0.4s 1 forwards;
+  pointer-events: none;
+}
+@keyframes reflet-fete {
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fete-discrete::after {
+    display: none;
+  }
+}
