@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.54.1] — 2026-11-17
+
+### Corrigé
+
+- Import Mawaqit : quand la page reçue ne contient pas les horaires, l'erreur notée dit ce que Mawaqit a renvoyé (statut, adresse, titre), pour corriger vite.
+
 ## [1.54.0] — 2026-11-17
 
 ### Ajouté
