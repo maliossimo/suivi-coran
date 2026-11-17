@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.58.2] — 2026-11-17
+
+### Corrigé
+
+- Lecteur du Coran : il passe au-dessus de la barre du bas (vague et arche), comme la barre « Enregistrer » et le bouton pour remonter.
+- La lune et le soleil ont une vraie lueur : intense contre l'astre, elle se dissipe en s'éloignant (plus de disque plat).
+- La lune se décale vers la droite : elle ne touche plus le titre calligraphié (« القرآن الكريم »…).
+
 ## [1.58.1] — 2026-11-17
 
 ### Corrigé
