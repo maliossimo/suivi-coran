@@ -11,6 +11,8 @@ export interface RecitationAffichee {
   mots: string | null;
   dossier: string | null;
   alignement: string | null;
+  /** On écoute seulement : le texte ne suit pas cette voix. */
+  ecouteSeule?: boolean;
 }
 
 /** Une sourate (ou le morceau de sourate d'une page du mushaf). */

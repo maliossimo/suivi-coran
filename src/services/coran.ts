@@ -3,6 +3,7 @@ import { z } from "zod";
 import { BASMALA, aBasmala, juzDePage, marquerIzhar, type SegmentTajwid } from "@/domain/coran";
 import { lireLecture, type Lecture } from "@/domain/lectures";
 import { lireLigne, type LigneMushaf } from "@/domain/mushaf";
+import { rechercherCoran, type ResultatRecherche } from "@/domain/rechercheCoran";
 import type { Sourate } from "@/domain/versets";
 import {
   correspondanceWarsh,
@@ -209,4 +210,24 @@ export async function chargerSourateSuivante(
   if (!n.success || !l.success || !peutOuvrirCoran(acteur)) return null;
   const page = await chargerPageCoran(acteur, { lecture: l.data, sourate: String(n.data + 1) });
   return page.blocs[0] ?? null;
+}
+
+const schemaRecherche = z.object({
+  q: z.string().trim().min(1).max(80),
+  lecture: z.enum(["hafs", "warsh"]),
+});
+
+/** Recherche dans le Coran (référence, sourate, mots arabes), dans la lecture de l'élève. */
+export async function rechercherDansLeCoran(
+  acteur: Profil,
+  brut: unknown,
+): Promise<{ resultats: ResultatRecherche[]; total: number }> {
+  if (!peutOuvrirCoran(acteur)) return { resultats: [], total: 0 };
+  const p = schemaRecherche.safeParse(brut);
+  if (!p.success) return { resultats: [], total: 0 };
+  const lecture = acteur.role === "eleve" ? lireLecture(acteur.lecture ?? "hafs") : p.data.lecture;
+  const sourates = await listerSourates(lecture);
+  const textes = await Promise.all(sourates.map((s) => versetsSourate(lecture, s.numero)));
+  const parNumero = new Map(sourates.map((s, i) => [s.numero, textes[i]!]));
+  return rechercherCoran(p.data.q, sourates, (s) => parNumero.get(s) ?? []);
 }

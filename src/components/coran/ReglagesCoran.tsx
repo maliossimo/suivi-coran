@@ -23,6 +23,8 @@ export interface Reglages {
   theme: ThemeCoran;
   /** Familles du tajwid éteintes (touchées dans la légende) : leurs lettres restent noires. */
   tajwidEteintes: string[];
+  /** Vue page : texte grossi au-delà de la page du Mushaf (il passe alors à la ligne librement). */
+  mushafLibre: boolean;
 }
 
 export type ThemeCoran = "auto" | "clair" | "sepia" | "sombre";
@@ -107,7 +109,7 @@ export function ReglagesCoran({
               .map((r) => ({
                 valeur: r.id,
                 libelle: r.nom,
-                detail: r.style || undefined,
+                detail: r.ecouteSeule ? `${r.style} · écoute seulement` : r.style || undefined,
                 groupe: r.suivi ? "Le texte suit la récitation" : "Écoute seule (sourate entière)",
               }))}
             favoris={{

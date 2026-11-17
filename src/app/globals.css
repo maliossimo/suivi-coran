@@ -370,7 +370,7 @@ a:hover {
 }
 .barre-app {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.88);
 }
 .barre-titre {
   font-size: 18px;
@@ -405,7 +405,7 @@ a:hover {
 }
 .barre-nom small {
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.88);
 }
 .avatar {
   width: 38px;
@@ -4579,7 +4579,7 @@ html[data-ouverture] .ouverture {
 .barre-app {
   font-size: 12px;
   letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.88);
 }
 .barre-titre {
   font-size: 20px;
@@ -5736,7 +5736,7 @@ html[data-ouverture] .ouverture-version {
 }
 .coran-cartouche span {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 /* Barre de récitation : reste visible pendant la lecture */
@@ -10509,7 +10509,7 @@ html {
   height: 3px;
   background: rgba(255, 255, 255, 0.45);
   transform-origin: left center;
-  animation: notification-temps 3.2s linear forwards;
+  animation: notification-temps 4.5s linear forwards;
 }
 
 /* ---------- Harmonisation : mêmes arrondis et mêmes ombres partout ---------- */
@@ -11763,7 +11763,7 @@ a.jour[data-etat="partielle"] {
 }
 .continuer-lecture-texte small {
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.88);
 }
 .continuer-lecture-texte small:first-child {
   font-weight: 700;
@@ -12120,7 +12120,7 @@ a.jour[data-etat="partielle"] {
   overflow: hidden;
   font-size: 12.5px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.88);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -13696,4 +13696,257 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
 }
 .coran-palette.actif {
   color: var(--vert);
+}
+
+/* ---------- Zoom du texte du Coran ---------- */
+/* Deux doigts : c'est l'appli qui agrandit le texte (pas tout l'écran) ; un doigt fait défiler. */
+.coran-zone-texte {
+  touch-action: pan-x pan-y;
+}
+.coran-retour-mushaf {
+  display: inline-flex;
+  align-items: center;
+  justify-self: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--ligne);
+  border-radius: 999px;
+  background: var(--carte);
+  color: var(--vert);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  animation: apparition 0.2s ease-out;
+}
+.coran-zoom-boutons {
+  display: none;
+}
+html[data-plein-ecran] .coran-zoom-boutons {
+  position: fixed;
+  top: calc(8px + env(safe-area-inset-top));
+  left: 12px;
+  z-index: 46;
+  display: flex;
+  gap: 4px;
+}
+html[data-plein-ecran] .coran-zoom-boutons button {
+  width: 40px;
+  height: 36px;
+  border: 1px solid var(--ligne);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--carte) 82%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--texte);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ---------- Mots à revoir (ratés lors des récitations) ---------- */
+.coran-page .mot.a-revoir {
+  text-decoration: underline wavy color-mix(in srgb, #e07a10 75%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.45em;
+  text-decoration-skip-ink: none;
+}
+.coran-a-revoir-bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, #e07a10 45%, var(--ligne));
+  border-radius: 999px;
+  background: color-mix(in srgb, #e07a10 10%, var(--carte));
+  color: var(--texte);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.coran-a-revoir-aide {
+  margin: 0 0 12px;
+  color: var(--texte-doux);
+  font-size: 13.5px;
+}
+.coran-a-revoir-liste {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.coran-a-revoir-liste li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+  background: var(--carte);
+}
+.coran-a-revoir-ref {
+  color: var(--texte-doux);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.coran-a-revoir-mots {
+  font-family: var(--font-arabe), serif;
+  font-size: 20px;
+  text-align: right;
+}
+.coran-a-revoir-liste .bouton-secondaire {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---------- Recherche dans le Coran ---------- */
+.recherche-coran {
+  display: grid;
+  gap: 12px;
+}
+.recherche-coran-champ {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1.5px solid var(--ligne);
+  border-radius: 14px;
+  background: var(--carte);
+  color: var(--texte-doux);
+}
+.recherche-coran-champ:focus-within {
+  border-color: var(--vert);
+}
+.recherche-coran-champ input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--texte);
+  font: inherit;
+  font-size: 17px;
+  outline: none;
+}
+.recherche-coran-aide {
+  margin: 0;
+  color: var(--texte-doux);
+  font-size: 13.5px;
+}
+.recherche-coran-liste {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.recherche-coran-liste a {
+  display: grid;
+  gap: 4px;
+  padding: 10px 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+  background: var(--carte);
+  color: var(--texte);
+  text-decoration: none;
+}
+.recherche-coran-liste a:active {
+  transform: scale(0.99);
+}
+.recherche-coran-ref {
+  color: var(--texte-doux);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.recherche-coran-arabe {
+  font-family: "KFGQPC Hafs", var(--font-arabe), serif;
+  font-size: 21px;
+  line-height: 1.9;
+  text-align: right;
+}
+.recherche-coran-arabe mark {
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--or, #c9a227) 35%, transparent);
+  color: inherit;
+}
+
+/* ---------- Barre du bas plus légère (téléphone) ---------- */
+@media (max-width: 760px) {
+  .nav-espace {
+    padding: 4px 6px calc(4px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--carte) 92%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow: none;
+  }
+  .nav-onglet {
+    height: 50px;
+    gap: 2px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  .nav-onglet svg {
+    width: 21px;
+    height: 21px;
+    stroke-width: 1.8;
+  }
+  .nav-onglet[aria-current="page"] {
+    font-weight: 700;
+  }
+  .nav-espace.avec-pastille .nav-pastille {
+    width: 46px;
+    height: 24px;
+  }
+  .espace {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  .coran-lecteur {
+    bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+  /* En lisant le Coran : la barre du bas s'efface quand on descend, revient quand on remonte. */
+  .nav-espace,
+  .coran-lecteur {
+    transition:
+      transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+      bottom 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  html[data-nav-cachee] .nav-espace {
+    transform: translateY(calc(100% + 2px));
+  }
+  html[data-nav-cachee] .coran-lecteur {
+    bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-espace,
+  .coran-lecteur {
+    transition: none;
+  }
+}
+
+/* ---------- Hiérarchie des cartes : un chiffre fort, le reste en retrait ---------- */
+.tuile strong {
+  font-size: 28px;
+  letter-spacing: -0.01em;
+}
+.tuile span {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.carte-graphique h2 {
+  letter-spacing: -0.005em;
+}
+.carte-graphique-sous {
+  font-size: 13.5px;
+  line-height: 1.45;
 }

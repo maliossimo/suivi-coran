@@ -2,6 +2,7 @@
 
 import { IndicateurGlissant } from "@/components/IndicateurGlissant";
 import { PleinEcranCoran } from "./PleinEcranCoran";
+import { RechercheCoran } from "./RechercheCoran";
 import { annoncerTourDePage } from "./tourDePage";
 import { Bookmark, BookOpen, ChevronDown, ChevronLeft, ChevronRight, ScrollText, Search } from "lucide-react";
 import Link from "next/link";
@@ -101,6 +102,7 @@ export function NavigationCoran({
         </nav>
         <div className="coran-outils">
           {/* Le bouton « cacher le texte » de la lecture vient se poser ici. */}
+          <RechercheCoran lecture={lecture} base={base} />
           <span id="coran-outil-cache" />
           <PleinEcranCoran />
         </div>

@@ -13,6 +13,8 @@ export interface RecitateurVersets {
   nom: string;
   style: "Murattal" | "Mujawwad" | "Muallim";
   lecture: Lecture;
+  /** Fichiers mal découpés (fin d'un verset au début du suivant) : on écoute, le texte ne suit pas. */
+  ecouteSeule?: boolean;
 }
 
 export const RECITATEURS_VERSETS: readonly RecitateurVersets[] = [
@@ -358,5 +360,7 @@ export const RECITATEURS_VERSETS: readonly RecitateurVersets[] = [
     nom: "Abdul Basit Abdus-Samad",
     style: "Mujawwad",
     lecture: "warsh",
+    // Banc d'essai Warsh : la fin des versets manque souvent dans le bon fichier.
+    ecouteSeule: true,
   },
 ];

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
 import { NOM_COOKIE_NOTIFICATION, type Notification } from "./notification-commun";
 
-const DUREE_MS = 3200;
+const DUREE_MS = 4500;
 
 // Le message vit hors de React : un rafraîchissement de la page juste après
 // l'enregistrement (revalidation) ne doit pas l'effacer avant qu'on le voie.
