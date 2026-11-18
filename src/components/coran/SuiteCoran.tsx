@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { actionSourateSuivante } from "@/app/actions/coran";
 import { chiffresArabes, familleTajwid } from "@/domain/coran";
 import { LIBELLE_LECTURE } from "@/domain/lectures";
 import { TAILLES } from "./ReglagesCoran";
 import type { BlocAffiche } from "./types";
+import { lireApi } from "./lireApi";
 
 const AUTOMATIQUES = 3;
 
@@ -75,7 +75,11 @@ export function SuiteCoran({
   const charger = async () => {
     if (charge || fin) return;
     setCharge(true);
-    const bloc = await actionSourateSuivante(lecture, derniere).catch(() => null);
+    const bloc = await lireApi<BlocAffiche | null>(
+      "/api/coran/suite",
+      { lecture, sourate: String(derniere) },
+      null,
+    );
     if (bloc) setSuite((s) => [...s, bloc]);
     setCharge(false);
   };

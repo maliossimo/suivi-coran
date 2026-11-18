@@ -4,6 +4,7 @@ import { Ellipsis, ScrollText, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -161,8 +162,39 @@ const RESPONSABLE: Onglet[] = [
  * Navigation principale de l'espace : barre d'onglets en bas de l'écran sur
  * téléphone, menu horizontal dans la barre du haut sur ordinateur.
  */
+/**
+ * Fluidité : pendant qu'on fait défiler la page, les animations décoratives (ciel, vague, étincelles)
+ * se mettent en pause (« data-defile » sur <html>) ; celles du ciel s'arrêtent aussi tant que la
+ * grande barre est hors de l'écran (« data-haut-cache »). Le défilement ne partage plus le processeur.
+ */
+function usePauseEnDefilant() {
+  useEffect(() => {
+    const html = document.documentElement;
+    let minuteur = 0;
+    let image = 0;
+    const surDefilement = () => {
+      if (!image)
+        image = requestAnimationFrame(() => {
+          image = 0;
+          if (!html.hasAttribute("data-defile")) html.setAttribute("data-defile", "");
+          html.toggleAttribute("data-haut-cache", window.scrollY > 160);
+        });
+      window.clearTimeout(minuteur);
+      minuteur = window.setTimeout(() => html.removeAttribute("data-defile"), 220);
+    };
+    window.addEventListener("scroll", surDefilement, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", surDefilement);
+      window.clearTimeout(minuteur);
+      cancelAnimationFrame(image);
+      html.removeAttribute("data-defile");
+    };
+  }, []);
+}
+
 export function NavigationEspace({ role, responsable = false }: { role: Role; responsable?: boolean }) {
   const chemin = usePathname();
+  usePauseEnDefilant();
   const nav = useRef<HTMLElement>(null);
   const pastille = useRef<HTMLSpanElement>(null);
   usePastilleQuiGlisse(nav, pastille, chemin);
@@ -201,13 +233,9 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
           d="M0 14C40 8 80 20 120 12S170 8 200 12 280 20 320 12 380 8 400 14"
           vectorEffect="non-scaling-stroke"
         />
-        <path
-          className="nav-vague-reflet"
-          d="M0 14C40 8 80 20 120 12S170 8 200 12 280 20 320 12 380 8 400 14"
-          vectorEffect="non-scaling-stroke"
-          pathLength={100}
-        />
       </svg>
+      {/* Le reflet qui court sur la vague : déplacé par la carte graphique, sans redessiner la barre. */}
+      <span className="nav-reflet" aria-hidden="true" />
       <span className="nav-etincelles" aria-hidden="true">
         <i style={{ left: "9%", animationDelay: "0.2s" }} />
         <i style={{ left: "27%", animationDelay: "1.4s" }} />

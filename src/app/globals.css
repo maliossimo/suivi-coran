@@ -16870,3 +16870,110 @@ html {
     bottom: calc(182px + env(safe-area-inset-bottom));
   }
 }
+
+/* =====================================================================
+   1.59 : fluidité — moins de travail de dessin à chaque image
+   ===================================================================== */
+/* Le fond d'ambiance devient une couche fixe à part : plus de « background-attachment: fixed »,
+   qui faisait redessiner toute la page à chaque pixel de défilement. */
+html {
+  background: var(--fond);
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 55% at 50% 0%, var(--ambiance), transparent 72%),
+    radial-gradient(90% 50% at 100% 100%, var(--ambiance-2), transparent 70%), var(--motif-doux), var(--fond);
+}
+
+/* Animations à l'intérieur des dessins (étoiles, plans de la ville, halo, lanternes, nuages) :
+   par petits pas, quelques images par seconde au lieu de 60 ; l'œil n'y voit aucune différence. */
+.ciel-etoiles circle {
+  animation-timing-function: steps(10);
+}
+.ciel-loin,
+.ciel-pres {
+  animation-timing-function: steps(32);
+}
+.ciel-halo {
+  animation-timing-function: steps(16);
+}
+.ciel:is([data-moment="fajr"], [data-moment="maghrib"], [data-moment="nuit"]) .ciel-lanterne,
+.ciel-fanous-flamme {
+  animation-timing-function: steps(6);
+}
+.ciel-fanous-un {
+  animation-timing-function: steps(16);
+}
+.ciel-nuages ellipse {
+  animation-timing-function: steps(320);
+}
+/* Le motif qui dérive : déplacé par la carte graphique. */
+.ciel-motif {
+  will-change: transform;
+}
+
+/* En défilant : les animations décoratives se mettent en pause ; celles du ciel restent arrêtées
+   tant que la grande barre est hors de l'écran. */
+html[data-defile] :is(.ciel *, .nav-reflet, .nav-etincelles i, .nav-mihrab-lisere path),
+html[data-defile] .barre::after,
+html[data-haut-cache] .barre-vivante > .ciel *,
+html[data-haut-cache] .barre-vivante::after {
+  animation-play-state: paused !important;
+}
+
+.nav-reflet {
+  display: none;
+}
+@media (max-width: 760px) {
+  /* Barre du bas : presque opaque, sans flou recalculé sous le contenu qui défile. */
+  .nav-espace {
+    --nav-verre: color-mix(in srgb, var(--fond) 95%, transparent);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  /* Le reflet de la vague : une petite lumière déplacée par la carte graphique. */
+  .nav-reflet {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: -9px;
+    width: 46px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(255, 244, 204, 0.95),
+      rgba(255, 228, 150, 0.35) 45%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: 1;
+    will-change: transform;
+    animation: nav-reflet 7s linear infinite;
+  }
+  @keyframes nav-reflet {
+    from {
+      transform: translateX(-60px);
+    }
+    to {
+      transform: translateX(calc(100vw + 20px));
+    }
+  }
+  /* Étincelles : sans filtre, animées par la carte graphique. */
+  .nav-etincelles i {
+    filter: none;
+    background: radial-gradient(circle, #fffbe6 0%, #f3d27c 70%);
+    will-change: transform, opacity;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-reflet {
+    animation: none;
+    display: none;
+  }
+}
