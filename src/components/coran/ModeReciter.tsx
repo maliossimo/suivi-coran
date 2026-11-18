@@ -6,7 +6,6 @@ import {
   actionCorrectionsTajwid,
   actionGarderEssai,
   actionHistoriquePassage,
-  actionMotsARevoir,
   actionSignalerTajwid,
 } from "@/app/actions/tajwid";
 import { fautesAGarder, type MotARevoir, type MotDifficile } from "@/domain/essais";
@@ -31,6 +30,7 @@ import {
 import { extraitWav, useCaptureReciter } from "./captureReciter";
 import { envoyerAvecEssais, type EtatReseau } from "./reseau";
 import { chargerReference, useSuiviLocal } from "./suiviLocal";
+import { lireApi } from "./lireApi";
 
 type Etape = "pret" | "ecoute" | "fin" | "resultat";
 
@@ -453,9 +453,11 @@ export function ModeReciter({
       return;
     }
     let actif = true;
-    void actionMotsARevoir({ lecture, sourates: [sourate] })
-      .then((r) => actif && setARevoir(r[sourate] ?? []))
-      .catch(() => undefined);
+    void lireApi<Record<number, MotARevoir[]>>(
+      "/api/coran/a-revoir",
+      { lecture, sourates: String(sourate) },
+      {},
+    ).then((r) => actif && setARevoir(r[sourate] ?? []));
     return () => {
       actif = false;
     };

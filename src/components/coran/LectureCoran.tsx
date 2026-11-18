@@ -63,12 +63,12 @@ import { useExplication } from "./explications";
 import { adresseAudio, adresseMots, garderSourateOuverte, useHorsLigne } from "./horsLigne";
 import { MemoriserCoran } from "./MemoriserCoran";
 import { PanneauTajwid } from "./PanneauTajwid";
-import { actionMotsARevoir } from "@/app/actions/tajwid";
 import { squeletteMot, type MotARevoir } from "@/domain/essais";
 import { usePincer } from "./pincer";
 import { Astuce } from "@/components/Astuce";
 import { ReglagesCoran, TAILLES, type ChoixMinuterie, type Reglages } from "./ReglagesCoran";
 import type { BlocAffiche, RecitationAffichee } from "./types";
+import { lireApi } from "./lireApi";
 
 // Le mode Réciter (capture du micro, résultat) n'est chargé qu'au premier appui sur « Réciter ».
 const ModeReciter = dynamic(() => import("./ModeReciter").then((m) => m.ModeReciter), { ssr: false });
@@ -182,9 +182,11 @@ export function LectureCoran({
   const souratesAffichees = useMemo(() => blocs.map((b) => b.sourate).join(","), [blocs]);
   const chargerARevoir = useCallback(() => {
     const sourates = souratesAffichees.split(",").map(Number).slice(0, 4);
-    void actionMotsARevoir({ lecture: lecture === "warsh" ? "warsh" : "hafs", sourates })
-      .then(setARevoir)
-      .catch(() => undefined);
+    void lireApi<Record<number, MotARevoir[]>>(
+      "/api/coran/a-revoir",
+      { lecture: lecture === "warsh" ? "warsh" : "hafs", sourates: sourates.join(",") },
+      {},
+    ).then(setARevoir);
   }, [souratesAffichees, lecture]);
   useEffect(chargerARevoir, [chargerARevoir]);
   const aRevoirParVerset = useMemo(() => {
