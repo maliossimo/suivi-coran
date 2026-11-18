@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { actionRechercherCoran } from "@/app/actions/coran";
 import { squeletteMot } from "@/domain/essais";
 import type { ResultatRecherche } from "@/domain/rechercheCoran";
+import { lireApi } from "./lireApi";
+
+type RechercheVide = { resultats: ResultatRecherche[]; total: number };
 
 type ResultatVerset = Extract<ResultatRecherche, { type: "verset" }>;
 
@@ -49,8 +51,14 @@ export function VersetsTrouves({
       return;
     }
     let annule = false;
+    const arret = new AbortController();
     const minuteur = window.setTimeout(() => {
-      void actionRechercherCoran({ q, lecture }).then((r) => {
+      void lireApi(
+        "/api/coran/recherche",
+        { q, lecture },
+        { resultats: [], total: 0 } as RechercheVide,
+        arret.signal,
+      ).then((r) => {
         if (annule) return;
         const versets = r.resultats.filter((x): x is ResultatVerset => x.type === "verset");
         setResultat({ q, versets, total: r.total - (r.resultats.length - versets.length) });
@@ -58,6 +66,7 @@ export function VersetsTrouves({
     }, 280);
     return () => {
       annule = true;
+      arret.abort();
       window.clearTimeout(minuteur);
     };
   }, [q, actif, lecture]);

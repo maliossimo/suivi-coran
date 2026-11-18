@@ -9,7 +9,18 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
-## [1.58.2] — 2026-11-17
+## [1.59.0] — 2026-11-18
+
+### Amélioré (fluidité)
+
+- Les onglets ne sont plus retardés après le Coran : les mots à revoir, la sourate suivante (lecture en continu) et la recherche « Aller à » se chargent par de simples lectures, qui ne passent plus dans la file des changements de page.
+- Défilement plus fluide :
+  - le fond d'ambiance est une couche fixe à part (plus de page entière redessinée à chaque pixel) ;
+  - la barre du bas n'a plus de flou recalculé sous le contenu qui défile (même rendu, presque opaque) ;
+  - les animations décoratives se mettent en pause pendant qu'on défile, et celles du ciel tant que la grande barre est hors de l'écran.
+- Moins de calcul en continu : les animations à l'intérieur du ciel (étoiles, ville, halo, lanternes, nuages) avancent par petits pas, quelques images par seconde ; le reflet de la vague et les étincelles sont déplacés par la carte graphique.
+
+— 2026-11-17
 
 ### Corrigé
 
