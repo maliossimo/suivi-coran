@@ -9,7 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
-## [1.61.0] — 2026-11-18
+## [1.62.0] — 2026-11-18
+
+### Modifié
+
+- La mosquée du ciel est redessinée et retrouve son contour doré : grande coupole en bulbe sur son tambour, deux petites coupoles, deux minarets fins avec leurs balcons, croissant au sommet.
+- Ses fenêtres en arc vivent avec l'heure : lumière chaude la nuit, plus douce au Maghrib et à l'aube ; le jour, elles laissent voir le ciel, comme du verre.
+
+— 2026-11-18
 
 ### Modifié
 
