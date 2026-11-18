@@ -109,6 +109,8 @@ function Silhouettes() {
         <rect x="298" y="78" width="14" height="3" />
         <rect x="-20" y="128" width="400" height="10" />
       </g>
+      {/* Seul le haut de la grande coupole et du minaret est bordé d'or. */}
+      <path className="ciel-lisere" d="M192 98Q194 84 224 72Q254 84 256 98 M298 58L305 43L312 58" />
       <rect className="ciel-lanterne" x="303.5" y="64" width="3" height="6" rx="1.5" />
       {/* Fenêtres allumées : la ville vit la nuit. */}
       <g className="ciel-fenetres">
@@ -148,7 +150,7 @@ function Lune({
         </mask>
       </defs>
       {/* Lueur : intense contre la lune, elle se dissipe en s'éloignant. */}
-      <circle cx={cx} cy={cy} r={r * 4.2} className="ciel-lune-halo" fill="url(#lune-lueur)" />
+      <circle cx={cx} cy={cy} r={r * 3.4} className="ciel-lune-halo" fill="url(#lune-lueur)" />
       <g mask={`url(#${id})`}>
         <circle cx={cx} cy={cy} r={r} className="ciel-lune-disque" />
         {/* Quelques « mers » sombres : la lune ressemble à la lune. */}
@@ -233,10 +235,17 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
             <stop offset="0.75" stopColor="#ffb84d" stopOpacity="0.06" />
             <stop offset="1" stopColor="#ffb84d" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="soleil-disque" cx="0.42" cy="0.4">
-            <stop offset="0" stopColor="#fffef5" />
-            <stop offset="0.65" stopColor="#ffe48f" />
-            <stop offset="1" stopColor="#f5b947" />
+          <radialGradient id="soleil-disque" cx="0.5" cy="0.5">
+            <stop offset="0" stopColor="#ffffff" />
+            <stop offset="0.45" stopColor="#fff6c8" />
+            <stop offset="0.8" stopColor="#ffd75a" />
+            <stop offset="1" stopColor="#ffb82e" />
+          </radialGradient>
+          {/* Couronne du soleil : une lumière chaude collée au disque. */}
+          <radialGradient id="soleil-couronne">
+            <stop offset="0.55" stopColor="#fff2b0" stopOpacity="0.9" />
+            <stop offset="0.75" stopColor="#ffd56a" stopOpacity="0.35" />
+            <stop offset="1" stopColor="#ffb84d" stopOpacity="0" />
           </radialGradient>
           {/* Soleil bas (aube, Maghrib) : plus grand, orangé. */}
           <radialGradient id="soleil-bas-lueur">
@@ -245,34 +254,35 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
             <stop offset="0.65" stopColor="#ff8a45" stopOpacity="0.14" />
             <stop offset="1" stopColor="#ff7a3a" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="soleil-bas-disque" cx="0.45" cy="0.42">
-            <stop offset="0" stopColor="#fff3dc" />
-            <stop offset="0.7" stopColor="#ffb36b" />
-            <stop offset="1" stopColor="#f0813f" />
+          <radialGradient id="soleil-bas-disque" cx="0.5" cy="0.5">
+            <stop offset="0" stopColor="#fff6e6" />
+            <stop offset="0.45" stopColor="#ffc982" />
+            <stop offset="0.8" stopColor="#ff8f4a" />
+            <stop offset="1" stopColor="#e9612c" />
           </radialGradient>
           {/* Lune : disque modelé (éclairé en haut à gauche) et lueur argentée. */}
           <radialGradient id="lune-modele" cx="0.38" cy="0.35">
-            <stop offset="0" stopColor="#fff7dc" />
-            <stop offset="0.6" stopColor="#f3d27c" />
-            <stop offset="1" stopColor="#c99a3a" />
+            <stop offset="0" stopColor="#fdfcf7" />
+            <stop offset="0.6" stopColor="#e8e5da" />
+            <stop offset="1" stopColor="#bcb7a8" />
           </radialGradient>
           <radialGradient id="lune-lueur">
-            <stop offset="0.2" stopColor="#ffe9a8" stopOpacity="0.7" />
-            <stop offset="0.32" stopColor="#f3d27c" stopOpacity="0.38" />
-            <stop offset="0.5" stopColor="#f3d27c" stopOpacity="0.14" />
-            <stop offset="0.72" stopColor="#f3d27c" stopOpacity="0.04" />
-            <stop offset="1" stopColor="#f3d27c" stopOpacity="0" />
+            <stop offset="0.3" stopColor="#f1f4fa" stopOpacity="0.42" />
+            <stop offset="0.45" stopColor="#e3e9f2" stopOpacity="0.16" />
+            <stop offset="0.7" stopColor="#dfe6f0" stopOpacity="0.04" />
+            <stop offset="1" stopColor="#dfe6f0" stopOpacity="0" />
           </radialGradient>
         </defs>
         {moment === "jour" ? (
           <g className="ciel-soleil-reel">
-            <circle cx="262" cy="60" r="46" fill="url(#soleil-lueur)" />
+            <circle cx="262" cy="60" r="38" fill="url(#soleil-lueur)" />
+            <circle cx="262" cy="60" r="17" fill="url(#soleil-couronne)" />
             <circle cx="262" cy="60" r="10" fill="url(#soleil-disque)" />
           </g>
         ) : null}
         {bas ? (
           <g className="ciel-soleil-reel">
-            <circle cx="224" cy="84" r="40" fill="url(#soleil-bas-lueur)" />
+            <circle cx="224" cy="84" r="36" fill="url(#soleil-bas-lueur)" />
             <circle cx="224" cy="84" r="13" fill="url(#soleil-bas-disque)" />
           </g>
         ) : null}
@@ -328,6 +338,7 @@ export function CielMini({ horaires, jourHegire, maintenant }: CielProps) {
         {moment === "jour" ? (
           <g className="ciel-soleil-reel">
             <circle cx="96" cy="26" r="22" fill="url(#soleil-lueur)" />
+            <circle cx="96" cy="26" r="12" fill="url(#soleil-couronne)" />
             <circle cx="96" cy="26" r="7" fill="url(#soleil-disque)" />
           </g>
         ) : null}

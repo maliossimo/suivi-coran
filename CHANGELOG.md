@@ -9,7 +9,19 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
-## [1.60.0] — 2026-11-18
+## [1.61.0] — 2026-11-18
+
+### Modifié
+
+- Un vrai soleil et une vraie lune : la lune redevient argentée (mers grises, halo blanc bleuté), le soleil a un cœur blanc, une couronne jaune et une lueur chaude (orangé et rouge près de l'horizon à l'aube et au Maghrib) ; on les distingue au premier regard.
+- Barre du haut plus sobre : la ville en silhouette unie, seul le haut de la grande coupole et du minaret bordé d'or ; fenêtres plus douces, le soir et la nuit ; lueurs plus petites ; le motif du ciel ne bouge plus ; filet et losange simples, sans lueur.
+- Barre du bas plus sobre : fond uni et filet doré fin (plus de vague) ; Coran devient un onglet comme les autres, une fine arche autour de son icône ; l'onglet choisi garde une niche légère ; les noms arabes sont plus discrets, celui de l'onglet choisi en or.
+
+### Corrigé
+
+- « Mon compte » (l'avatar en haut à droite) s'ouvre tout de suite, sans écran de chargement : la page est préparée à l'avance comme les onglets.
+
+— 2026-11-18
 
 ### Modifié
 
