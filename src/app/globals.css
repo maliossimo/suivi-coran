@@ -17296,3 +17296,44 @@ html[data-haut-cache] .barre-vivante::after {
     bottom: calc(166px + env(safe-area-inset-bottom));
   }
 }
+
+/* =====================================================================
+   1.62 : la mosquée redessinée, bordée d'or ; ses fenêtres vivent avec l'heure
+   ===================================================================== */
+.ciel-pres > * {
+  stroke: color-mix(in srgb, var(--ciel-or) 75%, transparent);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+.ciel-loin > * {
+  stroke: color-mix(in srgb, var(--ciel-or) 30%, transparent);
+  stroke-width: 0.6;
+}
+.ciel-croissant {
+  fill: var(--ciel-or);
+}
+/* Le jour, les fenêtres laissent voir le ciel, comme du verre. */
+.ciel-fenetres {
+  fill: color-mix(in srgb, var(--ciel-haut, var(--ciel)) 70%, #ffffff 12%);
+  opacity: 0.75;
+  stroke: color-mix(in srgb, var(--ciel-or) 55%, transparent);
+  stroke-width: 0.4;
+  transition:
+    fill 1.2s ease,
+    opacity 1.2s ease;
+}
+/* La nuit, une lumière chaude passe par les fenêtres ; à moitié au Maghrib et à l'aube. */
+.ciel[data-moment="nuit"] .ciel-fenetres {
+  fill: #f6cf73;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 1.6px rgba(246, 207, 115, 0.85));
+}
+.ciel[data-moment="maghrib"] .ciel-fenetres {
+  fill: #f2bd6a;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 1.2px rgba(242, 189, 106, 0.6));
+}
+.ciel[data-moment="fajr"] .ciel-fenetres {
+  fill: #f1d6a0;
+  opacity: 0.6;
+}
