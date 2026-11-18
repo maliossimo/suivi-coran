@@ -17202,7 +17202,7 @@ html[data-haut-cache] .barre-vivante::after {
   }
   .nav-espace {
     background-image: none;
-    background-color: color-mix(in srgb, var(--fond) 97%, transparent);
+    background-color: var(--fond);
     box-shadow:
       0 -1px 0 color-mix(in srgb, #c9a24a 45%, transparent),
       0 -8px 20px rgba(0, 0, 0, 0.1);
@@ -17258,6 +17258,10 @@ html[data-haut-cache] .barre-vivante::after {
   }
   .nav-espace.avec-pastille:has(.nav-mihrab[aria-current="page"]) .nav-pastille {
     opacity: 1;
+  }
+  /* Plus de trait sous l'onglet choisi : il barrait le nom arabe ; le nom en or suffit. */
+  .nav-espace.avec-pastille .nav-pastille::after {
+    content: none;
   }
   /* Noms arabes plus discrets ; celui de l'onglet choisi en or. */
   .nav-espace .nav-onglet .nav-ar,

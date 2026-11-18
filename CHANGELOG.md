@@ -19,6 +19,7 @@ Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z
 
 ### Corrigé
 
+- La barre du bas est opaque : le texte de la page ne transparaît plus dessous ; le trait sous l'onglet choisi, qui barrait le nom arabe, est retiré.
 - « Mon compte » (l'avatar en haut à droite) s'ouvre tout de suite, sans écran de chargement : la page est préparée à l'avance comme les onglets.
 
 — 2026-11-18
