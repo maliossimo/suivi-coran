@@ -17137,3 +17137,162 @@ html[data-haut-cache] .barre-vivante::after {
     gap: 12px;
   }
 }
+
+/* =====================================================================
+   1.61 : barres plus sobres ; vrai soleil, vraie lune
+   ===================================================================== */
+/* ---------- Barre du haut ---------- */
+/* La ville : silhouette unie ; seul le haut de la grande coupole et du minaret est bordé d'or. */
+.ciel-pres > *,
+.ciel-loin > * {
+  stroke: none;
+}
+.ciel-lisere {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ciel-or) 80%, transparent);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Fenêtres plus douces, le soir et la nuit seulement. */
+.ciel[data-moment="nuit"] .ciel-fenetres {
+  opacity: 0.55;
+}
+.ciel[data-moment="maghrib"] .ciel-fenetres {
+  opacity: 0.35;
+}
+.ciel[data-moment="fajr"] .ciel-fenetres {
+  opacity: 0.2;
+}
+/* Le motif du ciel ne dérive plus, à peine visible. */
+.ciel-motif {
+  animation: none;
+  opacity: 0.045;
+  will-change: auto;
+}
+/* La lune : argentée, ses mers grises (on la distingue du soleil au premier regard). */
+.ciel-lune-mers {
+  fill: #8f8d86;
+  opacity: 0.3;
+}
+/* Sous la barre : un filet fin et un losange simple, sans lueur. */
+.barre-vivante > .frise-zellige,
+.barre-compacte-frise {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ciel-or) 70%, transparent) 22%,
+    color-mix(in srgb, var(--ciel-or) 70%, transparent) 78%,
+    transparent
+  );
+}
+.barre-vivante > .frise-zellige::after,
+.barre-compacte-frise::after {
+  width: 6px;
+  height: 6px;
+  border-width: 1px;
+  box-shadow: none;
+}
+
+/* ---------- Barre du bas (téléphone) ---------- */
+@media (max-width: 760px) {
+  /* Fond uni dans la couleur de la page, un filet doré fin en haut ; plus de vague. */
+  .nav-vague {
+    display: none !important;
+  }
+  .nav-espace {
+    background-image: none;
+    background-color: var(--fond);
+    box-shadow:
+      0 -1px 0 color-mix(in srgb, #c9a24a 45%, transparent),
+      0 -8px 20px rgba(0, 0, 0, 0.1);
+  }
+  /* Coran devient un onglet comme les autres : une fine arche dessinée autour de son icône. */
+  .nav-espace .nav-mihrab::after,
+  .nav-espace .nav-mihrab:not([aria-current="page"])::after,
+  .nav-mihrab-lisere {
+    display: none !important;
+  }
+  .nav-espace .nav-mihrab::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    width: 46px;
+    height: 34px;
+    transform: translateX(-50%);
+    background: color-mix(in srgb, var(--nav-or) 45%, transparent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 34'%3E%3Cpath d='M3 34V17Q3 7 23 1.5Q43 7 43 17V34' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 34'%3E%3Cpath d='M3 34V17Q3 7 23 1.5Q43 7 43 17V34' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .nav-espace .nav-mihrab[aria-current="page"]::before {
+    background: var(--nav-or);
+  }
+  .nav-espace .nav-onglet.nav-mihrab,
+  .nav-espace .nav-onglet.nav-mihrab > span {
+    color: var(--texte-doux, var(--nav-texte));
+  }
+  .nav-espace .nav-onglet.nav-mihrab[aria-current="page"],
+  .nav-espace .nav-onglet.nav-mihrab[aria-current="page"] > span {
+    color: var(--nav-or);
+  }
+  .nav-espace .nav-onglet.nav-mihrab > svg,
+  .nav-espace.avec-pastille .nav-onglet.nav-mihrab > svg {
+    top: 0;
+    color: currentColor;
+  }
+  .nav-espace .nav-onglet.nav-mihrab > span {
+    top: 0;
+  }
+  /* L'onglet choisi (Coran compris) : une niche légère. */
+  .nav-espace.avec-pastille .nav-pastille {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--nav-or) 16%, transparent),
+      color-mix(in srgb, var(--nav-or) 2%, transparent)
+    );
+  }
+  .nav-espace.avec-pastille:has(.nav-mihrab[aria-current="page"]) .nav-pastille {
+    opacity: 1;
+  }
+  /* Plus de trait sous l'onglet choisi : il barrait le nom arabe ; le nom en or suffit. */
+  .nav-espace.avec-pastille .nav-pastille::after {
+    content: none;
+  }
+  /* Noms arabes plus discrets ; celui de l'onglet choisi en or. */
+  .nav-espace .nav-onglet .nav-ar,
+  .nav-espace .nav-plus .nav-ar,
+  .nav-espace .nav-mihrab .nav-ar {
+    font-size: 10.5px;
+    opacity: 0.6;
+  }
+  .nav-espace .nav-onglet[aria-current="page"] .nav-ar,
+  .nav-espace .nav-plus[data-actif] .nav-ar {
+    opacity: 1;
+    color: var(--nav-or);
+  }
+  /* En lisant le Coran, plus rien ne dépasse : la barre se range simplement. */
+  html[data-nav-cachee] .nav-espace {
+    transform: translateY(calc(100% + 4px));
+  }
+}
+@media (max-width: 760px) {
+  /* La barre ne dépasse plus : le lecteur du Coran et les boutons flottants se rapprochent. */
+  .espace {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  .coran-lecteur,
+  .barre-enregistrer {
+    bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  .remonter-en-haut {
+    bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+  html:has(.coran-lecteur) .remonter-en-haut {
+    bottom: calc(166px + env(safe-area-inset-bottom));
+  }
+}

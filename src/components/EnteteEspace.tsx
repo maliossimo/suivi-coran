@@ -46,7 +46,7 @@ export async function EnteteEspace({
             </div>
           </LogoAccueil>
           <NavigationEspace role={role} responsable={responsable} />
-          <Link href="/compte" className="barre-identite" aria-label="Mon compte">
+          <Link href="/compte" prefetch className="barre-identite" aria-label="Mon compte">
             <Avatar prenom={nom} cle={nom} role={role} taille="petit" surBarre />
             <span className="barre-nom">
               {nom || "Mon compte"}
