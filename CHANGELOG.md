@@ -9,7 +9,22 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
-## [1.59.0] — 2026-11-18
+## [1.60.0] — 2026-11-18
+
+### Modifié
+
+- Plus sobre, toujours aussi belle : l'or est réservé au ciel, à l'onglet choisi et à ce qui appelle une action.
+  - Barre du bas : plus d'étincelles ni de reflet qui court, une vague dorée fine et calme, l'arche sans lumière qui tourne.
+  - Cartes : l'ambiance du moment à demi-teinte et une bordure ordinaire ; le liseré doré seulement sur « Appel du jour » (à faire) et « À écouter » ; la mosquée en filigrane seulement sur les cartes d'accueil.
+  - Boutons : sans anneau doré ni grande lueur.
+- Cartes un peu plus compactes sur téléphone (marges et arrondis réduits, titres un peu plus petits, moins d'espace entre les cartes).
+
+### Corrigé
+
+- Changement de mois : les flèches restent aux deux bords et le titre toujours au centre, quelle que soit la longueur du mois.
+- « Aujourd'hui » : sur téléphone, l'icône passe au-dessus du libellé, et « Apprentissage » tient sur une seule ligne.
+
+— 2026-11-18
 
 ### Amélioré (fluidité)
 
