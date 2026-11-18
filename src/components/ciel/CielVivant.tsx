@@ -99,53 +99,56 @@ function Silhouettes() {
         <rect x="84" y="74" width="5" height="64" />
         <path d="M83 76H90L86.5 64Z" />
       </g>
-      {/* La mosquée : grande coupole en bulbe sur son tambour, deux petites coupoles, deux minarets. */}
-      <g className="ciel-pres">
-        {/* minaret gauche */}
-        <rect x="146" y="40" width="6" height="98" />
-        <rect x="144" y="62" width="10" height="2.6" rx="1" />
-        <rect x="144" y="84" width="10" height="2.6" rx="1" />
-        <path d="M145 41H153L149 26Z" />
-        <rect x="148.4" y="20" width="1.2" height="6" />
-        {/* petite coupole gauche */}
-        <rect x="168" y="96" width="24" height="42" />
-        <path d="M168 96C168 86 175 81 180 78Q180 75 180 72Q180 75 180 78C185 81 192 86 192 96Z" />
-        {/* grande coupole */}
-        <rect x="196" y="92" width="56" height="46" />
-        <path d="M193 93H255V96H193Z" />
-        <path d="M196 92C195 76 207 66 217 60Q223 56 224 48Q225 56 231 60C241 66 253 76 252 92Z" />
-        <rect x="223.3" y="36" width="1.4" height="12" />
-        {/* petite coupole droite */}
-        <rect x="256" y="96" width="24" height="42" />
-        <path d="M256 96C256 86 263 81 268 78Q268 75 268 72Q268 75 268 78C273 81 280 86 280 96Z" />
-        {/* minaret droit */}
-        <rect x="300" y="40" width="7" height="98" />
-        <rect x="298" y="60" width="11" height="2.8" rx="1" />
-        <rect x="298" y="82" width="11" height="2.8" rx="1" />
-        <path d="M299 41H308L303.5 24Z" />
-        <rect x="302.9" y="18" width="1.2" height="6" />
-        <rect x="-20" y="128" width="400" height="10" />
+      {/* La mosquée : grande coupole en bulbe sur son tambour, deux petites coupoles, deux minarets.
+          Réduite depuis sa base pour tenir entière au-dessus de la ligne des dates. */}
+      <g transform="translate(224 104) scale(0.78) translate(-224 -104)">
+        <g className="ciel-pres">
+          {/* minaret gauche */}
+          <rect x="146" y="40" width="6" height="98" />
+          <rect x="144" y="62" width="10" height="2.6" rx="1" />
+          <rect x="144" y="84" width="10" height="2.6" rx="1" />
+          <path d="M145 41H153L149 26Z" />
+          <rect x="148.4" y="20" width="1.2" height="6" />
+          {/* petite coupole gauche */}
+          <rect x="168" y="96" width="24" height="42" />
+          <path d="M168 96C168 86 175 81 180 78Q180 75 180 72Q180 75 180 78C185 81 192 86 192 96Z" />
+          {/* grande coupole */}
+          <rect x="196" y="92" width="56" height="46" />
+          <path d="M193 93H255V96H193Z" />
+          <path d="M196 92C195 76 207 66 217 60Q223 56 224 48Q225 56 231 60C241 66 253 76 252 92Z" />
+          <rect x="223.3" y="36" width="1.4" height="12" />
+          {/* petite coupole droite */}
+          <rect x="256" y="96" width="24" height="42" />
+          <path d="M256 96C256 86 263 81 268 78Q268 75 268 72Q268 75 268 78C273 81 280 86 280 96Z" />
+          {/* minaret droit */}
+          <rect x="300" y="40" width="7" height="98" />
+          <rect x="298" y="60" width="11" height="2.8" rx="1" />
+          <rect x="298" y="82" width="11" height="2.8" rx="1" />
+          <path d="M299 41H308L303.5 24Z" />
+          <rect x="302.9" y="18" width="1.2" height="6" />
+        </g>
+        {/* Croissant au sommet de la grande coupole. */}
+        <path className="ciel-croissant" d="M224 26.5a4.2 4.2 0 1 0 3 7.2 3.3 3.3 0 1 1 -3-7.2z" />
+        <rect className="ciel-lanterne" x="301.9" y="66" width="3" height="6" rx="1.5" />
+        {/* Fenêtres en arc : lumière chaude la nuit, le ciel au travers le jour. */}
+        <g className="ciel-fenetres">
+          <path d="M201 104V97Q201 94.5 203 94Q205 94.5 205 97V104Z" />
+          <path d="M210 104V97Q210 94.5 212 94Q214 94.5 214 97V104Z" />
+          <path d="M219 104V97Q219 94.5 221 94Q223 94.5 223 97V104Z" />
+          <path d="M225 104V97Q225 94.5 227 94Q229 94.5 229 97V104Z" />
+          <path d="M234 104V97Q234 94.5 236 94Q238 94.5 238 97V104Z" />
+          <path d="M243 104V97Q243 94.5 245 94Q247 94.5 247 97V104Z" />
+          <path d="M175 106V100Q175 98 177 97.6Q179 98 179 100V106Z" />
+          <path d="M181 106V100Q181 98 183 97.6Q185 98 185 100V106Z" />
+          <path d="M263 106V100Q263 98 265 97.6Q267 98 267 100V106Z" />
+          <path d="M269 106V100Q269 98 271 97.6Q273 98 273 100V106Z" />
+          <rect x="148" y="48" width="2" height="6" rx="1" />
+          <rect x="148" y="70" width="2" height="6" rx="1" />
+          <rect x="302.5" y="46" width="2" height="6" rx="1" />
+          <rect x="302.5" y="88" width="2" height="6" rx="1" />
+        </g>
       </g>
-      {/* Croissant au sommet de la grande coupole. */}
-      <path className="ciel-croissant" d="M224 26.5a4.2 4.2 0 1 0 3 7.2 3.3 3.3 0 1 1 -3-7.2z" />
-      <rect className="ciel-lanterne" x="301.9" y="66" width="3" height="6" rx="1.5" />
-      {/* Fenêtres en arc : lumière chaude la nuit, le ciel au travers le jour. */}
-      <g className="ciel-fenetres">
-        <path d="M201 104V97Q201 94.5 203 94Q205 94.5 205 97V104Z" />
-        <path d="M210 104V97Q210 94.5 212 94Q214 94.5 214 97V104Z" />
-        <path d="M219 104V97Q219 94.5 221 94Q223 94.5 223 97V104Z" />
-        <path d="M225 104V97Q225 94.5 227 94Q229 94.5 229 97V104Z" />
-        <path d="M234 104V97Q234 94.5 236 94Q238 94.5 238 97V104Z" />
-        <path d="M243 104V97Q243 94.5 245 94Q247 94.5 247 97V104Z" />
-        <path d="M175 106V100Q175 98 177 97.6Q179 98 179 100V106Z" />
-        <path d="M181 106V100Q181 98 183 97.6Q185 98 185 100V106Z" />
-        <path d="M263 106V100Q263 98 265 97.6Q267 98 267 100V106Z" />
-        <path d="M269 106V100Q269 98 271 97.6Q273 98 273 100V106Z" />
-        <rect x="148" y="48" width="2" height="6" rx="1" />
-        <rect x="148" y="70" width="2" height="6" rx="1" />
-        <rect x="302.5" y="46" width="2" height="6" rx="1" />
-        <rect x="302.5" y="88" width="2" height="6" rx="1" />
-      </g>
+      <rect className="ciel-sol" x="-20" y="128" width="400" height="10" />
     </>
   );
 }

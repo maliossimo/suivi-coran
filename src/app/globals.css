@@ -17337,3 +17337,7 @@ html[data-haut-cache] .barre-vivante::after {
   fill: #f1d6a0;
   opacity: 0.6;
 }
+/* Le sol de la ville (sorti de la mosquée réduite) garde la couleur des silhouettes. */
+.ciel-sol {
+  fill: color-mix(in srgb, var(--ciel) 70%, var(--ciel-ombre));
+}
