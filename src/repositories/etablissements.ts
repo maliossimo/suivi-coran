@@ -77,6 +77,24 @@ export const horairesMosquee = cache(
   },
 );
 
+/**
+ * Mosquée dont les heures (Mawaqit) servent au ciel d'un compte qui n'est rattaché à aucun établissement
+ * (l'admin) : la dernière importée ; null s'il n'y en a aucune (le ciel reste alors au calcul).
+ */
+export const etablissementAvecHoraires = cache(async (): Promise<string | null> => {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("etablissements")
+    .select("id")
+    .not("mawaqit", "is", null)
+    .not("mawaqit_importe_le", "is", null)
+    .order("mawaqit_importe_le", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  return (data as { id: string }).id;
+});
+
 export interface LienMawaqit {
   adresse: string;
   importeLe: string | null;

@@ -102,6 +102,7 @@ function ResumeMois({ fiche }: { fiche: Fiche }) {
   const pourcentage = ecoules ? (fiche.joursTravailles / ecoules) * 100 : 0;
   const avecObjectif = fiche.semaines.filter((s) => s.objectif);
   const serie = fiche.duJour?.serie ?? 0;
+  const pourcentageEntier = Math.round(pourcentage);
   return (
     <section className="resume-mois" aria-label="Résumé du mois">
       <div className="resume-anneau">
@@ -118,6 +119,7 @@ function ResumeMois({ fiche }: { fiche: Fiche }) {
             jour{fiche.joursTravailles > 1 ? "s" : ""} travaillé{fiche.joursTravailles > 1 ? "s" : ""}
             {fiche.position === "courant" ? " depuis le 1er" : " dans le mois"}
           </small>
+          {ecoules ? <em className="resume-pourcentage">{pourcentageEntier} % du mois</em> : null}
         </span>
       </div>
       <ul className="resume-tuiles">
@@ -133,13 +135,14 @@ function ResumeMois({ fiche }: { fiche: Fiche }) {
           </strong>
           <span>verset{fiche.versetsTravailles > 1 ? "s" : ""}</span>
         </li>
-        {fiche.duJour ? (
-          <li className={serie > 0 ? "tuile-serie est-allumee" : "tuile-serie"}>
+        {/* La flamme n'apparaît qu'à partir de 2 jours d'affilée : seul, un jour n'est pas une série. */}
+        {serie >= 2 ? (
+          <li className="tuile-serie est-allumee">
             <Flame size={18} aria-hidden="true" />
             <strong>
               <Compteur valeur={serie} />
             </strong>
-            <span>jour{serie > 1 ? "s" : ""} d’affilée</span>
+            <span>jours d’affilée</span>
           </li>
         ) : null}
         {avecObjectif.length ? (
