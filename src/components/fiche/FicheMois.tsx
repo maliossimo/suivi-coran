@@ -189,8 +189,10 @@ export function FicheMois({
                 Semaine {semaine.numero}
                 {courante ? <span className="semaine-badge">Cette semaine</span> : null}
               </h3>
-              <span>
-                {libelleJourCourt(semaine.jours[0]!.date)} → {libelleJourCourt(semaine.jours.at(-1)!.date)} ·{" "}
+              <span className="semaine-dates">
+                {libelleJourCourt(semaine.jours[0]!.date)} → {libelleJourCourt(semaine.jours.at(-1)!.date)}
+              </span>
+              <span className={semaine.totalMinutes || aVenir ? "semaine-bilan" : "semaine-bilan vide"}>
                 {aVenir
                   ? `${semaine.jours.length} jours`
                   : semaine.totalMinutes
@@ -287,6 +289,7 @@ export function FicheMois({
         <FormulaireObjectif
           key={`${fiche.type}-mois-${fiche.objectifMensuel?.statut ?? ""}`}
           titre="Objectif du mois"
+          titreVisible={false}
           objectif={fiche.objectifMensuel}
           eleveId={eleveId}
           type={fiche.type}
@@ -462,7 +465,8 @@ function AccueilPremiereFois({
   if (vueMaitre) {
     return (
       <p className="accueil-premiere-fois accueil-cheikh">
-        Cet élève n’a encore saisi aucune séance. Sa fiche se remplira au fil de ses saisies.
+        <BookOpen size={22} aria-hidden="true" />
+        <span>Cet élève n’a encore saisi aucune séance. Sa fiche se remplira au fil de ses saisies.</span>
       </p>
     );
   }
