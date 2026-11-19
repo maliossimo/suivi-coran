@@ -8,6 +8,7 @@ import { RemonterEnHaut } from "@/components/RemonterEnHaut";
 import { Prechargement } from "@/components/Prechargement";
 import { OuvertureEnPage } from "@/components/OuvertureEnPage";
 import { Fluidite } from "@/components/Fluidite";
+import { TransitionPages } from "@/components/TransitionPages";
 import { TirerPourRafraichir } from "@/components/TirerPourRafraichir";
 import { BarreNavigation } from "@/components/BarreNavigation";
 import { RafraichirCopies } from "@/components/RafraichirCopies";
@@ -161,6 +162,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <BandeauNotification />
         <OuvertureEnPage />
         <Fluidite />
+        <TransitionPages />
         <RemonterEnHaut />
         <Prechargement />
         <TirerPourRafraichir />
