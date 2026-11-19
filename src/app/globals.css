@@ -14927,7 +14927,6 @@ ul.apercu-liste li {
   --ciel-astre: #d9a93f;
   --ciel-lune: #b98a2c;
   --ciel-etoile: #b98a2c;
-  --ciel-nuage: #ffffff;
   --frise-fond: #efe4cc;
 }
 .nav-espace {
@@ -14966,7 +14965,6 @@ ul.apercu-liste li {
   --ciel-astre: #f6d77a;
   --ciel-lune: #f6eedb;
   --ciel-etoile: #f6eedb;
-  --ciel-nuage: #ffffff;
   --frise-fond: #0f1a16;
 }
 :where(:root[data-theme="sombre"]) .nav-espace {
@@ -15031,23 +15029,7 @@ ul.apercu-liste li {
   fill: var(--ciel-lune);
   opacity: 0.08;
 }
-.ciel-nuages {
-  fill: var(--ciel-nuage);
-  opacity: 0;
-  transition: opacity 1.2s;
-}
-.ciel-nuages ellipse {
-  animation: ciel-vent 40s linear infinite;
-}
-.ciel-nuages ellipse + ellipse {
-  animation-duration: 55s;
-  animation-delay: -22s;
-}
-.ciel[data-moment="jour"] .ciel-nuages {
-  opacity: 0.16;
-}
-
-.ciel-etoiles {
+.ciel[data-moment="jour"] .ciel-etoiles {
   opacity: 0;
   transition: opacity 1.2s;
 }
@@ -15105,14 +15087,6 @@ ul.apercu-liste li {
 @keyframes ciel-scintille {
   50% {
     opacity: 0.15;
-  }
-}
-@keyframes ciel-vent {
-  from {
-    transform: translateX(-140px);
-  }
-  to {
-    transform: translateX(420px);
   }
 }
 
@@ -15900,7 +15874,20 @@ body:has(.barre-vivante) {
   height: 100%;
   width: auto;
   aspect-ratio: 220 / 64;
+  /* à gauche du bouton « remonter » : il ne cache plus la mosquée */
+  right: 58px;
   max-width: 70%;
+}
+/* Le sol, d'un bord à l'autre (comme dans le grand ciel) : plus de marche ni de couture. */
+.ciel-mini-terre {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 25%;
+  background-color: var(--ville);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ciel-or) 70%, transparent);
+  transition: background-color 1.2s ease;
 }
 .barre-compacte::before {
   content: none;
@@ -16800,7 +16787,7 @@ body::before {
     radial-gradient(90% 50% at 100% 100%, var(--ambiance-2), transparent 70%), var(--motif-doux), var(--fond);
 }
 
-/* Animations à l'intérieur des dessins (étoiles, plans de la ville, halo, lanternes, nuages) :
+/* Animations à l'intérieur des dessins (étoiles, plans de la ville, halo, lanternes) :
    par petits pas, quelques images par seconde au lieu de 60 ; l'œil n'y voit aucune différence. */
 .ciel-etoiles circle {
   animation-timing-function: steps(10);
@@ -16814,9 +16801,6 @@ body::before {
 }
 .ciel-fanous-un {
   animation-timing-function: steps(16);
-}
-.ciel-nuages ellipse {
-  animation-timing-function: steps(320);
 }
 /* Le motif qui dérive : déplacé par la carte graphique. */
 .ciel-motif {
@@ -17187,11 +17171,12 @@ html[data-haut-cache] .barre-vivante::after {
    l'heure, la nuit en trois temps (après le Maghrib, nuit profonde, dernier tiers de la nuit),
    titres et boutons qui ne passent plus sur la mosquée
    ===================================================================== */
-/* ---------- Le dessin : trois calques superposés (étoiles et nuages, astre, ville) ---------- */
+/* ---------- Le dessin : trois calques superposés (étoiles, astre, ville) ---------- */
 .ciel > .ciel-scene {
   position: absolute;
   right: 38px;
-  bottom: 0;
+  /* remontée de 7px : la ligne des dates tient tout entière sous l'horizon */
+  bottom: 7px;
   /* Le dessin remplit la barre sous l'heure et la batterie du téléphone ; il se pose entre le titre (à
      gauche) et le bouton du compte (à droite). */
   height: calc(100% - env(safe-area-inset-top, 0px));
@@ -17244,24 +17229,13 @@ html[data-haut-cache] .barre-vivante::after {
   stroke-width: 0.5;
   stroke-linecap: round;
 }
-/* Version miniature : le sol est dans le dessin et dépasse de chaque côté. */
-.ciel-mini-scene {
-  overflow: visible;
-}
-.cv-sol {
-  fill: var(--ville);
-}
-.cv-horizon-ligne {
-  fill: none;
-  stroke-width: 1;
-}
 /* Le sol, sur toute la largeur de la barre : c'est lui qui porte la ligne des dates. */
 .cv-terre {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: calc((100% - env(safe-area-inset-top, 0px)) * 41 / 138);
+  height: calc((100% - env(safe-area-inset-top, 0px)) * 41 / 138 + 7px);
   background-color: var(--ville);
   transition: background-color 1.2s ease;
 }
@@ -17395,6 +17369,13 @@ html[data-haut-cache] .barre-vivante::after {
 .barre-titre-ar[data-taille] + .barre-titre-fr {
   font-size: 9.5px;
   letter-spacing: 0.14em;
+}
+/* Titre français long (« Administration ») : plus serré, pour finir avant la mosquée. */
+@media (max-width: 760px) {
+  .barre-titre-fr[data-long] {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
 }
 @media (max-width: 520px) {
   /* La salutation passe sur deux lignes : le prénom sous « السلام عليكم ». */
