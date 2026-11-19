@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.64.0] — 2026-11-19
+
+### Modifié
+
+- Résumé du mois : la tuile « jours d'affilée » n'apparaît qu'à partir de 2 jours d'affilée (un seul jour n'est pas une série).
+- Résumé du mois mieux présenté : l'anneau de régularité en tête avec le pourcentage du mois, puis des tuiles de même taille (icône dans une pastille colorée, chiffres plus lisibles) ; avec un nombre impair de tuiles, la dernière prend toute la largeur.
+- Barre compacte : la mosquée et le soleil passent en arrière-plan, le nom et le sous-titre restent lisibles par-dessus.
+
 ## [1.63.1] — 2026-11-19
 
 ### Corrigé

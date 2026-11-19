@@ -17432,3 +17432,80 @@ html[data-haut-cache] .barre-vivante::after {
     color: var(--nav-or);
   }
 }
+
+/* =====================================================================
+   Résumé du mois (1.64) : l'anneau en tête, les chiffres en tuiles régulières
+   ===================================================================== */
+.resume-mois {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 16px;
+}
+.resume-anneau {
+  flex: none;
+  gap: 16px;
+}
+.resume-anneau-texte {
+  gap: 2px;
+  min-width: 0;
+}
+.resume-anneau-texte b {
+  font-size: 19px;
+}
+.resume-pourcentage {
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--vert-texte) 14%, transparent);
+  color: var(--vert-texte);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+}
+.resume-tuiles {
+  flex: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+/* Nombre impair de tuiles : la dernière prend toute la largeur au lieu de laisser un trou. */
+.resume-tuiles li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+.resume-tuiles li {
+  column-gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+}
+/* L'icône dans une pastille, pour que les quatre tuiles se lisent d'un coup d'œil. */
+.resume-tuiles li > svg {
+  box-sizing: content-box;
+  padding: 9px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--vert-texte) 14%, transparent);
+  color: var(--vert-texte);
+}
+.resume-tuiles li > strong {
+  font-size: 22px;
+}
+.resume-tuiles li > span {
+  font-size: 12.5px;
+}
+.resume-tuiles li:nth-child(2) > svg {
+  background: color-mix(in srgb, var(--or, #d6af5c) 20%, transparent);
+  color: var(--or-texte, #b8891f);
+}
+.resume-tuiles .tuile-serie > svg {
+  background: color-mix(in srgb, #e8833a 18%, transparent);
+  color: #e2702a;
+}
+
+/* Barre compacte : la mosquée et le soleil restent en arrière-plan, le titre et le sous-titre passent
+   par-dessus sans se mêler à eux. */
+.barre-compacte > .ciel-mini .ciel-mini-scene {
+  opacity: 0.42;
+}
+.barre-compacte-textes {
+  text-shadow: 0 1px 6px color-mix(in srgb, var(--ciel-haut, #000) 80%, transparent);
+}
