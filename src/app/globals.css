@@ -17508,6 +17508,7 @@ html[data-haut-cache] .barre-vivante::after {
 }
 .barre-compacte-textes {
   text-shadow: 0 1px 6px color-mix(in srgb, var(--ciel-haut, #000) 80%, transparent);
+}
 
 /* Heures de prière calculées (pas celles de la mosquée) : un « ≈ » discret après le temps de prière. */
 .barre-dates-calcul {
