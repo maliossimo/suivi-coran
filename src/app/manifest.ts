@@ -14,8 +14,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#1D5C47",
-    theme_color: "#174D3B",
+    background_color: "#0E1613",
+    theme_color: "#0E1613",
     // Permet au site de savoir si l'appli est déjà installée sur le téléphone (Chrome Android).
     related_applications: [
       { platform: "webapp", url: `${envPublic.NEXT_PUBLIC_SITE_URL}/manifest.webmanifest` },
