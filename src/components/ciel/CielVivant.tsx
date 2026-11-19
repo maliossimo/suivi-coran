@@ -187,7 +187,8 @@ export function CielDates({
   maintenant,
   dateFrancaise,
   dateHegirienneArabe,
-}: CielProps & { dateFrancaise: string; dateHegirienneArabe: string | null }) {
+  source,
+}: CielProps & { dateFrancaise: string; dateHegirienneArabe: string | null; source?: "mosquee" | "calcul" }) {
   const { minutes, fixe } = useMinutes(maintenant);
   const fete = fixe ? null : particulier;
   return (
@@ -197,6 +198,14 @@ export function CielDates({
         <span className="barre-dates-temps" lang="ar" dir="rtl">
           {fete ? LIBELLE_JOUR_PARTICULIER[fete] : tempsDePriere(minutes, horaires)}
         </span>
+        {source === "calcul" ? (
+          <abbr
+            className="barre-dates-calcul"
+            title="Heures calculées : le calendrier de la mosquée n'est pas importé"
+          >
+            ≈
+          </abbr>
+        ) : null}
       </span>
       {dateHegirienneArabe ? (
         <span className="barre-dates-hegire" lang="ar" dir="rtl">

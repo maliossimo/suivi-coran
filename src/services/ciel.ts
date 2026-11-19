@@ -2,7 +2,11 @@ import "server-only";
 import { jourParticulier, type JourParticulier } from "@/domain/ciel";
 import { dateHegirienne, libelleHegirienArabe } from "@/domain/hegire";
 import { COORDONNEES_PAR_DEFAUT, horairesPriere, minutesParis, type HorairesPriere } from "@/domain/priere";
-import { horairesMosquee, positionEtablissement } from "@/repositories/etablissements";
+import {
+  etablissementAvecHoraires,
+  horairesMosquee,
+  positionEtablissement,
+} from "@/repositories/etablissements";
 import { aujourdhuiParis } from "./fiche";
 
 export interface DonneesCiel {
@@ -29,8 +33,10 @@ const DATE_FR = new Intl.DateTimeFormat("fr-FR", {
 });
 
 /** Ciel du jour pour la barre du haut : heures de prière de la mosquée (Paris par défaut), lune, fête. */
-export async function chargerCiel(etablissementId: string | null): Promise<DonneesCiel> {
+export async function chargerCiel(compteEtablissementId: string | null): Promise<DonneesCiel> {
   const jour = aujourdhuiParis();
+  // Un compte sans établissement (l'admin) prend la mosquée dont les heures sont importées, au lieu du calcul.
+  const etablissementId = compteEtablissementId ?? (await etablissementAvecHoraires().catch(() => null));
   const [, mois, jourDuMois] = jour.split("-").map(Number) as [number, number, number];
   const [position, deLaMosquee] = etablissementId
     ? await Promise.all([
