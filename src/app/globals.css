@@ -15023,14 +15023,7 @@ ul.apercu-liste li {
   opacity: var(--ciel-halo-opacite);
   animation: ciel-respire 8s ease-in-out infinite;
 }
-.ciel-soleil {
-  fill: var(--ciel-astre);
-  opacity: 0.9;
-}
-.ciel-soleil-bas {
-  fill: var(--ciel-halo);
-  opacity: 0.85;
-}
+
 .ciel-lune-disque {
   fill: var(--ciel-lune);
 }
@@ -15068,31 +15061,7 @@ ul.apercu-liste li {
 .ciel[data-moment="fajr"] .ciel-etoiles {
   opacity: 0.5;
 }
-.ciel-filante {
-  stroke: var(--ciel-etoile);
-  stroke-width: 1.2;
-  stroke-linecap: round;
-  stroke-dasharray: 0 60;
-  opacity: 0;
-  animation: ciel-filante 11s ease-out infinite;
-}
-.ciel-loin {
-  fill: color-mix(in srgb, var(--ciel) 86%, var(--ciel-ombre));
-  animation: ciel-plan-loin 16s ease-in-out infinite alternate;
-}
-.ciel-pres {
-  fill: color-mix(in srgb, var(--ciel) 70%, var(--ciel-ombre));
-  animation: ciel-plan-pres 16s ease-in-out infinite alternate;
-}
-.ciel-lanterne {
-  fill: #ffcf6b;
-  opacity: 0;
-  transition: opacity 1.2s;
-}
-.ciel:is([data-moment="fajr"], [data-moment="maghrib"], [data-moment="nuit"]) .ciel-lanterne {
-  opacity: 1;
-  animation: ciel-flamme 2.2s ease-in-out infinite;
-}
+
 /* Jours particuliers */
 .ciel[data-particulier="vendredi"] .ciel-halo-degrade {
   color: #e9c873;
@@ -15146,36 +15115,7 @@ ul.apercu-liste li {
     transform: translateX(420px);
   }
 }
-@keyframes ciel-filante {
-  0%,
-  80% {
-    stroke-dasharray: 0 60;
-    stroke-dashoffset: 0;
-    opacity: 0;
-  }
-  82% {
-    opacity: 1;
-  }
-  94% {
-    stroke-dasharray: 18 60;
-    stroke-dashoffset: -40;
-    opacity: 0.9;
-  }
-  100% {
-    stroke-dashoffset: -60;
-    opacity: 0;
-  }
-}
-@keyframes ciel-plan-loin {
-  to {
-    transform: translateX(-4px);
-  }
-}
-@keyframes ciel-plan-pres {
-  to {
-    transform: translateX(-10px);
-  }
-}
+
 @keyframes ciel-flamme {
   50% {
     opacity: 0.55;
@@ -15892,10 +15832,7 @@ html[data-ouverture] .ouverture-calligraphie {
   fill: #faf3e0;
 }
 /* Soleil et lune : une vraie lueur, un disque modelé, quelques mers sur la lune. */
-.ciel-soleil,
-.ciel-soleil-bas {
-  fill: none;
-}
+
 .ciel-lune-disque {
   fill: url(#lune-modele);
 }
@@ -16610,27 +16547,7 @@ html {
     var(--ciel-actuel, transparent)
   );
 }
-/* Coupoles et minarets bordés d'or, fenêtres allumées. */
-.ciel-pres > * {
-  stroke: color-mix(in srgb, var(--ciel-or) 75%, transparent);
-  stroke-width: 0.9;
-}
-.ciel-loin > * {
-  stroke: color-mix(in srgb, var(--ciel-or) 35%, transparent);
-  stroke-width: 0.7;
-}
-.ciel-fenetres {
-  fill: #f3d27c;
-  opacity: 0;
-  transition: opacity 1.2s;
-}
-.ciel[data-moment="nuit"] .ciel-fenetres,
-.ciel[data-moment="maghrib"] .ciel-fenetres {
-  opacity: 0.9;
-}
-.ciel[data-moment="fajr"] .ciel-fenetres {
-  opacity: 0.5;
-}
+
 .ciel-lune-halo {
   fill: url(#lune-lueur);
   opacity: 1;
@@ -16844,13 +16761,6 @@ html {
   }
 }
 
-/* 1.58.1 : téléphone — la ville se décale pour que le minaret ne passe pas derrière l'avatar. */
-@media (max-width: 760px) {
-  .barre-vivante > .ciel > .ciel-scene {
-    right: 52px;
-  }
-}
-
 /* 1.58.2 : la barre du bas a grandi (vague, nom arabe) : le lecteur du Coran, la barre « Enregistrer »
    et le bouton « remonter » passent au-dessus, le contenu garde sa marge. */
 @media (max-width: 760px) {
@@ -16895,14 +16805,10 @@ body::before {
 .ciel-etoiles circle {
   animation-timing-function: steps(10);
 }
-.ciel-loin,
-.ciel-pres {
-  animation-timing-function: steps(32);
-}
+
 .ciel-halo {
   animation-timing-function: steps(16);
 }
-.ciel:is([data-moment="fajr"], [data-moment="maghrib"], [data-moment="nuit"]) .ciel-lanterne,
 .ciel-fanous-flamme {
   animation-timing-function: steps(6);
 }
@@ -17142,28 +17048,7 @@ html[data-haut-cache] .barre-vivante::after {
    1.61 : barres plus sobres ; vrai soleil, vraie lune
    ===================================================================== */
 /* ---------- Barre du haut ---------- */
-/* La ville : silhouette unie ; seul le haut de la grande coupole et du minaret est bordé d'or. */
-.ciel-pres > *,
-.ciel-loin > * {
-  stroke: none;
-}
-.ciel-lisere {
-  fill: none;
-  stroke: color-mix(in srgb, var(--ciel-or) 80%, transparent);
-  stroke-width: 1.1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-/* Fenêtres plus douces, le soir et la nuit seulement. */
-.ciel[data-moment="nuit"] .ciel-fenetres {
-  opacity: 0.55;
-}
-.ciel[data-moment="maghrib"] .ciel-fenetres {
-  opacity: 0.35;
-}
-.ciel[data-moment="fajr"] .ciel-fenetres {
-  opacity: 0.2;
-}
+
 /* Le motif du ciel ne dérive plus, à peine visible. */
 .ciel-motif {
   animation: none;
@@ -17298,46 +17183,271 @@ html[data-haut-cache] .barre-vivante::after {
 }
 
 /* =====================================================================
-   1.62 : la mosquée redessinée, bordée d'or ; ses fenêtres vivent avec l'heure
+   1.63 : le ciel redessiné — la mosquée et sa ville, le vrai soleil et la vraie lune qui suivent
+   l'heure, la nuit en trois temps (après le Maghrib, nuit profonde, dernier tiers de la nuit),
+   titres et boutons qui ne passent plus sur la mosquée
    ===================================================================== */
-.ciel-pres > * {
-  stroke: color-mix(in srgb, var(--ciel-or) 75%, transparent);
-  stroke-width: 0.8;
+/* ---------- Le dessin : trois calques superposés (étoiles et nuages, astre, ville) ---------- */
+.ciel > .ciel-scene {
+  position: absolute;
+  right: 38px;
+  bottom: 0;
+  /* Le dessin remplit la barre sous l'heure et la batterie du téléphone ; il se pose entre le titre (à
+     gauche) et le bouton du compte (à droite). */
+  height: calc(100% - env(safe-area-inset-top, 0px));
+  width: auto;
+  aspect-ratio: 360 / 138;
+  /* Collines et toits lointains dépassent du dessin, de chaque côté, jusqu'au bord de la barre. */
+  overflow: visible;
+}
+.ciel > .cv-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.ciel {
+  --ville: color-mix(in srgb, var(--ciel) 68%, var(--ciel-ombre));
+  --ville-loin: color-mix(in srgb, var(--ciel) 84%, var(--ciel-ombre));
+  --ville-colline: color-mix(in srgb, var(--ciel) 92%, var(--ciel-ombre));
+}
+.cv-colline {
+  fill: var(--ville-colline);
+}
+.cv-loin {
+  fill: var(--ville-loin);
+}
+.cv-tronc,
+.cv-palmes {
+  fill: none;
+  stroke: var(--ville-loin);
+  stroke-linecap: round;
   stroke-linejoin: round;
 }
-.ciel-loin > * {
-  stroke: color-mix(in srgb, var(--ciel-or) 30%, transparent);
-  stroke-width: 0.6;
+.cv-tronc {
+  stroke-width: 1.8;
 }
-.ciel-croissant {
+.cv-palmes {
+  stroke-width: 1.5;
+}
+.cv-mosquee path {
+  fill: var(--ville);
+  stroke: color-mix(in srgb, var(--ciel-or) 75%, transparent);
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+}
+.cv-croissant {
   fill: var(--ciel-or);
 }
-/* Le jour, les fenêtres laissent voir le ciel, comme du verre. */
-.ciel-fenetres {
-  fill: color-mix(in srgb, var(--ciel-haut, var(--ciel)) 70%, #ffffff 12%);
-  opacity: 0.75;
-  stroke: color-mix(in srgb, var(--ciel-or) 55%, transparent);
-  stroke-width: 0.4;
+.cv-detail {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ciel-or) 40%, transparent);
+  stroke-width: 0.5;
+  stroke-linecap: round;
+}
+/* Version miniature : le sol est dans le dessin et dépasse de chaque côté. */
+.ciel-mini-scene {
+  overflow: visible;
+}
+.cv-sol {
+  fill: var(--ville);
+}
+.cv-horizon-ligne {
+  fill: none;
+  stroke-width: 1;
+}
+/* Le sol, sur toute la largeur de la barre : c'est lui qui porte la ligne des dates. */
+.cv-terre {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc((100% - env(safe-area-inset-top, 0px)) * 41 / 138);
+  background-color: var(--ville);
+  transition: background-color 1.2s ease;
+}
+.cv-terre::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ciel-or) 80%, transparent) 15%,
+    color-mix(in srgb, var(--ciel-or) 80%, transparent) 85%,
+    transparent
+  );
+}
+/* Rayons du soleil, un peu plus lumineux que sa couronne. */
+.cv-rayons {
+  fill: #ffe9a0;
+}
+
+/* ---------- Les fenêtres : du verre le jour, de la lumière le soir et la nuit ---------- */
+.cv-fenetre {
+  fill: color-mix(in srgb, var(--ciel-haut, var(--ciel)) 62%, #ffffff 14%);
+  opacity: 0.62;
   transition:
     fill 1.2s ease,
     opacity 1.2s ease;
 }
-/* La nuit, une lumière chaude passe par les fenêtres ; à moitié au Maghrib et à l'aube. */
-.ciel[data-moment="nuit"] .ciel-fenetres {
+/* Au coucher : toutes allumées. */
+.ciel[data-moment="maghrib"] .cv-fenetre {
+  fill: #f2bd6a;
+  opacity: 0.92;
+}
+/* À l'aube : la porte, les minarets et le tambour, doucement. */
+.ciel[data-moment="fajr"] .cv-fenetre:is([data-g="p"], [data-g="m"], [data-g="t"]) {
+  fill: #f1d6a0;
+  opacity: 0.7;
+}
+/* Nuit profonde : la mosquée s'endort, il reste la porte, les minarets et deux fenêtres. */
+.ciel[data-moment="nuit"] .cv-fenetre:is([data-g="p"], [data-g="m"], [data-g="l2"], [data-g="r3"]) {
   fill: #f6cf73;
   opacity: 0.95;
-  filter: drop-shadow(0 0 1.6px rgba(246, 207, 115, 0.85));
 }
-.ciel[data-moment="maghrib"] .ciel-fenetres {
-  fill: #f2bd6a;
-  opacity: 0.8;
-  filter: drop-shadow(0 0 1.2px rgba(242, 189, 106, 0.6));
+/* Dernier tiers de la nuit : quelques fenêtres se rallument, comme chez ceux qui se lèvent pour prier. */
+.ciel[data-nuit="tahajjud"] .cv-fenetre:is([data-g="t"], [data-g="l1"], [data-g="r2"]) {
+  fill: #f6cf73;
+  opacity: 0.95;
 }
-.ciel[data-moment="fajr"] .ciel-fenetres {
-  fill: #f1d6a0;
-  opacity: 0.6;
+.ciel[data-nuit="tahajjud"] .cv-fenetre:is([data-g="l2"], [data-g="r3"]) {
+  fill: color-mix(in srgb, var(--ciel-haut, var(--ciel)) 62%, #ffffff 14%);
+  opacity: 0.62;
 }
-/* Le sol de la ville (sorti de la mosquée réduite) garde la couleur des silhouettes. */
-.ciel-sol {
-  fill: color-mix(in srgb, var(--ciel) 70%, var(--ciel-ombre));
+
+/* ---------- Les étoiles : de plus en plus nombreuses au fil de la nuit ---------- */
+.cv-rang {
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+.cv-rang circle {
+  fill: var(--ciel-etoile);
+  animation: ciel-scintille 3s steps(10) infinite;
+}
+.ciel[data-moment="fajr"] .cv-rang[data-r="1"] {
+  opacity: 0.45;
+}
+.ciel[data-moment="maghrib"] .cv-rang[data-r="0"] {
+  opacity: 0.7;
+}
+.ciel[data-moment="nuit"] .cv-rang:is([data-r="0"], [data-r="1"]) {
+  opacity: 1;
+}
+.ciel[data-nuit="profonde"] .cv-rang[data-r="2"],
+.ciel[data-nuit="tahajjud"] .cv-rang:is([data-r="2"], [data-r="3"]) {
+  opacity: 1;
+}
+/* Dernier tiers de la nuit : un ciel plus profond, bleuté, qui annonce l'aube. */
+.ciel[data-nuit="tahajjud"] {
+  --ciel-haut: #04060e;
+  --ciel: #19212f;
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) .ciel[data-nuit="tahajjud"] {
+    --ciel-haut: #000207;
+    --ciel: #0d1a26;
+  }
+}
+:where(:root[data-theme="sombre"]) .ciel[data-nuit="tahajjud"] {
+  --ciel-haut: #000207;
+  --ciel: #0d1a26;
+}
+
+/* Le sol du dessin porte la ligne des dates : plus besoin du voile derrière elle. */
+.barre-vivante .barre-dates {
+  background: none;
+}
+
+/* ---------- Titre et boutons : jamais sur la mosquée ---------- */
+/* Le titre reste à gauche du ciel de la mosquée ; les titres longs rapetissent. */
+@media (max-width: 760px) {
+  .barre-vivante .barre-titres {
+    max-width: max(96px, calc(100vw - 258px));
+  }
+}
+.barre-titre-ar[data-taille="moyen"] {
+  font-size: 25px;
+}
+.barre-titre-ar[data-taille="long"] {
+  font-size: 20px;
+}
+.barre-vivante .barre-titres,
+.barre-vivante .barre-titre-zone,
+.barre-vivante .barre-titre-double {
+  min-width: 0;
+  max-width: 100%;
+}
+.barre-vivante .barre-titre-double {
+  grid-template-columns: minmax(0, 100%);
+}
+.barre-titre-ar,
+.barre-titre-fr {
+  white-space: nowrap;
+}
+.barre-titre-fr {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.barre-titre-ar[data-taille] + .barre-titre-fr {
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+}
+@media (max-width: 520px) {
+  /* La salutation passe sur deux lignes : le prénom sous « السلام عليكم ». */
+  .barre-salutation {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .barre-salutation-arabe {
+    font-size: 18px;
+  }
+  .barre-salutation-prenom {
+    font-size: 14px;
+  }
+}
+/* Les deux étoiles du haut (ق et le compte) sont des lanternes suspendues au bord du ciel. */
+.barre-vivante .barre-logo::before,
+.barre-vivante .avatar-etoile::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 0.5px);
+  bottom: calc(100% - 3px);
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--ciel-or) 70%, transparent));
+  pointer-events: none;
+}
+
+/* ---------- Transition douce entre deux pages (voir TransitionPages) ---------- */
+::view-transition-group(root) {
+  animation-duration: 0.2s;
+  animation-timing-function: ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ---------- Barre du bas : les noms arabes redeviennent lisibles ---------- */
+@media (max-width: 760px) {
+  .nav-espace .nav-onglet .nav-ar,
+  .nav-espace .nav-plus .nav-ar,
+  .nav-espace .nav-mihrab .nav-ar {
+    font-size: 12.5px;
+    opacity: 0.95;
+    color: var(--nav-texte);
+  }
+  .nav-espace .nav-onglet[aria-current="page"] .nav-ar,
+  .nav-espace .nav-plus[data-actif] .nav-ar {
+    opacity: 1;
+    color: var(--nav-or);
+  }
 }

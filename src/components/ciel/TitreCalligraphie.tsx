@@ -9,9 +9,11 @@ import { titreArabe } from "@/domain/ciel";
 export function TitreCalligraphie({ titre, sousTitre }: { titre: string; sousTitre?: string }) {
   const ar = titreArabe(titre);
   if (!ar) return <span className="barre-titre">{sousTitre ?? titre}</span>;
+  // Les titres longs rapetissent : le titre reste dans sa zone, à gauche du ciel de la mosquée.
+  const taille = ar.length > 10 ? "long" : ar.length > 7 ? "moyen" : undefined;
   return (
     <span className="barre-titre barre-titre-double">
-      <span className="barre-titre-ar" lang="ar" dir="rtl">
+      <span className="barre-titre-ar" lang="ar" dir="rtl" data-taille={taille}>
         {ar}
       </span>
       <span className="barre-titre-fr">{sousTitre ?? titre}</span>
