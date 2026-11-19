@@ -9,6 +9,23 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.63.0] — 2026-11-19
+
+### Ajouté
+
+- Le soleil et la lune suivent l'heure réelle : le soleil se lève au Chourouq, passe au-dessus de la grande coupole à midi et se couche au Maghrib (gros et orangé près de l'horizon, petit, blanc et rayonnant en haut) ; la lune prend le relais et traverse le ciel jusqu'à l'aube.
+- La nuit en trois temps : le soir (fenêtres allumées, premières étoiles), la nuit profonde après l'Icha (la mosquée s'endort, il reste la porte, les minarets et deux fenêtres, plus d'étoiles), puis le dernier tiers de la nuit (ciel bleuté, ciel le plus étoilé, quelques fenêtres se rallument pour ceux qui se lèvent prier). Pas d'étoile filante.
+- Transition douce (fondu court) quand on passe d'une page à une autre, sur les navigateurs qui le permettent ; elle ne bloque jamais la navigation.
+- Écrans de chargement (squelettes) pour « Ma mosquée », « Nouveautés », l'appel, la création et le rapport de présences.
+
+### Modifié
+
+- La mosquée est redessinée : grande coupole sur son tambour, porche, deux petites coupoles, deux minarets à balcons, deux annexes, avec des collines, des toits et des palmiers au loin, et un sol sur toute la largeur qui porte la ligne des dates.
+- Les lumières restent toujours dans les bâtiments : chaque fenêtre est découpée dans la forme de la mosquée (plus de lumière qui flotte à côté).
+- Le titre ne passe plus sur la mosquée : il reste à gauche du ciel (les titres longs rapetissent) ; les deux étoiles du haut (ق et le compte) deviennent des lanternes suspendues au bord du ciel, de chaque côté de la mosquée.
+- Les noms arabes de la barre du bas sont plus grands et bien lisibles.
+- Le CSS du ciel est nettoyé : les anciennes règles empilées (fenêtres, ville, soleil) sont retirées, au profit d'un seul bloc.
+
 ## [1.62.0] — 2026-11-18
 
 ### Modifié
