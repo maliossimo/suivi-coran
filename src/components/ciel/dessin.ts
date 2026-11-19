@@ -191,7 +191,20 @@ function toits(blocs: [number, number, number, boolean][], decalage = 0): string
     .join("");
 }
 
-/** La ville : du plus loin (collines, toits) au plus près (mosquée). Le sol est à part (SOL_SVG, ou le CSS). */
+/** La mosquée seule (sans collines ni palmiers) : le grand ciel la place dans la ville, la miniature seule. */
+function mosquee(): string {
+  return [
+    // un peu réduite pour tenir entière sous la barre d'état
+    `<g transform="translate(${AXE} 112) scale(0.88) translate(${-AXE} -112)">`,
+    `<g class="cv-mosquee">${chemins(CORPS)}</g>`,
+    `<path class="cv-croissant" d="M${AXE} 26.5a4.2 4.2 0 1 0 3 7.2 3.3 3.3 0 1 1 -3-7.2z"/>`,
+    `<path class="cv-detail" d="M222 66C224 58 229 52 ${AXE} 47M252 66C250 58 245 52 ${AXE} 47M194 92H280M215 92H259"/>`,
+    `<g class="cv-lumieres" clip-path="url(#cv-corps-decoupe)">${groupesDeFenetres()}</g>`,
+    `</g>`,
+  ].join("");
+}
+
+/** La ville : du plus loin (collines, toits) au plus près (mosquée). Le sol est à part (le CSS). */
 function ville(): string {
   const colline =
     "M-340 112V101C-280 96 -220 104 -150 100C-80 96 -40 104 0 103C40 97 70 105 110 101C150 97 172 105 204 100C250 94 300 103 360 99C420 95 480 103 540 99C600 96 650 102 700 100V112Z";
@@ -207,22 +220,12 @@ function ville(): string {
     `<path class="cv-colline" d="${colline}"/>`,
     `<g class="cv-loin"><path d="${loinGauche}"/><path d="${loinDroite}"/></g>`,
     palmier(12, 22),
-    palmier(300, 34),
     palmier(347, 26),
     `<rect class="cv-brume" x="0" y="86" width="${LARGEUR}" height="26" fill="url(#cv-brume)"/>`,
-    // la mosquée, un peu réduite pour tenir entière sous la barre d'état
-    `<g transform="translate(${AXE} 112) scale(0.88) translate(${-AXE} -112)">`,
-    `<g class="cv-mosquee">${chemins(CORPS)}</g>`,
-    `<path class="cv-croissant" d="M${AXE} 26.5a4.2 4.2 0 1 0 3 7.2 3.3 3.3 0 1 1 -3-7.2z"/>`,
-    `<path class="cv-detail" d="M222 66C224 58 229 52 ${AXE} 47M252 66C250 58 245 52 ${AXE} 47M194 92H280M215 92H259"/>`,
-    `<g class="cv-lumieres" clip-path="url(#cv-corps-decoupe)">${groupesDeFenetres()}</g>`,
-    `</g>`,
+    mosquee(),
   ].join("");
   return `<g transform="translate(0 -14)">${decor}</g>`;
 }
-
-/** Le sol et le filet doré de l'horizon (dans le grand ciel, c'est un élément du CSS sur toute la largeur). */
-export const SOL_SVG: string = `<rect class="cv-sol" x="-700" y="${HORIZON}" width="${LARGEUR + 1400}" height="${HAUTEUR - HORIZON + 8}"/><path class="cv-horizon-ligne" d="M0 ${HORIZON}H${LARGEUR}" stroke="url(#cv-ligne)"/>`;
 
 /** La ville, dessinée une fois pour toutes. */
 export const VILLE_SVG: string = ville();
@@ -244,7 +247,7 @@ export const DEFS_SVG: string = `<defs>
 </defs>`;
 
 /* ------------------------------------------------------------------------------------------------
-   Étoiles et nuages (fixes)
+   Étoiles (fixes)
    ------------------------------------------------------------------------------------------------ */
 
 /**
@@ -296,8 +299,8 @@ function etoiles(): string {
     .join("");
 }
 
-/** Étoiles et nuages : fixes, ne sont jamais redessinés. */
-export const FOND_SVG: string = `${etoiles()}<g class="ciel-nuages"><ellipse cx="190" cy="34" rx="26" ry="7"/><ellipse cx="170" cy="58" rx="18" ry="5"/></g>`;
+/** Étoiles : fixes, ne sont jamais redessinés. */
+export const FOND_SVG: string = `${etoiles()}`;
 
 /* ------------------------------------------------------------------------------------------------
    Le soleil et la lune
@@ -394,11 +397,11 @@ export function miniSvg(moment: "fajr" | "jour" | "maghrib" | "nuit", jourHegire
   const bas = moment === "fajr" || moment === "maghrib";
   let astre = "";
   if (moment === "jour") {
-    astre = `<g class="ciel-soleil-reel"><circle cx="96" cy="26" r="22" fill="url(#soleil-lueur)"/><circle cx="96" cy="26" r="12" fill="url(#soleil-couronne)"/><circle cx="96" cy="26" r="7" fill="url(#soleil-disque)"/></g>`;
+    astre = `<g class="ciel-soleil-reel"><circle cx="132" cy="26" r="22" fill="url(#soleil-lueur)"/><circle cx="132" cy="26" r="12" fill="url(#soleil-couronne)"/><circle cx="132" cy="26" r="7" fill="url(#soleil-disque)"/></g>`;
   } else if (bas) {
-    astre = `<g class="ciel-soleil-reel"><circle cx="90" cy="46" r="26" fill="url(#soleil-bas-lueur)"/><circle cx="90" cy="46" r="8.5" fill="url(#soleil-bas-disque)"/></g>`;
+    astre = `<g class="ciel-soleil-reel"><circle cx="128" cy="44" r="26" fill="url(#soleil-bas-lueur)"/><circle cx="128" cy="44" r="8.5" fill="url(#soleil-bas-disque)"/></g>`;
   } else if (jourHegire !== null) {
-    astre = lune(jourHegire, 96, 24, 7, "masque-lune-mini");
+    astre = lune(jourHegire, 132, 24, 7, "masque-lune-mini");
   }
   const etoiles = [
     [24, 14, 0.9],
@@ -411,5 +414,5 @@ export function miniSvg(moment: "fajr" | "jour" | "maghrib" | "nuit", jourHegire
         `<circle cx="${x}" cy="${y}" r="${r}" style="animation-delay:${((i * 0.9) % 3).toFixed(1)}s"/>`,
     )
     .join("");
-  return `<g class="ciel-etoiles">${etoiles}</g>${astre}<g transform="translate(220 64) scale(0.4) translate(-360 -138)">${VILLE_SVG}${SOL_SVG}</g>`;
+  return `<g class="ciel-etoiles">${etoiles}</g>${astre}<g transform="translate(220 64) scale(0.4) translate(-360 -138)"><g transform="translate(0 -14)">${mosquee()}</g></g>`;
 }

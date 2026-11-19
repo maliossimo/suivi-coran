@@ -9,6 +9,15 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.63.1] — 2026-11-19
+
+### Corrigé
+
+- Titre trop long (« Administration ») : il se resserre et finit avant la mosquée.
+- Ligne des dates : elle tient entièrement sous la ligne dorée de l'horizon, la mosquée est remontée de quelques pixels.
+- Le nuage qui passait derrière le bouton du compte est retiré ; le palmier qui cachait le soleil en fin d'après-midi aussi.
+- Barre compacte : le sol est d'un seul tenant (plus de marche ni de couture), la mosquée est à gauche du bouton « remonter » qui ne la cache plus, le soleil est rapproché de la mosquée.
+
 ## [1.63.0] — 2026-11-19
 
 ### Ajouté

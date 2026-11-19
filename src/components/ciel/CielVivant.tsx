@@ -169,6 +169,7 @@ export function CielMini({ horaires, jourHegire, maintenant }: CielProps) {
   return (
     <div className="ciel ciel-mini" data-moment={moment} data-nuit={nuit ?? undefined} aria-hidden="true">
       <div className="ciel-motif" />
+      <div className="ciel-mini-terre" />
       <svg
         className="ciel-mini-scene"
         viewBox="0 0 220 64"

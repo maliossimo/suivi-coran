@@ -16,7 +16,9 @@ export function TitreCalligraphie({ titre, sousTitre }: { titre: string; sousTit
       <span className="barre-titre-ar" lang="ar" dir="rtl" data-taille={taille}>
         {ar}
       </span>
-      <span className="barre-titre-fr">{sousTitre ?? titre}</span>
+      <span className="barre-titre-fr" data-long={(sousTitre ?? titre).length > 9 ? "" : undefined}>
+        {sousTitre ?? titre}
+      </span>
     </span>
   );
 }
