@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.65.0] — 2026-11-20
+
+### Modifié
+
+- Fondations de l'interface : une échelle commune pour les textes (12 · 13 · 14 · 16 · 18 · 22 · 28), les espacements (4 à 32) et les rayons (8 · 12 · 16 · 20), utilisée par les nouveaux styles ; les demi-tailles et les rayons isolés de l'existant sont ramenés à cette échelle.
+- Le motif géométrique du fond est plus discret, pour ne plus gêner la lecture derrière les cartes.
+- Les textes secondaires (gris) sont plus contrastés, en clair comme en sombre.
+- Les icônes ont toutes le même trait fin et régulier.
+- Le focus au clavier est plus net : anneau plus contrasté (3:1 sur fond clair), liseré qui le détache du fond, champs de saisie avec halo.
+- La barre du système sous la barre de navigation (téléphone installé) prend la couleur sombre de l'appli au lieu du vert ; elle se met à jour avec l'installation de l'appli (parfois après quelques jours, ou en la réinstallant).
+
 ## [1.64.0] — 2026-11-19
 
 ### Modifié

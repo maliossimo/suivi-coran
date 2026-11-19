@@ -6,7 +6,7 @@
   --fond: #f6f4ee;
   --carte: #ffffff;
   --texte: #17231e;
-  --texte-doux: #5b6660;
+  --texte-doux: #4f5a54;
   --ligne: #e3dfd5;
   --champ: #d6d1c4;
   --vert: #1d5c47;
@@ -42,7 +42,7 @@
 
   /* Motif géométrique (étoile à 8 branches) dessiné en SVG, répété en tuiles. */
   --motif-clair: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.14' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
-  --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%231d5c47' stroke-opacity='0.06' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
+  --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%231d5c47' stroke-opacity='0.035' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 *,
@@ -387,7 +387,7 @@ a:hover {
   gap: 10px;
   color: inherit;
   text-decoration: none;
-  border-radius: 99px;
+  border-radius: 999px;
   padding: 3px 12px 3px 3px;
 }
 .barre-identite:hover {
@@ -481,7 +481,7 @@ a:hover {
   display: inline-block;
   margin-left: 8px;
   padding: 2px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--or-clair);
   color: var(--or-texte);
   font-size: 12px;
@@ -536,7 +536,7 @@ a:hover {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--ligne);
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--carte);
   color: var(--texte-doux);
   font-size: 14px;
@@ -565,7 +565,7 @@ a:hover {
 }
 .bandeau-avenir h3 {
   margin: 0 0 4px;
-  font-size: 17px;
+  font-size: 18px;
   color: #f0d796;
 }
 .bandeau-avenir p {
@@ -588,7 +588,7 @@ a:hover {
 }
 .bilan-chiffres li {
   padding: 6px 12px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--carte);
   border: 1px solid var(--ligne);
   font-size: 13px;
@@ -887,7 +887,7 @@ html.vague-fiche::view-transition-new(root) {
 .semaine-entete h2,
 .semaine-entete h3 {
   margin: 0;
-  font-size: 17px;
+  font-size: 18px;
 }
 .semaine-entete span {
   color: var(--texte-doux);
@@ -984,7 +984,7 @@ a.jour:hover {
   height: 36px;
   padding: 0 12px;
   border: 1px solid var(--champ);
-  border-radius: 99px;
+  border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
   color: var(--texte-doux);
@@ -1259,7 +1259,7 @@ input.champ-texte {
   display: inline-block;
   margin-left: 6px;
   padding: 2px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: #eef1f8;
   color: #34446b;
   font-size: 12px;
@@ -1271,7 +1271,7 @@ input.champ-texte {
   gap: 4px;
   margin-left: 6px;
   padding: 2px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--or-clair);
   border: 1px solid var(--bord-or);
   color: var(--or-texte);
@@ -1436,7 +1436,7 @@ input.champ-texte {
 }
 .carte-graphique h2 {
   margin: 0;
-  font-size: 17px;
+  font-size: 18px;
 }
 .carte-graphique-sous {
   margin: 0;
@@ -1481,14 +1481,14 @@ input.champ-texte {
 .jauge {
   display: block;
   height: 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--surface-3);
   overflow: hidden;
 }
 .jauge > span {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--vert);
 }
 .barres-objectifs {
@@ -1531,7 +1531,7 @@ input.champ-texte {
 }
 .liste-sourates-ligne .arabe {
   color: var(--vert-texte);
-  font-size: 17px;
+  font-size: 18px;
 }
 .liste-sourates-info {
   font-size: 12px;
@@ -1613,7 +1613,7 @@ input.champ-texte {
 }
 .pastille-role {
   padding: 2px 10px;
-  border-radius: 99px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
 }
@@ -1695,7 +1695,7 @@ input.champ-texte {
 }
 .squelette-pastille {
   height: 30px;
-  border-radius: 99px;
+  border-radius: 999px;
 }
 .squelette-semaine {
   display: grid;
@@ -1943,7 +1943,7 @@ input.champ-texte {
 }
 .fenetre-contenu h2 {
   margin: 0;
-  font-size: 19px;
+  font-size: 20px;
 }
 .fenetre-contenu p {
   margin: 0;
@@ -2057,7 +2057,7 @@ input.champ-texte {
   }
   .nav-onglet[aria-current="page"] svg {
     background: var(--vert-clair);
-    border-radius: 99px;
+    border-radius: 999px;
     padding: 2px 14px;
     box-sizing: content-box;
   }
@@ -2197,7 +2197,7 @@ input.champ-texte {
   flex-direction: column;
   gap: 10px;
   font-family: var(--font-texte), system-ui, sans-serif;
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.35;
   color: #1c2420;
 }
@@ -2236,7 +2236,7 @@ input.champ-texte {
 .pdf-entete-titres h1 {
   margin: 1px 0 0;
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 600;
   line-height: 1.15;
   color: #fff;
@@ -2270,7 +2270,7 @@ input.champ-texte {
 }
 .pdf-chiffre strong {
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--vert-texte);
   line-height: 1.1;
@@ -2626,7 +2626,7 @@ input.champ-texte {
     padding: 10px 16px;
   }
   .pdf-entete-titres h1 {
-    font-size: 19px;
+    font-size: 20px;
   }
   .pdf-chiffre {
     padding: 4px 9px;
@@ -2650,7 +2650,7 @@ input.champ-texte {
     font-size: 8px;
   }
   .pdf-ar {
-    font-size: 11.5px;
+    font-size: 12px;
   }
   .pdf-semaine-titre,
   .pdf-objectif {
@@ -2726,7 +2726,7 @@ input.champ-texte {
   min-height: 40px;
   padding: 0 14px;
   border: 1px solid var(--ligne);
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--carte);
   font: inherit;
   font-size: 14px;
@@ -2977,7 +2977,7 @@ input.champ-texte {
   place-content: center;
   text-align: center;
   font-weight: 700;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -2991,13 +2991,13 @@ input.champ-texte {
   margin-bottom: 2px;
 }
 .hizb-plage {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--texte-doux);
   line-height: 1.35;
 }
 .hizb-pastille {
   padding: 3px 9px;
-  border-radius: 99px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
@@ -3059,7 +3059,7 @@ input.champ-texte {
 .hizb-portion-texte small {
   display: block;
   color: var(--texte-doux);
-  font-size: 12.5px;
+  font-size: 13px;
 }
 .bouton-petit {
   height: 36px;
@@ -3308,7 +3308,7 @@ a.jour:active {
 }
 .etat-vide h2 {
   margin: 0;
-  font-size: 19px;
+  font-size: 20px;
 }
 .etat-vide-texte {
   max-width: 420px;
@@ -3370,7 +3370,7 @@ a.jour:active {
     --surface-2: #1b2722;
     --surface-3: #24312b;
     --texte: #e6ece8;
-    --texte-doux: #a2aea8;
+    --texte-doux: #b4c0ba;
     --ligne: #2a3832;
     --champ: #3a4943;
     /* Contrastes vérifiés (WCAG AA) : texte blanc sur --vert 5,2:1 ; --vert-texte sur les cartes 7,9:1. */
@@ -3391,7 +3391,7 @@ a.jour:active {
     --icone-revision: #e3c27a;
     --rouge: #e07a6c;
     --ombre: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
-    --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
+    --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.022' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
   }
   :where(:root:not([data-theme="clair"])) input,
   :where(:root:not([data-theme="clair"])) textarea,
@@ -3445,7 +3445,7 @@ a.jour:active {
   --surface-2: #1b2722;
   --surface-3: #24312b;
   --texte: #e6ece8;
-  --texte-doux: #a2aea8;
+  --texte-doux: #b4c0ba;
   --ligne: #2a3832;
   --champ: #3a4943;
   /* Contrastes vérifiés (WCAG AA) : texte blanc sur --vert 5,2:1 ; --vert-texte sur les cartes 7,9:1. */
@@ -3466,7 +3466,7 @@ a.jour:active {
   --icone-revision: #e3c27a;
   --rouge: #e07a6c;
   --ombre: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
-  --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
+  --motif-doux: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.022' stroke-width='1.2'%3E%3Crect x='27' y='27' width='42' height='42'/%3E%3Crect x='27' y='27' width='42' height='42' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='10'/%3E%3Cpath d='M0 0L18 18M96 0L78 18M0 96L18 78M96 96L78 78M48 0V9M48 96V87M0 48H9M96 48H87'/%3E%3C/g%3E%3C/svg%3E");
 }
 :where(:root[data-theme="sombre"]) input,
 :where(:root[data-theme="sombre"]) textarea,
@@ -3535,7 +3535,7 @@ a.jour:active {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 19px;
+  font-size: 20px;
 }
 .qr-code {
   align-self: center;
@@ -3717,7 +3717,7 @@ a.jour:active {
 }
 .passage-vu {
   margin: 0 0 8px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--vert-texte);
 }
@@ -3731,7 +3731,7 @@ a.jour:active {
   display: inline-block;
   margin-left: 8px;
   padding: 2px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
@@ -3983,7 +3983,7 @@ a.jour:active {
   text-overflow: ellipsis;
 }
 .selecteur-option-texte small {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 400;
   color: var(--texte-doux);
 }
@@ -4531,7 +4531,7 @@ html[data-ouverture] .ouverture {
 }
 .barre-salutation-arabe {
   font-family: var(--font-arabe), "Amiri", serif;
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 700;
   line-height: 1.1;
   color: #f0d796;
@@ -4811,13 +4811,13 @@ html[data-ouverture] .ouverture {
 .jauge-double > span > span {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--etat-ecoute);
 }
 .jauge-double > span > span > span {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--etat-valide);
 }
 .puce.puce-ecoute {
@@ -4858,7 +4858,7 @@ html[data-ouverture] .ouverture {
   display: inline-block;
   margin-left: 8px;
   padding: 1px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   border: 1px dashed var(--vert);
   color: var(--vert-texte);
   font-size: 12px;
@@ -4913,7 +4913,7 @@ html[data-ouverture] .ouverture {
   display: inline-block;
   margin-left: 8px;
   padding: 2px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: #e8ecef;
   color: #3d4a54;
   font-size: 12px;
@@ -5067,7 +5067,7 @@ html[data-ouverture] .ouverture {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
 }
 .carte-lecture-nom .arabe {
@@ -5082,7 +5082,7 @@ html[data-ouverture] .ouverture {
 .etiquette-lecture {
   display: inline-block;
   padding: 1px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
@@ -5495,7 +5495,7 @@ html[data-ouverture] .ouverture-version {
 .accueil-premiere-fois h3 {
   margin: 0;
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 21px;
+  font-size: 22px;
   color: var(--vert-texte);
 }
 .accueil-premiere-fois p {
@@ -5927,7 +5927,7 @@ html[data-ouverture] .ouverture-version {
   place-items: center;
   min-height: 38px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 10px;
   background: transparent;
   color: var(--texte);
   font: inherit;
@@ -5967,7 +5967,7 @@ html[data-ouverture] .ouverture-version {
   position: relative;
   width: 42px;
   height: 24px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--champ);
   transition: background 0.15s;
 }
@@ -6148,7 +6148,7 @@ html[data-ouverture] .ouverture-version {
   gap: 6px;
   min-height: 36px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 10px;
   background: transparent;
   color: var(--texte-doux);
   font: inherit;
@@ -6989,7 +6989,7 @@ html[data-ouverture] .ouverture-version {
 }
 .appel-du-jour-ligne.a-faire small {
   opacity: 0.85;
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 /* ---------- Rapport du responsable -------------------------------------- */
@@ -7008,7 +7008,7 @@ html[data-ouverture] .ouverture-version {
   border-radius: 999px;
   background: var(--surface-2);
   color: var(--texte);
-  font-size: 13.5px;
+  font-size: 14px;
   text-decoration: none;
 }
 .puce-periode.actif {
@@ -7064,7 +7064,7 @@ html[data-ouverture] .ouverture-version {
 }
 .rapport-classe-entete h3 {
   margin: 0;
-  font-size: 17px;
+  font-size: 18px;
 }
 .rapport-classe-entete strong {
   color: var(--vert-texte);
@@ -7177,7 +7177,7 @@ html.defilement-bloque {
   flex-direction: column;
   width: min(100%, 560px);
   max-height: min(88dvh, 760px);
-  border-radius: 22px 22px 0 0;
+  border-radius: 20px 22px 0 0;
   background: var(--carte);
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   animation: feuille-monte 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -7197,7 +7197,7 @@ html.defilement-bloque {
   width: 40px;
   height: 4px;
   margin-left: -20px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--champ);
 }
 .feuille-entete h2 {
@@ -7267,7 +7267,7 @@ html.defilement-bloque {
     align-items: center;
   }
   .feuille-contenu {
-    border-radius: 22px;
+    border-radius: 20px;
     animation-name: feuille-apparait;
   }
   .feuille-poignee {
@@ -7373,7 +7373,7 @@ html.defilement-bloque {
 }
 .explication-attente span {
   height: 14px;
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--surface-3);
   animation: pulsation 1.2s ease-in-out infinite;
 }
@@ -7470,7 +7470,7 @@ html.defilement-bloque {
   border-radius: 14px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 13.5px;
+  font-size: 14px;
 }
 .coran-astuce span {
   flex: 1;
@@ -7611,7 +7611,7 @@ html.defilement-bloque {
 .reciter-aide {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 /* ---------- Mise à jour automatique ------------------------------------- */
@@ -7659,7 +7659,7 @@ html.defilement-bloque {
   margin-left: 8px;
   padding: 2px 8px;
   border: 1px solid transparent;
-  border-radius: 99px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
@@ -7701,7 +7701,7 @@ html.defilement-bloque {
 }
 .ecoute-cheikh-entete h2 {
   margin: 0;
-  font-size: 17px;
+  font-size: 18px;
 }
 .ecoute-cheikh-tout {
   display: flex;
@@ -7767,11 +7767,11 @@ html.defilement-bloque {
   gap: 4px;
   min-height: 40px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 10px;
   background: transparent;
   color: var(--texte-doux);
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -7790,7 +7790,7 @@ html.defilement-bloque {
 .ecoute-aide {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 /* ---------- Séance simplifiée (1.17) --------------------------------- */
@@ -7814,7 +7814,7 @@ html.defilement-bloque {
   flex: 1;
   min-width: 0;
   margin: 0;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
 }
 .seance-barre h1 span {
@@ -8046,7 +8046,7 @@ html.defilement-bloque {
 }
 .carte-graphique h2 {
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 600;
 }
 .admin-compte {
@@ -8155,7 +8155,7 @@ html.defilement-bloque {
 .jauge-activite {
   flex: 0 0 100%;
   height: 6px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--ligne);
   overflow: hidden;
 }
@@ -8806,7 +8806,7 @@ button.reciter-mot {
   margin: 0 1px;
   padding: 0 3px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
   cursor: pointer;
 }
@@ -8839,7 +8839,7 @@ button.reciter-mot {
   gap: 8px;
   margin: 0 10px;
   padding: 16px 18px 12px;
-  border-radius: 22px 22px 0 0;
+  border-radius: 20px 22px 0 0;
   background: var(--carte);
   box-shadow: 0 -8px 30px rgb(0 0 0 / 0.12);
 }
@@ -9792,7 +9792,7 @@ fieldset.vue-admin-modifiable {
   align-items: center;
   gap: 8px;
   margin: 0;
-  font-size: 19px;
+  font-size: 20px;
   color: var(--vert-texte);
 }
 .carte-coran p {
@@ -10132,7 +10132,7 @@ fieldset.vue-admin-modifiable {
     display: block;
     width: 50px;
     height: 26px;
-    border-radius: 99px;
+    border-radius: 999px;
     background: var(--vert-clair);
     transform: translateX(calc(var(--pastille-x, 0px) - 25px));
     pointer-events: none;
@@ -10180,7 +10180,7 @@ fieldset.vue-admin-modifiable {
     width 0.32s cubic-bezier(0.3, 1.2, 0.5, 1);
 }
 .coran-segments.avec-indicateur > .indicateur-glissant {
-  border-radius: 9px;
+  border-radius: 10px;
 }
 .choix-mode-admin.avec-indicateur > .indicateur-glissant {
   border-radius: 8px;
@@ -10253,7 +10253,7 @@ html {
 .barre-compacte-titre {
   overflow: hidden;
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -10338,7 +10338,7 @@ html {
   gap: 4px;
   margin-left: 8px;
   padding: 2px 9px 2px 7px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--vert);
   color: #fff;
   font-size: 12px;
@@ -10717,7 +10717,7 @@ html {
   place-items: center;
   width: 42px;
   height: 42px;
-  border-radius: 13px;
+  border-radius: 12px;
   background: var(--teinte);
   color: #fff;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--teinte) 35%, transparent);
@@ -10732,7 +10732,7 @@ html {
   font-size: 15px;
 }
 .aujourdhui-texte small {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: color-mix(in srgb, var(--teinte) 80%, var(--texte));
 }
@@ -10801,7 +10801,7 @@ html {
   flex: 1 1 200px;
 }
 .resume-anneau .anneau-texte {
-  font-size: 17px;
+  font-size: 18px;
 }
 .resume-anneau-texte {
   display: flex;
@@ -10810,7 +10810,7 @@ html {
 }
 .resume-anneau-texte b {
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 17px;
+  font-size: 18px;
 }
 .resume-anneau-texte small {
   color: var(--texte-doux);
@@ -10846,7 +10846,7 @@ html {
 .resume-tuiles strong,
 .bilan-tuiles strong {
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.15;
   color: var(--texte);
 }
@@ -10950,7 +10950,7 @@ html {
   letter-spacing: 0.02em;
   text-transform: uppercase;
   padding: 2px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--vert);
   color: #fff;
 }
@@ -10988,7 +10988,7 @@ html {
 .jour-rempli .jour-duree {
   justify-self: start;
   padding: 2px 9px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--vert-clair);
   color: var(--vert-texte);
   font-size: 13px;
@@ -11443,7 +11443,7 @@ a.jour[data-etat="partielle"] {
 .carte-detail-jauge {
   display: block;
   height: 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--surface-3);
   overflow: hidden;
 }
@@ -11631,7 +11631,7 @@ a.jour[data-etat="partielle"] {
   align-items: center;
   gap: 18px;
   padding: 18px;
-  border-radius: 22px;
+  border-radius: 20px;
   background: var(--motif-doux), linear-gradient(150deg, var(--or-clair) 0, var(--carte) 80%);
   border: 1px solid var(--bord-or);
   box-shadow: var(--ombre);
@@ -11679,7 +11679,7 @@ a.jour[data-etat="partielle"] {
 }
 .progression-grand {
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 19px;
+  font-size: 20px;
   line-height: 1.25;
 }
 .progression-grand strong {
@@ -11762,7 +11762,7 @@ a.jour[data-etat="partielle"] {
   white-space: nowrap;
 }
 .continuer-lecture-texte small {
-  font-size: 12.5px;
+  font-size: 13px;
   color: rgba(255, 255, 255, 0.88);
 }
 .continuer-lecture-texte small:first-child {
@@ -11782,7 +11782,7 @@ a.jour[data-etat="partielle"] {
   order: 3;
   display: block;
   height: 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: color-mix(in srgb, var(--rouge) 28%, var(--surface-3));
   overflow: hidden;
 }
@@ -11809,7 +11809,7 @@ a.jour[data-etat="partielle"] {
   width: auto;
   min-width: 44px;
   padding: 0 12px;
-  border-radius: 99px;
+  border-radius: 999px;
   transition:
     background-color 0.18s ease,
     border-color 0.18s ease,
@@ -11890,7 +11890,7 @@ a.jour[data-etat="partielle"] {
   display: inline-block;
   margin-top: 6px;
   padding: 2px 10px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: rgba(240, 215, 150, 0.2);
   color: #f0d796;
   font-size: 13px;
@@ -12118,7 +12118,7 @@ a.jour[data-etat="partielle"] {
 }
 .barre-compacte-sous-titre {
   overflow: hidden;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.88);
   white-space: nowrap;
@@ -12574,10 +12574,10 @@ label,
 }
 .ecoute-rapide-duree {
   padding: 1px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--vert-clair);
   color: var(--vert-texte);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
 }
 .ecoute-rapide-passages,
@@ -12718,7 +12718,7 @@ textarea:focus-visible {
   background: var(--surface-2);
   border: 1px dashed var(--ligne);
   color: var(--texte-doux);
-  font-size: 12.5px;
+  font-size: 13px;
   overflow-wrap: anywhere;
   text-align: center;
   user-select: all;
@@ -12989,7 +12989,7 @@ textarea:focus-visible {
   padding: max(6px, env(safe-area-inset-top)) 8px 2px;
 }
 .reciter-entete h2 {
-  font-size: 19px;
+  font-size: 20px;
 }
 .reciter-fermer {
   width: 40px;
@@ -13002,7 +13002,7 @@ textarea:focus-visible {
 }
 .reciter-statut {
   margin-block: 0;
-  font-size: 12.5px;
+  font-size: 13px;
 }
 .reciter-choix {
   gap: 6px;
@@ -13051,7 +13051,7 @@ textarea:focus-visible {
   padding: 2px 10px;
 }
 .reciter-difficile span {
-  font-size: 17px;
+  font-size: 18px;
 }
 .reciter-corps {
   padding: 8px 16px;
@@ -13169,7 +13169,7 @@ textarea:focus-visible {
   line-height: 1.05;
 }
 .progression-sur {
-  font-size: 17px;
+  font-size: 18px;
   color: var(--texte-doux);
 }
 .progression-entete-texte .progression-versets {
@@ -13517,7 +13517,7 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   border-radius: 14px;
   background: var(--surface-2);
   color: var(--texte-doux);
-  font-size: 13.5px;
+  font-size: 14px;
 }
 .coran-cache-aide svg {
   flex-shrink: 0;
@@ -13663,7 +13663,7 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   line-height: 1.2;
 }
 .tajwid-tuile-aide {
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.3;
 }
 .tajwid-tuile-bas {
@@ -13671,7 +13671,7 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   justify-content: space-between;
   gap: 6px;
   margin-top: auto;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--texte-doux);
 }
 .tajwid-tuile-bas [lang="ar"] {
@@ -13772,7 +13772,7 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 .coran-a-revoir-aide {
   margin: 0 0 12px;
   color: var(--texte-doux);
-  font-size: 13.5px;
+  font-size: 14px;
 }
 .coran-a-revoir-liste {
   display: grid;
@@ -13834,13 +13834,13 @@ html[data-plein-ecran] .coran-zoom-boutons button {
   background: transparent;
   color: var(--texte);
   font: inherit;
-  font-size: 17px;
+  font-size: 18px;
   outline: none;
 }
 .recherche-coran-aide {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 13.5px;
+  font-size: 14px;
 }
 .recherche-coran-liste {
   display: grid;
@@ -13872,12 +13872,12 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 }
 .recherche-coran-ref {
   color: var(--texte-doux);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
 }
 .recherche-coran-arabe {
   font-family: "KFGQPC Hafs", var(--font-arabe), serif;
-  font-size: 21px;
+  font-size: 22px;
   line-height: 1.9;
   text-align: right;
 }
@@ -13948,14 +13948,14 @@ html[data-plein-ecran] .coran-zoom-boutons button {
   letter-spacing: -0.01em;
 }
 .tuile span {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
 }
 .carte-graphique h2 {
   letter-spacing: -0.005em;
 }
 .carte-graphique-sous {
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.45;
 }
 
@@ -14019,7 +14019,7 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 }
 .mots-a-revoir-sourate small {
   color: var(--texte-doux);
-  font-size: 12.5px;
+  font-size: 13px;
 }
 .mots-a-revoir-mots {
   overflow: hidden;
@@ -14406,7 +14406,7 @@ html[data-plein-ecran] .remonter-en-haut {
 }
 .salutation-cheikh strong {
   color: var(--texte);
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
 }
 
@@ -14428,7 +14428,7 @@ html[data-plein-ecran] .remonter-en-haut {
   place-items: center;
   width: 18px;
   height: 18px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--carte);
   color: var(--vert-texte);
   border: 1px solid var(--ligne);
@@ -14461,7 +14461,7 @@ html[data-plein-ecran] .remonter-en-haut {
   margin-left: auto;
   min-width: 24px;
   padding: 1px 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--or);
   color: #fff;
   font-size: 13px;
@@ -14483,7 +14483,7 @@ html[data-plein-ecran] .remonter-en-haut {
   min-height: 44px;
   padding: 5px 10px 5px 5px;
   border: 1px solid var(--bord-or);
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--carte);
   color: var(--texte);
   font: inherit;
@@ -14495,12 +14495,12 @@ html[data-plein-ecran] .remonter-en-haut {
   width: 32px;
   height: 32px;
   font-size: 13px;
-  border-radius: 99px;
+  border-radius: 999px;
 }
 .a-ecouter-eleve strong {
   min-width: 20px;
   padding: 0 6px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--or-clair);
   color: var(--or-texte);
   font-size: 12px;
@@ -14568,7 +14568,7 @@ html[data-plein-ecran] .remonter-en-haut {
   position: relative;
   padding-left: 38px;
   color: var(--texte-doux);
-  font-size: 14.5px;
+  font-size: 15px;
   line-height: 1.4;
   counter-increment: etape;
 }
@@ -14581,7 +14581,7 @@ html[data-plein-ecran] .remonter-en-haut {
   place-items: center;
   width: 26px;
   height: 26px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--vert);
   color: #fff;
   font-weight: 700;
@@ -14618,7 +14618,7 @@ html[data-plein-ecran] .remonter-en-haut {
   text-align: center;
 }
 .apercu-chiffres strong {
-  font-size: 19px;
+  font-size: 20px;
   color: var(--vert-texte);
 }
 .apercu-chiffres span {
@@ -14694,14 +14694,14 @@ html[data-plein-ecran] .remonter-en-haut {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  font-size: 14.5px;
+  font-size: 15px;
 }
 .apercu-bloc li .pastille-etat {
   flex-shrink: 0;
 }
 .apercu-liste {
   margin: 0;
-  font-size: 14.5px;
+  font-size: 15px;
 }
 .apercu-actions {
   display: flex;
@@ -14813,7 +14813,7 @@ ul.apercu-liste li {
   place-items: center;
   width: 26px;
   height: 26px;
-  border-radius: 99px;
+  border-radius: 999px;
 }
 .fleche-hausse {
   color: var(--vert-texte);
@@ -14844,11 +14844,11 @@ ul.apercu-liste li {
   }
   .liste-eleves .carte-eleve-nom small {
     flex-basis: 100%;
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .liste-eleves .carte-eleve-stats {
     gap: 2px 10px;
-    font-size: 12.5px;
+    font-size: 13px;
   }
 }
 :where(:root[data-theme="sombre"], :root[data-theme="nuit"]) .fleche-hausse {
@@ -14883,7 +14883,7 @@ ul.apercu-liste li {
   margin: 2px 0 0;
   overflow: hidden;
   color: var(--or-texte);
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.3;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -15152,7 +15152,7 @@ ul.apercu-liste li {
 .barre-compacte-ar {
   font-family: var(--font-calligraphie), var(--font-arabe), serif;
   color: #c9a24a;
-  font-size: 17px;
+  font-size: 18px;
   margin-inline-end: 8px;
 }
 
@@ -15165,7 +15165,7 @@ ul.apercu-liste li {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 20px 8px;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--ciel-texte-doux);
 }
 .barre-dates-temps,
@@ -15255,7 +15255,7 @@ ul.apercu-liste li {
     order: 1;
     display: block;
     font-family: var(--font-calligraphie), var(--font-arabe), serif;
-    font-size: 11.5px;
+    font-size: 12px;
     line-height: 1.1;
     opacity: 0.85;
   }
@@ -15406,7 +15406,7 @@ ul.apercu-liste li {
 }
 .appel-ligne-classe small {
   color: var(--texte-doux);
-  font-size: 12.5px;
+  font-size: 13px;
 }
 .appel-ligne-action {
   display: inline-flex;
@@ -15615,7 +15615,7 @@ html[data-ouverture] .ouverture-calligraphie {
 }
 /* Mois : les mois hégiriens plus discrets, jamais coupés (deux lignes s'il le faut). */
 .mois-hegire {
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.3;
   white-space: normal;
   text-overflow: clip;
@@ -15623,7 +15623,7 @@ html[data-ouverture] .ouverture-calligraphie {
 }
 @media (max-width: 480px) {
   .mois-hegire-ar {
-    font-size: 11.5px;
+    font-size: 12px;
     white-space: normal;
   }
 }
@@ -15921,7 +15921,7 @@ body:has(.barre-vivante) {
   flex: none;
   margin: 0;
   color: var(--ciel-or);
-  font-size: 21px;
+  font-size: 22px;
   line-height: 1;
 }
 .barre-compacte-fr {
@@ -16986,7 +16986,7 @@ html[data-haut-cache] .barre-vivante::after {
   .aujourdhui-icone {
     width: 34px;
     height: 34px;
-    border-radius: 11px;
+    border-radius: 10px;
   }
   .aujourdhui-icone svg {
     width: 18px;
@@ -17021,7 +17021,7 @@ html[data-haut-cache] .barre-vivante::after {
   }
   .carte-aujourdhui h3,
   .carte-unie-titre {
-    font-size: 17px;
+    font-size: 18px;
   }
   .espace {
     gap: 12px;
@@ -17422,7 +17422,7 @@ html[data-haut-cache] .barre-vivante::after {
   .nav-espace .nav-onglet .nav-ar,
   .nav-espace .nav-plus .nav-ar,
   .nav-espace .nav-mihrab .nav-ar {
-    font-size: 12.5px;
+    font-size: 13px;
     opacity: 0.95;
     color: var(--nav-texte);
   }
@@ -17451,7 +17451,7 @@ html[data-haut-cache] .barre-vivante::after {
   min-width: 0;
 }
 .resume-anneau-texte b {
-  font-size: 19px;
+  font-size: 20px;
 }
 .resume-pourcentage {
   align-self: flex-start;
@@ -17490,7 +17490,7 @@ html[data-haut-cache] .barre-vivante::after {
   font-size: 22px;
 }
 .resume-tuiles li > span {
-  font-size: 12.5px;
+  font-size: 13px;
 }
 .resume-tuiles li:nth-child(2) > svg {
   background: color-mix(in srgb, var(--or, #d6af5c) 20%, transparent);
@@ -17517,4 +17517,68 @@ html[data-haut-cache] .barre-vivante::after {
   font-size: 12px;
   text-decoration: none;
   opacity: 0.8;
+}
+
+/* =====================================================================
+   Fondations de l'interface (1.65) : une échelle commune pour les textes, les espacements,
+   les rayons et les icônes. Les nouveaux styles s'appuient sur ces valeurs.
+   ===================================================================== */
+:root {
+  /* Textes : 12 · 13 · 14 · 16 · 18 · 22 · 28 */
+  --t-xs: 12px;
+  --t-s: 13px;
+  --t-m: 14px;
+  --t-base: 16px;
+  --t-l: 18px;
+  --t-xl: 22px;
+  --t-2xl: 28px;
+  /* Espacements : 4 · 8 · 12 · 16 · 24 · 32 */
+  --e-1: 4px;
+  --e-2: 8px;
+  --e-3: 12px;
+  --e-4: 16px;
+  --e-5: 24px;
+  --e-6: 32px;
+  /* Rayons : petits éléments · champs et boutons · cartes · grandes cartes · pastilles */
+  --r-s: 8px;
+  --r-m: 12px;
+  --r-l: 16px;
+  --r-xl: 20px;
+  --r-pilule: 999px;
+  /* Anneau de focus : assez contrasté sur le fond clair (3:1) comme sur le fond sombre. */
+  --focus: #8a5f12;
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="clair"])) {
+    --focus: #e3c27a;
+  }
+}
+:root:where([data-theme="sombre"]) {
+  --focus: #e3c27a;
+}
+
+/* Icônes : un seul trait fin et régulier (celles qui demandent un trait particulier le gardent). */
+svg.lucide[stroke-width="2"] {
+  stroke-width: 1.75;
+}
+svg.lucide {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Focus au clavier : anneau net, avec un liseré clair qui le détache de n'importe quel fond. */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+:where(a, button, summary, [role="button"], [role="tab"], label):focus-visible {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--fond) 70%, transparent);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]):focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 22%, transparent);
 }
