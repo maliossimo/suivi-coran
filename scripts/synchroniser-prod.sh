@@ -26,7 +26,8 @@ if ! git diff --quiet origin/main HEAD; then
 fi
 
 git push -u origin "$branche"
-depot="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
+# Dépôt lu dans l'adresse du remote (« gh repo view » passe par GraphQL, parfois indisponible).
+depot="$(git remote get-url origin | sed -E 's#^.*github\.com[:/]##; s#\.git$##')"
 gh api "repos/$depot/pulls" -f title="Synchronise prod dans main" -f head="$branche" -f base=main \
   -f body="Rattache l'historique de prod à main (fusion squash précédente), sans changer le contenu de main. À fusionner avec « Create a merge commit »." \
   --jq '.html_url'

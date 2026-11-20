@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.67.1] — 2026-11-20
+
+### Corrigé
+
+- `scripts/synchroniser-prod.sh` : le dépôt est lu dans l'adresse du remote (plus de dépendance à GraphQL).
+
 ## [1.67.0] — 2026-11-20
 
 ### Ajouté
