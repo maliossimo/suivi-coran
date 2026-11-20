@@ -244,3 +244,14 @@ export function nomDePage(page: string): string {
   const nom = NOMS_PAGES.find(([debut]) => page === debut || page.startsWith(`${debut}/`));
   return nom ? nom[1] : page;
 }
+
+/**
+ * Nombre d'erreurs distinctes « à regarder » : une même erreur vue dix fois compte pour une, et les erreurs
+ * sans gravité (réseau coupé, appli mise à jour pendant l'utilisation…) ne comptent pas. C'est ce chiffre
+ * qui s'affiche en pastille sur l'onglet Admin.
+ */
+export function compterErreursAVoir(
+  erreurs: readonly { quand: string; page: string; message: string; version: string | null }[],
+): number {
+  return regrouperErreurs(erreurs).filter((g) => !expliquerErreur(g.message).sansGravite).length;
+}

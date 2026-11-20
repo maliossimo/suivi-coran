@@ -192,7 +192,16 @@ function usePauseEnDefilant() {
   }, []);
 }
 
-export function NavigationEspace({ role, responsable = false }: { role: Role; responsable?: boolean }) {
+export function NavigationEspace({
+  role,
+  responsable = false,
+  alertes,
+}: {
+  role: Role;
+  responsable?: boolean;
+  /** Pastille de nombre sur un onglet, par adresse (ex. les erreurs à regarder sur « /admin »). */
+  alertes?: Record<string, number>;
+}) {
   const chemin = usePathname();
   usePauseEnDefilant();
   const nav = useRef<HTMLElement>(null);
@@ -279,6 +288,15 @@ export function NavigationEspace({ role, responsable = false }: { role: Role; re
               </i>
             ) : null}
             <IconeOnglet size={22} strokeWidth={1.9} aria-hidden="true" />
+            {alertes?.[o.href] ? (
+              <b
+                className="nav-alerte"
+                role="img"
+                aria-label={`${alertes[o.href]} erreur${alertes[o.href]! > 1 ? "s" : ""} à regarder`}
+              >
+                {alertes[o.href]! > 9 ? "9+" : alertes[o.href]}
+              </b>
+            ) : null}
             <span>{o.libelle}</span>
             <small className="nav-ar" lang="ar" aria-hidden="true">
               {arabeOnglet(o.libelle)}
