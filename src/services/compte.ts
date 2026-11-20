@@ -19,6 +19,6 @@ export async function enregistrerMonNom(
     await changerMonNom(profil.id, saisie.data.prenom, saisie.data.nom);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "Enregistrement impossible pour l’instant." };
+    return { ok: false, erreur: "Enregistrement impossible. Réessaie dans un instant." };
   }
 }

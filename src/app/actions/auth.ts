@@ -91,7 +91,7 @@ export async function actionDefinirMotDePasse(_: EtatFormulaire, form: FormData)
   if (!saisie.success) return { erreur: saisie.error.issues[0]?.message ?? "Mot de passe invalide." };
 
   const res = await changerMotDePasse(saisie.data.motDePasse);
-  if (!res.ok) return { erreur: "Impossible d'enregistrer ce mot de passe. Réessaie." };
+  if (!res.ok) return { erreur: "Impossible d’enregistrer ce mot de passe. Réessaie." };
 
   // Première connexion après une invitation : page d'accueil avec l'installation de l'appli.
   if (form.get("bienvenue") === "1") redirect("/bienvenue");
@@ -107,7 +107,7 @@ export async function actionChangerMotDePasse(_: EtatFormulaire, form: FormData)
   if (!saisie.success) return { erreur: saisie.error.issues[0]?.message ?? "Mot de passe invalide." };
 
   const res = await changerMotDePasse(saisie.data.motDePasse);
-  if (!res.ok) return { erreur: "Impossible d'enregistrer ce mot de passe. Réessaie." };
+  if (!res.ok) return { erreur: "Impossible d’enregistrer ce mot de passe. Réessaie." };
 
   await notifier("Mot de passe modifié");
   return { ok: true };

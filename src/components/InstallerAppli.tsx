@@ -10,7 +10,12 @@ export interface EvenementInstallation extends Event {
 }
 
 type Appareil =
-  "installee" | "deja-installee" | "android" | "iphone" | "iphone-autre-navigateur" | "ordinateur";
+  | "installee"
+  | "deja-installee"
+  | "android"
+  | "iphone"
+  | "iphone-autre-navigateur"
+  | "ordinateur";
 
 declare global {
   interface Window {

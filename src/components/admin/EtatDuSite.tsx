@@ -4,6 +4,7 @@ import Link from "next/link";
 import { dateHeure } from "@/domain/format";
 import { depuisQuand, expliquerErreur, nomDePage, regrouperErreurs } from "@/domain/journal";
 import { actionReglerErreur } from "@/app/actions/admin";
+import { Check } from "lucide-react";
 
 function taille(octets: number | null): string {
   if (octets === null) return "";
@@ -93,7 +94,7 @@ export async function EtatDuSite() {
                   <form action={actionReglerErreur}>
                     <input type="hidden" name="message" value={g.message} />
                     <button type="submit" className="liste-erreurs-reglee">
-                      ✓ Réglé
+                      <Check size={14} className="icone-texte" aria-hidden="true" /> Réglé
                     </button>
                   </form>
                 </span>

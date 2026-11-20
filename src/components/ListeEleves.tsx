@@ -3,15 +3,17 @@
 import {
   BookPlus,
   CalendarCheck,
+  Check,
   ChevronRight,
   Eye,
   Headphones,
+  MoveRight,
   RotateCcw,
   Search,
   Target,
   TrendingDown,
   TrendingUp,
-  MoveRight,
+  TriangleAlert,
 } from "lucide-react";
 import Link from "next/link";
 import { ApercuEleve } from "./ApercuEleve";
@@ -155,7 +157,11 @@ export function ListeEleves({
                 <small
                   className={r.alerte ? "texte-alerte" : r.joursSansSaisie === 0 ? "texte-ok" : undefined}
                 >
-                  {r.joursSansSaisie === 0 ? "✓ " : r.alerte ? "⚠ " : ""}
+                  {r.joursSansSaisie === 0 ? (
+                    <Check size={14} className="icone-texte" aria-hidden="true" />
+                  ) : r.alerte ? (
+                    <TriangleAlert size={14} className="icone-texte" aria-hidden="true" />
+                  ) : null}
                   {phraseEleve(r.joursSansSaisie)}
                 </small>
               </span>

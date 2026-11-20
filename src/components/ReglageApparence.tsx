@@ -3,7 +3,7 @@
 import { IndicateurGlissant } from "./IndicateurGlissant";
 import { useEffect, useState } from "react";
 
-type Theme = "auto" | "clair" | "sombre";
+type Theme = "auto" | "clair" | "sombre" | "tres-sombre";
 type Taille = "normal" | "grand" | "tres-grand";
 const CLE = "apparence";
 
@@ -19,7 +19,10 @@ function lire(): { theme: Theme; taille: Taille } {
 function appliquer(theme: Theme, taille: Taille) {
   const r = document.documentElement;
   if (theme === "auto") r.removeAttribute("data-theme");
-  else r.setAttribute("data-theme", theme);
+  // « Très sombre » est le thème sombre au plus profond (celui de la nuit, tout le temps).
+  else r.setAttribute("data-theme", theme === "tres-sombre" ? "sombre" : theme);
+  if (theme === "tres-sombre") r.setAttribute("data-profondeur", "max");
+  else r.removeAttribute("data-profondeur");
   if (taille === "normal") r.removeAttribute("data-taille");
   else r.setAttribute("data-taille", taille);
 }
@@ -53,7 +56,7 @@ function Choix<T extends string>({
   );
 }
 
-/** « Mon compte » : thème clair ou sombre, et taille du texte de toute l'appli (sur ce téléphone). */
+/** « Mon compte » : thème clair, sombre ou très sombre, et taille du texte de toute l'appli (sur ce téléphone). */
 export function ReglageApparence() {
   const [theme, setTheme] = useState<Theme>("auto");
   const [taille, setTaille] = useState<Taille>("normal");
@@ -82,9 +85,10 @@ export function ReglageApparence() {
         valeur={theme}
         onChange={(t) => changer(t, taille)}
         options={[
-          { valeur: "auto", libelle: "Comme le téléphone" },
+          { valeur: "auto", libelle: "Auto" },
           { valeur: "clair", libelle: "Clair" },
           { valeur: "sombre", libelle: "Sombre" },
+          { valeur: "tres-sombre", libelle: "Très sombre" },
         ]}
       />
       <span className="reglage-apparence-titre">Taille du texte</span>

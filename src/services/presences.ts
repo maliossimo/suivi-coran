@@ -305,7 +305,7 @@ export async function creerUneClasse(
     const id = await creerClasse({ etablissementId: etab.data, ...p.data });
     return { ok: true, id };
   } catch {
-    return { ok: false, erreur: "La classe n’a pas pu être créée." };
+    return { ok: false, erreur: "La classe n’a pas pu être créée. Réessaie dans un instant." };
   }
 }
 
@@ -329,7 +329,7 @@ export async function modifierUneClasse(acteur: Profil, form: FormData): Promise
     await definirCheikhs(id.data, p.data.cheikhs);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "La classe n’a pas pu être modifiée." };
+    return { ok: false, erreur: "La classe n’a pas pu être modifiée. Réessaie dans un instant." };
   }
 }
 
@@ -352,7 +352,7 @@ export async function ajouterUnMembre(acteur: Profil, form: FormData): Promise<R
     await ajouterMembre(classe.data, eleve.success ? { eleveId: eleve.data } : sansCompte.data!);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "L’élève n’a pas pu être ajouté." };
+    return { ok: false, erreur: "L’élève n’a pas pu être ajouté. Réessaie dans un instant." };
   }
 }
 
@@ -365,7 +365,7 @@ export async function changerUnMembre(acteur: Profil, form: FormData): Promise<R
     await changerMembreActif(id.data, form.get("actif") === "true");
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "Modification impossible." };
+    return { ok: false, erreur: "Modification impossible. Réessaie dans un instant." };
   }
 }
 
