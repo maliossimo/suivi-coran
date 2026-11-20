@@ -17942,3 +17942,15 @@ select:focus-visible {
   color: var(--texte);
   font-weight: 600;
 }
+
+/* Confirmations de suppression dans une feuille du bas : le corps de la feuille a déjà ses marges. */
+.feuille-corps .fenetre-contenu {
+  padding: 0;
+}
+.feuille-pied .fenetre-actions {
+  width: 100%;
+}
+.feuille-pied .fenetre-actions > button {
+  flex: 1 1 140px;
+  min-height: 48px;
+}
