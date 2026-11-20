@@ -82,7 +82,7 @@ export async function declarerAcquis(profil: Profil, brut: unknown): Promise<Res
     await marquerAcquisRepondu();
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "L'enregistrement n'a pas pu se faire. Réessaie." };
+    return { ok: false, erreur: "L’enregistrement n’a pas pu se faire. Réessaie." };
   }
 }
 
@@ -101,7 +101,7 @@ export async function retirerUnAcquis(profil: Profil, idBrut: unknown): Promise<
     await retirerAcquis(profil.id, id.data);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "La suppression n'a pas pu se faire. Réessaie." };
+    return { ok: false, erreur: "La suppression n’a pas pu se faire. Réessaie." };
   }
 }
 
@@ -117,7 +117,7 @@ export async function changerEcoute(
     await changerEcouteDemandee(profil.id, id.data, aEcouter);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "Le changement n'a pas pu se faire. Réessaie." };
+    return { ok: false, erreur: "Le changement n’a pas pu se faire. Réessaie." };
   }
 }
 
@@ -136,6 +136,6 @@ export async function marquerUnAcquis(
     await marquerAcquis(id.data, etat.data);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "Le changement n'a pas pu être enregistré. Réessaie." };
+    return { ok: false, erreur: "Le changement n’a pas pu être enregistré. Réessaie." };
   }
 }

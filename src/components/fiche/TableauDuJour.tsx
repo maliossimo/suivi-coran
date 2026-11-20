@@ -52,7 +52,17 @@ export function TableauDuJour({
                   </span>
                   <span className="aujourdhui-texte">
                     <b>{LIBELLE_TYPE[t]}</b>
-                    <small>{fait ? "Saisie ✓" : vueMaitre ? "Pas encore saisie" : "À saisir"}</small>
+                    <small>
+                      {fait ? (
+                        <>
+                          Saisie <Check size={14} className="icone-texte" aria-hidden="true" />
+                        </>
+                      ) : vueMaitre ? (
+                        "Pas encore saisie"
+                      ) : (
+                        "À saisir"
+                      )}
+                    </small>
                   </span>
                 </Link>
               );

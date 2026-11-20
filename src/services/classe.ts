@@ -103,7 +103,7 @@ export async function commenter(
       texte,
     );
   } catch {
-    return { ok: false, erreur: "Le commentaire n'a pas pu être publié." };
+    return { ok: false, erreur: "Le commentaire n’a pas pu être publié. Réessaie dans un instant." };
   }
   return { ok: true };
 }
@@ -203,7 +203,7 @@ export async function archiverEleve(
   try {
     await definirActif(id.data, actif);
   } catch {
-    return { ok: false, erreur: "La modification n'a pas pu être enregistrée." };
+    return { ok: false, erreur: "La modification n’a pas pu être enregistrée. Réessaie dans un instant." };
   }
   return { ok: true };
 }
@@ -221,7 +221,7 @@ export async function supprimerEleve(
   const id = z.string().uuid().safeParse(eleveIdBrut);
   const eleve = id.success ? await eleveParId(id.data) : null;
   if (!eleve) return { ok: false, erreur: "Élève introuvable." };
-  if (eleve.actif) return { ok: false, erreur: "Archive l'élève avant de le supprimer." };
+  if (eleve.actif) return { ok: false, erreur: "Archive l’élève avant de le supprimer." };
   if (!confirmationValide(eleve.prenom, typeof confirmation === "string" ? confirmation : "")) {
     return { ok: false, erreur: `Tape « ${eleve.prenom} » pour confirmer.` };
   }
@@ -335,7 +335,7 @@ export async function genererQrClasse(
       expireLe: expirationDepuis(new Date()),
     });
   } catch {
-    return { ok: false, erreur: "Le QR code n'a pas pu être créé." };
+    return { ok: false, erreur: "Le QR code n’a pas pu être créé. Réessaie dans un instant." };
   }
   return { ok: true };
 }
@@ -346,11 +346,11 @@ export async function desactiverQrClasse(
   classeBrut?: unknown,
 ): Promise<ResultatSaisie> {
   const etablissementId = classeCible(acteur, etablissementBrut);
-  if (!etablissementId) return { ok: false, erreur: "Action réservée au Cheikh de la classe ou à l'admin." };
+  if (!etablissementId) return { ok: false, erreur: "Action réservée au Cheikh de la classe ou à l’admin." };
   try {
     await desactiverInvitations(etablissementId, await porteeQr(acteur, classeBrut));
   } catch {
-    return { ok: false, erreur: "Le QR code n'a pas pu être désactivé." };
+    return { ok: false, erreur: "Le QR code n’a pas pu être désactivé. Réessaie dans un instant." };
   }
   return { ok: true };
 }

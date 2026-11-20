@@ -41,7 +41,7 @@ export async function signalerErreurTajwid(
     await enregistrerSignalement(saisie.data);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "Signalement impossible pour l’instant." };
+    return { ok: false, erreur: "Signalement impossible. Réessaie dans un instant." };
   }
 }
 
@@ -154,12 +154,12 @@ export async function refuserCorrectionTajwid(
 ): Promise<{ ok: true } | { ok: false; erreur: string }> {
   if (!profil || profil.role !== "admin" || !profil.actif) return { ok: false, erreur: "Réservé à l’admin." };
   const saisie = schemaCorrection.safeParse(brut);
-  if (!saisie.success) return { ok: false, erreur: "Demande invalide." };
+  if (!saisie.success) return { ok: false, erreur: "Demande invalide : recharge la page et réessaie." };
   const { refuser, ...c } = saisie.data;
   try {
     await changerRefusCorrection(c satisfies CorrectionTajwid, refuser);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "Modification impossible pour l’instant." };
+    return { ok: false, erreur: "Modification impossible. Réessaie dans un instant." };
   }
 }

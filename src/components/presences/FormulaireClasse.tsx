@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
+import { ContenuBoutonEnregistrer } from "@/components/ContenuBoutonEnregistrer";
 import { actionCreerClasse, actionModifierClasse } from "@/app/actions/presences";
 import type { EtatSaisie } from "@/app/actions/fiche";
 import { Selecteur } from "@/components/Selecteur";
@@ -93,7 +94,11 @@ export function FormulaireClasse({
         </label>
       ) : null}
       <button className="bouton" type="submit" disabled={enCours}>
-        {enCours ? "Enregistrement…" : classe ? "Enregistrer" : "Créer la classe"}
+        <ContenuBoutonEnregistrer
+          enCours={enCours}
+          libelle={classe ? "Enregistrer" : "Créer la classe"}
+          echec={Boolean(etat.erreur)}
+        />
       </button>
     </form>
   );
