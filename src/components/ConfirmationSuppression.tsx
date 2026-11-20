@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useId, useState } from "react";
 import { actionSupprimerEleve } from "@/app/actions/classe";
 import type { EtatSaisie } from "@/app/actions/fiche";
+import { Feuille } from "@/components/Feuille";
 import { confirmationValide } from "@/domain/classe";
 
 /**
@@ -18,28 +19,40 @@ export function ConfirmationSuppression({
   prenom: string;
   nom: string;
 }) {
-  const fenetre = useRef<HTMLDialogElement>(null);
+  const [ouverte, setOuverte] = useState(false);
+  const idFormulaire = useId();
   const [saisie, setSaisie] = useState("");
   const [etat, action, enCours] = useActionState<EtatSaisie, FormData>(actionSupprimerEleve, {});
   const valide = confirmationValide(prenom, saisie);
 
+  const fermer = () => {
+    setOuverte(false);
+    setSaisie("");
+  };
+
   return (
     <>
-      <button type="button" className="bouton-danger" onClick={() => fenetre.current?.showModal()}>
+      <button type="button" className="bouton-danger" onClick={() => setOuverte(true)}>
         Supprimer définitivement
       </button>
 
-      <dialog
-        ref={fenetre}
-        className="fenetre"
-        aria-labelledby="suppression-titre"
-        onClose={() => setSaisie("")}
+      <Feuille
+        ouverte={ouverte}
+        onFermer={fermer}
+        titre={`Supprimer ${prenom} ${nom} ?`}
+        pied={
+          <div className="fenetre-actions">
+            <button type="button" className="bouton-secondaire" onClick={fermer}>
+              Annuler
+            </button>
+            <button type="submit" form={idFormulaire} className="bouton-danger" disabled={!valide || enCours}>
+              {enCours ? "Suppression…" : "Supprimer définitivement"}
+            </button>
+          </div>
+        }
       >
-        <form action={action} className="fenetre-contenu">
+        <form id={idFormulaire} action={action} className="fenetre-contenu">
           <input type="hidden" name="eleveId" value={eleveId} />
-          <h2 id="suppression-titre">
-            Supprimer {prenom} {nom} ?
-          </h2>
           <p>
             Toutes ses données seront <strong>effacées définitivement</strong> : séances, passages, objectifs,
             bilans, commentaires et son compte de connexion. <strong>Il n’y a pas de retour possible.</strong>
@@ -49,11 +62,11 @@ export function ConfirmationSuppression({
           </p>
 
           <div className="champ">
-            <label htmlFor="confirmation">
+            <label htmlFor={`${idFormulaire}-confirmation`}>
               Pour confirmer, tape son prénom : <strong>{prenom}</strong>
             </label>
             <input
-              id="confirmation"
+              id={`${idFormulaire}-confirmation`}
               name="confirmation"
               autoComplete="off"
               value={saisie}
@@ -66,17 +79,8 @@ export function ConfirmationSuppression({
               {etat.erreur}
             </p>
           ) : null}
-
-          <div className="fenetre-actions">
-            <button type="button" className="bouton-secondaire" onClick={() => fenetre.current?.close()}>
-              Annuler
-            </button>
-            <button type="submit" className="bouton-danger" disabled={!valide || enCours}>
-              {enCours ? "Suppression…" : "Supprimer définitivement"}
-            </button>
-          </div>
         </form>
-      </dialog>
+      </Feuille>
     </>
   );
 }
