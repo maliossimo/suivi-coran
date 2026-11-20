@@ -2,7 +2,7 @@ import { exigerEspace } from "@/services/acces";
 import { chargerEtatSite } from "@/services/admin";
 import Link from "next/link";
 import { dateHeure } from "@/domain/format";
-import { depuisQuand, regrouperErreurs } from "@/domain/journal";
+import { depuisQuand, expliquerErreur, nomDePage, regrouperErreurs } from "@/domain/journal";
 import { actionReglerErreur } from "@/app/actions/admin";
 
 function taille(octets: number | null): string {
@@ -70,24 +70,36 @@ export async function EtatDuSite() {
       </ul>
       {e.erreurs.length > 0 ? (
         <ul className="liste-erreurs">
-          {regrouperErreurs(e.erreurs).map((g) => (
-            <li key={g.message}>
-              <span className="liste-erreurs-tete">
-                {dateHeure(g.quand)}
-                {g.nombre > 1 ? ` · ${g.nombre} fois` : ""} · <code>{g.pages.join(", ")}</code>
-              </span>
-              <span className="liste-erreurs-message">{g.message}</span>
-              <span className="liste-erreurs-pied">
-                <small>version en ligne {g.versions.join(", ") || "—"}</small>
-                <form action={actionReglerErreur}>
-                  <input type="hidden" name="message" value={g.message} />
-                  <button type="submit" className="liste-erreurs-reglee">
-                    ✓ Réglé
-                  </button>
-                </form>
-              </span>
-            </li>
-          ))}
+          {regrouperErreurs(e.erreurs).map((g) => {
+            const x = expliquerErreur(g.message);
+            return (
+              <li key={g.message} data-gravite={x.sansGravite ? "faible" : "a-voir"}>
+                <span className="liste-erreurs-tete">
+                  <b className={`erreur-famille erreur-${x.type}`}>{x.famille}</b>
+                  {x.sansGravite ? <em className="erreur-sans-gravite">sans gravité</em> : null}
+                  <span>
+                    {dateHeure(g.quand)}
+                    {g.nombre > 1 ? ` · ${g.nombre} fois` : ""} · {g.pages.map(nomDePage).join(", ")}
+                  </span>
+                </span>
+                <span className="liste-erreurs-explication">{x.explication}</span>
+                <details className="liste-erreurs-detail">
+                  <summary>Détail technique</summary>
+                  <span className="liste-erreurs-message">{g.message}</span>
+                  <code>{g.pages.join(", ")}</code>
+                </details>
+                <span className="liste-erreurs-pied">
+                  <small>version en ligne {g.versions.join(", ") || "—"}</small>
+                  <form action={actionReglerErreur}>
+                    <input type="hidden" name="message" value={g.message} />
+                    <button type="submit" className="liste-erreurs-reglee">
+                      ✓ Réglé
+                    </button>
+                  </form>
+                </span>
+              </li>
+            );
+          })}
         </ul>
       ) : null}
     </details>

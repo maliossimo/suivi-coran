@@ -7,6 +7,7 @@ import { AnneauProgression } from "@/components/AnneauProgression";
 import { EtatVide } from "@/components/EtatVide";
 import { CarteCoran } from "./CarteCoran";
 import { GraphiqueCumul, GraphiqueSemaines, GrilleRegularite, LegendeTeintes } from "./Graphiques";
+import { HistoriqueMois } from "./HistoriqueMois";
 import { ZoneBulles } from "./ZoneBulles";
 import { AcquisProgression } from "@/components/acquis/AcquisProgression";
 import { SousTitreEntete } from "@/components/SousTitreEntete";
@@ -127,13 +128,16 @@ export function EcranProgression({
             </small>
           ) : null}
         </div>
-        <div className={p.joursConsecutifs > 0 ? "tuile tuile-serie est-allumee" : "tuile tuile-serie"}>
-          <Flame size={20} aria-hidden="true" className="tuile-icone" />
-          <strong>
-            <Compteur valeur={p.joursConsecutifs} />
-          </strong>
-          <span>jour{p.joursConsecutifs > 1 ? "s" : ""} d’affilée</span>
-        </div>
+        {/* La flamme n'apparaît qu'à partir de 2 jours d'affilée. */}
+        {p.joursConsecutifs >= 2 ? (
+          <div className={"tuile tuile-serie est-allumee"}>
+            <Flame size={20} aria-hidden="true" className="tuile-icone" />
+            <strong>
+              <Compteur valeur={p.joursConsecutifs} />
+            </strong>
+            <span>jour{p.joursConsecutifs > 1 ? "s" : ""} d’affilée</span>
+          </div>
+        ) : null}
         <div className="tuile">
           <Target size={20} aria-hidden="true" className="tuile-icone" />
           <strong>
@@ -153,6 +157,8 @@ export function EcranProgression({
             <GraphiqueCumul points={p.cumulParMois} />
           </ZoneBulles>
         </section>
+
+        <HistoriqueMois mois={p.bilanParMois} />
 
         <section className="carte-graphique">
           <h2>Temps de travail</h2>

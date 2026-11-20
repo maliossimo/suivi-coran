@@ -53,6 +53,7 @@ jobs:
     # Écriture seulement pour enregistrer de nouvelles captures de référence (lancement à la main).
     permissions:
       contents: write
+      statuses: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -114,6 +115,17 @@ jobs:
           git config user.email "55502349+maliossimo@users.noreply.github.com"
           git add e2e/visuel.e2e.ts-snapshots
           git diff --cached --quiet || { git commit -m "Met à jour les captures de référence des tests visuels"; git push; }
+      # Un push fait par le workflow ne relance pas les vérifications : on passe donc ici tous les parcours
+      # sur ces nouvelles références, et on pose le résultat sur le nouveau commit (plus de second lancement à la main).
+      - name: Parcours sur les nouvelles captures
+        if: ${{ inputs.captures }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          npx playwright test -c e2e/playwright.config.ts
+          gh api "repos/${{ github.repository }}/statuses/$(git rev-parse HEAD)" \
+            -f state=success -f context="Parcours complets (navigateur)" \
+            -f description="Captures refaites puis parcours complets passés" >/dev/null
 
       - name: Journal du serveur
         if: failure()

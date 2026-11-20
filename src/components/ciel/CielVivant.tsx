@@ -107,6 +107,9 @@ function useBarreEtatDuCiel(
       document.documentElement.style.setProperty("--ciel-actuel", horizon || couleur);
       // Toute la page prend l'ambiance du moment (aube rosée, Maghrib ambré, nuit, jour).
       document.documentElement.dataset.moment = moment;
+      // Nuit profonde ou dernier tiers : le thème sombre devient encore plus sombre (voir globals.css).
+      if (nuit) document.documentElement.dataset.nuit = nuit;
+      else delete document.documentElement.dataset.nuit;
     };
     appliquer();
     const schema = matchMedia("(prefers-color-scheme: dark)");

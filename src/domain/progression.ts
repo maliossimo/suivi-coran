@@ -29,6 +29,24 @@ export interface BarreSemaine {
   revision: number;
 }
 
+/** Un mois du travail de l'élève, pour comparer d'un mois à l'autre. */
+export interface BilanMois {
+  cle: string; // AAAA-MM
+  libelle: string; // « nov. »
+  seances: number;
+  /** Jours où il y a eu au moins une séance. */
+  joursTravailles: number;
+  minutes: number;
+  /** Versets ajoutés ce mois-là (apprentissage). */
+  versets: number;
+}
+
+/** Variation en % entre deux valeurs, arrondie ; null s'il n'y a rien avant pour comparer. */
+export function variationPourcent(actuel: number, precedent: number): number | null {
+  if (precedent <= 0) return null;
+  return Math.round(((actuel - precedent) / precedent) * 100);
+}
+
 export interface CaseRegularite {
   date: DateISO;
   minutes: number;
@@ -65,6 +83,8 @@ export interface Progression {
   /** Sourates complètes dont tous les versets ont été vus par le Cheikh. */
   souratesCompletesVues: number;
   cumulParMois: PointMois[];
+  /** Les mêmes mois, séances et temps de chacun, du plus ancien au plus récent (le dernier est en cours). */
+  bilanParMois: BilanMois[];
   minutesParSemaine: BarreSemaine[];
   regularite: CaseRegularite[][]; // colonnes = semaines (lundi → dimanche)
   objectifsParMois: { cle: string; libelle: string; atteints: number; total: number }[];
@@ -174,6 +194,23 @@ export function calculerProgression(
     libelle: m.libelle,
     valeur: compter(intervallesDates.filter((i) => i.date <= m.fin).map((i) => i.intervalle)),
   }));
+
+  const bilanParMois: BilanMois[] = mois.map((m, i) => {
+    const debut = `${m.cle}-01`;
+    const dans = valides.filter((s) => s.date >= debut && s.date <= m.fin);
+    const avant =
+      i === 0
+        ? compter(intervallesDates.filter((x) => x.date < debut).map((x) => x.intervalle))
+        : cumulParMois[i - 1]!.valeur;
+    return {
+      cle: m.cle,
+      libelle: m.libelle,
+      seances: dans.length,
+      joursTravailles: new Set(dans.map((s) => s.date)).size,
+      minutes: dans.reduce((t, s) => t + s.dureeMin, 0),
+      versets: Math.max(0, cumulParMois[i]!.valeur - avant),
+    };
+  });
 
   // Minutes par semaine glissante (7 jours), la dernière se terminant aujourd'hui.
   const minutesParSemaine: BarreSemaine[] = [];
@@ -287,6 +324,7 @@ export function calculerProgression(
     minutesParSemaine,
     regularite,
     objectifsParMois,
+    bilanParMois,
     sourates,
     joursConsecutifs,
   };
