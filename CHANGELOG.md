@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.70.0] — 2026-11-20
+
+### Ajouté
+
+- Administration : une pastille rouge avec le nombre d'erreurs à regarder s'affiche sur l'onglet Admin. Elle compte les erreurs distinctes non réglées des 7 derniers jours, sans celles qui sont sans gravité (réseau coupé, appli mise à jour pendant l'utilisation). Elle disparaît quand tout est réglé. Rien n'est envoyé par e-mail.
+
 ## [1.69.0] — 2026-11-20
 
 ### Ajouté

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { accueilDuRole, LIBELLE_ROLE_LONG, type Role } from "@/domain/roles";
 import { compteConnecte } from "@/services/acces";
+import { nombreErreursAVoir } from "@/services/admin";
 import { chargerCiel } from "@/services/ciel";
 import { Avatar } from "./Avatar";
 import { CielDates, CielDecor } from "./ciel/CielVivant";
@@ -32,6 +33,9 @@ export async function EnteteEspace({
   const responsable = role === "maitre" && Boolean(compte?.responsable);
   // Ciel du jour : heures de prière de la mosquée (Paris si elle n'est pas encore placée), lune, fêtes.
   const ciel = await chargerCiel(compte?.etablissementId ?? null);
+  // Admin : le nombre d'erreurs à regarder s'affiche en pastille sur l'onglet Admin.
+  const erreursAVoir = await nombreErreursAVoir(role);
+  const alertes = erreursAVoir > 0 ? { "/admin": erreursAVoir } : undefined;
   return (
     <>
       <header className="barre barre-vivante">
@@ -45,7 +49,7 @@ export async function EnteteEspace({
               <TitreBarre titre={titre} sousTitre={sousTitre} prenom={nom.split(/\s+/)[0] ?? ""} />
             </div>
           </LogoAccueil>
-          <NavigationEspace role={role} responsable={responsable} />
+          <NavigationEspace role={role} responsable={responsable} alertes={alertes} />
           <Link href="/compte" prefetch className="barre-identite" aria-label="Mon compte">
             <Avatar prenom={nom} cle={nom} role={role} taille="petit" surBarre />
             <span className="barre-nom">
