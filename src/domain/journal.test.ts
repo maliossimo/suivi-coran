@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { depuisQuand, grouperParJour, phraseAudit, regrouperErreurs, regrouperOuvertures } from "./journal";
+import {
+  depuisQuand,
+  expliquerErreur,
+  grouperParJour,
+  nomDePage,
+  phraseAudit,
+  regrouperErreurs,
+  regrouperOuvertures,
+} from "./journal";
 
 describe("phraseAudit", () => {
   it("écrit une phrase simple", () => {
@@ -104,5 +112,44 @@ describe("regrouperErreurs", () => {
       },
       { message: "Autre", nombre: 1, quand: "2026-11-14T16:35:00Z", pages: ["/eleve"], versions: [] },
     ]);
+  });
+});
+
+describe("expliquerErreur", () => {
+  it("reconnaît un réseau coupé, sans gravité", () => {
+    for (const m of [
+      "Load failed",
+      "TypeError: Failed to fetch",
+      "NetworkError when attempting to fetch resource.",
+    ]) {
+      const e = expliquerErreur(m);
+      expect(e.type).toBe("reseau");
+      expect(e.sansGravite).toBe(true);
+    }
+  });
+
+  it("reconnaît une appli mise à jour pendant l'utilisation", () => {
+    expect(expliquerErreur("ChunkLoadError: Loading chunk 123 failed").type).toBe("mise-a-jour");
+    expect(expliquerErreur("Failed to fetch dynamically imported module: /x.js").type).toBe("mise-a-jour");
+  });
+
+  it("signale un écart d'affichage comme à regarder", () => {
+    const e = expliquerErreur("Hydration failed because the server rendered HTML didn't match");
+    expect(e.type).toBe("affichage");
+    expect(e.sansGravite).toBe(false);
+  });
+
+  it("garde le reste comme erreur de l'appli, à regarder", () => {
+    const e = expliquerErreur("TypeError: Cannot read properties of undefined (reading 'x')");
+    expect(e.type).toBe("appli");
+    expect(e.sansGravite).toBe(false);
+  });
+});
+
+describe("nomDePage", () => {
+  it("donne un nom lisible aux pages connues", () => {
+    expect(nomDePage("/connexion")).toBe("écran de connexion");
+    expect(nomDePage("/eleve/progression")).toBe("espace élève");
+    expect(nomDePage("/autre/chose")).toBe("/autre/chose");
   });
 });

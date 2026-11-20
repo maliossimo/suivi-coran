@@ -9,6 +9,54 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.67.1] — 2026-11-20
+
+### Corrigé
+
+- `scripts/synchroniser-prod.sh` : le dépôt est lu dans l'adresse du remote (plus de dépendance à GraphQL).
+
+## [1.67.0] — 2026-11-20
+
+### Ajouté
+
+- Progression : carte « Mois après mois » (temps de travail, jours travaillés, versets ajoutés, évolution par rapport au mois d'avant avec flèche et mot).
+- Administration : les erreurs du site sont classées (réseau, mise à jour, affichage, navigateur, appli), expliquées en une phrase et marquées « sans gravité » quand c'est le cas ; le détail technique est replié.
+- Thème sombre plus sombre la nuit profonde (après Icha et dernier tiers de la nuit).
+- `scripts/synchroniser-prod.sh` : rattachement de `prod` à `main` après une fusion « squash » (procédure ajoutée à CLAUDE.md).
+
+### Modifié
+
+- Progression : la flamme des jours d'affilée n'apparaît qu'à partir de 2 jours.
+- Tests visuels : après le renouvellement des captures, le workflow passe tous les parcours et pose lui-même le statut sur le nouveau commit (un seul lancement).
+
+## [1.66.0] — 2026-11-20
+
+### Ajouté
+
+- Objectifs : la zone de saisie grandit avec le texte, donc un objectif long se lit et se corrige en entier (en lecture seule aussi). Un compteur apparaît près de la limite (300 caractères).
+- Les objectifs s'enregistrent tout seuls en quittant le champ ; le bouton « Enregistrer » devient plein tant que le texte n'est pas enregistré.
+- Statuts « En cours / Atteint / Non atteint » sur une rangée de même largeur, avec une icône pour chacun (plus seulement la couleur).
+- Cartes de semaine : titre à gauche et bilan en badge à droite, dates dessous ; les points des jours ont chacun leur forme (rond plein, rond à cœur clair, carré doré, anneau, petit point).
+- Les semaines repliées se déplient en douceur (navigateurs qui le permettent).
+
+### Modifié
+
+- Bandeau « Vue du Cheikh » : le libellé n'est plus coupé, le choix Lecture seule / Modifier passe dessous sur téléphone.
+- Le bouton « remonter » n'apparaît qu'en remontant la page et s'efface au bout de 2,5 s : il ne cache plus « Enregistrer ».
+- Le titre « Objectif du mois » n'est plus affiché deux fois.
+- Fiche d'un élève sans séance : une icône devant le message.
+
+## [1.65.0] — 2026-11-20
+
+### Modifié
+
+- Fondations de l'interface : une échelle commune pour les textes (12 · 13 · 14 · 16 · 18 · 22 · 28), les espacements (4 à 32) et les rayons (8 · 12 · 16 · 20), utilisée par les nouveaux styles ; les demi-tailles et les rayons isolés de l'existant sont ramenés à cette échelle.
+- Le motif géométrique du fond est plus discret, pour ne plus gêner la lecture derrière les cartes.
+- Les textes secondaires (gris) sont plus contrastés, en clair comme en sombre.
+- Les icônes ont toutes le même trait fin et régulier.
+- Le focus au clavier est plus net : anneau plus contrasté (3:1 sur fond clair), liseré qui le détache du fond, champs de saisie avec halo.
+- La barre du système sous la barre de navigation (téléphone installé) prend la couleur sombre de l'appli au lieu du vert ; elle se met à jour avec l'installation de l'appli (parfois après quelques jours, ou en la réinstallant).
+
 ## [1.64.0] — 2026-11-19
 
 ### Modifié
