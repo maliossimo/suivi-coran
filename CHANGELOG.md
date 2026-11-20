@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.68.1] — 2026-11-20
+
+### Modifié
+
+- Les tailles de texte courantes (12, 13, 14, 16, 18, 22 et 28 px) passent par l'échelle commune `--t-*` : aucun changement d'affichage, un seul endroit pour ajuster les textes.
+
 ## [1.68.0] — 2026-11-20
 
 ### Modifié

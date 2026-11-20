@@ -57,7 +57,7 @@ body {
   background: var(--fond);
   color: var(--texte);
   font-family: var(--font-texte), system-ui, sans-serif;
-  font-size: 16px;
+  font-size: var(--t-base);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -202,7 +202,7 @@ a:hover {
     display: none;
   }
   .auth-nom {
-    font-size: 22px;
+    font-size: var(--t-xl);
   }
   .auth-panneau {
     align-items: flex-start;
@@ -235,7 +235,7 @@ a:hover {
   gap: 8px;
 }
 .champ label {
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
 }
 .champ input {
@@ -258,7 +258,7 @@ a:hover {
   box-shadow: 0 0 0 4px var(--vert-clair);
 }
 .lien-discret {
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 500;
   text-decoration: none;
 }
@@ -315,7 +315,7 @@ a:hover {
   border-radius: 12px;
   background: #fbe3df;
   color: var(--rouge);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .message-info {
   margin: 0;
@@ -323,7 +323,7 @@ a:hover {
   border-radius: 12px;
   background: var(--vert-clair);
   color: var(--vert-fonce);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 
 /* ---------- Espaces élève / maître / admin --------------------------- */
@@ -369,11 +369,11 @@ a:hover {
   line-height: 1.2;
 }
 .barre-app {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: rgba(255, 255, 255, 0.88);
 }
 .barre-titre {
-  font-size: 18px;
+  font-size: var(--t-l);
   font-weight: 700;
 }
 .barre-utilisateur {
@@ -401,7 +401,7 @@ a:hover {
   flex-direction: column;
   line-height: 1.2;
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .barre-nom small {
   font-weight: 400;
@@ -416,7 +416,7 @@ a:hover {
   background: var(--or);
   color: var(--vert-nuit);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .barre .bouton-secondaire {
   background: transparent;
@@ -453,7 +453,7 @@ a:hover {
 }
 .carte-accueil h2 {
   margin: 0 0 6px;
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .carte-accueil p {
   margin: 0;
@@ -484,7 +484,7 @@ a:hover {
   border-radius: 999px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -498,7 +498,7 @@ a:hover {
 }
 .mois-titre {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--t-xl);
   text-transform: capitalize;
 }
 .mois-fleche {
@@ -510,7 +510,7 @@ a:hover {
   border-radius: 12px;
   background: var(--carte);
   color: var(--texte);
-  font-size: 22px;
+  font-size: var(--t-xl);
   text-decoration: none;
 }
 .mois-fleche:hover {
@@ -539,7 +539,7 @@ a:hover {
   border-radius: 999px;
   background: var(--carte);
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   text-decoration: none;
 }
@@ -565,7 +565,7 @@ a:hover {
 }
 .bandeau-avenir h3 {
   margin: 0 0 4px;
-  font-size: 18px;
+  font-size: var(--t-l);
   color: #f0d796;
 }
 .bandeau-avenir p {
@@ -591,7 +591,7 @@ a:hover {
   border-radius: 999px;
   background: var(--carte);
   border: 1px solid var(--ligne);
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .bilan-chiffres strong {
@@ -599,7 +599,7 @@ a:hover {
 }
 .bilan-aide {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .bilan-formulaire {
@@ -617,7 +617,7 @@ a:hover {
   gap: 6px;
 }
 .bilan-etiquette {
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
 }
 .bilan-etiquette-acquis {
@@ -635,11 +635,11 @@ a:hover {
 .bilan-ok {
   color: var(--vert-texte);
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .commentaire-maitre h4 {
   margin: 0 0 6px;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--or-texte);
 }
 
@@ -887,11 +887,11 @@ html.vague-fiche::view-transition-new(root) {
 .semaine-entete h2,
 .semaine-entete h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .semaine-entete span {
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .jours {
   list-style: none;
@@ -926,7 +926,7 @@ a.jour:hover {
   display: flex;
   flex-direction: column;
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--t-m);
   line-height: 1.2;
 }
 .jour-nom small {
@@ -935,10 +935,10 @@ a.jour:hover {
 }
 .jour-duree {
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .jour-contenu {
-  font-size: 14px;
+  font-size: var(--t-m);
   overflow-wrap: anywhere;
 }
 .jour-vide {
@@ -957,7 +957,7 @@ a.jour:hover {
 }
 .objectif-titre {
   grid-column: 1 / -1;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   color: var(--texte-doux);
 }
@@ -985,7 +985,7 @@ a.jour:hover {
   padding: 0 12px;
   border: 1px solid var(--champ);
   border-radius: 999px;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   color: var(--texte-doux);
   cursor: pointer;
@@ -1024,7 +1024,7 @@ a.jour:hover {
 }
 .seance-entete h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .seance-entete p {
   margin: 4px 0 0;
@@ -1038,7 +1038,7 @@ a.jour:hover {
 }
 .commentaire-maitre h2 {
   margin: 0 0 6px;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--or-texte);
 }
 .commentaire-maitre p {
@@ -1066,7 +1066,7 @@ a.jour:hover {
 .bloc-vide {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .compteur {
   display: grid;
@@ -1113,7 +1113,7 @@ a.jour:hover {
   gap: 10px;
 }
 .passage .champ span {
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .passage .selecteur,
@@ -1142,7 +1142,7 @@ a.jour:hover {
   border: 0;
   background: transparent;
   color: var(--texte-doux);
-  font-size: 18px;
+  font-size: var(--t-l);
   cursor: pointer;
 }
 .bouton-ajout {
@@ -1209,7 +1209,7 @@ input.champ-texte {
 }
 .titre-page {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .entete-page {
   /* Au-dessus de la navigation des mois quand le menu ⋯ est ouvert. */
@@ -1223,7 +1223,7 @@ input.champ-texte {
 }
 .entete-page h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .mois-compact {
   gap: 8px;
@@ -1262,7 +1262,7 @@ input.champ-texte {
   border-radius: 999px;
   background: #eef1f8;
   color: #34446b;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
 }
 .pastille-commentaire {
@@ -1275,7 +1275,7 @@ input.champ-texte {
   background: var(--or-clair);
   border: 1px solid var(--bord-or);
   color: var(--or-texte);
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   vertical-align: middle;
 }
@@ -1300,7 +1300,7 @@ input.champ-texte {
   line-height: 1.2;
 }
 .tuile span {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .tuile-forte {
@@ -1367,7 +1367,7 @@ input.champ-texte {
 .carte-eleve-nom small {
   font-weight: 400;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .texte-alerte {
   color: #9a4a0c !important;
@@ -1378,7 +1378,7 @@ input.champ-texte {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 16px;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .carte-eleve-stats b {
@@ -1386,7 +1386,7 @@ input.champ-texte {
 }
 .chevron {
   grid-area: chevron;
-  font-size: 22px;
+  font-size: var(--t-xl);
   color: var(--texte-doux);
 }
 .avatar-clair {
@@ -1396,7 +1396,7 @@ input.champ-texte {
 .avatar-grand {
   width: 52px;
   height: 52px;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .archives {
   background: var(--carte);
@@ -1436,11 +1436,11 @@ input.champ-texte {
 }
 .carte-graphique h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .carte-graphique-sous {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
   display: flex;
   flex-wrap: wrap;
@@ -1504,7 +1504,7 @@ input.champ-texte {
   grid-template-columns: 48px minmax(0, 1fr) 40px;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .barres-objectifs .jauge > span {
   background: var(--or);
@@ -1527,20 +1527,20 @@ input.champ-texte {
   justify-content: space-between;
   align-items: baseline;
   gap: 8px;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .liste-sourates-ligne .arabe {
   color: var(--vert-texte);
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .liste-sourates-info {
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
   white-space: nowrap;
 }
 .liste-sourates-revision {
   color: var(--texte-doux);
-  font-size: 12px;
+  font-size: var(--t-xs);
 }
 
 /* ---------- Formulaires et tableaux d'administration ------------------ */
@@ -1581,7 +1581,7 @@ input.champ-texte {
   gap: 12px;
   padding: 10px 0;
   border-top: 1px solid var(--surface-3);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .liste-simple li:first-child {
   border-top: 0;
@@ -1596,11 +1596,11 @@ input.champ-texte {
   width: 100%;
   min-width: 620px;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .tableau th {
   text-align: left;
-  font-size: 12px;
+  font-size: var(--t-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--texte-doux);
@@ -1614,7 +1614,7 @@ input.champ-texte {
 .pastille-role {
   padding: 2px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 700;
 }
 .pastille-eleve {
@@ -1634,7 +1634,7 @@ input.champ-texte {
   background: none;
   padding: 6px 0;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--vert-texte);
   cursor: pointer;
 }
@@ -1812,7 +1812,7 @@ input.champ-texte {
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.2);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .notification > span:nth-child(2) {
   flex: 1;
@@ -1860,7 +1860,7 @@ input.champ-texte {
   top: 50%;
   transform: translateY(-50%);
   color: var(--texte-doux);
-  font-size: 18px;
+  font-size: var(--t-l);
   pointer-events: none;
 }
 .recherche-champ {
@@ -1950,7 +1950,7 @@ input.champ-texte {
   line-height: 1.55;
 }
 .fenetre-note {
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte-doux);
 }
 .fenetre-actions {
@@ -2043,7 +2043,7 @@ input.champ-texte {
     gap: 3px;
     height: 56px;
     padding: 0 4px;
-    font-size: 12px;
+    font-size: var(--t-xs);
     color: var(--texte-doux);
   }
   .nav-onglet:hover {
@@ -2090,7 +2090,7 @@ input.champ-texte {
 }
 .carte-compte h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .carte-compte p {
   margin: 2px 0 0;
@@ -2111,11 +2111,11 @@ input.champ-texte {
 }
 .carte-compte-section h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .carte-compte-aide {
   margin: -6px 0 0;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte-doux);
 }
 .bouton-deconnexion {
@@ -2137,7 +2137,7 @@ input.champ-texte {
   padding: 0 4px;
   color: var(--vert-texte);
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--t-m);
   text-decoration: none;
 }
 .lien-pdf:hover {
@@ -2171,7 +2171,7 @@ input.champ-texte {
 }
 .pdf-outils-action p {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
   text-align: right;
 }
@@ -2197,7 +2197,7 @@ input.champ-texte {
   flex-direction: column;
   gap: 10px;
   font-family: var(--font-texte), system-ui, sans-serif;
-  font-size: 12px;
+  font-size: var(--t-xs);
   line-height: 1.35;
   color: #1c2420;
 }
@@ -2236,7 +2236,7 @@ input.champ-texte {
 .pdf-entete-titres h1 {
   margin: 1px 0 0;
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 22px;
+  font-size: var(--t-xl);
   font-weight: 600;
   line-height: 1.15;
   color: #fff;
@@ -2270,7 +2270,7 @@ input.champ-texte {
 }
 .pdf-chiffre strong {
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 18px;
+  font-size: var(--t-l);
   font-weight: 600;
   color: var(--vert-texte);
   line-height: 1.1;
@@ -2340,7 +2340,7 @@ input.champ-texte {
   border-bottom: 1px solid var(--trait);
 }
 .pdf-semaine-titre strong {
-  font-size: 12px;
+  font-size: var(--t-xs);
 }
 .pdf-semaine-titre .pdf-semaine-dates {
   color: var(--texte-doux);
@@ -2426,7 +2426,7 @@ input.champ-texte {
 }
 .pdf-ar {
   font-family: var(--font-arabe), "Amiri", serif;
-  font-size: 13px;
+  font-size: var(--t-s);
   line-height: 1;
   color: var(--vert-texte);
 }
@@ -2650,7 +2650,7 @@ input.champ-texte {
     font-size: 8px;
   }
   .pdf-ar {
-    font-size: 12px;
+    font-size: var(--t-xs);
   }
   .pdf-semaine-titre,
   .pdf-objectif {
@@ -2729,7 +2729,7 @@ input.champ-texte {
   border-radius: 999px;
   background: var(--carte);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   color: var(--texte);
   cursor: pointer;
@@ -2754,7 +2754,7 @@ input.champ-texte {
   cursor: pointer;
 }
 .suggestion-titre {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .suggestion-passage {
@@ -2855,7 +2855,7 @@ input.champ-texte {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 16px;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .carte-legende li {
@@ -2940,12 +2940,12 @@ input.champ-texte {
 }
 .hizb-a-revoir h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--t-base);
   color: var(--or-texte);
 }
 .hizb-resume {
   margin: 2px 0 6px;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .hizb-resume b {
@@ -2977,7 +2977,7 @@ input.champ-texte {
   place-content: center;
   text-align: center;
   font-weight: 700;
-  font-size: 18px;
+  font-size: var(--t-l);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -2991,14 +2991,14 @@ input.champ-texte {
   margin-bottom: 2px;
 }
 .hizb-plage {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
   line-height: 1.35;
 }
 .hizb-pastille {
   padding: 3px 9px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -3047,10 +3047,10 @@ input.champ-texte {
 }
 .hizb-portion-texte {
   min-width: 0;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .hizb-portion-texte .arabe {
-  font-size: 16px;
+  font-size: var(--t-base);
 }
 .hizb-versets {
   white-space: nowrap;
@@ -3059,7 +3059,7 @@ input.champ-texte {
 .hizb-portion-texte small {
   display: block;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .bouton-petit {
   height: 36px;
@@ -3067,7 +3067,7 @@ input.champ-texte {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--t-s);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -3342,7 +3342,7 @@ a.jour:active {
   fill: var(--texte);
   font-family: var(--font-titre), Georgia, serif;
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .tuile-anneau {
   display: flex;
@@ -3553,7 +3553,7 @@ a.jour:active {
 .qr-infos {
   margin: 0;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte-doux);
 }
 .qr-actions {
@@ -3578,7 +3578,7 @@ a.jour:active {
 .auth-bas {
   margin: 16px 0 0;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte-doux);
 }
 .auth-bas a {
@@ -3599,7 +3599,7 @@ a.jour:active {
 }
 .choix-classe label {
   width: 100%;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   color: var(--texte-doux);
 }
@@ -3717,7 +3717,7 @@ a.jour:active {
 }
 .passage-vu {
   margin: 0 0 8px;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   color: var(--vert-texte);
 }
@@ -3732,7 +3732,7 @@ a.jour:active {
   margin-left: 8px;
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -3780,7 +3780,7 @@ a.jour:active {
   background: var(--carte);
   color: var(--vert-texte);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -3867,7 +3867,7 @@ a.jour:active {
   min-height: 40px;
   padding: 0 10px 0 12px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .selecteur-etoile-champ {
   flex-shrink: 0;
@@ -3905,7 +3905,7 @@ a.jour:active {
   background: transparent;
   color: var(--texte);
   font: inherit;
-  font-size: 16px; /* pas de zoom automatique sur iPhone */
+  font-size: var(--t-base); /* pas de zoom automatique sur iPhone */
   outline: none;
 }
 .selecteur-astuce {
@@ -3914,7 +3914,7 @@ a.jour:active {
   gap: 6px;
   margin: 0;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .selecteur-sections {
   display: grid;
@@ -3922,7 +3922,7 @@ a.jour:active {
 }
 .selecteur-section h3 {
   margin: 0 0 6px;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -3983,7 +3983,7 @@ a.jour:active {
   text-overflow: ellipsis;
 }
 .selecteur-option-texte small {
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 400;
   color: var(--texte-doux);
 }
@@ -3997,7 +3997,7 @@ a.jour:active {
   border: 1px solid var(--bord-or);
   border-radius: 10px;
   color: var(--or-texte);
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -4058,7 +4058,7 @@ a.jour:active {
   background: var(--or-clair);
   border: 1px solid var(--bord-or);
   color: var(--or-texte);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .bandeau-annulation-zone {
   position: fixed;
@@ -4158,7 +4158,7 @@ a.jour:active {
   padding: 10px 12px;
   border-radius: 12px;
   background: var(--surface-2);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .etapes-installation svg,
 .etape-menu {
@@ -4178,7 +4178,7 @@ a.jour:active {
 }
 .installer-sans {
   margin-top: 10px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .bienvenue {
   display: flex;
@@ -4228,7 +4228,7 @@ a.jour:active {
   border-radius: 30%;
   font-family: var(--font-titre), Georgia, serif;
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--t-base);
   letter-spacing: 0.02em;
   line-height: 1;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
@@ -4236,12 +4236,12 @@ a.jour:active {
 .avatar-petit {
   width: 34px;
   height: 34px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .avatar-grand {
   width: 60px;
   height: 60px;
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .avatar-teinte-0 {
   background: #dcefe6;
@@ -4356,7 +4356,7 @@ a.jour:active {
 /* ---------- Légende des pastilles ---------------------------------------- */
 .legende-pastilles {
   margin: 24px 0 8px;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
   text-align: center;
 }
@@ -4531,13 +4531,13 @@ html[data-ouverture] .ouverture {
 }
 .barre-salutation-arabe {
   font-family: var(--font-arabe), "Amiri", serif;
-  font-size: 22px;
+  font-size: var(--t-xl);
   font-weight: 700;
   line-height: 1.1;
   color: #f0d796;
 }
 .barre-salutation-prenom {
-  font-size: 16px;
+  font-size: var(--t-base);
   font-weight: 700;
   color: #fff;
 }
@@ -4577,7 +4577,7 @@ html[data-ouverture] .ouverture {
   min-width: 0;
 }
 .barre-app {
-  font-size: 12px;
+  font-size: var(--t-xs);
   letter-spacing: 0.02em;
   color: rgba(255, 255, 255, 0.88);
 }
@@ -4742,7 +4742,7 @@ html[data-ouverture] .ouverture {
   }
   .jour-rempli .jour-duree {
     grid-area: duree;
-    font-size: 13px;
+    font-size: var(--t-s);
     color: var(--texte-doux);
   }
   .jour-rempli .jour-contenu {
@@ -4767,7 +4767,7 @@ html[data-ouverture] .ouverture {
 .mois-retour {
   margin: -6px 0 12px;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .mois-retour a {
   color: var(--vert-texte);
@@ -4781,7 +4781,7 @@ html[data-ouverture] .ouverture {
   background: transparent;
   color: var(--vert-texte);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   text-align: left;
   cursor: pointer;
@@ -4795,7 +4795,7 @@ html[data-ouverture] .ouverture {
 
 /* ---------- Progression : vu par le Cheikh / seulement saisi ---------- */
 .tuile .tuile-detail {
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .tuile-forte .tuile-detail {
@@ -4861,7 +4861,7 @@ html[data-ouverture] .ouverture {
   border-radius: 999px;
   border: 1px dashed var(--vert);
   color: var(--vert-texte);
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -4905,7 +4905,7 @@ html[data-ouverture] .ouverture {
   border-radius: 12px;
   background: #2b2f2d;
   color: #fff;
-  font-size: 13px;
+  font-size: var(--t-s);
   line-height: 1.35;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
@@ -4916,7 +4916,7 @@ html[data-ouverture] .ouverture {
   border-radius: 999px;
   background: #e8ecef;
   color: #3d4a54;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -5017,7 +5017,7 @@ html[data-ouverture] .ouverture {
 .choix-lecture-note {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
   line-height: 1.45;
 }
 .choix-lecture-note {
@@ -5072,18 +5072,18 @@ html[data-ouverture] .ouverture {
 }
 .carte-lecture-nom .arabe {
   font-family: var(--font-arabe), serif;
-  font-size: 22px;
+  font-size: var(--t-xl);
   color: var(--vert-texte);
 }
 .carte-lecture-texte {
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte-doux);
 }
 .etiquette-lecture {
   display: inline-block;
   padding: 1px 8px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   white-space: nowrap;
   vertical-align: middle;
@@ -5112,7 +5112,7 @@ html[data-ouverture] .ouverture {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 
 /* ---------- Page d'erreur ---------- */
@@ -5121,7 +5121,7 @@ html[data-ouverture] .ouverture {
   padding-top: 48px;
 }
 .erreur-page h1 {
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .erreur-page .bouton {
   width: auto;
@@ -5150,13 +5150,13 @@ html[data-ouverture] .ouverture {
   background: var(--champ);
   color: var(--texte);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .filtre-date {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte-doux);
 }
 .deplacer .selecteur {
@@ -5188,7 +5188,7 @@ html[data-ouverture] .ouverture {
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 4px 16px;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .ligne-etablissement-actions details {
   flex-basis: 100%;
@@ -5218,7 +5218,7 @@ html[data-ouverture] .ouverture {
   flex-direction: column;
   gap: 6px;
   margin: 6px 0 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .ligne-invitation {
@@ -5240,7 +5240,7 @@ html[data-ouverture] .ouverture {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .etat-site-liste li {
   display: flex;
@@ -5269,7 +5269,7 @@ html[data-ouverture] .ouverture {
   border-radius: 14px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .bandeau-vue-admin.modification {
   border-color: var(--vert-texte);
@@ -5330,7 +5330,7 @@ html[data-ouverture] .ouverture-version {
   align-items: center;
   gap: 2px;
   color: rgba(250, 243, 224, 0.92);
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   letter-spacing: 0.02em;
   animation:
@@ -5343,7 +5343,7 @@ html[data-ouverture] .ouverture-version {
   }
 }
 .ouverture-version span {
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 500;
   color: #d9c38d;
   letter-spacing: 0.06em;
@@ -5358,7 +5358,7 @@ html[data-ouverture] .ouverture-version {
 .compte-version {
   margin: 18px 0 0;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 
@@ -5495,7 +5495,7 @@ html[data-ouverture] .ouverture-version {
 .accueil-premiere-fois h3 {
   margin: 0;
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 22px;
+  font-size: var(--t-xl);
   color: var(--vert-texte);
 }
 .accueil-premiere-fois p {
@@ -5513,14 +5513,14 @@ html[data-ouverture] .ouverture-version {
   color: var(--or);
 }
 .accueil-astuce {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .accueil-cheikh {
   display: block;
   padding: 12px 14px;
   text-align: left;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte-doux);
   background: var(--surface-2);
 }
@@ -5556,7 +5556,7 @@ html[data-ouverture] .ouverture-version {
 }
 .carte-eleve-identite h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--t-xl);
   line-height: 1.2;
   /* Un long nom passe à la ligne au lieu d'être coupé. */
   overflow-wrap: anywhere;
@@ -5601,7 +5601,7 @@ html[data-ouverture] .ouverture-version {
     height: 42px;
   }
   .barre-titre {
-    font-size: 18px;
+    font-size: var(--t-l);
   }
   .espace {
     padding-top: 16px;
@@ -5615,7 +5615,7 @@ html[data-ouverture] .ouverture-version {
   }
   .bandeau-vue-admin {
     padding: 8px 10px 8px 12px;
-    font-size: 13px;
+    font-size: var(--t-s);
   }
   .choix-mode-admin button {
     min-height: 34px;
@@ -5735,7 +5735,7 @@ html[data-ouverture] .ouverture-version {
   font-family: "KFGQPC Warsh", var(--font-arabe), serif;
 }
 .coran-cartouche span {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: rgba(255, 255, 255, 0.88);
 }
 
@@ -5778,7 +5778,7 @@ html[data-ouverture] .ouverture-version {
   border-radius: 12px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .coran-lecteur-passage > svg {
   flex-shrink: 0;
@@ -5873,10 +5873,10 @@ html[data-ouverture] .ouverture-version {
   white-space: nowrap;
 }
 .coran-barre-infos strong {
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .coran-barre-infos span {
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
   font-variant-numeric: tabular-nums;
 }
@@ -5895,7 +5895,7 @@ html[data-ouverture] .ouverture-version {
   min-width: 0;
 }
 .coran-reglage > span {
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   color: var(--texte-doux);
 }
@@ -6100,7 +6100,7 @@ html[data-ouverture] .ouverture-version {
   margin: 10px 0 0;
   padding: 0;
   list-style: none;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .coran-legende li {
   display: flex;
@@ -6123,7 +6123,7 @@ html[data-ouverture] .ouverture-version {
 }
 .coran-source {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--t-xs);
   text-align: center;
   color: var(--texte-doux);
 }
@@ -6152,7 +6152,7 @@ html[data-ouverture] .ouverture-version {
   background: transparent;
   color: var(--texte-doux);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -6214,7 +6214,7 @@ html[data-ouverture] .ouverture-version {
   background: transparent;
   color: var(--texte);
   font: inherit;
-  font-size: 16px;
+  font-size: var(--t-base);
   outline: none;
 }
 .coran-liste-sourates {
@@ -6251,7 +6251,7 @@ html[data-ouverture] .ouverture-version {
   border: 1px solid var(--bord-or);
   border-radius: 10px;
   color: var(--or-texte);
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -6262,7 +6262,7 @@ html[data-ouverture] .ouverture-version {
 }
 .coran-liste-nom small {
   color: var(--texte-doux);
-  font-size: 12px;
+  font-size: var(--t-xs);
 }
 .coran-liste-arabe {
   font-family: "KFGQPC Hafs", var(--font-arabe), serif;
@@ -6305,7 +6305,7 @@ html[data-ouverture] .ouverture-version {
   border-radius: 12px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
 }
 .coran-cartouche a {
@@ -6400,7 +6400,7 @@ html[data-ouverture] .ouverture-version {
   margin-top: 14px;
   padding-top: 10px;
   border-top: 1px solid var(--ligne);
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .coran-numero-page {
@@ -6478,13 +6478,13 @@ html[data-ouverture] .ouverture-version {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--vert-texte);
 }
 .coran-progres {
   display: grid;
   gap: 4px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .coran-progres progress {
   width: 100%;
@@ -6499,7 +6499,7 @@ html[data-ouverture] .ouverture-version {
   justify-content: space-between;
   gap: 6px 12px;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .presences-entete p {
   margin: 0;
@@ -6552,7 +6552,7 @@ html[data-ouverture] .ouverture-version {
 .carte-classe-titre small,
 .carte-classe-sous,
 .carte-classe-prochain {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .carte-classe .bouton,
@@ -6571,11 +6571,11 @@ html[data-ouverture] .ouverture-version {
   border-radius: 12px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .titre-carte {
   margin: 0 0 12px;
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .choix-jours > div,
 .choix-cheikhs {
@@ -6661,13 +6661,13 @@ html[data-ouverture] .ouverture-version {
 }
 .entete-appel h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .choix-date-appel {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .choix-date-appel input {
   min-height: 38px;
@@ -6697,7 +6697,7 @@ html[data-ouverture] .ouverture-version {
   background: color-mix(in srgb, var(--carte) 92%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .liste-appel {
   display: grid;
@@ -6741,7 +6741,7 @@ html[data-ouverture] .ouverture-version {
 }
 .ligne-appel-nom small {
   font-weight: 400;
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .choix-statut {
@@ -6783,7 +6783,7 @@ html[data-ouverture] .ouverture-version {
 }
 .legende-statuts {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .barre-enregistrer {
@@ -6913,7 +6913,7 @@ html[data-ouverture] .ouverture-version {
   border: 1px dashed var(--champ);
   border-radius: 999px;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .choix-vue-onglets svg {
   flex-shrink: 0;
@@ -6937,12 +6937,12 @@ html[data-ouverture] .ouverture-version {
   border-radius: 12px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .bouton-compact {
   min-height: 36px;
   padding: 0 12px;
-  font-size: 14px;
+  font-size: var(--t-m);
   text-decoration: none;
   color: var(--texte);
 }
@@ -6959,7 +6959,7 @@ html[data-ouverture] .ouverture-version {
   padding: 8px 12px;
   border-radius: 12px;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
   text-decoration: none;
   background: var(--surface-2);
   border: 1px solid var(--ligne);
@@ -6989,7 +6989,7 @@ html[data-ouverture] .ouverture-version {
 }
 .appel-du-jour-ligne.a-faire small {
   opacity: 0.85;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 
 /* ---------- Rapport du responsable -------------------------------------- */
@@ -7008,7 +7008,7 @@ html[data-ouverture] .ouverture-version {
   border-radius: 999px;
   background: var(--surface-2);
   color: var(--texte);
-  font-size: 14px;
+  font-size: var(--t-m);
   text-decoration: none;
 }
 .puce-periode.actif {
@@ -7028,7 +7028,7 @@ html[data-ouverture] .ouverture-version {
   display: grid;
   gap: 4px;
   min-width: 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .formulaire-rapport input {
@@ -7064,11 +7064,11 @@ html[data-ouverture] .ouverture-version {
 }
 .rapport-classe-entete h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .rapport-classe-entete strong {
   color: var(--vert-texte);
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 /* Peu de colonnes : le tableau tient dans la carte ; il défile s'il y en a beaucoup. */
 .rapport-classe .tableau {
@@ -7083,7 +7083,7 @@ html[data-ouverture] .ouverture-version {
   border-radius: 10px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .case-total {
   text-align: center;
@@ -7136,7 +7136,7 @@ html[data-ouverture] .ouverture-version {
   background: var(--surface-2);
   color: var(--vert-texte);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   cursor: pointer;
 }
@@ -7203,7 +7203,7 @@ html.defilement-bloque {
 .feuille-entete h2 {
   flex: 1;
   margin: 0;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .feuille-fermer {
   display: grid;
@@ -7256,7 +7256,7 @@ html.defilement-bloque {
 }
 .feuille-section h3 {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -7314,7 +7314,7 @@ html.defilement-bloque {
   background: var(--surface-2);
   color: var(--texte);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   text-align: center;
   cursor: pointer;
@@ -7334,7 +7334,7 @@ html.defilement-bloque {
   align-items: center;
   gap: 6px;
   margin: 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -7342,7 +7342,7 @@ html.defilement-bloque {
 }
 .explication-texte p {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--t-base);
   line-height: 1.6;
   white-space: pre-line;
 }
@@ -7357,11 +7357,11 @@ html.defilement-bloque {
   border-radius: 0 10px 10px 0;
   background: var(--surface-2);
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .explication-source {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .explication-source a {
@@ -7470,7 +7470,7 @@ html.defilement-bloque {
   border-radius: 14px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .coran-astuce span {
   flex: 1;
@@ -7531,7 +7531,7 @@ html.defilement-bloque {
   border-bottom: 1px solid var(--ligne);
   background: transparent;
   color: var(--texte-doux);
-  font-size: 22px;
+  font-size: var(--t-xl);
   cursor: pointer;
 }
 .coran-lecteur-minuterie {
@@ -7557,7 +7557,7 @@ html.defilement-bloque {
   align-items: center;
   gap: 6px;
   margin: 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -7606,12 +7606,12 @@ html.defilement-bloque {
 .reciter-erreur {
   margin: 0;
   color: var(--rouge);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .reciter-aide {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 
 /* ---------- Mise à jour automatique ------------------------------------- */
@@ -7627,7 +7627,7 @@ html.defilement-bloque {
   border-radius: 999px;
   background: var(--vert);
   color: #fff;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   box-shadow: var(--ombre);
   transform: translateX(-50%);
@@ -7660,7 +7660,7 @@ html.defilement-bloque {
   padding: 2px 8px;
   border: 1px solid transparent;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -7701,7 +7701,7 @@ html.defilement-bloque {
 }
 .ecoute-cheikh-entete h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .ecoute-cheikh-tout {
   display: flex;
@@ -7718,7 +7718,7 @@ html.defilement-bloque {
   background: var(--surface-2);
   color: var(--vert-texte);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   cursor: pointer;
 }
@@ -7771,7 +7771,7 @@ html.defilement-bloque {
   background: transparent;
   color: var(--texte-doux);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   cursor: pointer;
 }
@@ -7790,7 +7790,7 @@ html.defilement-bloque {
 .ecoute-aide {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 
 /* ---------- Séance simplifiée (1.17) --------------------------------- */
@@ -7814,7 +7814,7 @@ html.defilement-bloque {
   flex: 1;
   min-width: 0;
   margin: 0;
-  font-size: 18px;
+  font-size: var(--t-l);
   font-weight: 700;
 }
 .seance-barre h1 span {
@@ -7834,7 +7834,7 @@ html.defilement-bloque {
 }
 .seance-section-titre {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   color: var(--texte-doux);
 }
@@ -7968,7 +7968,7 @@ html.defilement-bloque {
   gap: 2px;
 }
 .seance-resume-texte small {
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .seance-resume-texte strong {
@@ -7976,7 +7976,7 @@ html.defilement-bloque {
 }
 .seance-resume-texte p {
   margin: 2px 0 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .bouton-doux {
@@ -7988,7 +7988,7 @@ html.defilement-bloque {
   background: var(--vert-clair);
   color: var(--vert-texte);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   cursor: pointer;
 }
@@ -8003,7 +8003,7 @@ html.defilement-bloque {
   font-size: 20px;
 }
 .ecoute-compte {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .ecoute-cheikh-tout button {
@@ -8050,13 +8050,13 @@ html.defilement-bloque {
   font-weight: 600;
 }
 .admin-compte {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
   white-space: nowrap;
 }
 .admin-note {
   margin: 4px 0 0;
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .carte-graphique {
@@ -8071,7 +8071,7 @@ html.defilement-bloque {
   align-items: center;
   min-height: 44px;
   color: var(--vert-texte);
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   cursor: pointer;
   list-style: none;
@@ -8111,7 +8111,7 @@ html.defilement-bloque {
 }
 .etat-site-titre {
   min-width: 0;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   color: var(--texte-doux);
 }
@@ -8135,10 +8135,10 @@ html.defilement-bloque {
   gap: 8px;
 }
 .ligne-etablissement-tete b {
-  font-size: 16px;
+  font-size: var(--t-base);
 }
 .ligne-etablissement-tete span {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .ligne-etablissement-activite {
@@ -8146,7 +8146,7 @@ html.defilement-bloque {
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 8px;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .ligne-etablissement-activite .pastille-etat {
@@ -8200,11 +8200,11 @@ html.defilement-bloque {
   gap: 4px 8px;
 }
 .compte-identite small {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .compte-moi {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
   padding: 0 10px;
 }
@@ -8219,7 +8219,7 @@ html.defilement-bloque {
   flex-direction: column;
   gap: 4px;
   padding: 8px 12px;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .menu-plus-champ .selecteur {
@@ -8254,7 +8254,7 @@ html.defilement-bloque {
 }
 .liste-personnes-nom small,
 .liste-personnes-quand small {
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .liste-personnes-quand {
@@ -8263,7 +8263,7 @@ html.defilement-bloque {
   align-items: center;
   column-gap: 8px;
   justify-items: end;
-  font-size: 14px;
+  font-size: var(--t-m);
   white-space: nowrap;
 }
 .liste-personnes-quand small {
@@ -8281,7 +8281,7 @@ html.defilement-bloque {
 }
 .jour-journal h3 {
   margin: 10px 0 4px;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   color: var(--texte-doux);
 }
@@ -8300,7 +8300,7 @@ html.defilement-bloque {
   padding: 8px 0 8px 14px;
   border-left: 2px solid var(--ligne);
   position: relative;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .fil-journal > li::before {
   content: "";
@@ -8325,7 +8325,7 @@ html.defilement-bloque {
 .fil-journal time {
   font-variant-numeric: tabular-nums;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
   white-space: nowrap;
 }
 .fil-journal small {
@@ -8339,10 +8339,10 @@ html.defilement-bloque {
   gap: 6px;
   padding-top: 8px;
   border-top: 1px solid var(--ligne);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .classes-etablissement-titre {
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   color: var(--texte-doux);
 }
@@ -8365,7 +8365,7 @@ html.defilement-bloque {
   text-decoration: none;
 }
 .classe-carte span {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .classes-etablissement > .lien-discret {
@@ -8377,7 +8377,7 @@ html.defilement-bloque {
 .passage-resume-nom small {
   display: block;
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 500;
   color: var(--or-texte);
 }
@@ -8417,7 +8417,7 @@ html.defilement-bloque {
   align-items: center;
   gap: 6px;
   margin: 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -8434,7 +8434,7 @@ html.defilement-bloque {
   background: transparent;
   color: var(--or-texte);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   cursor: pointer;
 }
@@ -8450,7 +8450,7 @@ html.defilement-bloque {
 }
 .tajwid-texte.masque {
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   line-height: 1.6;
   color: var(--texte-doux);
 }
@@ -8482,7 +8482,7 @@ html.defilement-bloque {
   font-weight: 600;
 }
 .tajwid-consigne {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
   text-align: center;
 }
@@ -8533,7 +8533,7 @@ html.defilement-bloque {
   padding: 4px 10px;
   border-radius: 999px;
   background: var(--fond);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .tajwid-compteurs b {
   margin-left: 2px;
@@ -8605,7 +8605,7 @@ html.defilement-bloque {
   font-size: 24px;
 }
 .tajwid-detail-tete b {
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .tajwid-detail.tajwid-a_revoir .tajwid-detail-tete b {
   color: var(--or-texte);
@@ -8617,11 +8617,11 @@ html.defilement-bloque {
 .tajwid-detail ul {
   margin: 0;
   padding-left: 18px;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .tajwid-detail p {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .tajwid-madd {
   color: var(--texte-doux);
@@ -8644,7 +8644,7 @@ html.defilement-bloque {
 }
 .tajwid-note {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 
@@ -8688,7 +8688,7 @@ html.defilement-bloque {
   flex: 1;
   margin: 0;
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 22px;
+  font-size: var(--t-xl);
   font-weight: 600;
 }
 .reciter-fermer {
@@ -8704,7 +8704,7 @@ html.defilement-bloque {
   cursor: pointer;
 }
 .reciter-plage {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .reciter-choix {
@@ -8717,7 +8717,7 @@ html.defilement-bloque {
   border-radius: 14px;
   background: var(--carte);
   box-shadow: var(--ombre);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .reciter-choix > span:first-child {
   flex: 1 0 100%;
@@ -8739,7 +8739,7 @@ html.defilement-bloque {
   border-radius: 999px;
   background: var(--ligne);
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .reciter-avancee li.fait {
   background: var(--vert-clair);
@@ -8762,7 +8762,7 @@ html.defilement-bloque {
 .reciter-bilan .pastille {
   padding: 5px 10px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
 }
 .pastille.juste {
@@ -8857,7 +8857,7 @@ button.reciter-mot {
   padding: 4px 10px;
   border-radius: 999px;
   background: var(--fond);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .reciter-detail.a_revoir .reciter-detail-tete b {
   background: var(--or-clair);
@@ -8897,7 +8897,7 @@ button.reciter-mot {
   background: transparent;
   color: var(--texte-doux);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--t-s);
   text-decoration: underline;
   cursor: pointer;
 }
@@ -8926,7 +8926,7 @@ button.reciter-mot {
   padding: 6px 12px;
   border-radius: 999px;
   background: var(--carte);
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   color: var(--texte-doux);
 }
@@ -8972,7 +8972,7 @@ button.reciter-mot {
   justify-content: space-between;
   padding: 6px 0;
   border-bottom: 1px solid var(--ligne);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 
 /* Corrections apprises des signalements (journal admin) */
@@ -8994,7 +8994,7 @@ button.reciter-mot {
   border-radius: 999px;
   background: var(--fond);
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
   text-align: center;
 }
 .reciter-statut.lent,
@@ -9006,11 +9006,11 @@ button.reciter-mot {
 
 /* Réciter : résultat guidé */
 .reciter-bilan strong {
-  font-size: 28px;
+  font-size: var(--t-2xl);
 }
 .reciter-score {
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .reciter-guide {
   display: flex;
@@ -9048,7 +9048,7 @@ button.reciter-mot {
 .reciter-doute {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .reciter-detail li.incertaine {
   color: var(--texte-doux);
@@ -9185,12 +9185,12 @@ button.reciter-mot {
 }
 .liste-erreurs-tete {
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .liste-erreurs-message {
   overflow-wrap: anywhere;
   font-family: ui-monospace, monospace;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .liste-erreurs small {
   color: var(--texte-doux);
@@ -9213,7 +9213,7 @@ button.reciter-mot {
   background: transparent;
   color: var(--vert-texte);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   cursor: pointer;
 }
@@ -9225,7 +9225,7 @@ button.reciter-mot {
 .nouveautes-rubrique h3 {
   margin: 12px 0 4px;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -9678,7 +9678,7 @@ html[data-taille="tres-grand"] body {
   background: transparent;
   color: var(--texte);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   cursor: pointer;
 }
 .choix-segmente button[aria-checked="true"] {
@@ -9766,7 +9766,7 @@ fieldset.vue-admin-modifiable {
   background: var(--vert);
   color: #fff;
   text-decoration: none;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 
 /* Onglet Coran de l'élève : deux cartes, « Réciter » et « Lire et écouter » */
@@ -9805,7 +9805,7 @@ fieldset.vue-admin-modifiable {
   font-size: 15px;
 }
 .carte-coran-note {
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .carte-coran-passage {
   display: grid;
@@ -9813,10 +9813,10 @@ fieldset.vue-admin-modifiable {
 }
 .carte-coran-quand {
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .carte-coran-passage strong {
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .score-pastille {
   display: inline-block;
@@ -9833,7 +9833,7 @@ fieldset.vue-admin-modifiable {
   display: grid;
   gap: 6px;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .carte-coran-difficiles ul {
   display: flex;
@@ -9877,7 +9877,7 @@ fieldset.vue-admin-modifiable {
   background: var(--vert);
   color: #fff;
   font: inherit;
-  font-size: 16px;
+  font-size: var(--t-base);
   font-weight: 700;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
   cursor: pointer;
@@ -10253,7 +10253,7 @@ html {
 .barre-compacte-titre {
   overflow: hidden;
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 18px;
+  font-size: var(--t-l);
   font-weight: 700;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -10341,7 +10341,7 @@ html {
   border-radius: 999px;
   background: var(--vert);
   color: #fff;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 700;
   white-space: nowrap;
   animation:
@@ -10668,11 +10668,11 @@ html {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 2px 10px;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .carte-aujourdhui h3 time {
   font-family: var(--font-texte), system-ui, sans-serif;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 500;
   color: var(--texte-doux);
 }
@@ -10732,7 +10732,7 @@ html {
   font-size: 15px;
 }
 .aujourdhui-texte small {
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   color: color-mix(in srgb, var(--teinte) 80%, var(--texte));
 }
@@ -10801,7 +10801,7 @@ html {
   flex: 1 1 200px;
 }
 .resume-anneau .anneau-texte {
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .resume-anneau-texte {
   display: flex;
@@ -10810,11 +10810,11 @@ html {
 }
 .resume-anneau-texte b {
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .resume-anneau-texte small {
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .resume-tuiles,
 .bilan-tuiles {
@@ -10846,13 +10846,13 @@ html {
 .resume-tuiles strong,
 .bilan-tuiles strong {
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 18px;
+  font-size: var(--t-l);
   line-height: 1.15;
   color: var(--texte);
 }
 .resume-tuiles span,
 .bilan-tuiles span {
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
   line-height: 1.2;
 }
@@ -10909,7 +10909,7 @@ html {
   flex-wrap: wrap;
   gap: 2px 8px;
   align-items: baseline;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   color: var(--or-texte);
 }
@@ -10926,7 +10926,7 @@ html {
 }
 .mot-cheikh-lien {
   justify-self: start;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   color: var(--or-texte);
 }
@@ -10991,7 +10991,7 @@ html {
   border-radius: 999px;
   background: var(--vert-clair);
   color: var(--vert-texte);
-  font-size: 13px;
+  font-size: var(--t-s);
   white-space: nowrap;
 }
 a.jour[data-etat] {
@@ -11312,7 +11312,7 @@ a.jour[data-etat="partielle"] {
   border-radius: 12px;
   background: var(--vert-nuit);
   color: #fff;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   line-height: 1.35;
   text-align: center;
@@ -11387,7 +11387,7 @@ a.jour[data-etat="partielle"] {
 }
 .carte-detail-aide {
   margin: 8px 0 0;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
   text-align: center;
 }
@@ -11408,7 +11408,7 @@ a.jour[data-etat="partielle"] {
   flex-wrap: wrap;
 }
 .carte-detail-tete b {
-  font-size: 16px;
+  font-size: var(--t-base);
 }
 .carte-detail-tete .arabe {
   font-size: 20px;
@@ -11430,7 +11430,7 @@ a.jour[data-etat="partielle"] {
 .carte-detail-infos,
 .carte-detail-note {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte-doux);
 }
 .carte-detail-infos strong {
@@ -11643,7 +11643,7 @@ a.jour[data-etat="partielle"] {
   gap: 2px;
 }
 .progression-anneau small {
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   color: var(--or-texte);
 }
@@ -11660,7 +11660,7 @@ a.jour[data-etat="partielle"] {
   stroke: color-mix(in srgb, var(--or) 14%, var(--surface-3));
 }
 .progression-anneau .anneau-texte {
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .progression-entete-texte {
   min-width: 0;
@@ -11671,7 +11671,7 @@ a.jour[data-etat="partielle"] {
   margin: 0;
 }
 .progression-surtitre {
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -11687,7 +11687,7 @@ a.jour[data-etat="partielle"] {
   color: var(--vert-texte);
 }
 .progression-detail {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .progression-entete-texte .progression-encouragement {
@@ -11696,7 +11696,7 @@ a.jour[data-etat="partielle"] {
   border-radius: 12px;
   background: color-mix(in srgb, var(--carte) 70%, transparent);
   border-left: 3px solid var(--or);
-  font-size: 14px;
+  font-size: var(--t-m);
   font-style: italic;
 }
 .tuile-icone {
@@ -11756,13 +11756,13 @@ a.jour[data-etat="partielle"] {
 }
 .continuer-lecture-texte b {
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 18px;
+  font-size: var(--t-l);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .continuer-lecture-texte small {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: rgba(255, 255, 255, 0.88);
 }
 .continuer-lecture-texte small:first-child {
@@ -11823,7 +11823,7 @@ a.jour[data-etat="partielle"] {
   animation: coche-du-jour 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .choix-statut-texte {
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .choix-statut button[aria-checked="false"] .choix-statut-texte {
   display: none;
@@ -11893,7 +11893,7 @@ a.jour[data-etat="partielle"] {
   border-radius: 999px;
   background: rgba(240, 215, 150, 0.2);
   color: #f0d796;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
 }
 .profil-compte-details {
@@ -11922,7 +11922,7 @@ a.jour[data-etat="partielle"] {
 }
 .profil-compte-details span {
   grid-area: libelle;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   color: var(--texte-doux);
 }
@@ -11936,7 +11936,7 @@ a.jour[data-etat="partielle"] {
 }
 .profil-compte-details b small {
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 
@@ -12004,7 +12004,7 @@ a.jour[data-etat="partielle"] {
   font-size: 15px;
 }
 .bienvenue-etapes small {
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
 }
 .bienvenue-numero {
@@ -12118,7 +12118,7 @@ a.jour[data-etat="partielle"] {
 }
 .barre-compacte-sous-titre {
   overflow: hidden;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.88);
   white-space: nowrap;
@@ -12568,7 +12568,7 @@ label,
   gap: 4px 10px;
 }
 .ecoute-rapide-type {
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   color: var(--texte-doux);
 }
@@ -12577,13 +12577,13 @@ label,
   border-radius: 999px;
   background: var(--vert-clair);
   color: var(--vert-texte);
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
 }
 .ecoute-rapide-passages,
 .ecoute-rapide-note {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .ecoute-rapide-note {
   color: var(--texte-doux);
@@ -12718,7 +12718,7 @@ textarea:focus-visible {
   background: var(--surface-2);
   border: 1px dashed var(--ligne);
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
   overflow-wrap: anywhere;
   text-align: center;
   user-select: all;
@@ -12737,7 +12737,7 @@ textarea:focus-visible {
 .acquis-aide {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .acquis-aide {
   margin-bottom: 8px;
@@ -12815,7 +12815,7 @@ textarea:focus-visible {
   display: grid;
   gap: 4px;
   min-width: 0;
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 600;
   color: var(--texte-doux);
 }
@@ -12835,7 +12835,7 @@ textarea:focus-visible {
   margin: 0;
   font-family: var(--font-arabe), serif;
   color: var(--vert-texte);
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .acquis-retirer {
   display: grid;
@@ -12903,7 +12903,7 @@ textarea:focus-visible {
 }
 .acquis-liste h2 {
   margin: 8px 0;
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .acquis-liste ul,
 .acquis-progression-liste {
@@ -12979,7 +12979,7 @@ textarea:focus-visible {
   color: var(--texte-doux);
 }
 .progression-entete-texte .progression-pages {
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte);
 }
 
@@ -12998,18 +12998,18 @@ textarea:focus-visible {
 .reciter .tajwid-masquer {
   min-height: 34px;
   padding: 0 10px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .reciter-statut {
   margin-block: 0;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .reciter-choix {
   gap: 6px;
   margin: 4px 12px 0;
   padding: 8px 10px;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .reciter-choix > span:first-child {
   flex: 0 1 auto;
@@ -13019,7 +13019,7 @@ textarea:focus-visible {
   margin-right: auto;
 }
 .reciter-nom-ar {
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .reciter-historique {
   margin: 4px 12px 0;
@@ -13032,7 +13032,7 @@ textarea:focus-visible {
   align-items: center;
   gap: 4px;
   list-style: none;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .reciter-historique > summary::-webkit-details-marker {
   display: none;
@@ -13040,7 +13040,7 @@ textarea:focus-visible {
 .reciter-historique > summary::after {
   content: "›";
   margin-left: 4px;
-  font-size: 16px;
+  font-size: var(--t-base);
   transition: transform 0.15s ease;
 }
 .reciter-historique[open] > summary::after {
@@ -13051,7 +13051,7 @@ textarea:focus-visible {
   padding: 2px 10px;
 }
 .reciter-difficile span {
-  font-size: 18px;
+  font-size: var(--t-l);
 }
 .reciter-corps {
   padding: 8px 16px;
@@ -13063,7 +13063,7 @@ textarea:focus-visible {
 .reciter-taille button {
   min-width: 38px;
   min-height: 32px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .reciter-pied {
   gap: 4px;
@@ -13097,7 +13097,7 @@ textarea:focus-visible {
   justify-content: flex-end;
   align-items: baseline;
   gap: 2px 10px;
-  font-size: 13px;
+  font-size: var(--t-s);
   color: var(--texte-doux);
   text-align: right;
 }
@@ -13155,7 +13155,7 @@ textarea:focus-visible {
     align-items: flex-start;
   }
   .pdf-entete-titres h1 {
-    font-size: 18px;
+    font-size: var(--t-l);
     line-height: 1.2;
   }
   .pdf-semaine-titre {
@@ -13169,11 +13169,11 @@ textarea:focus-visible {
   line-height: 1.05;
 }
 .progression-sur {
-  font-size: 18px;
+  font-size: var(--t-l);
   color: var(--texte-doux);
 }
 .progression-entete-texte .progression-versets {
-  font-size: 16px;
+  font-size: var(--t-base);
   color: var(--texte);
 }
 .progression-versets b {
@@ -13191,7 +13191,7 @@ textarea:focus-visible {
 }
 .reciter-ecoute .reciter-avis {
   justify-self: start;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .reciter-ecoute .tajwid-chrono {
   justify-self: end;
@@ -13201,7 +13201,7 @@ textarea:focus-visible {
   height: 56px;
 }
 .reciter-pied .tajwid-consigne {
-  font-size: 12px;
+  font-size: var(--t-xs);
 }
 .reciter-pied .tajwid-note[hidden] {
   display: none;
@@ -13270,7 +13270,7 @@ html[data-plein-ecran] body {
   backdrop-filter: blur(12px);
   color: var(--texte);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   cursor: pointer;
@@ -13354,7 +13354,7 @@ html.transition-plein-ecran::view-transition-group(root) {
   background: var(--vert);
   color: #fff;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 700;
 }
 .coran-reciter-bouton:hover {
@@ -13449,7 +13449,7 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
 .coran-legende-aide {
   margin: 8px 0 0;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .coran-regle {
   display: flex;
@@ -13517,7 +13517,7 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   border-radius: 14px;
   background: var(--surface-2);
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .coran-cache-aide svg {
   flex-shrink: 0;
@@ -13563,7 +13563,7 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   -webkit-line-clamp: 2;
   line-clamp: 2;
   white-space: normal;
-  font-size: 13px;
+  font-size: var(--t-s);
   line-height: 1.2;
 }
 
@@ -13589,7 +13589,7 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   background: var(--carte);
   color: var(--texte);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   cursor: pointer;
 }
@@ -13601,12 +13601,12 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
 .tajwid-aide {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .tajwid-groupe h3 {
   margin: 0 0 8px;
   color: var(--texte-doux);
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -13659,11 +13659,11 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   gap: 8px;
 }
 .tajwid-tuile-haut b {
-  font-size: 14px;
+  font-size: var(--t-m);
   line-height: 1.2;
 }
 .tajwid-tuile-aide {
-  font-size: 13px;
+  font-size: var(--t-s);
   line-height: 1.3;
 }
 .tajwid-tuile-bas {
@@ -13671,12 +13671,12 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   justify-content: space-between;
   gap: 6px;
   margin-top: auto;
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .tajwid-tuile-bas [lang="ar"] {
   font-family: var(--font-arabe), serif;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 /* Légende sous le texte : les règles visibles sur la page, et le panneau à un toucher. */
 .coran-legende {
@@ -13686,7 +13686,7 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
 .coran-legende ul {
   margin: 0;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .coran-legende > .bouton-secondaire {
   display: inline-flex;
@@ -13715,7 +13715,7 @@ html[data-plein-ecran] .coran-vue-page .coran-lignes {
   background: var(--carte);
   color: var(--vert);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   cursor: pointer;
   animation: apparition 0.2s ease-out;
@@ -13741,7 +13741,7 @@ html[data-plein-ecran] .coran-zoom-boutons button {
   backdrop-filter: blur(12px);
   color: var(--texte);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   cursor: pointer;
 }
@@ -13765,14 +13765,14 @@ html[data-plein-ecran] .coran-zoom-boutons button {
   background: color-mix(in srgb, #e07a10 10%, var(--carte));
   color: var(--texte);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
   cursor: pointer;
 }
 .coran-a-revoir-aide {
   margin: 0 0 12px;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .coran-a-revoir-liste {
   display: grid;
@@ -13793,7 +13793,7 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 }
 .coran-a-revoir-ref {
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -13834,13 +13834,13 @@ html[data-plein-ecran] .coran-zoom-boutons button {
   background: transparent;
   color: var(--texte);
   font: inherit;
-  font-size: 18px;
+  font-size: var(--t-l);
   outline: none;
 }
 .recherche-coran-aide {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .recherche-coran-liste {
   display: grid;
@@ -13872,12 +13872,12 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 }
 .recherche-coran-ref {
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
 }
 .recherche-coran-arabe {
   font-family: "KFGQPC Hafs", var(--font-arabe), serif;
-  font-size: 22px;
+  font-size: var(--t-xl);
   line-height: 1.9;
   text-align: right;
 }
@@ -13944,18 +13944,18 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 
 /* ---------- Hiérarchie des cartes : un chiffre fort, le reste en retrait ---------- */
 .tuile strong {
-  font-size: 28px;
+  font-size: var(--t-2xl);
   letter-spacing: -0.01em;
 }
 .tuile span {
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 500;
 }
 .carte-graphique h2 {
   letter-spacing: -0.005em;
 }
 .carte-graphique-sous {
-  font-size: 14px;
+  font-size: var(--t-m);
   line-height: 1.45;
 }
 
@@ -14019,12 +14019,12 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 }
 .mots-a-revoir-sourate small {
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .mots-a-revoir-mots {
   overflow: hidden;
   font-family: "KFGQPC Hafs", var(--font-arabe), serif;
-  font-size: 18px;
+  font-size: var(--t-l);
   text-align: right;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -14050,7 +14050,7 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 .ecoute-cheikh-aide {
   margin: -4px 0 10px;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .suggestion-a-refaire {
   border-color: color-mix(in srgb, var(--or) 55%, var(--ligne));
@@ -14077,7 +14077,7 @@ html[data-plein-ecran] .coran-zoom-boutons button {
   align-items: center;
   gap: 8px;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .enchainements-filtre select {
   min-height: 40px;
@@ -14107,7 +14107,7 @@ html[data-plein-ecran] .coran-zoom-boutons button {
 .enchainements-ref {
   margin: 0;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 600;
 }
 .enchainements-texte {
@@ -14136,7 +14136,7 @@ html[data-plein-ecran] .coran-zoom-boutons button {
   gap: 6px;
   margin: 0;
   color: var(--texte-doux);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .enchainements-actions {
   display: grid;
@@ -14464,7 +14464,7 @@ html[data-plein-ecran] .remonter-en-haut {
   border-radius: 999px;
   background: var(--or);
   color: #fff;
-  font-size: 13px;
+  font-size: var(--t-s);
   text-align: center;
 }
 .a-ecouter ul {
@@ -14494,7 +14494,7 @@ html[data-plein-ecran] .remonter-en-haut {
 .a-ecouter-eleve .avatar {
   width: 32px;
   height: 32px;
-  font-size: 13px;
+  font-size: var(--t-s);
   border-radius: 999px;
 }
 .a-ecouter-eleve strong {
@@ -14503,7 +14503,7 @@ html[data-plein-ecran] .remonter-en-haut {
   border-radius: 999px;
   background: var(--or-clair);
   color: var(--or-texte);
-  font-size: 12px;
+  font-size: var(--t-xs);
 }
 .a-ecouter-eleve:active {
   transform: scale(0.97);
@@ -14518,7 +14518,7 @@ html[data-plein-ecran] .remonter-en-haut {
   padding: 10px 12px;
   border-top: 1px solid var(--ligne);
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .chiffres-classe div {
   display: flex;
@@ -14585,7 +14585,7 @@ html[data-plein-ecran] .remonter-en-haut {
   background: var(--vert);
   color: #fff;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .accueil-etapes strong {
   color: var(--texte);
@@ -14622,7 +14622,7 @@ html[data-plein-ecran] .remonter-en-haut {
   color: var(--vert-texte);
 }
 .apercu-chiffres span {
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--texte-doux);
 }
 .apercu-tendance {
@@ -14658,7 +14658,7 @@ html[data-plein-ecran] .remonter-en-haut {
   justify-content: center;
   gap: 6px;
   margin: 6px 0 0;
-  font-size: 14px;
+  font-size: var(--t-m);
   font-weight: 600;
 }
 .tendance-hausse {
@@ -14678,7 +14678,7 @@ html[data-plein-ecran] .remonter-en-haut {
   align-items: center;
   gap: 6px;
   margin: 0 0 8px;
-  font-size: 14px;
+  font-size: var(--t-m);
   color: var(--texte-doux);
   font-weight: 600;
 }
@@ -14751,7 +14751,7 @@ html[data-plein-ecran] .remonter-en-haut {
 }
 .apercu-seance-type {
   margin: 0 0 6px;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   color: var(--vert-texte);
 }
@@ -14769,7 +14769,7 @@ ul.apercu-liste li {
   padding: 6px 10px;
   border-radius: 10px;
   background: var(--surface-2);
-  font-size: 14px;
+  font-size: var(--t-m);
 }
 .salutation-cheikh span::before {
   content: " · ";
@@ -14783,10 +14783,10 @@ ul.apercu-liste li {
   }
   .salutation-cheikh span {
     display: block;
-    font-size: 14px;
+    font-size: var(--t-m);
   }
   .apercu-bloc li {
-    font-size: 14px;
+    font-size: var(--t-m);
   }
 }
 
@@ -14844,11 +14844,11 @@ ul.apercu-liste li {
   }
   .liste-eleves .carte-eleve-nom small {
     flex-basis: 100%;
-    font-size: 13px;
+    font-size: var(--t-s);
   }
   .liste-eleves .carte-eleve-stats {
     gap: 2px 10px;
-    font-size: 13px;
+    font-size: var(--t-s);
   }
 }
 :where(:root[data-theme="sombre"], :root[data-theme="nuit"]) .fleche-hausse {
@@ -14883,7 +14883,7 @@ ul.apercu-liste li {
   margin: 2px 0 0;
   overflow: hidden;
   color: var(--or-texte);
-  font-size: 13px;
+  font-size: var(--t-s);
   line-height: 1.3;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -15152,7 +15152,7 @@ ul.apercu-liste li {
 .barre-compacte-ar {
   font-family: var(--font-calligraphie), var(--font-arabe), serif;
   color: #c9a24a;
-  font-size: 18px;
+  font-size: var(--t-l);
   margin-inline-end: 8px;
 }
 
@@ -15165,7 +15165,7 @@ ul.apercu-liste li {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 20px 8px;
-  font-size: 12px;
+  font-size: var(--t-xs);
   color: var(--ciel-texte-doux);
 }
 .barre-dates-temps,
@@ -15176,7 +15176,7 @@ ul.apercu-liste li {
 }
 .barre-dates-temps {
   margin-left: 6px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .barre-dates-hegire {
   font-size: 15px;
@@ -15255,7 +15255,7 @@ ul.apercu-liste li {
     order: 1;
     display: block;
     font-family: var(--font-calligraphie), var(--font-arabe), serif;
-    font-size: 12px;
+    font-size: var(--t-xs);
     line-height: 1.1;
     opacity: 0.85;
   }
@@ -15406,7 +15406,7 @@ ul.apercu-liste li {
 }
 .appel-ligne-classe small {
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .appel-ligne-action {
   display: inline-flex;
@@ -15414,7 +15414,7 @@ ul.apercu-liste li {
   gap: 4px;
   flex-shrink: 0;
   color: var(--texte-doux);
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .appel-ligne.a-faire .appel-ligne-action {
   color: var(--vert-texte);
@@ -15615,7 +15615,7 @@ html[data-ouverture] .ouverture-calligraphie {
 }
 /* Mois : les mois hégiriens plus discrets, jamais coupés (deux lignes s'il le faut). */
 .mois-hegire {
-  font-size: 12px;
+  font-size: var(--t-xs);
   line-height: 1.3;
   white-space: normal;
   text-overflow: clip;
@@ -15623,7 +15623,7 @@ html[data-ouverture] .ouverture-calligraphie {
 }
 @media (max-width: 480px) {
   .mois-hegire-ar {
-    font-size: 12px;
+    font-size: var(--t-xs);
     white-space: normal;
   }
 }
@@ -15651,7 +15651,7 @@ html[data-ouverture] .ouverture-calligraphie {
 .choix-mode-admin button {
   min-height: 32px;
   padding: 0 10px;
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 @media (max-width: 760px) {
   .bandeau-vue-admin a {
@@ -15921,7 +15921,7 @@ body:has(.barre-vivante) {
   flex: none;
   margin: 0;
   color: var(--ciel-or);
-  font-size: 22px;
+  font-size: var(--t-xl);
   line-height: 1;
 }
 .barre-compacte-fr {
@@ -16115,7 +16115,7 @@ body:has(.barre-vivante) {
   display: grid;
   place-items: center;
   font-family: var(--font-titre), Georgia, serif;
-  font-size: 13px;
+  font-size: var(--t-s);
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--ciel-or, #c9a24a);
@@ -16703,7 +16703,7 @@ html {
   .nav-espace .nav-mihrab .nav-ar {
     display: block;
     order: 3;
-    font-size: 12px;
+    font-size: var(--t-xs);
     line-height: 1;
     opacity: 0.9;
     color: inherit;
@@ -17021,7 +17021,7 @@ html[data-haut-cache] .barre-vivante::after {
   }
   .carte-aujourdhui h3,
   .carte-unie-titre {
-    font-size: 18px;
+    font-size: var(--t-l);
   }
   .espace {
     gap: 12px;
@@ -17385,10 +17385,10 @@ html[data-haut-cache] .barre-vivante::after {
     gap: 0;
   }
   .barre-salutation-arabe {
-    font-size: 18px;
+    font-size: var(--t-l);
   }
   .barre-salutation-prenom {
-    font-size: 14px;
+    font-size: var(--t-m);
   }
 }
 /* Les deux étoiles du haut (ق et le compte) sont des lanternes suspendues au bord du ciel. */
@@ -17422,7 +17422,7 @@ html[data-haut-cache] .barre-vivante::after {
   .nav-espace .nav-onglet .nav-ar,
   .nav-espace .nav-plus .nav-ar,
   .nav-espace .nav-mihrab .nav-ar {
-    font-size: 13px;
+    font-size: var(--t-s);
     opacity: 0.95;
     color: var(--nav-texte);
   }
@@ -17460,7 +17460,7 @@ html[data-haut-cache] .barre-vivante::after {
   border-radius: 999px;
   background: color-mix(in srgb, var(--vert-texte) 14%, transparent);
   color: var(--vert-texte);
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-style: normal;
   font-weight: 600;
 }
@@ -17487,10 +17487,10 @@ html[data-haut-cache] .barre-vivante::after {
   color: var(--vert-texte);
 }
 .resume-tuiles li > strong {
-  font-size: 22px;
+  font-size: var(--t-xl);
 }
 .resume-tuiles li > span {
-  font-size: 13px;
+  font-size: var(--t-s);
 }
 .resume-tuiles li:nth-child(2) > svg {
   background: color-mix(in srgb, var(--or, #d6af5c) 20%, transparent);
@@ -17514,7 +17514,7 @@ html[data-haut-cache] .barre-vivante::after {
 .barre-dates-calcul {
   margin-left: 4px;
   color: var(--ciel-texte-doux);
-  font-size: 12px;
+  font-size: var(--t-xs);
   text-decoration: none;
   opacity: 0.8;
 }
