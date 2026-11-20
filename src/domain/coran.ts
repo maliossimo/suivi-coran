@@ -427,10 +427,18 @@ export interface RepereMot {
   fin: number;
 }
 
-/** Mot récité à l'instant `ms` ; null entre deux mots ou hors du verset. */
+/**
+ * Mot récité à l'instant `ms`. Entre deux mots (ou après le dernier), le mot qui vient d'être dit reste surligné
+ * jusqu'au suivant : le surlignage ne clignote plus à chaque souffle et ne disparaît pas quand les repères
+ * laissent un petit blanc. Null seulement avant le premier mot, ou sans repères.
+ */
 export function motA(reperes: readonly RepereMot[], ms: number): number | null {
-  for (const r of reperes) if (ms >= r.debut && ms < r.fin) return r.mot;
-  return null;
+  let courant: RepereMot | null = null;
+  for (const r of reperes) {
+    if (ms >= r.debut && ms < r.fin) return r.mot;
+    if (r.debut <= ms && (courant === null || r.debut >= courant.debut)) courant = r;
+  }
+  return courant ? courant.mot : null;
 }
 
 // ---------- Marque-pages ------------------------------------------------------
