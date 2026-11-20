@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.68.2] — 2026-11-20
+
+### Modifié
+
+- Mise en production : la PR `main` → `prod` se fusionne désormais avec « Create a merge commit » (plus de faux conflit). Le script `synchroniser-prod.sh` est supprimé ; CLAUDE.md est mis à jour.
+
 ## [1.68.1] — 2026-11-20
 
 ### Modifié
