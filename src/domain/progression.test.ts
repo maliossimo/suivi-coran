@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Seance } from "./fiche";
-import { aRenforcer, calculerProgression } from "./progression";
+import { aRenforcer, calculerProgression, variationPourcent } from "./progression";
 import { creerReferentiel, type Sourate } from "./versets";
 
 const ref = creerReferentiel([
@@ -86,6 +86,14 @@ describe("calculerProgression", () => {
     ]);
   });
 
+  it("donne le bilan de chaque mois : séances, jours, temps, versets ajoutés", () => {
+    expect(p.bilanParMois).toEqual([
+      { cle: "2026-09", libelle: "sept.", seances: 1, joursTravailles: 1, minutes: 30, versets: 10 },
+      { cle: "2026-10", libelle: "oct.", seances: 1, joursTravailles: 1, minutes: 30, versets: 20 },
+      { cle: "2026-11", libelle: "nov.", seances: 3, joursTravailles: 3, minutes: 60, versets: 10 },
+    ]);
+  });
+
   it("répartit les minutes par semaine glissante", () => {
     const derniere = p.minutesParSemaine.at(-1)!;
     expect(derniere.apprentissage).toBe(20);
@@ -119,5 +127,16 @@ describe("calculerProgression", () => {
     expect(p.souratesCompletes).toBe(1);
     expect(aRenforcer(mulkP!, "2026-11-10")).toBe(false);
     expect(aRenforcer(qalam!, "2026-11-10")).toBe(true);
+  });
+});
+
+describe("variationPourcent", () => {
+  it("compare un mois au précédent", () => {
+    expect(variationPourcent(60, 30)).toBe(100);
+    expect(variationPourcent(15, 30)).toBe(-50);
+    expect(variationPourcent(30, 30)).toBe(0);
+  });
+  it("ne compare pas à un mois vide", () => {
+    expect(variationPourcent(20, 0)).toBeNull();
   });
 });

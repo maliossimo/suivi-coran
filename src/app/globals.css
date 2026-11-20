@@ -17801,3 +17801,142 @@ select:focus-visible {
     transition: none;
   }
 }
+
+/* Erreurs du site : famille, explication en clair, détail technique replié. */
+.liste-erreurs .liste-erreurs-tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--e-2);
+}
+.erreur-famille {
+  padding: 1px 8px;
+  border-radius: var(--r-pilule);
+  background: var(--surface-3);
+  color: var(--texte);
+  font-size: var(--t-xs);
+  font-weight: 700;
+}
+.erreur-famille.erreur-affichage,
+.erreur-famille.erreur-appli {
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.erreur-sans-gravite {
+  font-size: var(--t-xs);
+  font-style: normal;
+  color: var(--vert-texte);
+}
+.liste-erreurs-explication {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--t-m);
+}
+.liste-erreurs-detail {
+  margin-top: 4px;
+  font-size: var(--t-xs);
+  color: var(--texte-doux);
+}
+.liste-erreurs-detail > summary {
+  cursor: pointer;
+}
+.liste-erreurs-detail .liste-erreurs-message {
+  display: block;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+/* =====================================================================
+   Nuit profonde (après Icha) et dernier tiers de la nuit : le thème sombre baisse d'un cran,
+   moins de lumière sur l'écran quand on ouvre l'appli dans le noir. Le thème clair choisi à la main reste clair.
+   ===================================================================== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="clair"])[data-nuit] {
+    --fond: #070b09;
+    --carte: #0f1613;
+    --surface-2: #131c18;
+    --surface-3: #1a2420;
+    --ligne: #1f2b26;
+    --texte: #d2dbd6;
+    --texte-doux: #a3b0aa;
+    --ambiance: rgba(47, 122, 94, 0.1);
+    --ambiance-2: rgba(231, 196, 111, 0.03);
+  }
+}
+:root[data-theme="sombre"][data-nuit] {
+  --fond: #070b09;
+  --carte: #0f1613;
+  --surface-2: #131c18;
+  --surface-3: #1a2420;
+  --ligne: #1f2b26;
+  --texte: #d2dbd6;
+  --texte-doux: #a3b0aa;
+  --ambiance: rgba(47, 122, 94, 0.1);
+  --ambiance-2: rgba(231, 196, 111, 0.03);
+}
+
+/* Mois après mois (progression). */
+.historique-mois ul {
+  display: grid;
+  gap: var(--e-4);
+  margin: var(--e-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.historique-mois-tete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-2);
+}
+.historique-mois-tete b {
+  font-size: var(--t-base);
+}
+.historique-mois-encours {
+  color: var(--texte-doux);
+  font-size: var(--t-xs);
+}
+.historique-mois-variation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: var(--r-pilule);
+  background: var(--surface-3);
+  font-size: var(--t-xs);
+  font-weight: 700;
+}
+.historique-mois-variation.hausse {
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+}
+.historique-mois-variation.baisse {
+  background: var(--or-clair);
+  color: var(--or-texte);
+}
+.historique-mois-barre {
+  height: 8px;
+  margin-top: 6px;
+  border-radius: var(--r-pilule);
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.historique-mois-barre > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--teinte-2);
+  transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.historique-mois-chiffres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--e-4);
+  margin: 6px 0 0;
+  font-size: var(--t-m);
+  color: var(--texte-doux);
+}
+.historique-mois-chiffres span:first-child {
+  color: var(--texte);
+  font-weight: 600;
+}

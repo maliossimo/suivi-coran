@@ -9,6 +9,20 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.67.0] — 2026-11-20
+
+### Ajouté
+
+- Progression : carte « Mois après mois » (temps de travail, jours travaillés, versets ajoutés, évolution par rapport au mois d'avant avec flèche et mot).
+- Administration : les erreurs du site sont classées (réseau, mise à jour, affichage, navigateur, appli), expliquées en une phrase et marquées « sans gravité » quand c'est le cas ; le détail technique est replié.
+- Thème sombre plus sombre la nuit profonde (après Icha et dernier tiers de la nuit).
+- `scripts/synchroniser-prod.sh` : rattachement de `prod` à `main` après une fusion « squash » (procédure ajoutée à CLAUDE.md).
+
+### Modifié
+
+- Progression : la flamme des jours d'affilée n'apparaît qu'à partir de 2 jours.
+- Tests visuels : après le renouvellement des captures, le workflow passe tous les parcours et pose lui-même le statut sur le nouveau commit (un seul lancement).
+
 ## [1.66.0] — 2026-11-20
 
 ### Ajouté

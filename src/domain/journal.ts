@@ -164,3 +164,83 @@ export function regrouperErreurs(
   }
   return [...groupes.values()];
 }
+
+export type TypeErreur = "reseau" | "mise-a-jour" | "affichage" | "navigateur" | "appli";
+
+export interface ExplicationErreur {
+  type: TypeErreur;
+  /** Court libellé de la famille : « Réseau », « Mise à jour »… */
+  famille: string;
+  /** Ce que ça veut dire, en une phrase simple. */
+  explication: string;
+  /** Faux : à regarder ; vrai : sans gravité tant que ça ne se répète pas. */
+  sansGravite: boolean;
+}
+
+/**
+ * Traduit le message technique d'une erreur en une phrase que l'admin comprend : réseau coupé,
+ * appli mise à jour pendant l'utilisation, écart d'affichage… et dit si c'est sans gravité.
+ */
+export function expliquerErreur(message: string): ExplicationErreur {
+  if (
+    /ChunkLoadError|Loading chunk|dynamically imported module|Importing a module script failed/i.test(message)
+  )
+    return {
+      type: "mise-a-jour",
+      famille: "Mise à jour",
+      explication:
+        "L'appli s'est mise à jour pendant qu'elle était ouverte. Elle se règle en la fermant puis en la rouvrant.",
+      sansGravite: true,
+    };
+  if (
+    /Load failed|Failed to fetch|NetworkError|network request failed|fetch failed|Network connection was lost/i.test(
+      message,
+    )
+  )
+    return {
+      type: "reseau",
+      famille: "Réseau",
+      explication:
+        "Une requête a été coupée : réseau perdu, ou téléphone sorti de veille. Sans gravité si ça ne se répète pas.",
+      sansGravite: true,
+    };
+  if (/ResizeObserver loop|Script error\.?$|The operation was aborted|AbortError/i.test(message))
+    return {
+      type: "navigateur",
+      famille: "Navigateur",
+      explication:
+        "Message du navigateur lui-même (page quittée en cours de chargement, extension…). Sans gravité.",
+      sansGravite: true,
+    };
+  if (/hydrat|Minified React error #(418|423|425)|did not match/i.test(message))
+    return {
+      type: "affichage",
+      famille: "Affichage",
+      explication:
+        "Écart entre ce que le serveur a envoyé et ce que le téléphone a affiché. À regarder si ça se répète.",
+      sansGravite: false,
+    };
+  return {
+    type: "appli",
+    famille: "Appli",
+    explication: "Erreur de l'appli elle-même : à regarder (le détail technique est dessous).",
+    sansGravite: false,
+  };
+}
+
+const NOMS_PAGES: [string, string][] = [
+  ["/connexion", "écran de connexion"],
+  ["/eleve", "espace élève"],
+  ["/maitre", "espace Cheikh"],
+  ["/admin", "administration"],
+  ["/presences", "présences"],
+  ["/coran", "lecture du Coran"],
+  ["/compte", "mon compte"],
+  ["/mosquee", "ma mosquée"],
+];
+
+/** « /connexion » → « écran de connexion » ; une page inconnue garde son adresse. */
+export function nomDePage(page: string): string {
+  const nom = NOMS_PAGES.find(([debut]) => page === debut || page.startsWith(`${debut}/`));
+  return nom ? nom[1] : page;
+}
