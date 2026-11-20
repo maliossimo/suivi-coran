@@ -110,6 +110,11 @@ function chargerReperes(url: string): Promise<RepereMot[] | null> {
       )
       .catch(() => null);
     reperesCharges.set(url, p);
+    // Un échec (réseau coupé un instant, réponse vide) ne reste pas en mémoire : la prochaine lecture
+    // du verset réessaie, au lieu de rester sans surlignage des mots jusqu'au rechargement de la page.
+    void p.then((r) => {
+      if (r === null && reperesCharges.get(url) === p) reperesCharges.delete(url);
+    });
   }
   return p;
 }
@@ -389,6 +394,15 @@ export function LectureCoran({
         });
       }
       const suivante = pistes[pos.piste + 1];
+      // Repères du verset suivant chargés d'avance : le surlignage des mots part avec la voix, sans attendre.
+      if (suivante && recitation.mots && suivante.cles.length === 1) {
+        const f = fichierVerset(suivante.sourate, suivante.ayah);
+        void chargerReperes(
+          recitation.alignement && telecharges.has(f)
+            ? adresseMots(recitation.alignement, suivante.sourate, suivante.ayah)
+            : `${recitation.mots}${suivante.sourate}/${suivante.ayah}.json`,
+        );
+      }
       if (suivante) {
         prochain.current ??= new Audio();
         prochain.current.preload = "auto";

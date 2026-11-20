@@ -165,7 +165,18 @@ describe("mot par mot", () => {
       { mot: 2, debut: 400, fin: 900 },
     ];
     expect(motA(r, 450)).toBe(2);
-    expect(motA(r, 1200)).toBeNull();
+    expect(motA(r, 1200)).toBe(2); // après le dernier mot, il reste surligné jusqu'au changement de verset
+    expect(motA([{ mot: 1, debut: 200, fin: 400 }], 100)).toBeNull(); // avant le premier mot
+  });
+
+  it("garde le mot qui vient d'être dit entre deux mots", () => {
+    const r = [
+      { mot: 1, debut: 0, fin: 300 },
+      { mot: 2, debut: 500, fin: 900 },
+    ];
+    expect(motA(r, 400)).toBe(1);
+    expect(motA(r, 500)).toBe(2);
+    expect(motA([], 400)).toBeNull();
   });
 });
 

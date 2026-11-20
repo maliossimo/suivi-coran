@@ -9,6 +9,14 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.70.1] — 2026-11-20
+
+### Corrigé
+
+- Lecture du Coran, surlignage des mots : un échec de chargement des repères d'un verset (réseau coupé un instant) restait en mémoire et privait ce verset de surlignage mot à mot jusqu'au rechargement de la page. Il est maintenant retenté à la lecture suivante.
+- Les repères du verset suivant sont chargés pendant que le verset en cours est récité : le surlignage part avec la voix.
+- Entre deux mots (et après le dernier), le mot qui vient d'être dit reste surligné jusqu'au suivant, au lieu de disparaître à chaque petit blanc.
+
 ## [1.70.0] — 2026-11-20
 
 ### Ajouté
