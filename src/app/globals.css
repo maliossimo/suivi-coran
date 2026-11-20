@@ -17582,3 +17582,222 @@ select:focus-visible {
   border-color: var(--focus);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 22%, transparent);
 }
+
+/* =====================================================================
+   Fiche et saisie (1.66) : objectifs lisibles en entier, statuts sur une rangée, cartes de semaine
+   ===================================================================== */
+/* Objectif : une zone qui grandit avec son texte (rien n'est coupé), même en lecture seule. */
+.objectif textarea[name="description"] {
+  grid-column: 1 / -1;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  max-height: 12em;
+  padding: 10px 12px;
+  border: 1px solid var(--champ);
+  border-radius: var(--r-m);
+  background: var(--surface-2);
+  color: var(--texte);
+  font: inherit;
+  line-height: 1.4;
+  resize: none;
+  overflow-y: auto;
+  field-sizing: content;
+}
+.objectif textarea[name="description"]:disabled {
+  color: var(--texte);
+  -webkit-text-fill-color: var(--texte);
+  opacity: 1;
+}
+.objectif-compteur {
+  grid-column: 1 / -1;
+  margin: -4px 0 0;
+  text-align: right;
+  font-size: var(--t-xs);
+  color: var(--texte-doux);
+  font-variant-numeric: tabular-nums;
+}
+/* Les trois statuts sur une rangée de même largeur, puis le bouton sur toute la largeur. */
+.objectif-statut {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-2);
+}
+.objectif-statut .statut {
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 var(--e-2);
+  font-size: var(--t-xs);
+  white-space: nowrap;
+}
+@media (min-width: 400px) {
+  .objectif-statut .statut {
+    font-size: var(--t-s);
+  }
+}
+.objectif > button[type="submit"] {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+/* Texte modifié et pas encore enregistré : le bouton passe en action principale (plein). */
+.objectif[data-modifie] > button[type="submit"] {
+  border-color: var(--vert);
+  background: var(--vert);
+  color: #fff;
+}
+
+/* Cartes de semaine : titre et bilan sur la première ligne, dates dessous, puis les jours. */
+.semaine-entete {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "titre bilan"
+    "dates dates"
+    "points points";
+  align-items: center;
+  gap: 4px var(--e-3);
+}
+.semaine-entete > h3 {
+  grid-area: titre;
+}
+.semaine-entete .semaine-dates {
+  grid-area: dates;
+  font-size: var(--t-m);
+}
+.semaine-entete .semaine-bilan {
+  grid-area: bilan;
+  justify-self: end;
+  padding: 2px 10px;
+  border-radius: var(--r-pilule);
+  background: var(--vert-clair);
+  color: var(--vert-texte);
+  font-size: var(--t-s);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.semaine-entete .semaine-bilan.vide {
+  background: var(--surface-3);
+  color: var(--texte-doux);
+  font-weight: 500;
+}
+.semaine-entete > .semaine-points {
+  grid-area: points;
+  flex-basis: auto;
+  margin-top: 4px;
+}
+.semaine-pliable > summary.semaine-entete {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "titre bilan fleche"
+    "dates dates fleche"
+    "points points fleche";
+  row-gap: 4px;
+}
+.semaine-pliable > summary > span.semaine-dates {
+  grid-area: dates;
+  margin-left: 0;
+  text-align: left;
+}
+.semaine-pliable > summary > span.semaine-bilan {
+  grid-area: bilan;
+}
+
+/* Points des jours : chaque état a sa forme (pas seulement sa couleur). */
+.semaine-points {
+  gap: 6px;
+}
+.semaine-points i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--texte-doux);
+}
+/* Saisi : rond plein. */
+.semaine-points i.point-plein {
+  background: var(--teinte-2);
+  box-shadow: none;
+}
+/* Écouté par le Cheikh : rond plein avec un cœur clair. */
+.semaine-points i.point-ecoute {
+  background: radial-gradient(circle, var(--carte) 0 2px, var(--etat-ecoute, var(--vert)) 2.5px);
+  box-shadow: none;
+}
+/* Validé : carré plein, doré. */
+.semaine-points i.point-valide {
+  border-radius: 3px;
+  background: var(--etat-valide, var(--or));
+  box-shadow: none;
+}
+/* Aujourd'hui : anneau épais. */
+.semaine-points i.point-aujourdhui {
+  background: transparent;
+  box-shadow: inset 0 0 0 3px var(--vert-texte);
+}
+/* À venir : petit point discret. */
+.semaine-points i.point-futur {
+  width: 6px;
+  height: 6px;
+  margin: 3px;
+  background: var(--texte-doux);
+  box-shadow: none;
+  opacity: 0.4;
+}
+
+/* Bandeau « Vue du Cheikh » : le libellé en entier, le choix Lecture / Modifier dessous (côte à côte si la place le permet). */
+.bandeau-vue-admin {
+  flex-wrap: wrap;
+}
+.bandeau-vue-admin p {
+  flex: 1 1 100%;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+.choix-mode-admin {
+  flex: 1 1 100%;
+}
+@media (min-width: 560px) {
+  .bandeau-vue-admin p {
+    flex: 1 1 auto;
+  }
+  .choix-mode-admin {
+    flex: 0 0 auto;
+  }
+}
+
+/* Fiche sans séance : une icône avant le message. */
+.accueil-cheikh {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--e-3);
+  text-align: left;
+}
+.accueil-cheikh > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--or);
+}
+
+/* Semaines repliables : le contenu se déplie en douceur (navigateurs qui le permettent). */
+:root {
+  interpolate-size: allow-keywords;
+}
+.semaine-pliable::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 0.28s ease,
+    content-visibility 0.28s allow-discrete;
+}
+.semaine-pliable[open]::details-content {
+  block-size: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .semaine-pliable::details-content {
+    transition: none;
+  }
+}

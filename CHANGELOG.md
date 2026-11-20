@@ -9,6 +9,23 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.66.0] — 2026-11-20
+
+### Ajouté
+
+- Objectifs : la zone de saisie grandit avec le texte, donc un objectif long se lit et se corrige en entier (en lecture seule aussi). Un compteur apparaît près de la limite (300 caractères).
+- Les objectifs s'enregistrent tout seuls en quittant le champ ; le bouton « Enregistrer » devient plein tant que le texte n'est pas enregistré.
+- Statuts « En cours / Atteint / Non atteint » sur une rangée de même largeur, avec une icône pour chacun (plus seulement la couleur).
+- Cartes de semaine : titre à gauche et bilan en badge à droite, dates dessous ; les points des jours ont chacun leur forme (rond plein, rond à cœur clair, carré doré, anneau, petit point).
+- Les semaines repliées se déplient en douceur (navigateurs qui le permettent).
+
+### Modifié
+
+- Bandeau « Vue du Cheikh » : le libellé n'est plus coupé, le choix Lecture seule / Modifier passe dessous sur téléphone.
+- Le bouton « remonter » n'apparaît qu'en remontant la page et s'efface au bout de 2,5 s : il ne cache plus « Enregistrer ».
+- Le titre « Objectif du mois » n'est plus affiché deux fois.
+- Fiche d'un élève sans séance : une icône devant le message.
+
 ## [1.65.0] — 2026-11-20
 
 ### Modifié
