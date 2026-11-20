@@ -17849,9 +17849,10 @@ select:focus-visible {
 /* =====================================================================
    Nuit profonde (après Icha) et dernier tiers de la nuit : le thème sombre baisse d'un cran,
    moins de lumière sur l'écran quand on ouvre l'appli dans le noir. Le thème clair choisi à la main reste clair.
+   (Bloc écrit sous sa forme source : scripts/theme-sombre.mjs ajoute les conditions de thème.)
    ===================================================================== */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="clair"])[data-nuit] {
+  :root:where(:not([data-theme="clair"]))[data-nuit] {
     --fond: #070b09;
     --carte: #0f1613;
     --surface-2: #131c18;
@@ -17863,7 +17864,8 @@ select:focus-visible {
     --ambiance-2: rgba(231, 196, 111, 0.03);
   }
 }
-:root[data-theme="sombre"][data-nuit] {
+/* Même chose quand le thème sombre est choisi à la main. */
+:root:where([data-theme="sombre"])[data-nuit] {
   --fond: #070b09;
   --carte: #0f1613;
   --surface-2: #131c18;
