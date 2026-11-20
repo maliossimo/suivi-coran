@@ -9,6 +9,28 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.69.0] — 2026-11-20
+
+### Ajouté
+
+- Réglage du thème : « Très sombre » (le palier de la nuit profonde, à toute heure) ; « Comme le téléphone » devient « Auto ».
+- Écrans de chargement pour la lecture du Coran, la classe et la modification d'une classe.
+- Test automatique des contrastes du thème clair (textes à 4,5 pour 1 au moins, boutons pleins, focus).
+
+### Modifié
+
+- Bordure des champs de saisie plus marquée (3 pour 1 au moins sur le fond) dans tous les thèmes.
+- Messages d'erreur harmonisés : apostrophes typographiques, et une consigne (« Réessaie dans un instant », « vérifie les champs ») quand l'action peut être refaite.
+- Icônes : les caractères ✓ ⚠ ↺ ✕ ← dans l'interface sont remplacés par les icônes du reste de l'appli.
+- « Enregistré » s'affiche aussi après le changement de mot de passe et l'enregistrement d'une classe.
+- Animations plus sobres : les mouvements décoratifs (reflets, étincelles, lueurs, frise, flamme) jouent trois cycles puis se posent ; les mouvements qui signalent une attente restent.
+
+## [1.68.2] — 2026-11-20
+
+### Modifié
+
+- Mise en production : la PR `main` → `prod` se fusionne désormais avec « Create a merge commit » (plus de faux conflit). Le script `synchroniser-prod.sh` est supprimé ; CLAUDE.md est mis à jour.
+
 ## [1.68.1] — 2026-11-20
 
 ### Modifié

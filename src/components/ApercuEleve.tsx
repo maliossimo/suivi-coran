@@ -4,6 +4,7 @@ import {
   ArrowDownRight,
   ArrowRight,
   ArrowUpRight,
+  Check,
   ChevronRight,
   Headphones,
   Minus,
@@ -146,11 +147,17 @@ export function ApercuEleve({
                         <span
                           className={`pastille-etat etat-${p.etat === "a_refaire" ? "ecoute" : p.etat === "valide" ? "valide" : "a-ecouter"}`}
                         >
-                          {p.etat === "valide"
-                            ? "✓ Validé"
-                            : p.etat === "a_refaire"
-                              ? "↺ À refaire"
-                              : "À écouter"}
+                          {p.etat === "valide" ? (
+                            <>
+                              <Check size={14} className="icone-texte" aria-hidden="true" /> Validé
+                            </>
+                          ) : p.etat === "a_refaire" ? (
+                            <>
+                              <RotateCcw size={14} className="icone-texte" aria-hidden="true" /> À refaire
+                            </>
+                          ) : (
+                            "À écouter"
+                          )}
                         </span>
                       </li>
                     ))}

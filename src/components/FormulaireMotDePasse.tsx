@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
+import { ContenuBoutonEnregistrer } from "@/components/ContenuBoutonEnregistrer";
 import { actionChangerMotDePasse, type EtatFormulaire } from "@/app/actions/auth";
 
 /** Changement de mot de passe depuis « Mon compte ». */
@@ -35,7 +36,11 @@ export function FormulaireMotDePasse() {
         <input id="confirmation" name="confirmation" type="password" autoComplete="new-password" required />
       </div>
       <button className="bouton" type="submit" disabled={enCours}>
-        {enCours ? "Enregistrement…" : "Changer mon mot de passe"}
+        <ContenuBoutonEnregistrer
+          enCours={enCours}
+          libelle="Changer mon mot de passe"
+          echec={Boolean(etat.erreur)}
+        />
       </button>
     </form>
   );

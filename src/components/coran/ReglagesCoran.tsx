@@ -2,6 +2,7 @@
 
 import { IndicateurGlissant } from "@/components/IndicateurGlissant";
 import {
+  Check,
   CloudDownload,
   CloudOff,
   Minus,
@@ -268,7 +269,10 @@ export function ReglagesCoran({
             recitation?.suivi && recitation.dossier ? (
               horsLigne.sourateTelechargee ? (
                 <div className="coran-hors-ligne-ligne">
-                  <span>✓ Récitation de cette sourate sur le téléphone ({recitation.nom})</span>
+                  <span>
+                    <Check size={14} className="icone-texte" aria-hidden="true" /> Récitation de cette sourate
+                    sur le téléphone ({recitation.nom})
+                  </span>
                   <button
                     type="button"
                     className="coran-bouton"
@@ -294,7 +298,10 @@ export function ReglagesCoran({
             )
           ) : null}
           {horsLigne.texteGarde ? (
-            <small>✓ Texte des 114 sourates ({LIBELLE_LECTURE[lecture]}) gardé sur le téléphone.</small>
+            <small>
+              <Check size={14} className="icone-texte" aria-hidden="true" /> Texte des 114 sourates (
+              {LIBELLE_LECTURE[lecture]}) gardé sur le téléphone.
+            </small>
           ) : null}
           <button
             type="button"

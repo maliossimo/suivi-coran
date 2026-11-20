@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Headphones, Plus, Trash2, X } from "lucide-react";
+import { Check, Headphones, Plus, RotateCcw, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
@@ -288,8 +288,18 @@ function ListeAcquis({ acquis }: { acquis: PageAcquis["acquis"] }) {
 
 /** Où en est une partie déclarée : validée, écoutée, à écouter, ou connue sans écoute. */
 export function EtatAcquis({ a }: { a: { aEcouter: boolean; ecoute: boolean; valide: boolean } }) {
-  if (a.valide) return <span className="pastille-etat etat-valide">✓ Validé</span>;
-  if (a.ecoute) return <span className="pastille-etat etat-ecoute">↺ À refaire</span>;
+  if (a.valide)
+    return (
+      <span className="pastille-etat etat-valide">
+        <Check size={14} className="icone-texte" aria-hidden="true" /> Validé
+      </span>
+    );
+  if (a.ecoute)
+    return (
+      <span className="pastille-etat etat-ecoute">
+        <RotateCcw size={14} className="icone-texte" aria-hidden="true" /> À refaire
+      </span>
+    );
   if (a.aEcouter) return <span className="pastille-etat etat-a-ecouter">À écouter</span>;
   return <span className="pastille-etat acquis-declare">Déclaré</span>;
 }

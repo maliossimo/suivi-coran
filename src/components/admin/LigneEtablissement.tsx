@@ -11,6 +11,7 @@ import {
 import type { EtatSaisie } from "@/app/actions/fiche";
 import { confirmationValide } from "@/domain/classe";
 import type { EtablissementUsage } from "@/domain/usage";
+import { Check } from "lucide-react";
 
 const JOURS = ["", "lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
 
@@ -216,7 +217,8 @@ function HorairesMawaqit({
   return (
     <details>
       <summary className="lien-discret">
-        {mawaqit?.importeLe ? "Horaires Mawaqit ✓" : "Horaires Mawaqit"}
+        Horaires Mawaqit{" "}
+        {mawaqit?.importeLe ? <Check size={14} className="icone-texte" aria-hidden="true" /> : null}
       </summary>
       <form action={relier} className="formulaire-ligne formulaire-mawaqit">
         <input type="hidden" name="id" value={id} />
@@ -262,7 +264,15 @@ function PositionMosquee({
   const [geo, setGeo] = useState<string | null>(null);
   return (
     <details>
-      <summary className="lien-discret">{position ? "Position ✓" : "Position (heures de prière)"}</summary>
+      <summary className="lien-discret">
+        {position ? (
+          <>
+            Position <Check size={14} className="icone-texte" aria-hidden="true" />
+          </>
+        ) : (
+          "Position (heures de prière)"
+        )}
+      </summary>
       <form action={placer} className="formulaire-ligne formulaire-position">
         <input type="hidden" name="id" value={id} />
         <input

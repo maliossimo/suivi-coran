@@ -66,7 +66,7 @@ export async function actionEnregistrerSeanceFond(form: FormData): Promise<Resul
     try {
       attendu = JSON.parse(String(form.get("attendu")));
     } catch {
-      return { ok: false, erreur: "Certaines informations sont invalides." };
+      return { ok: false, erreur: "Certaines informations sont invalides : vérifie les champs et réessaie." };
     }
   }
   let resultat: ResultatSaisie;
@@ -84,7 +84,7 @@ export async function actionEnregistrerSeanceFond(form: FormData): Promise<Resul
       attendu,
     );
   } catch {
-    resultat = { ok: false, erreur: "L'enregistrement a échoué. Réessaie dans un instant." };
+    resultat = { ok: false, erreur: "L’enregistrement a échoué. Réessaie dans un instant." };
   }
   if (resultat.ok) {
     await notifier("Séance enregistrée");
@@ -126,7 +126,7 @@ export async function actionSupprimerSeanceFond(form: FormData): Promise<Resulta
   } catch {
     await notifier("La séance n'a pas pu être supprimée.", "erreur");
     revaliderEleve(eleveId);
-    return { ok: false, erreur: "La séance n'a pas pu être supprimée." };
+    return { ok: false, erreur: "La séance n’a pas pu être supprimée. Réessaie dans un instant." };
   }
 }
 
@@ -171,7 +171,7 @@ export async function actionEnregistrerBilan(_: EtatSaisie, form: FormData): Pro
       aRenforcer: form.get("aRenforcer") ?? "",
     });
   } catch {
-    resultat = { ok: false, erreur: "L'enregistrement a échoué. Réessaie dans un instant." };
+    resultat = { ok: false, erreur: "L’enregistrement a échoué. Réessaie dans un instant." };
   }
   if (!resultat.ok) return { erreur: resultat.erreur };
   await notifier("Bilan enregistré");

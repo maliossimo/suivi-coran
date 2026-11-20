@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { actionMotDePasseOublie, type EtatFormulaire } from "@/app/actions/auth";
 import { CadreAuth } from "@/components/CadreAuth";
 import { AntiRobot } from "@/components/AntiRobot";
+import { ArrowLeft } from "lucide-react";
 
 export default function PageMotDePasseOublie() {
   const [etat, action, enCours] = useActionState<EtatFormulaire, FormData>(actionMotDePasseOublie, {});
@@ -34,7 +35,7 @@ export default function PageMotDePasseOublie() {
           Recevoir un lien
         </button>
         <Link href="/connexion" className="lien-discret lien-centre">
-          ← Retour à la connexion
+          <ArrowLeft size={14} className="icone-texte" aria-hidden="true" /> Retour à la connexion
         </Link>
       </form>
     </CadreAuth>

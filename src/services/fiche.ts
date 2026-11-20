@@ -252,7 +252,8 @@ export async function enregistrerSeanceEleve(
   attenduBrut?: unknown,
 ): Promise<ResultatSaisie> {
   const saisie = schemaSaisieSeance.safeParse(brut);
-  if (!saisie.success) return { ok: false, erreur: "Certaines informations sont invalides." };
+  if (!saisie.success)
+    return { ok: false, erreur: "Certaines informations sont invalides : vérifie les champs et réessaie." };
   const date = lireDateSaisissable(saisie.data.date);
   if (!date) return { ok: false, erreur: "On ne peut pas saisir une séance dans le futur." };
   if (saisie.data.dureeMin === 0 && saisie.data.passages.length === 0 && !saisie.data.tajwid) {
@@ -283,7 +284,8 @@ export async function enregistrerSeanceEleve(
   let tajwid = saisie.data.tajwid;
   if (attenduBrut !== undefined) {
     const attendu = schemaAttendu.safeParse(attenduBrut);
-    if (!attendu.success) return { ok: false, erreur: "Certaines informations sont invalides." };
+    if (!attendu.success)
+      return { ok: false, erreur: "Certaines informations sont invalides : vérifie les champs et réessaie." };
     const actuelle = await seanceDuJour(eleveId, saisie.data.type, date);
     if (conflitDeSaisie(attendu.data, actuelle, { ...saisie.data, passages })) {
       return { ok: false, erreur: MESSAGE_CONFLIT, conflit: true };
@@ -309,7 +311,7 @@ export async function validerSeanceEleve(
     await validerSeance(seanceId.data);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "La séance n'a pas pu être validée. Réessaie." };
+    return { ok: false, erreur: "La séance n’a pas pu être validée. Réessaie." };
   }
 }
 
@@ -333,7 +335,7 @@ export async function marquerPassagesSeance(
     await marquerPassages(m.data.seanceId, m.data.etat, m.data.ordres);
     return { ok: true };
   } catch {
-    return { ok: false, erreur: "Le changement n'a pas pu être enregistré. Réessaie." };
+    return { ok: false, erreur: "Le changement n’a pas pu être enregistré. Réessaie." };
   }
 }
 
@@ -393,7 +395,7 @@ export async function enregistrerBilanEleve(eleveId: string, brut: unknown): Pro
   if (!saisie.success) return { ok: false, erreur: "Bilan invalide (1000 caractères maximum par champ)." };
   const { type, mois, bienMemorise, aRenforcer } = saisie.data;
   if (mois > debutDuMois(aujourdhuiParis())) {
-    return { ok: false, erreur: "Le bilan s'écrit pendant ou après le mois, pas à l'avance." };
+    return { ok: false, erreur: "Le bilan s’écrit pendant ou après le mois, pas à l’avance." };
   }
   if (!bienMemorise && !aRenforcer) {
     return { ok: false, erreur: "Écris au moins ce qui est bien mémorisé ou ce qui est à renforcer." };

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Minus, Plus, RotateCcw } from "lucide-react";
+import { ChevronDown, ChevronRight, Minus, Plus, RotateCcw, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { EtatCheikh, Seance, TypeSeance } from "@/domain/fiche";
@@ -437,7 +437,7 @@ export function FormulaireSeance({
                     aria-label={`Retirer le passage ${i + 1}`}
                     onClick={() => retirer(i)}
                   >
-                    ✕
+                    <X size={16} aria-hidden="true" />
                   </button>
                 </div>
                 <div className="passage-versets">

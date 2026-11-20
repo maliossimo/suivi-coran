@@ -46,9 +46,9 @@ ESLint bloque les imports qui violent ces frontières.
   (vérifié par le workflow « Garde-fou branches », qui signale aussi tout commit arrivé sur `main`/`prod` sans PR).
 - Mise en production : une PR `main` → `prod` (le workflow « Garde-fou prod » refuse toute autre source).
   La fusion déploie le site (Vercel) et applique les migrations à la base de production.
-  La fusion « squash » sépare ensuite les historiques de `main` et de `prod` : avant la mise en production
-  suivante, lancer `scripts/synchroniser-prod.sh` (PR de rattachement, sans changement de contenu, à fusionner
-  avec « Create a merge commit »), sinon la PR `main` → `prod` affiche un faux conflit.
+  La PR `main` → `prod` se fusionne avec « Create a merge commit », jamais en « squash » : le squash sépare les
+  historiques de `main` et de `prod` et fait apparaître un faux conflit à la mise en production suivante.
+  (Les PR de travail vers `main` restent en « squash ».)
 - Versions (`MAJEUR.MINEUR.CORRECTIF`, voir CHANGELOG.md) : avant chaque mise en production, la PR du lot
   (ou une PR `chore/version-x.y.z` vers `main`) augmente la version (`npm run version:correctif | version:mineure | version:majeure`) et ajoute sa
   section `## [x.y.z] — date` dans CHANGELOG.md. « Garde-fou prod » refuse une mise en production sans nouvelle version.
@@ -59,7 +59,7 @@ ESLint bloque les imports qui violent ces frontières.
   respecter scrupuleusement, même si GitHub ne les impose pas toutes.
 - Vérifications (CI) : une seule fois par PR ; les tests de la base ne tournent que si `supabase/` change.
   La PR `main` → `prod` ne relance pas les tests si la tête de `main` est exactement le contenu déjà vérifié
-  sur sa PR (fusion « squash », même base : statuts « Contenu vérifié », `scripts/deja-verifie.sh`) ; sinon tout tourne.
+  sur sa PR (fusion « squash » vers `main`, même base : statuts « Contenu vérifié », `scripts/deja-verifie.sh`) ; sinon tout tourne.
   Les tests de bout en bout (`e2e/`, workflow « Tests de bout en bout ») tournent sur une base jetable
   avec des comptes fictifs ; leurs captures d'écran sont jointes au passage.
 - Avant de proposer une PR : `npm run check` (format, lint, types, tests) et, si la base change, `npm run db:test`.

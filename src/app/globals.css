@@ -17954,3 +17954,81 @@ select:focus-visible {
   flex: 1 1 140px;
   min-height: 48px;
 }
+
+/* =====================================================================
+   Bordure des champs de saisie : 3 pour 1 au moins sur le fond (WCAG 1.4.11), dans tous les thèmes et
+   à tous les moments de la journée (mélange du texte et de la carte du thème en cours).
+   ===================================================================== */
+:root {
+  --bord-champ: color-mix(in srgb, var(--texte) 52%, var(--carte));
+}
+input:not(
+    [type="checkbox"],
+    [type="radio"],
+    [type="range"],
+    [type="hidden"],
+    [type="submit"],
+    [type="button"],
+    [type="file"]
+  ):not(:focus-visible),
+textarea:not(:focus-visible),
+select:not(:focus-visible) {
+  border-color: var(--bord-champ);
+}
+
+/* Icône placée dans une phrase (à la place des caractères ✓ ⚠ ← ↺ ✕) : même trait que le reste. */
+.icone-texte {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-inline-end: 2px;
+  flex-shrink: 0;
+}
+
+/* Thème « Très sombre » choisi à la main : le palier de la nuit profonde, à toute heure (voir plus haut). */
+:root[data-profondeur="max"] {
+  --fond: #070b09;
+  --carte: #0f1613;
+  --surface-2: #131c18;
+  --surface-3: #1a2420;
+  --ligne: #1f2b26;
+  --texte: #d2dbd6;
+  --texte-doux: #a3b0aa;
+  --ambiance: rgba(47, 122, 94, 0.1);
+  --ambiance-2: rgba(231, 196, 111, 0.03);
+}
+
+.choix-segmente button {
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* =====================================================================
+   Animations plus sobres. Les mouvements purement décoratifs (reflets, étincelles, lueurs, frise qui défile,
+   flamme, invitations) jouent quelques cycles puis se posent sur leur état de repos, le même que voient
+   les personnes qui demandent moins d'animations. Restent sans fin : ce qui signale une attente
+   (chargement, envoi), et le ciel de la barre du haut. Moins de mouvement permanent = écran plus calme et
+   moins de batterie.
+   ===================================================================== */
+.barre::after,
+.frise-zellige,
+.etat-vide-motif,
+.etat-vide-etoile,
+.aujourdhui-action:not(.est-fait)::after,
+.tuile-serie.est-allumee svg,
+.auth-etincelles i,
+.auth-fete .auth-logo::before {
+  animation-iteration-count: 3;
+}
+@media (max-width: 760px) {
+  .nav-espace::before,
+  .nav-mihrab[aria-current="page"]::after,
+  .nav-espace.avec-pastille .nav-frise-eclat,
+  .nav-espace.avec-pastille .nav-pastille,
+  .nav-espace.avec-pastille .nav-etoile-lueur,
+  .nav-mihrab-lisere path,
+  .nav-vague-reflet,
+  .nav-etincelles i,
+  .nav-reflet {
+    animation-iteration-count: 3;
+  }
+}

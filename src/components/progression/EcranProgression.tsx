@@ -1,4 +1,4 @@
-import { BookCheck, Flame, Target } from "lucide-react";
+import { BookCheck, Check, Flame, Target } from "lucide-react";
 import { Compteur } from "@/components/Compteur";
 import { encouragement, libelleJourCourt } from "@/domain/fiche";
 import type { CarteDuCoran } from "@/domain/carte";
@@ -238,7 +238,9 @@ export function EcranProgression({
                         <span className="pastille-a-faire-voir">À faire écouter</span>
                       ) : null}
                       {s.pourcentage === 100 && s.versetsValides >= s.sourate.nbVersets ? (
-                        <span className="pastille-or">✓ Validée</span>
+                        <span className="pastille-or">
+                          <Check size={14} className="icone-texte" aria-hidden="true" /> Validée
+                        </span>
                       ) : null}
                       {renforcer ? <span className="pastille-or">À réviser</span> : null}
                     </span>

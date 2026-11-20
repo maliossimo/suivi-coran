@@ -188,8 +188,8 @@ test.describe("Finitions de l'interface", () => {
     await expect(groupe).toHaveClass(/avec-indicateur/);
     const indicateur = groupe.locator(".indicateur-glissant");
     const avant = await indicateur.evaluate((e) => e.style.transform);
-    await groupe.getByRole("radio", { name: "Sombre" }).click();
+    await groupe.getByRole("radio", { name: "Sombre", exact: true }).click();
     await expect.poll(() => indicateur.evaluate((e) => e.style.transform)).not.toBe(avant);
-    await groupe.getByRole("radio", { name: "Comme le téléphone" }).click();
+    await groupe.getByRole("radio", { name: "Auto", exact: true }).click();
   });
 });
