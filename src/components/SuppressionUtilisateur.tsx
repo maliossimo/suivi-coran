@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useId, useState } from "react";
 import { actionSupprimerUtilisateur } from "@/app/actions/admin";
 import type { EtatSaisie } from "@/app/actions/fiche";
+import { Feuille } from "@/components/Feuille";
 import { confirmationValide } from "@/domain/classe";
 import type { Role } from "@/domain/roles";
 
@@ -21,30 +22,47 @@ export function SuppressionUtilisateur({
   nom: string;
   role: Exclude<Role, "admin">;
 }) {
-  const fenetre = useRef<HTMLDialogElement>(null);
+  const [ouverte, setOuverte] = useState(false);
+  const idFormulaire = useId();
   const [saisie, setSaisie] = useState("");
   const [etat, action, enCours] = useActionState<EtatSaisie, FormData>(actionSupprimerUtilisateur, {});
   const attendu = prenom || nom;
   const valide = confirmationValide(attendu, saisie);
-  const champ = `confirmation-${id}`;
+  const champ = `${idFormulaire}-confirmation`;
+  const fermer = () => {
+    setOuverte(false);
+    setSaisie("");
+  };
 
   useEffect(() => {
-    if (etat.enregistre) fenetre.current?.close();
+    if (etat.enregistre) {
+      setOuverte(false);
+      setSaisie("");
+    }
   }, [etat]);
 
   return (
     <>
-      <button
-        type="button"
-        className="lien-action lien-action-danger"
-        onClick={() => fenetre.current?.showModal()}
-      >
+      <button type="button" className="lien-action lien-action-danger" onClick={() => setOuverte(true)}>
         Supprimer
       </button>
-      <dialog ref={fenetre} className="fenetre" aria-labelledby={`titre-${id}`} onClose={() => setSaisie("")}>
-        <form action={action} className="fenetre-contenu">
+      <Feuille
+        ouverte={ouverte}
+        onFermer={fermer}
+        titre={`Supprimer ${`${prenom} ${nom}`.trim() || "ce compte"} ?`}
+        pied={
+          <div className="fenetre-actions">
+            <button type="button" className="bouton-secondaire" onClick={fermer}>
+              Annuler
+            </button>
+            <button type="submit" form={idFormulaire} className="bouton-danger" disabled={!valide || enCours}>
+              {enCours ? "Suppression…" : "Supprimer définitivement"}
+            </button>
+          </div>
+        }
+      >
+        <form id={idFormulaire} action={action} className="fenetre-contenu">
           <input type="hidden" name="id" value={id} />
-          <h2 id={`titre-${id}`}>Supprimer {`${prenom} ${nom}`.trim() || "ce compte"} ?</h2>
           {role === "eleve" ? (
             <p>
               Le compte de l’élève et <strong>toutes ses données</strong> seront effacés : séances, passages,
@@ -74,16 +92,8 @@ export function SuppressionUtilisateur({
               {etat.erreur}
             </p>
           ) : null}
-          <div className="fenetre-actions">
-            <button type="button" className="bouton-secondaire" onClick={() => fenetre.current?.close()}>
-              Annuler
-            </button>
-            <button type="submit" className="bouton-danger" disabled={!valide || enCours}>
-              {enCours ? "Suppression…" : "Supprimer définitivement"}
-            </button>
-          </div>
         </form>
-      </dialog>
+      </Feuille>
     </>
   );
 }

@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.68.0] — 2026-11-20
+
+### Modifié
+
+- Les confirmations de suppression (élève archivé, utilisateur côté administration) s'ouvrent en feuille du bas, comme les autres choix de l'appli : même geste pour fermer (poignée, voile, retour), boutons larges en bas.
+
 ## [1.67.1] — 2026-11-20
 
 ### Corrigé
