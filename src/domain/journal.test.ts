@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  compterErreursAVoir,
   depuisQuand,
   expliquerErreur,
   grouperParJour,
@@ -151,5 +152,26 @@ describe("nomDePage", () => {
     expect(nomDePage("/connexion")).toBe("écran de connexion");
     expect(nomDePage("/eleve/progression")).toBe("espace élève");
     expect(nomDePage("/autre/chose")).toBe("/autre/chose");
+  });
+});
+
+describe("compterErreursAVoir", () => {
+  const e = (message: string, page = "/eleve") => ({
+    quand: "2026-11-20T10:00:00Z",
+    page,
+    message,
+    version: null,
+  });
+
+  it("compte une erreur répétée pour une seule", () => {
+    expect(compterErreursAVoir([e("TypeError: x"), e("TypeError: x", "/maitre"), e("TypeError: y")])).toBe(2);
+  });
+
+  it("ignore les erreurs sans gravité", () => {
+    expect(compterErreursAVoir([e("Load failed"), e("ChunkLoadError: Loading chunk 1 failed")])).toBe(0);
+  });
+
+  it("vaut zéro sans erreur", () => {
+    expect(compterErreursAVoir([])).toBe(0);
   });
 });

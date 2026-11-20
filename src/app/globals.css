@@ -18032,3 +18032,34 @@ select:not(:focus-visible) {
     animation-iteration-count: 3;
   }
 }
+
+/* Pastille de l'onglet Admin : nombre d'erreurs à regarder (chiffre + forme, pas seulement la couleur). */
+.nav-onglet {
+  position: relative;
+}
+.nav-alerte {
+  position: absolute;
+  top: 2px;
+  inset-inline-end: 4px;
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--r-pilule);
+  border: 2px solid var(--fond);
+  box-sizing: content-box;
+  background: var(--rouge);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+@media (max-width: 760px) {
+  .nav-alerte {
+    inset-inline-end: auto;
+    left: calc(50% + 4px);
+    top: 0;
+  }
+}

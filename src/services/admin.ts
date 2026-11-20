@@ -3,6 +3,8 @@ import { listerClasses as listerClassesPresences, type Classe } from "@/reposito
 import { z } from "zod";
 import { ajouterJours } from "@/domain/calendrier";
 import { confirmationValide, fileAVoir, JOURS_A_VOIR } from "@/domain/classe";
+import { compterErreursAVoir } from "@/domain/journal";
+import type { Role } from "@/domain/roles";
 import { calculerStatsUsage, type StatsUsage } from "@/domain/usage";
 import {
   comptesConnexion,
@@ -354,6 +356,20 @@ export async function chargerEtatSite(acteur: Profil): Promise<EtatSite> {
     erreurs7j: total7j,
     sentryConfigure: Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN),
   };
+}
+
+/**
+ * Pastille de l'onglet Admin : combien d'erreurs distinctes sont à regarder (non réglées, des 7 derniers jours,
+ * hors erreurs sans gravité). Zéro pour tout autre rôle, et zéro si la lecture échoue : l'en-tête ne doit jamais casser.
+ */
+export async function nombreErreursAVoir(role: Role): Promise<number> {
+  if (role !== "admin") return 0;
+  try {
+    const { erreurs } = await erreursRecentes(200);
+    return compterErreursAVoir(erreurs);
+  } catch {
+    return 0;
+  }
 }
 
 /** Le bug est corrigé : ses erreurs quittent le tableau de bord (elles reviennent s'il revient). */
