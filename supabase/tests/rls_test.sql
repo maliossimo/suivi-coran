@@ -66,6 +66,16 @@ insert into public.seances (id, eleve_id, date, type, duree_min, tajwid) values
 insert into public.passages (seance_id, sourate_debut, verset_debut, sourate_fin, verset_fin) values
   ('5e000000-0000-0000-0000-0000000000a1', 67, 1, 67, 15);
 
+-- Un Cheikh ne voit que les élèves de SES classes : classe provisoire pour les premiers tests (Cheikh A, élèves 1 et 2),
+-- supprimée avant la section « Présences ».
+insert into public.classes (id, etablissement_id, nom) values
+  ('c1a55e00-0000-0000-0000-0000000000f0', 'aaaaaaaa-0000-0000-0000-000000000000', 'Provisoire');
+insert into public.classes_cheikhs (classe_id, maitre_id) values
+  ('c1a55e00-0000-0000-0000-0000000000f0', 'a0000000-0000-0000-0000-00000000000a');
+insert into public.membres_classe (classe_id, eleve_id) values
+  ('c1a55e00-0000-0000-0000-0000000000f0', 'a0000000-0000-0000-0000-000000000001'),
+  ('c1a55e00-0000-0000-0000-0000000000f0', 'a0000000-0000-0000-0000-000000000002');
+
 -- ---------- Élève 1 (école A) ----------------------------------------
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
 select pg_temp.attendu((select count(*) from public.seances) = 1, 'élève : ne voit que ses séances');
@@ -523,6 +533,7 @@ select pg_temp.attendu(
 select pg_temp.console();
 
 -- ---------- Présences (classes et appel) -----------------------------
+delete from public.classes where id = 'c1a55e00-0000-0000-0000-0000000000f0';
 select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
 insert into public.classes (id, etablissement_id, nom, jours) values
   ('c1a55e00-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000000', 'Coran', '{1,2,4}');
@@ -721,8 +732,8 @@ select pg_temp.attendu(not exists (select 1 from public.profils where id = 'a000
   'classes : un Cheikh ne voit pas l''élève de la classe d''un autre Cheikh');
 select pg_temp.attendu((select count(*) from public.seances where eleve_id = 'a0000000-0000-0000-0000-000000000001') = 0,
   'classes : ni ses séances');
-select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000002'),
-  'classes : un élève sans classe reste visible par les Cheikhs de sa mosquée');
+select pg_temp.attendu(not exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000002'),
+  'classes : un élève sans classe n''est visible d''aucun Cheikh (seul le responsable de la mosquée le voit)');
 select pg_temp.doit_echouer(
   $q$insert into public.commentaires (eleve_id, auteur_id, texte)
      values ('a0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-0000000000a2', 'Intrus')$q$,
@@ -745,23 +756,23 @@ select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000
   'classes : le nouveau Cheikh voit son élève et ses séances');
 select pg_temp.console();
 
--- Classe terminée : ses élèves redeviennent « sans classe ».
+-- Classe terminée : ses élèves redeviennent « sans classe » (donc invisibles pour les Cheikhs).
 update public.classes set archivee = true where id = 'c1a55e00-0000-0000-0000-000000000001';
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-0000000000a2');
-select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000001'),
-  'classes : l''élève d''une classe terminée redevient visible par la mosquée');
+select pg_temp.attendu(not exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000001'),
+  'classes : l''élève d''une classe terminée n''est plus visible d''aucun Cheikh');
 select pg_temp.console();
 update public.classes set archivee = false where id = 'c1a55e00-0000-0000-0000-000000000001';
 
--- Une classe sans Cheikh désigné ne retire l'élève à personne.
+-- Une classe sans Cheikh désigné ne rend pas l'élève visible : il faut un Cheikh pour la classe.
 insert into public.classes (id, etablissement_id, nom) values
   ('c1a55e00-0000-0000-0000-000000000005', 'aaaaaaaa-0000-0000-0000-000000000000', 'Sans Cheikh');
 update public.membres_classe set actif = false where classe_id = 'c1a55e00-0000-0000-0000-000000000004';
 insert into public.membres_classe (classe_id, eleve_id)
   values ('c1a55e00-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000002');
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
-select pg_temp.attendu(exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000002'),
-  'classes : un élève d''une classe sans Cheikh reste visible par la mosquée');
+select pg_temp.attendu(not exists (select 1 from public.profils where id = 'a0000000-0000-0000-0000-000000000002'),
+  'classes : un élève d''une classe sans Cheikh n''est visible d''aucun Cheikh');
 select pg_temp.console();
 delete from public.membres_classe where classe_id = 'c1a55e00-0000-0000-0000-000000000005';
 update public.membres_classe set actif = true where classe_id = 'c1a55e00-0000-0000-0000-000000000004';
@@ -1009,6 +1020,9 @@ select pg_temp.attendu(
   public.est_responsable_de_eleve('b0000000-0000-0000-0000-000000000001')
   and not public.est_responsable_de_eleve('a0000000-0000-0000-0000-000000000001'),
   'responsable : suit les élèves de sa mosquée seulement');
+select pg_temp.attendu(
+  exists (select 1 from public.profils where id = 'b0000000-0000-0000-0000-000000000001'),
+  'responsable : voit un élève sans classe de sa mosquée (pour le placer dans une classe)');
 select pg_temp.attendu(
   (select count(*) from public.seances where eleve_id = 'a0000000-0000-0000-0000-000000000001') = 0,
   'responsable : ne voit pas les séances d''une autre mosquée');
