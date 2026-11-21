@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { retoursActives } from "./retourSensoriel";
+
 /**
  * Ouverture de l'appli installée, dans la continuité de l'écran de démarrage
  * (même image : étoile à 8 branches or et ق crème) :
@@ -7,11 +12,27 @@
  * « القرآن الكريم » s'écrit en calligraphie sous le logo ;
  * puis le logo file vers l'en-tête et la page sort du logo en s'élargissant (onde). Environ 2,3 s.
  * Pas de numéro de version ici : il est dans « Mon compte ».
- * Une fois par ouverture, seulement dans l'appli installée, jamais si le téléphone
- * demande de réduire les animations ; un appui la passe.
+ * Version complète (≈ 3,3 s) à la première ouverture du jour, version courte (≈ 1,1 s) ensuite ;
+ * seulement dans l'appli installée, jamais si le téléphone demande de réduire les animations ;
+ * un appui la passe. La salutation avec le prénom et une vibration légère (réglage « retours »)
+ * font partie de la version complète.
  * Pur HTML/CSS : le script du layout ajoute data-ouverture sur <html>.
  */
 export function OuvertureAppli() {
+  const [prenom, setPrenom] = useState("");
+  useEffect(() => {
+    const mode = document.documentElement.getAttribute("data-ouverture");
+    if (mode === null) return;
+    // Le prénom de la salutation de la barre du haut (déjà dans la page, derrière l'ouverture).
+    setPrenom(document.querySelector(".barre-salutation-prenom")?.textContent?.trim() ?? "");
+    // Petite vibration quand le vert atteint les bords (animation complète seulement).
+    const t = window.setTimeout(() => {
+      if (document.documentElement.hasAttribute("data-ouverture") && retoursActives()) {
+        navigator.vibrate?.(14);
+      }
+    }, 1400);
+    return () => window.clearTimeout(t);
+  }, []);
   return (
     <div className="ouverture" aria-hidden="true">
       <svg viewBox="0 0 200 200" className="ouverture-logo">
@@ -54,6 +75,13 @@ export function OuvertureAppli() {
       {/* Signature : « القرآن الكريم » s'écrit au calame, de droite à gauche, sous le logo. */}
       <p className="ouverture-calligraphie" lang="ar" dir="rtl">
         القرآن الكريم
+      </p>
+      {/* Salutation : « السلام عليكم » et le prénom, qui s'efface quand la barre du haut prend le relais. */}
+      <p className="ouverture-salut">
+        <span lang="ar" dir="rtl">
+          السلام عليكم
+        </span>
+        {prenom ? <span>{prenom}</span> : null}
       </p>
     </div>
   );
