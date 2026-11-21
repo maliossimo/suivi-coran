@@ -30,6 +30,28 @@ export function coordonneesAstre(p: PositionAstre): { x: number; y: number } {
   };
 }
 
+/**
+ * La lune ne passe jamais à la hauteur d'un minaret (ni devant, ni derrière) : elle monte dans le ciel
+ * libre à gauche de la mosquée (entre le titre et le minaret gauche, x 190 au plus près) pendant la
+ * première moitié de la nuit, puis redescend dans le ciel libre à droite (après le minaret droit,
+ * x 284) pendant la seconde. Elle change de côté au milieu de la nuit, quand elle s'estompe.
+ */
+export const LUNE_GAUCHE = { debut: 154, fin: 174 } as const;
+export const LUNE_DROITE = { debut: 302, fin: 322 } as const;
+/** Part de la nuit, autour du milieu, pendant laquelle la lune s'estompe pour changer de côté. */
+const FONDU_LUNE = 0.05;
+
+export function coordonneesLune(p: PositionAstre): { x: number; y: number; opacite: number } {
+  const gauche = p.avance < 0.5;
+  const zone = gauche ? LUNE_GAUCHE : LUNE_DROITE;
+  const dans = gauche ? p.avance / 0.5 : (p.avance - 0.5) / 0.5;
+  return {
+    x: Math.round((zone.debut + (zone.fin - zone.debut) * dans) * 10) / 10,
+    y: Math.round((HORIZON - HAUT_ARC * p.hauteur) * 10) / 10,
+    opacite: Math.min(1, Math.abs(p.avance - 0.5) / FONDU_LUNE),
+  };
+}
+
 const arrondi = (n: number) => Math.round(n * 100) / 100;
 
 /* ------------------------------------------------------------------------------------------------
@@ -337,16 +359,14 @@ function soleil(x: number, y: number, bas: number): string {
 }
 
 /** Lune du mois hégirien : la part éclairée suit le jour du mois ; lueur intense près du disque. */
-function lune(jour: number, cx: number, cy: number, r: number, id: string, halo = true): string {
+function lune(jour: number, cx: number, cy: number, r: number, id: string, opacite = 1): string {
   const { eclairee, croissante } = phaseLune(jour);
   const decalage = arrondi(2 * r * eclairee * (croissante ? -1 : 1));
   const k = r / 10;
   return [
-    `<g class="ciel-lune">`,
+    `<g class="ciel-lune"${opacite < 1 ? ` opacity="${arrondi(opacite)}"` : ""}>`,
     `<mask id="${id}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff"/><circle cx="${arrondi(cx + decalage)}" cy="${cy}" r="${arrondi(r + 0.4 * k)}" fill="#000"/></mask>`,
-    halo
-      ? `<circle class="ciel-lune-halo" cx="${cx}" cy="${cy}" r="${arrondi(r * 3.6)}" fill="url(#lune-lueur)"/>`
-      : "",
+    `<circle class="ciel-lune-halo" cx="${cx}" cy="${cy}" r="${arrondi(r * 3.6)}" fill="url(#lune-lueur)"/>`,
     `<g mask="url(#${id})"><circle class="ciel-lune-disque" cx="${cx}" cy="${cy}" r="${r}"/>`,
     `<g class="ciel-lune-mers"><circle cx="${arrondi(cx - 3 * k)}" cy="${arrondi(cy - 3.5 * k)}" r="${arrondi(2.6 * k)}"/><circle cx="${arrondi(cx + 3.5 * k)}" cy="${arrondi(cy - 2 * k)}" r="${arrondi(1.8 * k)}"/><circle cx="${arrondi(cx - k)}" cy="${arrondi(cy + 3.5 * k)}" r="${arrondi(2.1 * k)}"/><circle cx="${arrondi(cx + 4 * k)}" cy="${arrondi(cy + 4 * k)}" r="${arrondi(1.1 * k)}"/></g></g>`,
     `</g>`,
@@ -378,13 +398,16 @@ export interface CielAChanger {
 export function astreSvg({ position, jourHegire, ramadan }: CielAChanger): string {
   let dessin = "";
   if (position) {
-    const { x, y } = coordonneesAstre(position);
+    const enLune = position.astre === "lune";
+    const { x, y, opacite } = enLune
+      ? coordonneesLune(position)
+      : { ...coordonneesAstre(position), opacite: 1 };
     // Sous l'horizon, l'astre est caché par la ville : inutile de le dessiner.
     if (y <= HORIZON + 14) {
       dessin += `<circle class="ciel-halo" cx="${x}" cy="${y}" r="80" fill="url(#ciel-halo-degrade)"/>`;
-      if (position.astre === "soleil") dessin += soleil(x, y, position.bas);
+      if (!enLune) dessin += soleil(x, y, position.bas);
       else if (jourHegire !== null)
-        dessin += lune(jourHegire, x, y, arrondi(10 + 2 * position.bas), "masque-lune");
+        dessin += lune(jourHegire, x, y, arrondi(10 + 2 * position.bas), "masque-lune", opacite);
     }
   }
   return dessin + (ramadan ? lanternes() : "");
@@ -393,20 +416,6 @@ export function astreSvg({ position, jourHegire, ramadan }: CielAChanger): strin
 /* ------------------------------------------------------------------------------------------------
    Version miniature (en-tête compact quand on descend dans la page)
    ------------------------------------------------------------------------------------------------ */
-
-/**
- * Le disque de la lune seul, à dessiner PAR-DESSUS la ville : sinon, au début de la nuit, un minaret
- * la cache à moitié. (Son halo reste derrière, avec le reste du ciel.) Vide le jour ou sous l'horizon.
- */
-export function luneDevantSvg({
-  position,
-  jourHegire,
-}: Pick<CielAChanger, "position" | "jourHegire">): string {
-  if (!position || position.astre !== "lune" || jourHegire === null) return "";
-  const { x, y } = coordonneesAstre(position);
-  if (y > HORIZON + 14) return "";
-  return lune(jourHegire, x, y, arrondi(10 + 2 * position.bas), "masque-lune-devant", false);
-}
 
 /** Mêmes ville et astre, en petit, calés à droite. */
 export function miniSvg(moment: "fajr" | "jour" | "maghrib" | "nuit", jourHegire: number | null): string {

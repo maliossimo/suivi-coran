@@ -3,7 +3,9 @@ import { positionAstre } from "@/domain/ciel";
 import { horairesPriere } from "@/domain/priere";
 import {
   astreSvg,
-  luneDevantSvg,
+  coordonneesLune,
+  LUNE_DROITE,
+  LUNE_GAUCHE,
   coordonneesAstre,
   CORPS,
   DEFS_SVG,
@@ -108,17 +110,30 @@ describe("astreSvg", () => {
   });
 });
 
-describe("luneDevantSvg", () => {
-  const h = horairesPriere("2026-11-17");
-  const m = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3));
-  it("dessine le disque de la lune sans halo, la nuit", () => {
-    const svg = luneDevantSvg({ position: positionAstre(m("22:00"), h), jourHegire: 10 });
-    expect(svg).toContain("ciel-lune-disque");
-    expect(svg).not.toContain("ciel-lune-halo");
+describe("trajet de la lune", () => {
+  // Minarets (x au plus près : gauche 189,9 ; droit 272,7 à 284,1). La lune a un rayon d'au plus 12.
+  const position = (avance: number) => ({
+    astre: "lune" as const,
+    avance,
+    hauteur: Math.sin(Math.PI * avance),
+    bas: 0,
   });
-  it("ne dessine rien le jour, ni sans jour hégirien", () => {
-    expect(luneDevantSvg({ position: positionAstre(m("12:30"), h), jourHegire: 10 })).toBe("");
-    expect(luneDevantSvg({ position: positionAstre(m("22:00"), h), jourHegire: null })).toBe("");
-    expect(luneDevantSvg({ position: null, jourHegire: 10 })).toBe("");
+  it("ne passe jamais à la hauteur d'un minaret", () => {
+    for (let i = 0; i <= 200; i++) {
+      const { x } = coordonneesLune(position(i / 200));
+      const dansGauche = x + 12 <= 189.9 - 3;
+      const dansDroite = x - 12 >= 284.1 + 3;
+      expect(dansGauche || dansDroite).toBe(true);
+    }
+  });
+  it("monte à gauche puis redescend à droite", () => {
+    expect(coordonneesLune(position(0.1)).x).toBeLessThanOrEqual(LUNE_GAUCHE.fin);
+    expect(coordonneesLune(position(0.9)).x).toBeGreaterThanOrEqual(LUNE_DROITE.debut);
+    expect(coordonneesLune(position(0.25)).y).toBeLessThan(coordonneesLune(position(0.05)).y);
+  });
+  it("s'estompe en changeant de côté", () => {
+    expect(coordonneesLune(position(0.5)).opacite).toBe(0);
+    expect(coordonneesLune(position(0.3)).opacite).toBe(1);
+    expect(coordonneesLune(position(0.7)).opacite).toBe(1);
   });
 });
