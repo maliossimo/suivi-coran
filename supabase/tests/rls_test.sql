@@ -1125,7 +1125,14 @@ select pg_temp.attendu(
   'suppression : les autres élèves ne sont pas touchés');
 
 -- ---------- Suppression d'un utilisateur par l'admin ------------------
--- Le maître A corrige et commente une séance de l'élève 2.
+-- Le maître A corrige et commente une séance de l'élève 2 (qu'il suit dans une classe).
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+insert into public.classes (id, etablissement_id, nom) values
+  ('c1a55e00-0000-0000-0000-0000000000f1', 'aaaaaaaa-0000-0000-0000-000000000000', 'Suppression');
+insert into public.classes_cheikhs (classe_id, maitre_id) values
+  ('c1a55e00-0000-0000-0000-0000000000f1', 'a0000000-0000-0000-0000-00000000000a');
+insert into public.membres_classe (classe_id, eleve_id) values
+  ('c1a55e00-0000-0000-0000-0000000000f1', 'a0000000-0000-0000-0000-000000000002');
 select pg_temp.en_tant_que('a0000000-0000-0000-0000-00000000000a');
 update public.seances set duree_min = 25 where id = '5e000000-0000-0000-0000-0000000000a2';
 insert into public.commentaires (eleve_id, auteur_id, seance_id, texte) values
