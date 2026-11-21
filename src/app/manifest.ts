@@ -14,8 +14,9 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    // Même vert que l'écran d'ouverture : le démarrage d'Android et l'appli ne font qu'un.
-    background_color: "#1D5C47",
+    // Fond sombre de l'écran de démarrage d'Android : l'ouverture de l'appli part de ce même fond,
+    // puis le vert s'élargit depuis le logo (voir .ouverture dans globals.css).
+    background_color: "#0E1613",
     theme_color: "#174D3B",
     // Permet au site de savoir si l'appli est déjà installée sur le téléphone (Chrome Android).
     related_applications: [
