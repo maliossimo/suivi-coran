@@ -5,13 +5,12 @@
  * un calame doré repasse sur le ق (le corps, puis les deux points), l'étoile pivote d'un
  * huitième de tour, un reflet traverse la lettre, le nom apparaît ; un court temps figé,
  * « القرآن الكريم » s'écrit en calligraphie sous le logo ;
- * puis le logo file vers l'en-tête et la page s'ouvre. Environ 2,5 s.
+ * puis le logo file vers l'en-tête et la page sort du logo en s'élargissant (onde). Environ 2,3 s.
+ * Pas de numéro de version ici : il est dans « Mon compte ».
  * Une fois par ouverture, seulement dans l'appli installée, jamais si le téléphone
  * demande de réduire les animations ; un appui la passe.
  * Pur HTML/CSS : le script du layout ajoute data-ouverture sur <html>.
  */
-import { LIBELLE_VERSION } from "@/lib/version";
-
 export function OuvertureAppli() {
   return (
     <div className="ouverture" aria-hidden="true">
@@ -55,10 +54,6 @@ export function OuvertureAppli() {
       {/* Signature : « القرآن الكريم » s'écrit au calame, de droite à gauche, sous le logo. */}
       <p className="ouverture-calligraphie" lang="ar" dir="rtl">
         القرآن الكريم
-      </p>
-      <p className="ouverture-version">
-        Suivi cours Coran
-        <span>{LIBELLE_VERSION}</span>
       </p>
     </div>
   );
