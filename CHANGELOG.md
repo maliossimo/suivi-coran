@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.72.2] — 2026-11-21
+
+### Modifié
+
+- Lancement : l'ouverture part du même fond sombre et de la même icône que l'écran de démarrage d'Android, puis le vert se propage depuis l'icône jusqu'aux bords pendant que l'étoile tourne. Plus de coupure entre l'écran de démarrage et l'appli. Le fond du manifeste redevient sombre pour rester identique à l'écran de démarrage.
+
 ## [1.72.1] — 2026-11-21
 
 ### Corrigé
