@@ -9,6 +9,22 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.71.0] — 2026-11-21
+
+### Modifié
+
+- Un Cheikh ne voit plus les élèves sans classe (ni ceux dont la classe n'a pas de Cheikh, ni ceux d'une classe terminée) : il voit seulement les élèves de SES classes. Le Cheikh responsable de la mosquée voit toujours tous les élèves de sa mosquée pour les placer dans une classe, et l'administrateur voit tout. Nouvelle migration `20261121100000_eleves_sans_classe_masques.sql`, tests de la base adaptés, CLAUDE.md mis à jour.
+
+## [1.70.2] — 2026-11-21
+
+### Modifié
+
+- Barre du haut : la ligne des dates est descendue de quelques pixels (elle ne colle plus à la ligne dorée) et la calligraphie du temps de prière et de la date hégirienne est environ 10 % plus petite.
+
+### Corrigé
+
+- Le titre arabe (« الإدارة »…) ne traverse plus son sous-titre français (« ADMINISTRATION »).
+
 ## [1.70.1] — 2026-11-20
 
 ### Corrigé
