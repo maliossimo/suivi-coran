@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { headers } from "next/headers";
 import Script from "next/script";
+import { preconnect } from "react-dom";
 import { Suspense } from "react";
+import { envPublic } from "@/lib/env";
 import { BandeauNotification } from "@/components/BandeauNotification";
 import { RemonterEnHaut } from "@/components/RemonterEnHaut";
 import { Prechargement } from "@/components/Prechargement";
@@ -144,6 +146,8 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Jeton CSP de la page (middleware) : nos scripts en ligne le portent pour être exécutés.
   const nonce = (await headers()).get("x-nonce") ?? undefined;
+  // Connexion à la base ouverte dès la première réponse : les données de l'écran d'accueil partent plus tôt.
+  preconnect(new URL(envPublic.NEXT_PUBLIC_SUPABASE_URL).origin, { crossOrigin: "anonymous" });
   return (
     <html
       lang="fr"
@@ -174,7 +178,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Script id="installation-appli" strategy="beforeInteractive" nonce={nonce}>
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__invitationInstallation=e;window.dispatchEvent(new Event("installation-disponible"));});
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}
-try{var appli=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var calme=matchMedia("(prefers-reduced-motion: reduce)").matches;if(appli&&!calme&&!sessionStorage.getItem("ouverture")){sessionStorage.setItem("ouverture","1");var h=document.documentElement;h.setAttribute("data-ouverture","");var fin=function(){h.removeAttribute("data-ouverture");};setTimeout(fin,2550);addEventListener("pointerdown",fin,{once:true});}}catch(e){}
+try{var appli=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;var calme=matchMedia("(prefers-reduced-motion: reduce)").matches;if(appli&&!calme&&!sessionStorage.getItem("ouverture")){sessionStorage.setItem("ouverture","1");var h=document.documentElement;h.setAttribute("data-ouverture","");var fin=function(){h.removeAttribute("data-ouverture");};setTimeout(fin,2400);addEventListener("pointerdown",fin,{once:true});}}catch(e){}
 try{var ap=JSON.parse(localStorage.getItem("apparence")||"{}");var r=document.documentElement;if(ap.theme==="clair"||ap.theme==="sombre")r.setAttribute("data-theme",ap.theme);if(ap.theme==="tres-sombre"){r.setAttribute("data-theme","sombre");r.setAttribute("data-profondeur","max");}if(ap.taille==="grand"||ap.taille==="tres-grand")r.setAttribute("data-taille",ap.taille);}catch(e){}`}
         </Script>
         {/* Vercel Speed Insights : vitesse réelle mesurée chez les utilisateurs (sans paquet npm). */}
