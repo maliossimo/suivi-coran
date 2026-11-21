@@ -366,9 +366,7 @@ function lune(jour: number, cx: number, cy: number, r: number, id: string, opaci
   return [
     `<g class="ciel-lune"${opacite < 1 ? ` opacity="${arrondi(opacite)}"` : ""}>`,
     `<mask id="${id}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff"/><circle cx="${arrondi(cx + decalage)}" cy="${cy}" r="${arrondi(r + 0.4 * k)}" fill="#000"/></mask>`,
-    halo
-      ? `<circle class="ciel-lune-halo" cx="${cx}" cy="${cy}" r="${arrondi(r * 3.6)}" fill="url(#lune-lueur)"/>`
-      : "",
+    `<circle class="ciel-lune-halo" cx="${cx}" cy="${cy}" r="${arrondi(r * 3.6)}" fill="url(#lune-lueur)"/>`,
     `<g mask="url(#${id})"><circle class="ciel-lune-disque" cx="${cx}" cy="${cy}" r="${r}"/>`,
     `<g class="ciel-lune-mers"><circle cx="${arrondi(cx - 3 * k)}" cy="${arrondi(cy - 3.5 * k)}" r="${arrondi(2.6 * k)}"/><circle cx="${arrondi(cx + 3.5 * k)}" cy="${arrondi(cy - 2 * k)}" r="${arrondi(1.8 * k)}"/><circle cx="${arrondi(cx - k)}" cy="${arrondi(cy + 3.5 * k)}" r="${arrondi(2.1 * k)}"/><circle cx="${arrondi(cx + 4 * k)}" cy="${arrondi(cy + 4 * k)}" r="${arrondi(1.1 * k)}"/></g></g>`,
     `</g>`,
