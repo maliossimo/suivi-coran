@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.72.1] — 2026-11-21
+
+### Corrigé
+
+- La lune n'est plus cachée par un minaret au début de la nuit : son disque passe désormais devant la ville (son halo reste derrière).
+
 ## [1.72.0] — 2026-11-21
 
 ### Modifié

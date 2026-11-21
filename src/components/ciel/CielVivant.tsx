@@ -14,7 +14,7 @@ import {
   type PhaseNuit,
 } from "@/domain/ciel";
 import { minutesParis, type HorairesPriere } from "@/domain/priere";
-import { astreSvg, DEFS_SVG, FOND_SVG, miniSvg, VILLE_SVG } from "./dessin";
+import { astreSvg, DEFS_SVG, FOND_SVG, luneDevantSvg, miniSvg, VILLE_SVG } from "./dessin";
 
 export interface CielProps {
   horaires: HorairesPriere;
@@ -137,11 +137,10 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
   const fete = fixe ? null : particulier;
   useBarreEtatDuCiel(ciel, moment, nuit);
   // Seul l'astre est redessiné (chaque minute) ; étoiles et ville ne changent jamais.
-  const astre = astreSvg({
-    position: fixe ? positionAstreFigee(fixe) : positionAstre(minutes, horaires),
-    jourHegire: fixe ? null : jourHegire,
-    ramadan: fete === "ramadan",
-  });
+  const position = fixe ? positionAstreFigee(fixe) : positionAstre(minutes, horaires);
+  const jour = fixe ? null : jourHegire;
+  const astre = astreSvg({ position, jourHegire: jour, ramadan: fete === "ramadan" });
+  const luneDevant = luneDevantSvg({ position, jourHegire: jour });
   return (
     <div
       ref={ciel}
@@ -156,6 +155,8 @@ export function CielDecor({ horaires, jourHegire, particulier, maintenant }: Cie
       <svg className="ciel-scene" viewBox="0 0 360 138" dangerouslySetInnerHTML={{ __html: FOND_SVG }} />
       <svg className="ciel-scene" viewBox="0 0 360 138" dangerouslySetInnerHTML={{ __html: astre }} />
       <svg className="ciel-scene" viewBox="0 0 360 138" dangerouslySetInnerHTML={{ __html: VILLE_SVG }} />
+      {/* Le disque de la lune passe devant la ville : un minaret ne la cache plus. */}
+      <svg className="ciel-scene" viewBox="0 0 360 138" dangerouslySetInnerHTML={{ __html: luneDevant }} />
       <div className="cv-terre" />
     </div>
   );

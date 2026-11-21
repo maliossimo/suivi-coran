@@ -3,6 +3,7 @@ import { positionAstre } from "@/domain/ciel";
 import { horairesPriere } from "@/domain/priere";
 import {
   astreSvg,
+  luneDevantSvg,
   coordonneesAstre,
   CORPS,
   DEFS_SVG,
@@ -104,5 +105,20 @@ describe("astreSvg", () => {
   it("sans position (ciel figé la nuit) : rien, sauf les lanternes de Ramadan", () => {
     expect(astreSvg({ position: null, jourHegire: null, ramadan: false })).toBe("");
     expect(astreSvg({ position: null, jourHegire: null, ramadan: true })).toContain("ciel-fanous");
+  });
+});
+
+describe("luneDevantSvg", () => {
+  const h = horairesPriere("2026-11-17");
+  const m = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3));
+  it("dessine le disque de la lune sans halo, la nuit", () => {
+    const svg = luneDevantSvg({ position: positionAstre(m("22:00"), h), jourHegire: 10 });
+    expect(svg).toContain("ciel-lune-disque");
+    expect(svg).not.toContain("ciel-lune-halo");
+  });
+  it("ne dessine rien le jour, ni sans jour hégirien", () => {
+    expect(luneDevantSvg({ position: positionAstre(m("12:30"), h), jourHegire: 10 })).toBe("");
+    expect(luneDevantSvg({ position: positionAstre(m("22:00"), h), jourHegire: null })).toBe("");
+    expect(luneDevantSvg({ position: null, jourHegire: 10 })).toBe("");
   });
 });
