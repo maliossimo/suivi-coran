@@ -337,14 +337,16 @@ function soleil(x: number, y: number, bas: number): string {
 }
 
 /** Lune du mois hégirien : la part éclairée suit le jour du mois ; lueur intense près du disque. */
-function lune(jour: number, cx: number, cy: number, r: number, id: string): string {
+function lune(jour: number, cx: number, cy: number, r: number, id: string, halo = true): string {
   const { eclairee, croissante } = phaseLune(jour);
   const decalage = arrondi(2 * r * eclairee * (croissante ? -1 : 1));
   const k = r / 10;
   return [
     `<g class="ciel-lune">`,
     `<mask id="${id}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff"/><circle cx="${arrondi(cx + decalage)}" cy="${cy}" r="${arrondi(r + 0.4 * k)}" fill="#000"/></mask>`,
-    `<circle class="ciel-lune-halo" cx="${cx}" cy="${cy}" r="${arrondi(r * 3.6)}" fill="url(#lune-lueur)"/>`,
+    halo
+      ? `<circle class="ciel-lune-halo" cx="${cx}" cy="${cy}" r="${arrondi(r * 3.6)}" fill="url(#lune-lueur)"/>`
+      : "",
     `<g mask="url(#${id})"><circle class="ciel-lune-disque" cx="${cx}" cy="${cy}" r="${r}"/>`,
     `<g class="ciel-lune-mers"><circle cx="${arrondi(cx - 3 * k)}" cy="${arrondi(cy - 3.5 * k)}" r="${arrondi(2.6 * k)}"/><circle cx="${arrondi(cx + 3.5 * k)}" cy="${arrondi(cy - 2 * k)}" r="${arrondi(1.8 * k)}"/><circle cx="${arrondi(cx - k)}" cy="${arrondi(cy + 3.5 * k)}" r="${arrondi(2.1 * k)}"/><circle cx="${arrondi(cx + 4 * k)}" cy="${arrondi(cy + 4 * k)}" r="${arrondi(1.1 * k)}"/></g></g>`,
     `</g>`,
@@ -391,6 +393,20 @@ export function astreSvg({ position, jourHegire, ramadan }: CielAChanger): strin
 /* ------------------------------------------------------------------------------------------------
    Version miniature (en-tête compact quand on descend dans la page)
    ------------------------------------------------------------------------------------------------ */
+
+/**
+ * Le disque de la lune seul, à dessiner PAR-DESSUS la ville : sinon, au début de la nuit, un minaret
+ * la cache à moitié. (Son halo reste derrière, avec le reste du ciel.) Vide le jour ou sous l'horizon.
+ */
+export function luneDevantSvg({
+  position,
+  jourHegire,
+}: Pick<CielAChanger, "position" | "jourHegire">): string {
+  if (!position || position.astre !== "lune" || jourHegire === null) return "";
+  const { x, y } = coordonneesAstre(position);
+  if (y > HORIZON + 14) return "";
+  return lune(jourHegire, x, y, arrondi(10 + 2 * position.bas), "masque-lune-devant", false);
+}
 
 /** Mêmes ville et astre, en petit, calés à droite. */
 export function miniSvg(moment: "fajr" | "jour" | "maghrib" | "nuit", jourHegire: number | null): string {
