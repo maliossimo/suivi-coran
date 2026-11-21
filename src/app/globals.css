@@ -4410,18 +4410,20 @@ html[data-ouverture] .ouverture {
   display: grid;
   place-items: center;
   background: #0e1613;
-  animation: ouverture-onde 0.5s cubic-bezier(0.4, 0, 0.2, 1) 1.8s forwards;
+  animation: ouverture-onde 0.6s cubic-bezier(0.4, 0, 0.2, 1) 2.6s forwards;
 }
 .ouverture-logo {
   /* Même taille que l'icône de l'écran de démarrage d'Android (étoile ≈ 240 px). */
   width: min(304px, 82vw);
   height: auto;
   overflow: visible;
-  animation: ouverture-envol 0.42s cubic-bezier(0.55, 0, 0.3, 1) 1.5s forwards;
+  animation: ouverture-envol 0.5s cubic-bezier(0.55, 0, 0.3, 1) 2.55s forwards;
 }
 .ouverture-etoile {
   transform-origin: 100px 100px;
-  animation: ouverture-pivot 0.95s cubic-bezier(0.45, 0, 0.2, 1) 0.2s both;
+  animation:
+    ouverture-pivot 1.7s cubic-bezier(0.45, 0, 0.2, 1) 0.2s both,
+    ouverture-halo 2.2s ease-in-out 0.3s both;
 }
 .ouverture-etoile rect {
   fill: rgba(255, 255, 255, 0.055);
@@ -4439,21 +4441,21 @@ html[data-ouverture] .ouverture {
 .ouverture-etoile .ouverture-trait {
   fill: none;
   stroke: #f6dd98;
-  stroke-width: 3.4;
+  stroke-width: 4.6;
   stroke-linecap: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   filter: drop-shadow(0 0 6px rgba(246, 221, 152, 0.8));
   animation:
-    ouverture-plume 0.7s cubic-bezier(0.5, 0, 0.3, 1) 0.1s forwards,
-    ouverture-dore 0.4s ease-out 0.8s forwards;
+    ouverture-plume 1s cubic-bezier(0.5, 0, 0.3, 1) 0.1s forwards,
+    ouverture-dore 0.5s ease-out 1.1s forwards;
 }
 .ouverture-etoile .ouverture-trait + .ouverture-trait {
-  animation-delay: 0.2s, 0.9s;
+  animation-delay: 0.25s, 1.2s;
 }
 .ouverture-lettre {
   fill: #faf3e0;
-  animation: ouverture-reflet 0.45s ease-in-out 1.4s;
+  animation: ouverture-reflet 0.6s ease-in-out 1.9s;
 }
 /* Le calame : un trait or qui repasse sur la lettre, puis s'efface. */
 .ouverture-calame {
@@ -4467,13 +4469,13 @@ html[data-ouverture] .ouverture {
 }
 .ouverture-calame-corps {
   animation:
-    ouverture-plume 0.6s cubic-bezier(0.55, 0.1, 0.35, 1) 0.35s forwards,
-    ouverture-dore 0.4s ease-out 0.95s forwards;
+    ouverture-plume 0.85s cubic-bezier(0.55, 0.1, 0.35, 1) 0.5s forwards,
+    ouverture-dore 0.5s ease-out 1.35s forwards;
 }
 .ouverture-calame-points {
   animation:
-    ouverture-plume 0.22s ease-out 0.9s forwards,
-    ouverture-dore 0.32s ease-out 1.1s forwards;
+    ouverture-plume 0.3s ease-out 1.25s forwards,
+    ouverture-dore 0.4s ease-out 1.5s forwards;
 }
 @keyframes ouverture-plume {
   to {
@@ -4493,7 +4495,13 @@ html[data-ouverture] .ouverture {
 }
 @keyframes ouverture-pivot {
   to {
-    transform: rotate(45deg);
+    /* Un tour complet et un huitième : l'étoile finit comme le logo de l'en-tête. */
+    transform: rotate(405deg);
+  }
+}
+@keyframes ouverture-halo {
+  50% {
+    filter: drop-shadow(0 0 22px rgba(246, 221, 152, 0.6));
   }
 }
 /* Vers le logo de l'en-tête (en haut à gauche), en rétrécissant. */
@@ -9379,7 +9387,7 @@ html[data-ouverture] .ouverture::before {
   clip-path: inset(
     calc(50% - var(--cote-icone) / 2) calc(50% - var(--cote-icone) / 2) round calc(var(--cote-icone) * 0.3)
   );
-  animation: ouverture-vert 0.95s cubic-bezier(0.45, 0, 0.2, 1) 0.2s forwards;
+  animation: ouverture-vert 1.2s cubic-bezier(0.45, 0, 0.2, 1) 0.2s forwards;
 }
 @keyframes ouverture-vert {
   to {
@@ -15523,9 +15531,9 @@ html[data-ouverture] .ouverture-calligraphie {
   margin: 0;
   text-align: center;
   font-family: var(--font-calligraphie), var(--font-arabe), serif;
-  font-size: 34px;
+  font-size: 38px;
   color: #f0cf7a;
-  animation: calame-trace 0.75s cubic-bezier(0.3, 0.7, 0.2, 1) 1.05s both;
+  animation: calame-trace 0.9s cubic-bezier(0.3, 0.7, 0.2, 1) 0.8s both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -18116,4 +18124,105 @@ main h3:not([class]) {
 .bouton-secondaire {
   border-color: color-mix(in srgb, var(--vert-texte) 40%, var(--champ));
   color: var(--vert-texte);
+}
+
+/* ---------- Ouverture : salutation, version courte, cartes en cascade ------------------ */
+.ouverture-salut {
+  display: none;
+}
+html[data-ouverture] .ouverture-salut {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + min(152px, 41vw) + 62px);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #faf3e0;
+  font-size: var(--t-l);
+  font-weight: 600;
+  animation:
+    ouverture-salut-entre 0.6s ease-out 1.5s both,
+    ouverture-salut-sort 0.35s ease-in 2.4s forwards;
+}
+.ouverture-salut [lang="ar"] {
+  font-family: var(--font-calligraphie), var(--font-arabe), serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: #f0cf7a;
+}
+@keyframes ouverture-salut-entre {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes ouverture-salut-sort {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+/* Les cartes de la page montent l'une après l'autre quand l'onde de révélation passe. */
+html[data-ouverture] main > :nth-child(-n + 8) {
+  animation: ouverture-carte 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(2.7s + var(--rang, 0) * 0.07s);
+}
+html[data-ouverture] main > :nth-child(2) {
+  --rang: 1;
+}
+html[data-ouverture] main > :nth-child(3) {
+  --rang: 2;
+}
+html[data-ouverture] main > :nth-child(4) {
+  --rang: 3;
+}
+html[data-ouverture] main > :nth-child(5) {
+  --rang: 4;
+}
+html[data-ouverture] main > :nth-child(6) {
+  --rang: 5;
+}
+html[data-ouverture] main > :nth-child(7) {
+  --rang: 6;
+}
+html[data-ouverture] main > :nth-child(8) {
+  --rang: 7;
+}
+@keyframes ouverture-carte {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* Version courte (≈ 1,1 s), les ouvertures suivantes du même jour : le vert s'élargit vite, l'étoile
+   tourne, le logo monte, sans trait d'or, calligraphie ni salutation. */
+html[data-ouverture="court"] .ouverture {
+  animation-duration: 0.4s;
+  animation-delay: 0.65s;
+}
+html[data-ouverture="court"] .ouverture::before {
+  animation-duration: 0.45s;
+  animation-delay: 0.05s;
+}
+html[data-ouverture="court"] .ouverture-etoile {
+  animation:
+    ouverture-pivot 0.7s cubic-bezier(0.45, 0, 0.2, 1) 0.05s both,
+    ouverture-halo 0.8s ease-in-out 0.1s both;
+}
+html[data-ouverture="court"] .ouverture-logo {
+  animation-duration: 0.35s;
+  animation-delay: 0.6s;
+}
+html[data-ouverture="court"] .ouverture-trait,
+html[data-ouverture="court"] .ouverture-calame,
+html[data-ouverture="court"] .ouverture-calligraphie,
+html[data-ouverture="court"] .ouverture-salut {
+  display: none;
+}
+html[data-ouverture="court"] main > :nth-child(-n + 8) {
+  animation-delay: calc(0.7s + var(--rang, 0) * 0.03s);
 }

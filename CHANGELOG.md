@@ -9,6 +9,16 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.73.0] — 2026-11-21
+
+### Modifié
+
+- Lancement de l'appli, plus visible et un peu plus long (≈ 3,3 s) : l'étoile fait un tour complet avec un halo doré, le trait d'or est plus épais, la calligraphie « القرآن الكريم » apparaît plus tôt et plus grande, puis « السلام عليكم » et le prénom s'affichent avant que la barre du haut prenne le relais.
+- Une légère vibration quand le vert atteint les bords (réglage « retours » de Mon compte).
+- À la fin, les cartes de la page montent l'une après l'autre.
+- L'animation complète se joue à la première ouverture de la journée ; les ouvertures suivantes du même jour jouent une version courte (≈ 1,1 s).
+- La lune ne passe plus à la hauteur d'un minaret : elle monte dans le ciel libre à gauche de la mosquée, puis redescend dans le ciel libre à droite, et s'estompe au milieu de la nuit pour changer de côté. Elle n'est donc ni cachée par un minaret ni devant lui.
+
 ## [1.72.2] — 2026-11-21
 
 ### Modifié
