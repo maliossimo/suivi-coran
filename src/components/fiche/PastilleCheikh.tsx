@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { DETAIL_ETAT_CHEIKH, LIBELLE_ETAT_CHEIKH, type EtatCheikh } from "@/domain/fiche";
 
 /**
@@ -9,6 +10,8 @@ export function PastilleCheikh({ etat }: { etat: EtatCheikh | null }) {
   const classe = etat === "partielle" ? "etat-a-ecouter" : `etat-${etat}`;
   return (
     <span className={`pastille-etat ${classe}`} title={DETAIL_ETAT_CHEIKH[etat]}>
+      {etat === "valide" ? <Check size={14} className="icone-texte" aria-hidden="true" /> : null}
+      {etat === "valide" ? " " : null}
       {LIBELLE_ETAT_CHEIKH[etat]}
     </span>
   );
