@@ -1,4 +1,4 @@
-import { ChevronLeft } from "lucide-react";
+import { Check, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import {
   etatCheikh,
@@ -236,7 +236,11 @@ export function FicheImprimable({
                           </td>
                           <td>{s?.noteLibre ?? ""}</td>
                           <td>
-                            {etat === "valide" && <span className="pdf-vu">✓ Validé</span>}
+                            {etat === "valide" && (
+                              <span className="pdf-vu">
+                                <Check size={12} className="icone-texte" aria-hidden="true" /> Validé
+                              </span>
+                            )}
                             {etat === "ecoute" && <span className="pdf-vu pdf-vu-ecoute">À refaire</span>}
                             {etat === "partielle" && (
                               <span className="pdf-vu pdf-vu-partielle">À écouter</span>
@@ -255,7 +259,9 @@ export function FicheImprimable({
               <LigneObjectif titre="Objectif du mois" objectif={fiche.objectifMensuel} />
               <div className="pdf-bilan">
                 <div>
-                  <span className="pdf-bilan-titre">✓ Bien mémorisé</span>
+                  <span className="pdf-bilan-titre">
+                    <Check size={14} className="icone-texte" aria-hidden="true" /> Bien mémorisé
+                  </span>
                   <p>{bilan?.bienMemorise ?? ""}</p>
                 </div>
                 <div className="pdf-bilan-renforcer">
