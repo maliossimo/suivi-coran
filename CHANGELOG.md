@@ -9,6 +9,16 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.70.2] — 2026-11-21
+
+### Modifié
+
+- Barre du haut : la ligne des dates est descendue de quelques pixels (elle ne colle plus à la ligne dorée) et la calligraphie du temps de prière et de la date hégirienne est environ 10 % plus petite.
+
+### Corrigé
+
+- Le titre arabe (« الإدارة »…) ne traverse plus son sous-titre français (« ADMINISTRATION »).
+
 ## [1.70.1] — 2026-11-20
 
 ### Corrigé
