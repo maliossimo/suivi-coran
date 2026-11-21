@@ -12,7 +12,7 @@ import { retoursActives } from "./retourSensoriel";
  * « القرآن الكريم » s'écrit en calligraphie sous le logo ;
  * puis le logo file vers l'en-tête et la page sort du logo en s'élargissant (onde). Environ 2,3 s.
  * Pas de numéro de version ici : il est dans « Mon compte ».
- * Version complète (≈ 3,3 s) à la première ouverture du jour, version courte (≈ 1,1 s) ensuite ;
+ * Version complète (≈ 3,3 s) à la première ouverture du jour, version courte (≈ 2,2 s) ensuite ;
  * seulement dans l'appli installée, jamais si le téléphone demande de réduire les animations ;
  * un appui la passe. La salutation avec le prénom et une vibration légère (réglage « retours »)
  * font partie de la version complète.

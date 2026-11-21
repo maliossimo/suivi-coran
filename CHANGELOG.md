@@ -9,6 +9,18 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.73.2] — 2026-11-21
+
+### Modifié
+
+- Libellé « Validé » : la pastille du Cheikh et la fiche imprimable utilisent la même icône coche que le reste de l'appli, au lieu du caractère « ✓ » (idem pour « Bien mémorisé » sur la fiche imprimable).
+
+## [1.73.1] — 2026-11-21
+
+### Modifié
+
+- Lancement : la version courte (les ouvertures suivantes du même jour) passe de ≈ 1,1 s à ≈ 2,2 s. Même mouvement que la version complète (le vert s'élargit, l'étoile fait un tour avec son halo, trait d'or, calame, calligraphie), en plus rapide ; seules la salutation et la vibration restent réservées à la première ouverture du jour.
+
 ## [1.73.0] — 2026-11-21
 
 ### Modifié

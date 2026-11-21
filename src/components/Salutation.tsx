@@ -28,9 +28,9 @@ export function TitreBarre({
       /* stockage indisponible : on salue quand même */
     }
     if (deja) return;
-    // Après l'ouverture : complète (≈ 3,3 s), courte (≈ 1,1 s) ; la complète a déjà salué elle-même.
+    // Après l'ouverture : complète (≈ 3,3 s), courte (≈ 2,2 s) ; la complète a déjà salué elle-même.
     const mode = document.documentElement.getAttribute("data-ouverture");
-    const attente = mode === null ? 0 : mode === "court" ? 800 : 2700;
+    const attente = mode === null ? 0 : mode === "court" ? 1900 : 2700;
     const t1 = window.setTimeout(() => setSalue(true), attente);
     const t2 = window.setTimeout(() => setSalue(false), attente + 3600);
     return () => [t1, t2].forEach((t) => window.clearTimeout(t));

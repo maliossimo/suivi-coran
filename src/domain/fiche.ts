@@ -246,7 +246,7 @@ export function etatCheikh(seance: Pick<Seance, "corrigee" | "passages">): EtatC
 
 /** Pastilles courtes : la couleur et le mot suffisent (le détail est dans la légende). */
 export const LIBELLE_ETAT_CHEIKH: Record<EtatCheikh, string> = {
-  valide: "✓ Validé",
+  valide: "Validé",
   ecoute: "Écouté",
   partielle: "À écouter",
 };
