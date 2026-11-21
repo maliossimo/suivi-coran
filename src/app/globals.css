@@ -4410,14 +4410,14 @@ html[data-ouverture] .ouverture {
   display: grid;
   place-items: center;
   background: #1d5c47;
-  animation: ouverture-fondu 0.38s ease-in 2.12s forwards;
+  animation: ouverture-onde 0.5s cubic-bezier(0.4, 0, 0.2, 1) 1.8s forwards;
 }
 .ouverture-logo {
   /* Même taille que l'icône de l'écran de démarrage d'Android (étoile ≈ 240 px). */
   width: min(304px, 82vw);
   height: auto;
   overflow: visible;
-  animation: ouverture-envol 0.42s cubic-bezier(0.55, 0, 0.3, 1) 2.08s forwards;
+  animation: ouverture-envol 0.42s cubic-bezier(0.55, 0, 0.3, 1) 1.5s forwards;
 }
 .ouverture-etoile {
   transform-origin: 100px 100px;
@@ -4502,13 +4502,6 @@ html[data-ouverture] .ouverture {
     transform: translate(calc(37px - 50vw), calc(48px + env(safe-area-inset-top) - 50vh)) scale(0.17);
   }
 }
-@keyframes ouverture-fondu {
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
 /* ---------- Salutation dans la barre du haut ----------------------------- */
 .barre-titre-zone {
   position: relative;
@@ -5318,42 +5311,7 @@ fieldset.lecture-seule {
   display: contents;
 }
 
-/* ---------- Version de l'appli ---------- */
-html[data-ouverture] .ouverture-version {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(28px + env(safe-area-inset-bottom));
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  color: rgba(250, 243, 224, 0.92);
-  font-size: var(--t-m);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  animation:
-    ouverture-version 0.55s ease-out 1.35s both,
-    ouverture-apparait-inverse 0.25s ease-in 2.05s forwards;
-}
-@keyframes ouverture-apparait-inverse {
-  to {
-    opacity: 0;
-  }
-}
-.ouverture-version span {
-  font-size: var(--t-xs);
-  font-weight: 500;
-  color: #d9c38d;
-  letter-spacing: 0.06em;
-}
-@keyframes ouverture-version {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
+/* ---------- Version de l'appli (connexion, Mon compte) ---------- */
 .auth-version,
 .compte-version {
   margin: 18px 0 0;
@@ -18087,4 +18045,59 @@ select:not(:focus-visible) {
 }
 .barre-titre-ar + .barre-titre-fr {
   margin-top: 5px;
+}
+
+/* ---------- Ouverture : la page sort du logo en s'élargissant (onde) ----------------
+   Le vert de l'écran de démarrage est percé d'un disque qui part du logo de l'en-tête et grandit
+   jusqu'aux bords : on voit la page, dans le thème choisi, apparaître à travers. */
+@property --rayon-ouverture {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+html[data-ouverture] .ouverture {
+  --rayon-ouverture: 0px;
+  -webkit-mask-image: radial-gradient(
+    circle at 37px calc(48px + env(safe-area-inset-top)),
+    transparent var(--rayon-ouverture),
+    #000 calc(var(--rayon-ouverture) + 2px)
+  );
+  mask-image: radial-gradient(
+    circle at 37px calc(48px + env(safe-area-inset-top)),
+    transparent var(--rayon-ouverture),
+    #000 calc(var(--rayon-ouverture) + 2px)
+  );
+}
+@keyframes ouverture-onde {
+  to {
+    --rayon-ouverture: 150vmax;
+    visibility: hidden;
+  }
+}
+
+/* ---------- Hiérarchie de texte unique + vert plus présent ----------------------------
+   Titre de page = --t-xl ; titre de section ou de carte = --t-l, en vert ; sous-titre = --t-m.
+   Les titres qui ont déjà leur classe propre gardent leur style, sauf .titre-carte, aligné. */
+main h1:not([class]),
+.titre-page,
+.entete-page h1 {
+  font-size: var(--t-xl);
+  line-height: 1.2;
+  font-weight: 700;
+}
+main h2:not([class]),
+.titre-carte {
+  font-size: var(--t-l);
+  line-height: 1.25;
+  font-weight: 650;
+  color: var(--vert-texte);
+}
+main h3:not([class]) {
+  font-size: var(--t-m);
+  line-height: 1.3;
+  font-weight: 700;
+}
+.bouton-secondaire {
+  border-color: color-mix(in srgb, var(--vert-texte) 40%, var(--champ));
+  color: var(--vert-texte);
 }

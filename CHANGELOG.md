@@ -9,6 +9,15 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.72.0] — 2026-11-21
+
+### Modifié
+
+- Lancement de l'appli : le vert de l'écran de démarrage s'ouvre en onde depuis le logo et laisse apparaître la page (dans le thème choisi) au lieu d'une coupure. Le numéro de version n'y est plus affiché (il reste dans « Mon compte » et sur l'écran de connexion). Animation un peu plus courte (≈ 2,3 s). Toujours sans animation si le téléphone demande de réduire les animations.
+- Fond de démarrage et couleur de la barre du système (manifeste) alignés sur le vert de l'appli.
+- Connexion à la base ouverte dès le premier chargement, pour que les données de l'écran d'accueil arrivent plus tôt.
+- Thème : titres de section et de carte en vert, tailles de titres unifiées (page, section, sous-titre), boutons secondaires teintés de vert.
+
 ## [1.71.0] — 2026-11-21
 
 ### Modifié
