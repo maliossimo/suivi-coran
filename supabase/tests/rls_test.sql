@@ -998,6 +998,27 @@ select pg_temp.doit_echouer(
   'signalements tajwid : 30 par jour au plus');
 select pg_temp.console();
 
+-- ---------- Comptes liés (bascule administrateur ↔ élève) ---------------
+select pg_temp.console();
+insert into public.comptes_lies (compte, lie_a) values
+  ('ad000000-0000-0000-0000-0000000000ad', 'a0000000-0000-0000-0000-000000000001'),
+  ('a0000000-0000-0000-0000-000000000001', 'ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.en_tant_que('a0000000-0000-0000-0000-000000000001');
+select pg_temp.attendu(
+  (select count(*) from public.comptes_lies) = 1
+  and exists (select 1 from public.comptes_lies where lie_a = 'ad000000-0000-0000-0000-0000000000ad'),
+  'comptes liés : un compte ne voit que ses propres liens');
+select pg_temp.doit_echouer(
+  $q$insert into public.comptes_lies (compte, lie_a) values ('a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-00000000000b')$q$,
+  'comptes liés : personne ne s''écrit un lien lui-même');
+select pg_temp.doit_echouer($q$delete from public.comptes_lies$q$, 'comptes liés : personne ne retire un lien');
+select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
+select pg_temp.attendu(
+  (select count(*) from public.comptes_lies) = 0, 'comptes liés : un Cheikh ne voit aucun lien des autres');
+select pg_temp.en_tant_que('ad000000-0000-0000-0000-0000000000ad');
+select pg_temp.attendu(
+  (select count(*) from public.comptes_lies) = 2, 'comptes liés : l''administrateur voit tous les liens');
+
 -- ---------- Responsable de mosquée (casquette d'un Cheikh) ---------------
 select pg_temp.en_tant_que('b0000000-0000-0000-0000-00000000000b');
 select pg_temp.doit_echouer(

@@ -18250,3 +18250,14 @@ html[data-ouverture="court"] .ouverture-salut {
 html[data-ouverture="court"] main > :nth-child(-n + 8) {
   animation-delay: calc(1.8s + var(--rang, 0) * 0.03s);
 }
+
+/* Réglage du thème : quatre choix, deux par ligne, pour que « Sombre » et « Très sombre » ne soient plus coupés
+   au milieu d'un mot. */
+.choix-segmente:has(> button:nth-child(4)) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.choix-segmente button {
+  overflow-wrap: normal;
+  word-break: normal;
+}

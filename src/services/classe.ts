@@ -142,12 +142,27 @@ export async function inviterEleve(
   const saisie = schemaInvitation.safeParse(brut);
   if (!saisie.success) return { ok: false, erreur: saisie.error.issues[0]?.message ?? "Saisie invalide." };
 
+  // L'admin choisit la classe dans la mosquée ; le Cheikh invite dans l'une de ses classes.
+  let classeId: string | null;
+  if (acteur.role === "admin") {
+    const choix = z.string().uuid().safeParse(brut.classe);
+    if (choix.success) {
+      const classe = (await listerClassesPresences()).find((c) => c.id === choix.data);
+      if (!classe || classe.archivee || classe.etablissementId !== etablissementId) {
+        return { ok: false, erreur: "Cette classe n’est pas dans l’établissement choisi." };
+      }
+    }
+    classeId = choix.success ? choix.data : null;
+  } else {
+    classeId = await classeInvitation(acteur, brut.classe);
+  }
+
   const resultat = await inviter(saisie.data.email, {
     prenom: saisie.data.prenom,
     nom: saisie.data.nom,
     role: "eleve",
     etablissementId,
-    classeId: await classeInvitation(acteur, brut.classe),
+    classeId,
   });
   return resultat.ok ? { ok: true } : { ok: false, erreur: MESSAGES_INVITATION[resultat.raison] };
 }

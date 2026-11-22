@@ -8,6 +8,9 @@ import { AnneauProgression } from "@/components/AnneauProgression";
 import { EnteteEspace } from "@/components/EnteteEspace";
 import { FormulaireEtablissement } from "@/components/FormulaireEtablissement";
 import { FormulaireInvitation } from "@/components/FormulaireInvitation";
+import { FormulaireLienCompte } from "@/components/admin/LiensComptes";
+import { actionDelierComptes } from "@/app/actions/comptesLies";
+import { liensDeLAdmin } from "@/services/comptesLies";
 import { GraphiqueUsage } from "@/components/admin/GraphiqueUsage";
 import { semainesUtiles } from "@/domain/usage";
 import { formaterDuree } from "@/domain/fiche";
@@ -22,10 +25,11 @@ import { LIBELLE_ROLE } from "@/domain/roles";
 
 export default async function PageAdmin() {
   const profil = await exigerEspace("admin");
-  const [t, positions, liens] = await Promise.all([
+  const [t, positions, liens, comptesLies] = await Promise.all([
     chargerTableauAdmin(profil),
     positionsDesEtablissements(profil),
     liensMawaqitDesEtablissements(profil),
+    liensDeLAdmin(profil),
   ]);
   const nomEtab = new Map(t.etablissements.map((e) => [e.id, e.nom]));
   const st = t.stats;
@@ -158,6 +162,51 @@ export default async function PageAdmin() {
               </ul>
             </details>
           ) : null}
+        </section>
+
+        <section className="carte-graphique">
+          <h2>Inviter un élève</h2>
+          <p className="carte-graphique-sous">
+            Choisis sa mosquée et sa classe : l’élève reçoit un e-mail pour créer son compte et son Cheikh le
+            voit tout de suite. Sans classe, seul le responsable de la mosquée (et toi) le voit.
+          </p>
+          <FormulaireInvitation
+            cible="eleve"
+            etablissements={t.etablissements}
+            classes={t.classes.map((c) => ({ id: c.id, nom: c.nom, etablissementId: c.etablissementId }))}
+          />
+        </section>
+
+        <section className="carte-graphique">
+          <h2>Espaces liés</h2>
+          <p className="carte-graphique-sous">
+            Lie ton compte à un autre (par exemple ton compte élève) : à la connexion, tu choisis l’espace, et
+            « Mon compte » permet de passer de l’un à l’autre sans mot de passe. Chaque compte lié peut ouvrir
+            l’autre : garde-les tous deux protégés.
+          </p>
+          {comptesLies.length > 0 ? (
+            <ul className="liste-simple">
+              {comptesLies.map(({ a, b }) => (
+                <li key={`${a.id}-${b.id}`} className="ligne-invitation">
+                  <span className="ligne-invitation-qui">
+                    <b>{`${a.prenom} ${a.nom}`.trim() || "Sans nom"}</b>
+                    <span>
+                      {LIBELLE_ROLE[a.role]} ↔ {`${b.prenom} ${b.nom}`.trim() || "Sans nom"} ·{" "}
+                      {LIBELLE_ROLE[b.role]}
+                    </span>
+                  </span>
+                  <form action={actionDelierComptes}>
+                    <input type="hidden" name="a" value={a.id} />
+                    <input type="hidden" name="b" value={b.id} />
+                    <button className="bouton bouton-secondaire" type="submit">
+                      Retirer le lien
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <FormulaireLienCompte />
         </section>
 
         <section className="carte-graphique">

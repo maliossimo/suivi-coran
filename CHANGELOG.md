@@ -9,6 +9,17 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.74.0] — 2026-11-22
+
+### Ajouté
+
+- Admin : formulaire « Inviter un élève » (mosquée, classe, prénom, nom, e-mail).
+- Comptes liés : l'admin lie son compte à un autre (ex. un compte élève). À la connexion, une page « Choisir l'espace » propose les deux ; « Mon compte » a un bouton « Passer à l'espace… » sans mot de passe. Nouvelle migration `20261122100000_comptes_lies.sql` (lecture par chacun de ses propres liens, écriture serveur seulement) et tests de la base.
+
+### Corrigé
+
+- Réglage du thème : les quatre boutons sont sur deux lignes, « Sombre » et « Très sombre » ne sont plus coupés au milieu d'un mot.
+
 ## [1.73.3] — 2026-11-21
 
 ### Corrigé
