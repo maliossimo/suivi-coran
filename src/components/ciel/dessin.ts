@@ -37,6 +37,8 @@ export function coordonneesAstre(p: PositionAstre): { x: number; y: number } {
  * x 284) pendant la seconde. Elle change de côté au milieu de la nuit, quand elle s'estompe.
  */
 export const LUNE_GAUCHE = { debut: 154, fin: 174 } as const;
+/** Hauteur de l'arc de la lune : plus basse que celle du soleil, pour que son disque ne soit pas coupé par le haut de la barre. */
+export const HAUT_ARC_LUNE = 68;
 export const LUNE_DROITE = { debut: 302, fin: 322 } as const;
 /** Part de la nuit, autour du milieu, pendant laquelle la lune s'estompe pour changer de côté. */
 const FONDU_LUNE = 0.05;
@@ -47,7 +49,7 @@ export function coordonneesLune(p: PositionAstre): { x: number; y: number; opaci
   const dans = gauche ? p.avance / 0.5 : (p.avance - 0.5) / 0.5;
   return {
     x: Math.round((zone.debut + (zone.fin - zone.debut) * dans) * 10) / 10,
-    y: Math.round((HORIZON - HAUT_ARC * p.hauteur) * 10) / 10,
+    y: Math.round((HORIZON - HAUT_ARC_LUNE * p.hauteur) * 10) / 10,
     opacite: Math.min(1, Math.abs(p.avance - 0.5) / FONDU_LUNE),
   };
 }
