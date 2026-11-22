@@ -1,5 +1,6 @@
 import { Building2, CalendarHeart, UsersRound } from "lucide-react";
 import { actionDeconnexion } from "@/app/actions/auth";
+import { actionBasculer } from "@/app/actions/comptesLies";
 import Link from "next/link";
 import { COMMIT, LIBELLE_VERSION } from "@/lib/version";
 import { Avatar } from "@/components/Avatar";
@@ -11,6 +12,7 @@ import { InstallerAppli } from "@/components/InstallerAppli";
 import { ReglageApparence } from "@/components/ReglageApparence";
 import { ReglageRetours } from "@/components/ReglageRetours";
 import { chargerCompte } from "@/services/acces";
+import { mesComptesLies } from "@/services/comptesLies";
 import { LIBELLE_ROLE_LONG } from "@/domain/roles";
 import { libelleDateLongue } from "@/domain/fiche";
 
@@ -21,6 +23,7 @@ function jourParis(horodatage: string): string {
 
 export default async function PageCompte() {
   const { profil, email, details } = await chargerCompte();
+  const autresComptes = await mesComptesLies(profil);
   const nom = `${profil.prenom} ${profil.nom}`.trim();
 
   return (
@@ -77,6 +80,25 @@ export default async function PageCompte() {
             </ul>
           ) : null}
         </section>
+
+        {autresComptes.length > 0 ? (
+          <section className="carte-compte">
+            <h2>Changer d’espace</h2>
+            <p className="carte-graphique-sous">
+              Tes comptes liés : tu passes de l’un à l’autre sans mot de passe.
+            </p>
+            {autresComptes.map((c) => (
+              <form key={c.id} action={actionBasculer}>
+                <input type="hidden" name="cible" value={c.id} />
+                <button className="bouton bouton-secondaire" type="submit">
+                  Passer à l’espace{" "}
+                  {c.role === "admin" ? "administrateur" : c.role === "maitre" ? "Cheikh" : "élève"}
+                  {` · ${`${c.prenom} ${c.nom}`.trim()}`}
+                </button>
+              </form>
+            ))}
+          </section>
+        ) : null}
 
         <InstallerAppli />
 

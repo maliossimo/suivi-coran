@@ -6,6 +6,8 @@ import { z } from "zod";
 import { envPublic } from "@/lib/env";
 import { changerMotDePasse, connecter, deconnecter, envoyerLienReinitialisation } from "@/repositories/auth";
 import { destinationApresConnexion } from "@/services/acces";
+import { destinationApresIdentification } from "@/services/comptesLies";
+import { profilConnecte } from "@/repositories/profils";
 import { signalerEchecConnexion } from "@/services/securite";
 import { notifier } from "./notification";
 
@@ -41,7 +43,11 @@ export async function actionConnexion(_: EtatFormulaire, form: FormData): Promis
     return { erreur: "Adresse e-mail ou mot de passe incorrect." };
   }
 
-  redirect(await destinationApresConnexion());
+  // Une personne qui a un compte lié (par exemple administrateur et élève) choisit son espace.
+  const profil = await profilConnecte();
+  redirect(
+    profil && profil.actif ? await destinationApresIdentification(profil) : await destinationApresConnexion(),
+  );
 }
 
 export async function actionDeconnexion(): Promise<void> {

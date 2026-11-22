@@ -8,6 +8,9 @@ Le propriétaire du projet peut le modifier à tout moment.
 - Suivi de l'apprentissage et de la révision du Coran. Le tajwid n'est plus saisi (colonne `seances.tajwid` conservée pour les anciennes données).
 - Rôles : `eleve` (son suivi uniquement), `maitre` (les élèves de SES classes ; un élève sans classe n'est visible
   que du Cheikh responsable de sa mosquée, qui le place dans une classe), `admin` (le fournisseur : tout, plus le journal d'audit).
+- Comptes liés (table `comptes_lies`) : une même personne peut avoir deux comptes (ex. admin et élève) que l'admin lie ;
+  à la connexion elle choisit l'espace, et « Mon compte » permet de passer de l'un à l'autre sans mot de passe.
+  Les liens ne s'écrivent que côté serveur (clé « service role »), jamais par l'utilisateur.
 - Dans l'interface, le rôle `maitre` s'affiche toujours « Cheikh » (« corrigée par le Cheikh », « ton Cheikh »…). Le code garde `maitre`.
 - Plusieurs établissements possibles ; chaque maître et ses élèves sont isolés des autres.
 - Fiche du mois : Semaine 1 = jours 1-7, S2 = 8-14, S3 = 15-21, S4 = 22-28, S5 = 29 → fin. « Jour N » = N-ième jour du bloc.
