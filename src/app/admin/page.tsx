@@ -178,7 +178,7 @@ export default async function PageAdmin() {
         </section>
 
         <section className="carte-graphique">
-          <h2>Comptes liés</h2>
+          <h2>Espaces liés</h2>
           <p className="carte-graphique-sous">
             Lie ton compte à un autre (par exemple ton compte élève) : à la connexion, tu choisis l’espace, et
             « Mon compte » permet de passer de l’un à l’autre sans mot de passe. Chaque compte lié peut ouvrir
