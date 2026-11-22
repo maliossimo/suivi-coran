@@ -18,7 +18,7 @@ export function FormulaireInvitation({
   etablissementId?: string;
   /** Cheikh : classe que rejoint l'élève invité. */
   classeId?: string;
-  /** Admin qui invite un Cheikh : classes en cours, au choix selon l'établissement. */
+  /** Admin : classes en cours, au choix selon l'établissement (pour inviter un Cheikh ou un élève). */
   classes?: { id: string; nom: string; etablissementId: string }[];
 }) {
   const [etat, action, enCours] = useActionState<EtatInvitation, FormData>(
@@ -31,6 +31,8 @@ export function FormulaireInvitation({
   const [etab, setEtab] = useState(seule);
   const [classe, setClasse] = useState("");
   const classesEtab = classes.filter((c) => c.etablissementId === etab);
+  // L'admin choisit la mosquée et la classe (Cheikh ou élève) ; un Cheikh invite dans sa classe, sans choix.
+  const choixMosquee = cible === "maitre" || (etablissements.length > 0 && !etablissementId);
 
   useEffect(() => {
     if (etat.envoye) {
@@ -69,8 +71,8 @@ export function FormulaireInvitation({
         </label>
         <input id="email" name="email" type="email" autoComplete="off" required />
       </div>
-      {cible === "maitre" && seule ? <input type="hidden" name="etablissementId" value={seule} /> : null}
-      {cible === "maitre" && !seule ? (
+      {choixMosquee && seule ? <input type="hidden" name="etablissementId" value={seule} /> : null}
+      {choixMosquee && !seule ? (
         <div className="champ">
           <label htmlFor="etablissementId">Établissement</label>
           <Selecteur
@@ -86,7 +88,7 @@ export function FormulaireInvitation({
           />
         </div>
       ) : null}
-      {cible === "maitre" && etab ? (
+      {choixMosquee && etab ? (
         <div className="champ">
           <label htmlFor="classe">Classe</label>
           {classesEtab.length ? (
