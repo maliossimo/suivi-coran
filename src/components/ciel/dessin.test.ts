@@ -126,6 +126,12 @@ describe("trajet de la lune", () => {
       expect(dansGauche || dansDroite).toBe(true);
     }
   });
+  it("reste entièrement visible : jamais coupée par le haut de la barre", () => {
+    for (let i = 0; i <= 200; i++) {
+      const { y } = coordonneesLune(position(i / 200));
+      expect(y - 14).toBeGreaterThanOrEqual(8); // rayon maximal 14 (avec la taille « basse »)
+    }
+  });
   it("monte à gauche puis redescend à droite", () => {
     expect(coordonneesLune(position(0.1)).x).toBeLessThanOrEqual(LUNE_GAUCHE.fin);
     expect(coordonneesLune(position(0.9)).x).toBeGreaterThanOrEqual(LUNE_DROITE.debut);
