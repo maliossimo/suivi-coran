@@ -171,7 +171,10 @@ export async function nommerResponsable(
 
 const schemaFiltres = z.object({
   personne: z.string().uuid().optional().catch(undefined),
-  action: z.enum(["INSERT", "UPDATE", "DELETE", "SUPPRESSION_UTILISATEUR"]).optional().catch(undefined),
+  action: z
+    .enum(["INSERT", "UPDATE", "DELETE", "SUPPRESSION_UTILISATEUR", "CHANGEMENT_ESPACE"])
+    .optional()
+    .catch(undefined),
   table: z
     .enum([
       "seances",

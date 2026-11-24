@@ -16,6 +16,7 @@ describe("phraseAudit", () => {
     expect(phraseAudit("INSERT", "passages")).toBe("a créé un passage");
     expect(phraseAudit("DELETE", "appels")).toBe("a supprimé un appel");
     expect(phraseAudit("SUPPRESSION_UTILISATEUR", "profils")).toBe("a supprimé un compte");
+    expect(phraseAudit("CHANGEMENT_ESPACE", "comptes_lies")).toBe("a changé d’espace");
   });
 
   it("garde le code d'un élément inconnu", () => {
