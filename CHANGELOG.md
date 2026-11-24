@@ -9,6 +9,12 @@ Toutes les évolutions notables de « Suivi cours Coran ». Numérotation `MAJEU
 Chaque mise en production (PR `main` → `prod`) porte une nouvelle version, décrite ici.
 Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z`).
 
+## [1.75.1] — 2026-11-24
+
+### Corrigé
+
+- « Changer d'espace » : le bouton avait une hauteur fixe et son texte débordait ; il s'adapte maintenant à son contenu.
+
 ## [1.75.0] — 2026-11-24
 
 ### Ajouté
