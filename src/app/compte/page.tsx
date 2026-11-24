@@ -82,7 +82,7 @@ export default async function PageCompte() {
         </section>
 
         {autresComptes.length > 0 ? (
-          <section className="carte-compte">
+          <section className="carte-compte-section">
             <h2>Changer d’espace</h2>
             <p className="carte-graphique-sous">
               Tes comptes liés : tu passes de l’un à l’autre sans mot de passe.
@@ -90,10 +90,12 @@ export default async function PageCompte() {
             {autresComptes.map((c) => (
               <form key={c.id} action={actionBasculer}>
                 <input type="hidden" name="cible" value={c.id} />
-                <button className="bouton bouton-secondaire" type="submit">
-                  Passer à l’espace{" "}
-                  {c.role === "admin" ? "administrateur" : c.role === "maitre" ? "Cheikh" : "élève"}
-                  {` · ${`${c.prenom} ${c.nom}`.trim()}`}
+                <button className="bouton bouton-secondaire bouton-espace" type="submit">
+                  <span>
+                    Passer à l’espace{" "}
+                    {c.role === "admin" ? "administrateur" : c.role === "maitre" ? "Cheikh" : "élève"}
+                  </span>
+                  <small>{`${c.prenom} ${c.nom}`.trim()}</small>
                 </button>
               </form>
             ))}

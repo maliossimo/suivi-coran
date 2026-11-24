@@ -109,6 +109,30 @@ export async function changerEcouteDemandee(eleveId: string, id: string, aEcoute
   if (error) throw new Error(`Modification impossible : ${error.message}`);
 }
 
+/** L'élève change la plage d'une partie qu'il a déclarée, tant que son Cheikh ne l'a pas écoutée. */
+export async function modifierPassageAcquis(
+  eleveId: string,
+  id: string,
+  p: { sourateDebut: number; versetDebut: number; sourateFin: number; versetFin: number },
+): Promise<boolean> {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("acquis")
+    .update({
+      sourate_debut: p.sourateDebut,
+      verset_debut: p.versetDebut,
+      sourate_fin: p.sourateFin,
+      verset_fin: p.versetFin,
+    })
+    .eq("id", id)
+    .eq("eleve_id", eleveId)
+    .is("ecoute_le", null)
+    .is("valide_le", null)
+    .select("id");
+  if (error) throw new Error(`Modification impossible : ${error.message}`);
+  return (data?.length ?? 0) > 0;
+}
+
 /** Le Cheikh marque une partie écoutée, validée, ou retire sa marque (vérifié par la base). */
 export async function marquerAcquis(id: string, etat: "aucun" | "ecoute" | "valide"): Promise<void> {
   const supabase = await creerClientServeur();

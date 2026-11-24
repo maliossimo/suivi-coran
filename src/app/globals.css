@@ -18261,3 +18261,24 @@ html[data-ouverture="court"] main > :nth-child(-n + 8) {
   overflow-wrap: normal;
   word-break: normal;
 }
+
+/* Changer d'espace : bouton pleine largeur, nom de la personne en dessous. */
+.bouton-espace {
+  width: 100%;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 52px;
+  padding-block: 8px;
+}
+.bouton-espace small {
+  font-size: var(--t-s, 0.8rem);
+  font-weight: 500;
+  opacity: 0.8;
+}
+.acquis-liste li.acquis-edition {
+  flex-direction: column;
+  align-items: stretch;
+}
+.acquis-liste li.acquis-edition .acquis-liste-actions {
+  justify-content: flex-end;
+}
