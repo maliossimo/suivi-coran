@@ -1,6 +1,6 @@
 {
   "name": "suivi-coran",
-  "version": "1.74.0",
+  "version": "1.75.0",
   "private": true,
   "description": "Suivi des cours de Coran : apprentissage et révision, espace élève, maître et admin.",
   "engines": {
@@ -32,8 +32,8 @@
     "@fontsource/amiri": "^5.2.0",
     "@sentry/nextjs": "^10.0.0",
     "@supabase/ssr": "^0.12.7",
-    "@supabase/supabase-js": "^2.49.4",
-    "lucide-react": ">=0.460.0",
+    "@supabase/supabase-js": "^2.119.2",
+    "lucide-react": ">=1.76.0",
     "next": "^16.4.6",
     "onnxruntime-web": "1.31.1",
     "qrcode": "^1.5.4",
@@ -51,8 +51,8 @@
     "eslint": "^9.25.1",
     "eslint-config-next": "^15.3.1",
     "eslint-config-prettier": "^10.1.2",
-    "prettier": "3.9.10",
-    "supabase": "^3.1.0",
+    "prettier": "3.10.1",
+    "supabase": "^3.2.0",
     "typescript": "^5.8.3",
     "vitest": "^3.1.2"
   }

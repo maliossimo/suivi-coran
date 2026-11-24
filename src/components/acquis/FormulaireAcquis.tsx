@@ -1,11 +1,12 @@
 "use client";
 
-import { Check, Headphones, Plus, RotateCcw, Trash2, X } from "lucide-react";
+import { Check, Headphones, Pencil, Plus, RotateCcw, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   actionChangerEcouteAcquis,
   actionDeclarerAcquis,
+  actionModifierAcquis,
   actionPasserAcquis,
   actionRetirerAcquis,
 } from "@/app/actions/acquis";
@@ -229,16 +230,23 @@ export function FormulaireAcquis({ donnees, arrivee }: { donnees: PageAcquis; ar
         </div>
       ) : null}
 
-      {donnees.acquis.length ? <ListeAcquis acquis={donnees.acquis} /> : null}
+      {donnees.acquis.length ? <ListeAcquis acquis={donnees.acquis} sourates={donnees.sourates} /> : null}
     </div>
   );
 }
 
 /** Ce que l'élève a déjà indiqué : retirer une partie, ou changer son choix d'écoute. */
-function ListeAcquis({ acquis }: { acquis: PageAcquis["acquis"] }) {
+function ListeAcquis({
+  acquis,
+  sourates,
+}: {
+  acquis: PageAcquis["acquis"];
+  sourates: PageAcquis["sourates"];
+}) {
   const router = useRouter();
   const [enCours, demarrer] = useTransition();
   const [erreur, setErreur] = useState<string | null>(null);
+  const [edition, setEdition] = useState<{ id: string; de: number; a: number } | null>(null);
   const agir = (f: () => Promise<{ ok: boolean; erreur?: string }>) =>
     demarrer(async () => {
       const r = await f();
@@ -254,33 +262,100 @@ function ListeAcquis({ acquis }: { acquis: PageAcquis["acquis"] }) {
         </p>
       ) : null}
       <ul>
-        {acquis.map((a) => (
-          <li key={a.id}>
-            <span className="acquis-liste-libelle">{a.libelle}</span>
-            <EtatAcquis a={a} />
-            <span className="acquis-liste-actions">
-              {!a.ecoute && !a.valide ? (
+        {acquis.map((a) => {
+          const debut = sourates.find((s) => s.numero === a.passage.sourateDebut);
+          const fin = sourates.find((s) => s.numero === a.passage.sourateFin);
+          // Seules les parties faites de sourates entières, pas encore écoutées, se modifient ici.
+          const modifiable =
+            !a.ecoute &&
+            !a.valide &&
+            a.passage.versetDebut === 1 &&
+            fin !== undefined &&
+            a.passage.versetFin === fin.nbVersets &&
+            debut !== undefined;
+          if (edition?.id === a.id)
+            return (
+              <li key={a.id} className="acquis-edition">
+                <div className="acquis-partie">
+                  {(["de", "a"] as const).map((champ) => (
+                    <label key={champ}>
+                      <span>{champ === "de" ? "De" : "À"}</span>
+                      <select
+                        value={edition[champ]}
+                        onChange={(e) => setEdition({ ...edition, [champ]: Number(e.target.value) })}
+                      >
+                        {sourates.map((s) => (
+                          <option key={s.numero} value={s.numero}>
+                            {s.numero}. {s.nomLatin}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ))}
+                </div>
+                <span className="acquis-liste-actions">
+                  <button type="button" className="bouton-lien-texte" onClick={() => setEdition(null)}>
+                    Annuler
+                  </button>
+                  <button
+                    type="button"
+                    className="bouton"
+                    disabled={enCours}
+                    onClick={() => {
+                      setErreur(null);
+                      demarrer(async () => {
+                        const r = await actionModifierAcquis(edition);
+                        if (!r.ok) return setErreur(r.erreur);
+                        setEdition(null);
+                        router.refresh();
+                      });
+                    }}
+                  >
+                    Enregistrer
+                  </button>
+                </span>
+              </li>
+            );
+          return (
+            <li key={a.id}>
+              <span className="acquis-liste-libelle">{a.libelle}</span>
+              <EtatAcquis a={a} />
+              <span className="acquis-liste-actions">
+                {!a.ecoute && !a.valide ? (
+                  <button
+                    type="button"
+                    className="bouton-lien-texte"
+                    disabled={enCours}
+                    onClick={() => agir(() => actionChangerEcouteAcquis(a.id, !a.aEcouter))}
+                  >
+                    {a.aEcouter ? "Ne plus faire écouter" : "Faire écouter au Cheikh"}
+                  </button>
+                ) : null}
+                {modifiable ? (
+                  <button
+                    type="button"
+                    className="bouton-lien-texte"
+                    disabled={enCours}
+                    onClick={() =>
+                      setEdition({ id: a.id, de: a.passage.sourateDebut, a: a.passage.sourateFin })
+                    }
+                  >
+                    <Pencil size={14} aria-hidden="true" /> Modifier
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  className="bouton-lien-texte"
+                  className="acquis-retirer"
+                  aria-label={`Retirer ${a.libelle}`}
                   disabled={enCours}
-                  onClick={() => agir(() => actionChangerEcouteAcquis(a.id, !a.aEcouter))}
+                  onClick={() => agir(() => actionRetirerAcquis(a.id))}
                 >
-                  {a.aEcouter ? "Ne plus faire écouter" : "Faire écouter au Cheikh"}
+                  <Trash2 size={17} aria-hidden="true" />
                 </button>
-              ) : null}
-              <button
-                type="button"
-                className="acquis-retirer"
-                aria-label={`Retirer ${a.libelle}`}
-                disabled={enCours}
-                onClick={() => agir(() => actionRetirerAcquis(a.id))}
-              >
-                <Trash2 size={17} aria-hidden="true" />
-              </button>
-            </span>
-          </li>
-        ))}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

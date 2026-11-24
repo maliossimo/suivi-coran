@@ -42,11 +42,7 @@ describe("tajwid", () => {
 
   it("marque l'izhâr : nûn sakin ou tanwîn devant une lettre de la gorge", () => {
     // « أَنۡعَمۡتَ » (Al-Fatiha 7) : nûn sakin devant ع.
-    expect(marquerIzhar(["لَّذِينَ أَنۡعَمۡتَ عَلَيۡهِمۡ"])).toEqual([
-      "لَّذِينَ أَ",
-      ["z", "نۡ"],
-      "عَمۡتَ عَلَيۡهِمۡ",
-    ]);
+    expect(marquerIzhar(["لَّذِينَ أَنۡعَمۡتَ عَلَيۡهِمۡ"])).toEqual(["لَّذِينَ أَ", ["z", "نۡ"], "عَمۡتَ عَلَيۡهِمۡ"]);
     // Tanwîn porté par un alif, devant le hamza du mot suivant.
     expect(marquerIzhar(["عَلِيمًا حَكِيمًا"])).toEqual(["عَلِي", ["z", "مً"], "ا حَكِيمًا"]);
     // Nûn sakin devant une autre lettre : pas d'izhâr ; fin du verset : rien.
