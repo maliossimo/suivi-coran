@@ -9,6 +9,7 @@ import {
   changerEcouteDemandee,
   marquerAcquis,
   marquerAcquisRepondu,
+  modifierPassageAcquis,
   retirerAcquis,
 } from "@/repositories/acquis";
 import { pagesMushaf } from "@/repositories/coran";
@@ -20,7 +21,7 @@ export type ResultatAcquis = { ok: true } | { ok: false; erreur: string };
 
 export interface PageAcquis {
   lecture: Lecture;
-  sourates: { numero: number; nomLatin: string; nomAr: string }[];
+  sourates: { numero: number; nomLatin: string; nomAr: string; nbVersets: number }[];
   /** Les juz déjà entièrement déclarés (cochés d'avance). */
   juzConnus: number[];
   acquis: (Acquis & { libelle: string })[];
@@ -37,7 +38,12 @@ export async function chargerPageAcquis(eleveId: string): Promise<PageAcquis> {
   const ref = creerReferentiel(sourates);
   return {
     lecture,
-    sourates: sourates.map((s) => ({ numero: s.numero, nomLatin: s.nomLatin, nomAr: s.nomAr })),
+    sourates: sourates.map((s) => ({
+      numero: s.numero,
+      nomLatin: s.nomLatin,
+      nomAr: s.nomAr,
+      nbVersets: s.nbVersets,
+    })),
     juzConnus: juzCouverts(
       ref,
       decoupage,
@@ -102,6 +108,30 @@ export async function retirerUnAcquis(profil: Profil, idBrut: unknown): Promise<
     return { ok: true };
   } catch {
     return { ok: false, erreur: "La suppression n’a pas pu se faire. Réessaie." };
+  }
+}
+
+const schemaModification = z.object({
+  id: uuid,
+  de: z.number().int().min(1).max(114),
+  a: z.number().int().min(1).max(114),
+});
+
+/** L'élève change « de … à … » d'une partie déclarée (sourates entières), si elle n'est pas encore écoutée. */
+export async function modifierUnAcquis(profil: Profil, brut: unknown): Promise<ResultatAcquis> {
+  const d = schemaModification.safeParse(brut);
+  if (!d.success || profil.role !== "eleve" || !profil.actif)
+    return { ok: false, erreur: "Partie introuvable." };
+  const sourates = await listerSourates(await lectureEleve(profil.id));
+  const passage = passageDeSourates(creerReferentiel(sourates), d.data.de, d.data.a);
+  if (!passage) return { ok: false, erreur: "Choix invalide : recharge la page." };
+  try {
+    const fait = await modifierPassageAcquis(profil.id, d.data.id, passage);
+    return fait
+      ? { ok: true }
+      : { ok: false, erreur: "Cette partie a déjà été écoutée par ton Cheikh : elle ne peut plus changer." };
+  } catch {
+    return { ok: false, erreur: "Le changement n’a pas pu se faire. Réessaie." };
   }
 }
 

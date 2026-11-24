@@ -19,7 +19,7 @@ export default async function PageChoisirEspace() {
       <EnteteEspace titre="Choisir l’espace" nom={nom} role={profil.role} />
       <main className="espace espace-etroit">
         <SousTitreEntete texte="Où veux-tu entrer ?" />
-        <section className="carte-compte">
+        <section className="carte-compte-section">
           <h1>Continuer comme</h1>
           <p className="carte-graphique-sous">
             {nom || "Mon compte"} · {LIBELLE_ROLE_LONG[profil.role]}
@@ -30,14 +30,16 @@ export default async function PageChoisirEspace() {
           </Link>
         </section>
         {autres.map((c) => (
-          <section key={c.id} className="carte-compte">
+          <section key={c.id} className="carte-compte-section">
             <h2>{`${c.prenom} ${c.nom}`.trim() || "Autre compte"}</h2>
             <p className="carte-graphique-sous">{LIBELLE_ROLE_LONG[c.role]}</p>
             <form action={actionBasculer}>
               <input type="hidden" name="cible" value={c.id} />
-              <button className="bouton bouton-secondaire" type="submit">
-                Passer à l’espace{" "}
-                {c.role === "admin" ? "administrateur" : c.role === "maitre" ? "Cheikh" : "élève"}
+              <button className="bouton bouton-secondaire bouton-espace" type="submit">
+                <span>
+                  Passer à l’espace{" "}
+                  {c.role === "admin" ? "administrateur" : c.role === "maitre" ? "Cheikh" : "élève"}
+                </span>
               </button>
             </form>
           </section>

@@ -7,6 +7,7 @@ import {
   changerEcoute,
   declarerAcquis,
   marquerUnAcquis,
+  modifierUnAcquis,
   repondreSansAcquis,
   retirerUnAcquis,
   type ResultatAcquis,
@@ -42,6 +43,13 @@ export async function actionPasserAcquis(): Promise<void> {
 export async function actionRetirerAcquis(id: unknown): Promise<ResultatAcquis> {
   const profil = await acteur();
   const r = await retirerUnAcquis(profil, id);
+  if (r.ok) revalider();
+  return r;
+}
+
+export async function actionModifierAcquis(donnees: unknown): Promise<ResultatAcquis> {
+  const profil = await acteur();
+  const r = await modifierUnAcquis(profil, donnees);
   if (r.ok) revalider();
   return r;
 }
