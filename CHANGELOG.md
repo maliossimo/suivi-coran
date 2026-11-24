@@ -12,9 +12,11 @@ Elle est publiée automatiquement comme « Release » GitHub (étiquette `vX.Y.Z
 ## [1.75.0] — 2026-11-24
 
 ### Ajouté
+
 - « Ce que je connais déjà » : bouton « Modifier » sur chaque partie déclarée, pour changer « de … à … » (tant que le Cheikh ne l'a pas écoutée).
 
 ### Corrigé
+
 - « Changer d'espace » (Mon compte et choix de l'espace) : cartes remises en colonne, bouton pleine largeur, nom de la personne sur une seconde ligne.
 
 ## [1.74.0] — 2026-11-22
