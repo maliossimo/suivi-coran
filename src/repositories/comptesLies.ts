@@ -119,6 +119,23 @@ export async function idParEmail(email: string): Promise<string | null> {
 }
 
 /**
+ * Note dans le journal d'audit qu'une personne passe d'un compte lié à l'autre. Écrit avec la clé
+ * « service role » (personne ne peut écrire dans le journal) ; renvoie faux si la ligne n'a pas pu être notée.
+ */
+export async function noterChangementEspace(origineId: string, cibleId: string): Promise<boolean> {
+  const admin = clientAdmin();
+  if (!admin) return false;
+  const { error } = await admin.from("journal_audit").insert({
+    acteur_id: origineId,
+    action: "CHANGEMENT_ESPACE",
+    table_nom: "comptes_lies",
+    ligne_id: cibleId,
+    eleve_id: cibleId,
+  });
+  return !error;
+}
+
+/**
  * Ouvre la session du compte `cibleId` à la place de la session courante, sans mot de passe : un lien
  * à usage unique est fabriqué côté serveur puis utilisé aussitôt (rien n'est envoyé par e-mail).
  * L'appelant DOIT avoir vérifié que le lien entre les deux comptes existe.

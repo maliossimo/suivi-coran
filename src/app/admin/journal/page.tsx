@@ -19,6 +19,7 @@ const ACTIONS: Record<string, string> = {
   UPDATE: "Modifications",
   DELETE: "Suppressions",
   SUPPRESSION_UTILISATEUR: "Comptes supprimés",
+  CHANGEMENT_ESPACE: "Changements d’espace",
 };
 
 const MAJUSCULE = (texte: string) => texte.charAt(0).toUpperCase() + texte.slice(1);

@@ -27,6 +27,7 @@ export const ELEMENTS: Record<string, string> = {
 /** « a modifié une séance », « a supprimé un compte »… */
 export function phraseAudit(action: string, table: string): string {
   if (action === "SUPPRESSION_UTILISATEUR") return "a supprimé un compte";
+  if (action === "CHANGEMENT_ESPACE") return "a changé d’espace";
   const verbe = VERBES[action] ?? action.toLowerCase();
   return `${verbe} ${ELEMENTS[table] ?? table}`;
 }

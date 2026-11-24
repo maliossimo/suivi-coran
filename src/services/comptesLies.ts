@@ -6,6 +6,7 @@ import {
   idParEmail,
   lier,
   comptesLiesDe,
+  noterChangementEspace,
   ouvrirSessionDe,
   tousLesLiens,
   type CompteLie,
@@ -31,6 +32,9 @@ export async function basculerVers(profil: Profil, cibleBrut: unknown): Promise<
   if (!cible.success) return { ok: false, erreur: "Compte introuvable." };
   const permis = (await mesComptesLies(profil)).some((c) => c.id === cible.data);
   if (!permis) return { ok: false, erreur: "Ce compte n’est pas lié au tien." };
+  // On note le passage d'abord : sans trace dans le journal, on ne change pas d'espace.
+  if (!(await noterChangementEspace(profil.id, cible.data)))
+    return { ok: false, erreur: "Impossible de changer d’espace pour l’instant." };
   return (await ouvrirSessionDe(cible.data))
     ? { ok: true }
     : { ok: false, erreur: "Impossible de changer d’espace pour l’instant." };
