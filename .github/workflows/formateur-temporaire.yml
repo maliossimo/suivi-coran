@@ -1,0 +1,19 @@
+name: Formateur temporaire
+on:
+  push:
+    branches: [chore/formateur-temporaire]
+permissions:
+  contents: read
+jobs:
+  formater:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx prettier --version
+      - run: npx prettier --write src/domain/coran.test.ts
+      - run: git diff --stat && git diff
